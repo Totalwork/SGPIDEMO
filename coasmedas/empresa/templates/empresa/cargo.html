@@ -1,0 +1,160 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Cargo{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li>
+  <li><a href="{% url 'empresa.empresa' %}">Empresa</a></li>
+  <li class="active">Cargo</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+      
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <div class="panel-heading">
+              <span>      
+                <a href="{% url 'empresa.empresa' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>              
+                <span>Listado de Cargo
+                <span data-bind="text:'- N° de Registos: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> 
+              </th>    
+              <th >Nombre</th>
+              <th >Firma</th>
+              <th >Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td>                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </td> 
+              <td data-bind="text: item.nombre"></td>
+              <td>
+              <!--ko if: item.firma_cartas==true -->
+                  <i class="fa fa-check" aria-hidden="true" style="color:#198C39"></i>
+               <!--/ko--> 
+
+               <!--ko if: item.firma_cartas==false -->
+                <i class="fa fa-times" aria-hidden="true" style="color:#C23939"></i>
+               <!--/ko--> 
+              </td>
+              <td>
+                 <div class="btn-group text-right">
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu">
+                        {% if 'parametrizacion.change_cargo' in perms %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                       </li>
+                       {% endif %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+                        </li>
+                    </ul>
+                  </div>
+              </td>      
+            </tr>
+          </tbody>
+        </table>
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+        
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Nombre(*)</label>
+          <input type="text" class="form-control" data-bind='value:cargoVO.nombre,enable:habilitar_campos''>          
+        </div>
+        <div class="form-group">          
+          <label>Firma</label><br>
+          <input type="checkbox" data-bind='checked:cargoVO.firma_cartas,enable:habilitar_campos''>Firma cartas
+        </div>
+        </form>
+       </div>
+
+        <!--ko if: habilitar_campos()==true -->
+        <div class="modal-footer">
+           <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+         <!--/ko--> 
+
+       
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/empresa/cargo.js" %}'></script>
+{% endblock imports %}

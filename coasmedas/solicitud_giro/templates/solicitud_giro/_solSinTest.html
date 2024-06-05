@@ -1,0 +1,453 @@
+<div class="row" >
+  <div class="col-lg-12"> 
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <span class="panel-title">
+          <span>      
+            <a href="{% url 'solicitud.inicio' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>           
+          Listado Sol. Giros sin TEST/OP - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+        </span>
+        <div class="pull-right">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar referencia" data-toggle="modal" data-bind="click:abrir_filtro" style="cursor:pointer;">
+                <i class="fa fa-filter fa-2x"></i>
+                </a>
+
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Reporte TEST-OP" data-toggle="modal" data-bind="click:generar_reporte_giro" style="cursor:pointer;">
+                <i class="fa fa-print fa-2x"></i>
+                </a>                 
+        </div>
+
+      </div>
+      <div class="panel-body">
+      <div data-bind="html: mensaje"></div> 
+        <div data-bind="visible:(listado()!=null && listado().length > 0)"> 
+        <div class="table-responsive" >
+
+            <table class="table ">
+              <thead>
+                  <tr>
+                    <th width="5%" >Fecha cont</th>
+                    <th width="12%" >Documento Sap</th>
+                    <th width="15%" >Macrocontrato</th>
+                    <th width="18%" >Nombre Contrato</th>
+                    <th width="10%" >No Contrato</th>
+                    <th width="15%" >Contratista</th>
+                    <th width="10%" >Giro</th>
+                    <th width="10%" >Valor Girar</th>
+                    <th width="5%">Opciones</th>
+                  </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado, as:'item'}">
+                  <tr>
+
+                    <td data-bind="text: item.fecha_conta"></td>
+                    <td data-bind="text: item.referencia"></td>
+                    <td data-bind="cutWord:{num:16,text:item.nombre.contrato.nombre, verMax:'...', verMin:'...'}"></td>
+                    <td data-bind="cutWord:{num:16,text:item.contrato.nombre, verMax:'...', verMin:'...'}"></td>
+                    <td data-bind="text: item.contrato.numero"></td>
+                    <td data-bind="cutWord:{num:16,text:item.contrato.contratista.nombre, verMax:'...', verMin:'...'}"></td>
+                    <td data-bind="text: item.nombre.nombre"></td>
+                    <td data-bind="text: formatMoney(item.sol_giro_suma_detalle)"></td>
+                    <td>
+                        <div class="btn-group text-left">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+
+                          <ul class="dropdown-menu" role="menu" style="left:-200px;top:20px;">
+
+                            <li>
+                              <a href="#" data-bind="click:function(){$root.abrir_detalle(item);}">
+                                Actualizar TEST / OP
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" data-bind="click:function(){$root.reversar(item);}">
+                                Reversar estado
+                              </a>
+                            </li>                            
+
+                          </ul>
+                        </div>
+                    </td>
+                  </tr>                       
+              </tbody>
+            </table>
+        </div>
+
+          <div id="paginacion" >
+            <div data-bind="pagination: {
+                        currentPage: paginacion.pagina_actual,
+                        totalCount: paginacion.total,
+                        pageSize:paginacion.cantidad_por_paginas,
+                        maxPages: paginacion.maxPaginas,
+                        directions: paginacion.direcciones,
+                        boundary: paginacion.limite,
+                        text: paginacion.text }">
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div><!--cierra row-->
+
+    <!--Modal filtrar tabla modificar y consultrar-->
+
+    <div id="modal_referencia" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+          
+          <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                         <div class="col-md-9 radio-custom radio-primary mb5">
+                                  <input type="radio" id="sinreferencia" value="" data-bind="checked:referencia" name="referencia">
+                                  <label for="sinreferencia">Con referencia</label>
+                                  <input type="radio" id="conreferencia" value="1" data-bind="checked:referencia" name="referencia">
+                                  <label for="conreferencia">Sin referencia</label>
+
+                         </div>
+
+                         <div class="option-group field admin-form">
+                                  <label class="option option-primary"  style="">
+                                    <input type="checkbox" data-bind="checked:test_activo">
+                                    <span class="checkbox"></span>TEST/OP
+                                  </label>
+                              </div>
+                        </div> <br>                      
+                        <div class="form-group">
+                          <label>Anticipos Pagados</label>
+                            <select class="form-control" data-bind="value:banco">
+                              <!--ko foreach:{ data:listado_tipo_pago_recurso, as:'item'} -->
+                              <option data-bind="value:item.id,text:item.nombre"></option>
+                              <!--/ko-->
+                            </select>
+                        </div>                        
+                        <div class="form-group">
+                          <label>Macrocontrato</label>
+                            <select class="form-control" data-bind="value:macrocontrato_select" >
+                              <option value="">[Seleccione...]</option>
+                              {% for item in mcontrato%}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Contratista</label>
+                            <select class="form-control" data-bind="value:contratista">
+                              <option value="">[Seleccione...]</option>
+                              <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                              <option data-bind="value:item.id,text:item.nombre"></option>
+                              <!--/ko-->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Proyecto</label>
+                            <input type="text" placeholder="Buscar referencia por sap, proyecto, contrato" class="form-control" data-bind="value:contratoobra">
+                        </div>                                        
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+                      <i class="fa fa-search"></i> Filtrar
+                    </button>
+                </div>
+
+              </div>
+            </div>
+    </div><!--cierra modal_filtro-->
+
+
+    <!--Modal filtrar tabla modificar y consultrar-->
+
+    <div id="modal_detalle" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+          
+          <div class="modal-dialog modal-lg" style="width:95%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+                  </div>
+                  <div class="modal-body">
+                      <div class="row">
+                      <div class="col-lg-12">
+                        <a data-bind="click:function(){exportaranticipo();}">
+                          <i class="fa fa-print fa-3x"></i>
+                          <label style="cursor:pointer;color:black;"> Generar documento</label>
+                        </a> 
+                      </div>
+                        <div class="col-lg-6">
+                          <div class="panel mobile-controls" id="p17">
+                            <div class="panel-heading ui-sortable-handle"><span class="panel-title">Información general</span></div>
+                              <div class="panel-body">
+                      
+                               <strong>Contratante : </strong><span data-bind="text:contratante_encabezado"></span><br> 
+                               <strong>Contratista : </strong><span data-bind="text:contratista_encabezado"></span><br>
+                               <strong>Número del contrato : </strong><span data-bind="text:numero_contrato_encabezado"></span><br> 
+                               <strong>Nombre del proyecto : </strong><span data-bind="text:nombre_proyecto_encabezado"></span><br> 
+                               <strong>Nombre del anticipo : </strong><span data-bind="text:nombre_anticipo_encabezado"></span><br>
+                               <i class="fa fa-bell 2x" style="color:#999"></i> Solicitado;
+                               <i class="fa fa-bell 2x" style="color:#F90"></i> Autorizado;
+                               <i class="fa fa-bell 2x" style="color:#0F0"></i> Pagado;
+                               <i class="fa fa-bell 2x" style="color:#F00"></i> Reversado;
+                              </div>
+                          </div>
+                        </div>
+                      
+
+
+                        <div class="col-lg-5">
+                          <div class="panel mobile-controls" id="p17">
+                            <div class="panel-heading ui-sortable-handle"><span class="panel-title">Actualizar TEST/OP <!-- Liquidacion: <span data-bind="text: porcentajeliquidacion()"></span>% -->
+                            </span>
+                            </div>
+                              <div class="panel-body">
+                                <div class="col-lg-6">
+                                  <div class="form-group">
+                                    <label>(*)TEST/OP</label>
+                                    <input type="text"  class="form-control" data-bind="value:testop">
+                                  </div>
+                                </div>
+                                <div class="col-lg-6">
+                                  <div class="form-group">
+                                    <label>(*)Fecha estimada de pago</label>
+                                    <input type="text"  class="form-control" data-bind="datePicker:fechaestimada,value:fechaestimada">
+                                  </div>
+                                </div>
+                                <div class="col-lg-6">
+                                  <div class="form-group">
+                                    <button type="button" class="btn btn-primary" data-bind="click:function(){EstablecerTestOP();}">
+                                      Establecer
+                                    </button>
+                                  </div>
+                                </div>
+
+                              </div>
+                          </div>
+                        </div>
+                      </div> 
+                      
+                      
+                      
+                      <div data-bind="html: mensajeDetalleAnticipos"></div> 
+                      <div class="row" data-bind="visible:(listado2()!=null && listado2().length > 0)">
+                      
+                        <div class="panel" id="spy4">
+                          <div class="panel-heading">
+                            <span class="panel-title"></span><span>Detalle del giro </span>
+                      
+                          </div>
+                          <div class="panel-body pn">
+                            <div class="table-responsive">
+                      
+                                <table class="table mbn">
+                                  <thead>
+                                      <tr>
+                                        <th>
+                                            <div class="option-group field admin-form">
+                                              <label class="option option-primary"  style="">
+                                                <input type="checkbox" data-bind="checked:checkall">
+                                                <span class="checkbox"></span>
+                                              </label>
+                                            </div>
+                                        </th>
+                                        <th>Estado</th>
+                                        <th>Beneficiario / Proveedor</th>
+                                        <th>Nit</th>
+                                        <th>Entidad bancaria</th>
+                                        <th>No.cuenta</th>
+                                        <th>Tipo cuenta</th>
+                                        <th>Valor neto a girar</th>
+                                        <th>Autorización</th>
+                                        <th>TEST/OP</th>
+                                        <th>Fecha estimada de pago</th>
+
+                                      </tr>
+                                  </thead>
+                                  <tbody data-bind="foreach:{data:listado2, as:'item'}">
+                                      <!--ko if: (item.contratista.id!=39 && item.contratista.id!=115 ) -->
+                                      <tr>
+                                        <td>
+                                            <!--ko if: (item.estado.id==1 | item.estado.id==2 ) -->
+                                            <div class="option-group field admin-form">
+                                              <label class="option option-primary"  style="">
+                                                <input type="checkbox" data-bind="checked:eliminado">
+                                                <span class="checkbox"></span>
+                                              </label>
+                                            </div>
+                                            <!--/ko -->
+                                        </td>
+
+                                        <td>
+
+                                        <!--ko if: item.estado.id==1 -->
+                                        <i class="fa fa-bell 2x" style="color: #999"></i>
+                                        <!--/ko -->
+
+                                        <!--ko if: item.estado.id==2 -->
+                                        <i class="fa fa-bell 2x" style="color: #F90"></i>
+                                        <!--/ko -->
+
+                                        <!--ko if: item.estado.id==3 -->
+                                        <i class="fa fa-bell 2x" style="color: #0F0"></i>
+                                        <!--/ko -->
+
+                                        <!--ko if: item.estado.id==4 -->
+
+                                        <i class="fa fa-bell 2x" style="color:#F00"></i>
+                                        <!--/ko -->
+                                        </td> 
+                      
+                                        <td data-bind="text: item.contratista.nombre"></td>
+                                        <td data-bind="text: item.contratista.nit"></td>
+                                        <td data-bind="text: item.banco.nombre"></td>
+                                        <td data-bind="text: item.no_cuenta"></td>
+                                        <td data-bind="text: item.tipo_cuenta.nombre"></td>
+                                        <td data-bind="text: formatMoney(item.valor_girar)"></td>
+                                        <td>
+                      
+                      
+                                        {% if user.usuario.empresa.consecutivoHabilitado != 0 %}
+                      
+                                          <!--ko if: item.carta_autorizacion==null -->
+                                            <font color="#FF0000"> Por Autorizar</font>
+                                          <!--/ko -->
+                      
+                                          <!--ko if: item.carta_autorizacion!=null -->
+                                          <font color="#FF0000">
+                                            
+                                            <a href="#" data-bind="click:$root.abrir_ver_autorizacion">
+                      
+                                              <span data-bind="text:item.carta_autorizacion.numero"></span>(Autorizado)
+                                            </a>
+                      
+                                          </font>
+                                          <!--/ko -->
+                      
+                                        {% endif %}
+                      
+                                        {% if user.usuario.empresa.consecutivoHabilitado == 0 %}
+                      
+                                          <!--ko if: item.soporte_consecutivo_desabilitado ==null -->
+                                            <font color="#FF0000"> Por Autorizar</font>
+                                          <!--/ko -->
+                      
+                                          <!--ko if: item.soporte_consecutivo_desabilitado != null -->
+                      
+                                            <a data-bind="attr: {href: item.soporte_consecutivo_desabilitado}" 
+                                                    target="_blank" style="cursor:pointer;">
+                                                      (Autorizado)
+                                            </a>
+                      
+                                          <!--/ko -->
+                      
+                                        {% endif %}
+                      
+                                        </td>
+                                        <td data-bind="text: item.test_op"></td>
+                                        <td data-bind="text: item.fecha_pago_esperada"></td>
+                                      </tr>
+                                      <!--/ko -->     
+                                  </tbody>
+                                </table>
+                            </div>
+                      
+                            <!-- <div id="paginacion" >
+                              <div data-bind="pagination: {
+                                          currentPage: paginacion.pagina_actual,
+                                          totalCount: paginacion.total,
+                                          pageSize:paginacion.cantidad_por_paginas,
+                                          maxPages: paginacion.maxPaginas,
+                                          directions: paginacion.direcciones,
+                                          boundary: paginacion.limite,
+                                          text: paginacion.text }">
+                      
+                              </div>
+                            </div> -->
+                      
+                          </div>
+                        </div>
+                        <h2>Total Anticipo : <span data-bind="text:formatMoney(sumar_valores(listado2(),'valor_girar'))"></span></h2>
+                      </div><!--cierra row-->
+                  </div>
+              </div>
+            </div>
+    </div><!--cierra modal_filtro-->    
+
+
+    <!--Modal filtrar tabla modificar y consultrar-->
+
+    <div id="generar_informe" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+          
+          <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-12">                     
+                        <div class="form-group">
+                          <label>Macrocontrato</label>
+                            <select class="form-control" data-bind="value:macrocontrato_select" >
+                              <option value="">[Seleccione...]</option>
+                              {% for item in mcontrato%}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Contratista</label>
+                            <select class="form-control" data-bind="value:contratista">
+                              <option value="">[Seleccione...]</option>
+                              <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                              <option data-bind="value:item.id,text:item.nombre"></option>
+                              <!--/ko-->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Fecha estimada de pago desde:</label>
+                            <input type="text"  class="form-control" data-bind="datePicker:fechaestimada_desde, value:fechaestimada_desde" placeholder="yyyy-mm-dd" >
+                        </div>
+
+                        <div class="form-group">
+                          <label>Fecha estimada de pago hasta:</label>
+                            <input type="text"  class="form-control" data-bind="datePicker:fechaestimada_hasta, value:fechaestimada_hasta" placeholder="yyyy-mm-dd" >
+                        </div>
+<!--                         <div class="form-group">
+                          <label>fecha de generación desde:</label>
+                            <input type="text" placeholder="Buscar referencia por sap, proyecto, contrato" class="form-control" data-bind="value:fechageneracion_desde">
+                        </div>  -->
+
+   <!--                      <div class="form-group">
+                          <label>fecha de generacion hasta:</label>
+                            <input type="text" placeholder="Buscar referencia por sap, proyecto, contrato" class="form-control" data-bind="value:fechageneracion_hasta">
+                        </div>   -->                                                
+
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bind="click:function(){generar_reporte_testop();}">
+                       Generar
+                    </button>
+                </div>
+
+              </div>
+            </div>
+    </div><!--cierra modal_filtro-->       

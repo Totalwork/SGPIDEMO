@@ -1,0 +1,164 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Test/Op{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'seguimiento_factura.index' %}">Seguimiento factura</a></li>
+  <li class="active">TEST/OP</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+      <div class="panel" id="spy4">
+        <div class="panel-heading">
+          <span class="panel-title"></span>
+          <span>      
+            <a href="{% url 'seguimiento_factura.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>            
+          <span>Listado de test / op</span>
+
+          <span class="panel-controls">
+            <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Consultar test / op" style="cursor:pointer;" data-bind="attr:{href:'../consulta-pago-factura/'}">
+            <i class="fa fa-book fa-2x"></i>
+            </a>
+          </span>
+
+        </div>
+        
+        <div class="panel-body">
+          <div data-bind="html: mensaje"></div>
+
+          <div class="table-responsive" data-bind="foreach:{data:listado_contrato_factura, as:'item'}">
+
+            <div class="form-group">
+              <label>Convenio ECA - MME </label>
+               <!--ko if: item.contrato_nombre!='' -->
+                <span data-bind="text:item.contrato_nombre"></span>
+              <!--/ko -->
+              ( <label>Cuenta origen de recursos: </label>
+                <!--ko if: item.cuenta!='' -->
+                  <span data-bind="text:item.cuenta.nombre"></span> NO.
+                  <span data-bind="text:item.cuenta.numero"></span> de
+                  <span data-bind="text:item.cuenta.fiduciaria"></span>
+                <!--/ko -->
+
+                <!--ko if: item.cuenta=='' -->
+                  No se encontro cuenta asociada, no es posible registrar el codigo TEST-OP
+                <!--/ko -->
+              )
+            </div>
+
+            <div class="form-group">
+              <label>Proveedor:</label>
+              <span data-bind="text:item.nombre_contratista"></span>
+            </div>
+
+
+            <table class="table table-bordered mbn">
+              <thead>
+                  <tr>
+                    <th>No. factura</th>
+                    <th>Doc. SAP</th>
+                    <th>Fecha reporte</th>
+                    <th>Valor a pagar</th> 
+                    <th></th> 
+                  </tr>
+              </thead>
+            
+              <tbody data-bind="foreach:{data:item.listado_factura, as:'fac'}">
+
+                <tr>
+                  <td data-bind="text: fac.numero"></td>
+                  <td data-bind="text: fac.referencia"></td>
+                  <td data-bind="text: fac.fecha_reporte"></td>
+                  <td data-bind="text: formatMoney(fac.valor_factura)"></td>
+                  <td>
+                      <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Deshabilitar factura" data-bind="click: $root.desabilitar_factura_vencida" data-toggle="modal" style="cursor:pointer;">
+                        <i class="fa fa-thumbs-down fa-2x"></i>
+                      </a>
+                  </td>
+                </tr>
+                     
+              </tbody>          
+            </table><br><br>
+
+            <div class="col-sm-4">
+              <label>Total OP/TEST: </label> <span data-bind="text:formatMoney(item.valor_total.suma_ingreso)"></span>
+            </div>  
+
+
+            <!--ko if: item.cuenta!='' -->
+              
+              <div class="col-sm-4">
+              <div class="form-group input-group">
+           
+                <input type="text" class="form-control" placeholder="Digite el codigo de test/op" data-bind="attr:{id: 'codigo-'+item.id_contratista+'-'+item.contrato_id }" required/>
+                      
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="registrar" name="registrar" data-bind="click:function(){$root.guardar_gestion(item,1);}">
+                      <i class="fa fa-floppy-o"></i>
+                    </button>
+                  </span>
+    
+              </div><!--form-group input-group-->
+            </div>
+
+            <!--/ko -->
+
+            
+
+
+            <div class="col-sm-4">
+            </div><br><hr><br>   
+
+
+          </div><!--cierra foreach de listado_contrato_factura-->
+        
+        </div>
+
+      </div><!--cierra panel-->
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/test_op.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      //movimiento.movimiento_cuentaVO.cuenta_id({{id_cuenta}});
+      test_op.consultar(1);//iniciamos la primera funcion
+
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

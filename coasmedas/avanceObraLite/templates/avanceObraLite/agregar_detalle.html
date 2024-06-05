@@ -1,0 +1,218 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Agregar Detalle de Cambio{% endblock title%}
+{% block mapa %}
+ <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.cambios' %}">Cambio</a></li>
+  <li><a href="{% url 'avanceObraLite.index_cambio' presupuesto_id %}">Listado de Cambio</a></li>
+  <li><a href="{% url 'avanceObraLite.index_cambio' cambio_id %}">Detalle de Cambio</a></li>
+  <li class="active">Agregar Detalle de Cambio</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}  
+{% endblock opciones_listado %}
+
+ {% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+<div class="row">
+  <div class="col-lg-12">
+
+    <div class="panel">
+
+      <div class="panel-heading">
+        <h4>Detalle de Cambio</h4>                
+      </div>
+      <div class="panel-body">
+
+
+          <div class="panel-body pn">
+            <br>
+            <div class="col-lg-6">
+                <div class="input-group">
+                          <input class="form-control" id="txtBuscar" name="txtBuscar" type="text" placeholder="Buscar descripcion UUCC" data-bind="event:{keypress:consulta_enter}">
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:function(){consultar(1)}"><i class="fa fa-search"></i></span>
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:limpiar_seleccion">Limpiar Seleccion</span>
+                         <!--  <span class="input-group-addon" style="cursor:pointer;" data-bind="click:abrir_modal"><i class="fa fa-filter"></i></span>
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:limpiar">Limpiar Filtro</span> -->
+                  </div>
+              </div>
+            
+            <br>
+            <div data-bind="visible:(listado()!=null && listado().length > 0)">            
+
+            <div class="table-responsive">
+                  <table class="table">
+                <thead>
+              <tr> 
+                <th></th>
+                <th>Actividad</th>
+                <th>Descripcion UUCC</th>
+              </tr>
+            </thead>
+             <tbody data-bind="foreach:{data:listado, as:'item'}">
+                <tr>
+                 <td> <input type="radio" name="optradio" data-bind="checked:$parent.bdi_actividad,value:item.id"></td>
+                <td data-bind="text: item.actividad.nombre"></td>
+                 <td data-bind="text: item.descripcionUC"></td>           
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          
+            
+          
+             <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion.pagina_actual,
+                                     totalCount: paginacion.total,
+                                     pageSize:paginacion.cantidad_por_paginas,
+                                     maxPages: paginacion.maxPaginas,
+                                     directions: paginacion.direcciones,
+                                     boundary: paginacion.limite,
+                                     text: paginacion.text }">
+
+                        </div>
+                    </div>
+                    </div>
+
+
+            </div>
+            <br>
+
+
+        <div data-bind="visible:validar">      
+            <div class="row">
+                <div class="col-lg-4">
+                    
+                      <div class="form-group">
+                        <label>Codigo UUCC</label>
+                        <input type="text" class="form-control" data-bind="value:detalleVO.codigoUC">           
+                      </div>
+              </div>
+
+              <div class="col-lg-4">
+                    
+                      <div class="form-group">
+                        <label>Descripcion UUCC</label>
+                        <input type="text" class="form-control" data-bind="value:detalleVO.descripcionUC">           
+                      </div>
+              </div>
+              
+            </div>
+
+          <div class="row">
+                <div class="col-lg-4">
+                    
+                      <div class="form-group">
+                        <label>Valor Material</label>
+                        <input type="text" class="form-control" data-bind="value:detalleVO.valorMaterial">           
+                      </div>
+              </div>
+
+              <div class="col-lg-4">
+                    
+                      <div class="form-group">
+                        <label>Valor de Obra</label>
+                        <input type="text" class="form-control" data-bind="value:detalleVO.valorManoObra">           
+                      </div>
+              </div>
+              
+            </div>
+        </div>
+
+
+             <div class="row">
+                <div class="col-lg-4">
+                    
+                      <div class="form-group">
+                        <label>Operacion(*)</label>
+                         <select class="form-control" data-bind="value:detalleVO.operacion">
+                         <option value="0">[Seleccione..]</option>
+                         <option value="1">Agregar</option>
+                         <option value="2">Quitar</option>
+                     </select>            
+                      </div>
+              </div>
+
+              <div class="col-lg-4">
+
+                    <div class="form-group">
+                        <label>Apoyos(*)</label>                    
+                     <select class="form-control" data-bind="value:detalleVO.nodo_id">
+                         <option value="0">[Seleccione..]</option>
+                          {% for item in apoyos %}
+                             <option value="{{ item.id }}">{{ item.nombre }}</option>
+                            {% endfor %} 
+                     </select> 
+                    </div>  
+              </div>
+              
+            </div>
+
+             <div class="row">
+                <div class="col-lg-4">
+                    
+                      <div class="form-group">
+                        <label>Cantidad Propuesta(*)</label>
+                        <input type="text" class="form-control" data-bind="value:detalleVO.cantidadPropuesta">           
+                      </div>
+              </div>
+              
+            </div>
+
+
+
+             <div class="row">
+                <div class="col-lg-4">
+                    <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+              </div>
+              
+            </div>
+
+
+             
+
+          
+
+      </div>
+
+    </div>
+
+
+  </div>
+ </div>
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="proyecto_id" value="{{proyecto_id}}" class="form-control" >  
+<input type="hidden" id="cambio_id" value="{{cambio_id}}" class="form-control" >  
+<input type="hidden" id="presupuesto_id" value="{{presupuesto_id}}" class="form-control" >  
+
+<input type="hidden" id="usuario_id" value="{{user.usuario.id}}" class="form-control" >    
+
+  <!--Loading-->
+
+
+
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/agregar_detalle.js" %}'></script>
+{% endblock imports %}

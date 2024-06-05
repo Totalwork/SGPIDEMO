@@ -1,0 +1,190 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Empresas{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li><a href="{% url 'gestion_proyecto.opciones' %}">Opciones</a></li>
+  <li><a href="{% url 'gestion_proyecto.campana' %}">Campañas</a></li>
+  <li class="active">Empresas</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+
+<div class="row" >
+
+  <div class="col-lg-12">
+   
+  
+    <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+              <span class="panel-title">
+                  <a href="{% url 'gestion_proyecto.campana' %}" data-placement="right"    
+                    data-toggle="tooltip" data-original-title="Regresar a las campañas">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  {{campana.nombre}}
+                </span>
+          </div>
+          <div class="panel-body">
+           
+        <section id="content" class="table-layout animated fadeIn">         
+
+        <!-- begin: .tray-left -->
+        <div class="tray tray-center" style="padding: 2px 20px 50px;">
+
+        <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Empresas</span>
+              </div>
+
+
+                  <div class="panel-body pn">
+                   <br>
+                     <div class="col-lg-8">
+                        <div class="input-group">
+                                  <input class="form-control" id="txtBuscar4" name="txtBuscar4" type="text" placeholder="Buscar empresa" data-bind="event:{keypress:consulta_enter_empresa}">
+                                  <span class="input-group-addon" style="cursor:pointer;" data-bind="click:consultar_empresa"><i class="fa fa-search"></i></span>
+                          </div>
+                         
+                      </div>
+                    <br>
+            <div class="col-lg-12">
+            <br>
+             <div data-bind="html: mensaje"></div> 
+                             <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall_sin_permiso">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>    
+              <th >Nombre</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_sin_permiso, as:'item'}">
+            <tr>
+              <td>                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.nombre"></td>    
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+        
+                  </div>
+            </div>
+          </div>
+        <!-- end: .tray-left -->
+
+        <div class="col-lg-2" align="center">
+                <div class="btn-group-vertical">
+                    <button class="btn btn-primary" type="button" data-bind="click:incluir_empresa">Incluir Empresa <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i></button> 
+                          <br>
+                    <button class="btn btn-primary" type="button" data-bind="click:quitar_empresas"><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i> Quitar Empresa</button>
+                </div> 
+             </div>
+
+        <!-- begin: .tray-center -->
+
+        <div class="tray tray-center" style="padding: 2px 20px 50px;">
+
+        <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Empresas</span>
+              </div>
+
+                  <div class="panel-body pn">
+
+                  <br>
+                     <div class="col-lg-8">
+                      </div>
+                    <br>
+                    <div class="col-lg-12">
+                             <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall_con_permiso">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></th>    
+              <th >Nombre</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_con_permiso, as:'item'}">
+            <tr>
+              <td>                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.empresa.nombre"></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+        
+                  </div>
+            </div>
+          </div>
+
+      </section>
+          </div>
+    </div>
+
+  </div>
+
+</div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+     <input type="hidden" id="id_campana" value="{{campana.id}}" class="form-control" >      
+
+
+
+
+<!--Modal-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/Campana_empresa.js" %}'></script>
+{% endblock imports %}

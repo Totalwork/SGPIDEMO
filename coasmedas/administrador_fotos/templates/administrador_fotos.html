@@ -1,0 +1,240 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Administrador de fotos{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Administrador de fotos</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title">
+                <a href="{% url 'usuario.index' %}" data-placement="right"    
+                  data-toggle="tooltip" data-original-title="Regresar al inicio">
+                  <i class="fa fa-arrow-left"></i>
+                </a>
+                Administrador de fotos
+              </span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+                <span class="panel-controls">
+                  <a data-bind="click:filtrar_proyecto" data-toggle="modal" style="cursor:pointer;">
+                    <i id="iconoFiltro" class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+            </div>
+            <div class="panel-body">
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <table class="table">
+                  <thead>
+                      <tr>
+                        <th style="width:22%">Macro contrato</th>
+                        <th style="width:22%">Departamento</th>
+                        <th style="width:22%">Municipio</th>
+                        <th style="width:23%">Proyecto</th>
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+                      <td>
+
+                        <!--ko if: item.proyecto.mcontrato!=null -->
+                            <span data-bind="cutWord:{num:25,text:item.proyecto.mcontrato.nombre, verMax:'...', verMin:'...'}"></span>
+                        <!--/ko -->
+
+                        <!--ko if: item.proyecto.mcontrato==null -->
+                          Sin contrato asociado
+                        <!--/ko -->
+
+                      </td>
+                      <td data-bind="text: item.proyecto.municipio.departamento.nombre"></td>
+                      <td data-bind="text: item.proyecto.municipio.nombre"></td>
+                      <td data-bind="cutWord:{num:25,text:item.proyecto.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td>
+
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-138px;top:19px">
+
+                              {% if 'administrador_fotos.can_see_fotosProyecto' in perms %}
+                              <li>
+                                <a href="#" data-bind="attr:{href:'../fotosProyecto/' + item.proyecto.id}">
+                                  Fotos proyecto
+                                </a>
+                              </li>
+                              {% endif %}
+
+                              {% if 'administrador_fotos.can_see_ActividadesContratista' in perms %}
+                              <li>
+                                <a href="#" data-bind="attr:{href:'../categoria/' + item.proyecto.id +'/'+item.proyecto.mcontrato.id}">
+                                  Actividades del contratista de obra
+                                </a>
+                              </li>
+                              {% endif %}
+                             
+                            </ul>
+                          </div>
+
+                      </td>
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+  <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+
+
+<!--Modal filtrar-->
+
+  <div id="modal_filtro_proyecto" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label>Macrocontrato</label>
+
+                <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" data-bind="value:macrocontrato_select">
+                  <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+              <label>Contratista</label>
+
+                <select class="form-control" id="contratista_filtro" name="contratista_filtro" data-bind="value:contratista">
+                  <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+              <label>Departamento</label>
+
+                <select class="form-control" id="departamento_filtro" name="departamento_filtro" data-bind="value:departamento">
+                  <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_departamento, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+              <label>Municipio</label>
+
+                <select class="form-control" id="municipio_filtro" name="municipio_filtro" data-bind="value:municipio">
+                  <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_municipio, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" data-bind="click: function(){ borrar(1); }">Limpiar</button>            
+            <button type="button" class="btn btn-primary" data-bind="click:function(){cargar(1);}">
+              <i class="fa fa-search"></i> Consultar
+            </button> 
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/administrador_fotos/administrador_fotos.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      administrador.parametro_registro(1);
+      administrador.consultar(1);//iniciamos la primera funcion
+      
+    });  
+
+  </script>
+
+{% endblock imports %}

@@ -1,0 +1,181 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Polizas{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">Poliza</a></li>
+	<li class="active">Poliza Contratos</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}      
+
+ {% block busqueda %}
+  <!--Buscador-->
+  <div class="navbar-form navbar-left navbar-search" role="search">
+    <div class="form-group">
+      <input type="text" id="txtBuscar" name="txtBuscar" class="form-control" placeholder="Buscar..." data-bind='event:{keypress: $root.consulta_poliza_contratos_enter}'>
+    </div>
+  </div><!--fin buscador-->
+{% endblock busqueda %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		   <div data-bind="html: mensaje"></div> 
+
+		    <div class="panel panel-sky" data-bind="visible:(listado_poliza_contratos()!=null && listado_poliza_contratos().length > 0)">
+		    		    
+		    <div class="panel-heading">
+          <span>
+            <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>               
+               Listado de poliza contratos    
+               <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+               <span class="panel-controls">
+                  <a data-bind="click:abrir_filtros" data-placement="top" data-toggle="tooltip" data-original-title="Filtros" style="cursor:pointer;">
+                    <i id="iconoFiltro" class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+             
+          	</div>
+
+          	 <div class="panel-body">
+          	 	             
+          	 	 <div class="table-responsive">
+          	 	 	 <table class="table table-bordered table-hover">
+          	 	 	 	  <thead>
+				            <tr>                      
+				              <th>No. Contrato</th>    
+				              <th>Nombre</th>				             
+				              <th style="text-align: center;"></th>
+				            </tr>
+				           </thead>
+				           <tbody data-bind="foreach:{data:listado_poliza_contratos, as:'item'}">
+	          	 	 	 	<tr>                   
+                    <td data-bind="text:item.numero" style="width: 30%;"></td>
+	          	 	 	 	<td data-bind="cutWord:{num:25,text:item.nombre, verMax:'...', verMin:'...'}" style="width: 50%;"></td>	
+	          	 	 	 	<td style="text-align: center;width: 20%;" >
+	          	 	 	 	  <a href="#" data-bind="attr:{href:'{% url 'poliza.poliza' %}'+item.id},tooltip:{dataPlacement:'top'}" title="Ver polizas">
+                        <i class="fa fa-briefcase fa-2x"></i>
+                      </a>					                  
+	          	 	 	 	</td>          	 	 	 	
+	          	 	 	 	</tr>
+	          	 	 	 </tbody> 
+          	 	 	 </table>
+          	 	 	
+                 <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+          	 	 </div>
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+  <!--Modal-->
+
+<div id="modal_filtros" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Filtros</h4>
+      </div>
+       <div class="modal-body">
+        
+                           
+            <div class="form-group">
+              <label>Tipo Contrato</label>             
+              <select class="form-control" data-bind="value:filtros.tipo_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in  tipos_contrato %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                {% endfor %}
+              </select>            
+            </div> 
+                    
+            <div class="form-group">          
+                <label>Contrato:</label>
+                <select class="form-control" data-bind="value:filtros.contrato_id">
+                  <option value="">[Seleccionar...]</option>                 
+                   <!-- ko foreach: {data:filtros.lista_contratos, as:'item.data'}-->
+                       <option data-bind="value:id,text:nombre"></option>
+                   <!-- /ko -->
+                </select>           
+            </div>
+            
+           <!--  <div class="form-group">          
+               <label>Tipo Poliza:</label>
+               <select class="form-control" data-bind="value:filtros.tipo_id">
+               <option value="0">[Seleccionar...]</option>  
+                {% for item in tipos %}   
+                  <option value="{{ item.id }}">{{ item.nombre }}</option>
+                {% endfor %}              
+               </select>           
+             </div> -->
+             
+          
+       </div>
+     
+        <div class="modal-footer">
+
+         <button type="button" class="btn btn-primary" data-bind="click:function(){ cargar(1);}">Consultar</button>
+
+        </div>      
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+     <script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>   
+  	<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>  	
+  	<script type="text/javascript" src='{% static "js/ViewModels/poliza/Poliza.js" %}?v=2.2'></script>
+
+    <script type="text/javascript">
+      
+      $(document).ready(function(){ 
+        poliza.consultar_poliza_contratos(1);
+        poliza.origen('poliza-contrato');
+      });
+
+    </script>
+
+{% endblock imports %}

@@ -1,0 +1,58 @@
+<div class="panel-body"> 
+
+
+	<div class="col-md-8">
+		<!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->
+		    <label class="option option-primary">
+		        <input id="check" type="checkbox" data-bind='checked:$root.actaVO.tiene_conclusiones,
+		        visible:({{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}})' name="check_val">
+		        <span class="checkbox"></span> El acta tiene conclusiones
+		    </label>
+		    <br>
+			<br>
+ 		<!--/ko-->
+	    
+		
+		<!-- <div data-bind="html: mensajeConclusiones"></div>    -->
+		<div class="alert alert-warning alert-dismissable" id="mensajeConclusiones">
+	      <i class="fa fa-warning"></i>El acta no tiene conclusiones
+	    </div>
+		<div id="panel_conclusiones" style="display: none;">
+
+		  	<!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->
+			    <button type="button" class="btn btn-primary" style="margin-bottom: 10px;" 
+				   data-bind="click:guardar_conclusiones, visible:({{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}})">
+				   Guardar conclusiones
+				</button>		   	
+		  	<!--/ko-->
+
+          <div class="form-group col-lg-13">           
+      
+	    	<!--ko ifnot: {{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}} -->                        
+	               <textarea class="form-control" style="width: 100%" type="text"
+	      			data-bind="value:actaVO.conclusiones" placeholder="Escriba aquí sus conclusiones…" disabled></textarea>
+	        <!--/ko-->
+    
+	        
+	        <!--ko if: {{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}} --> 
+
+	        	<!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->                       
+	               <textarea class="form-control" style="width: 100%" type="text"
+	      			data-bind="value:actaVO.conclusiones" placeholder="Escriba aquí sus conclusiones…"></textarea>
+	            <!--/ko-->
+
+	            <!--ko ifnot: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->                       
+	               <textarea class="form-control" style="width: 100%" type="text"
+	      			data-bind="value:actaVO.conclusiones" placeholder="Escriba aquí sus conclusiones…" disabled></textarea>
+	            <!--/ko-->
+
+     		<!--/ko-->
+          </div>
+	
+        	
+		</div> 	
+	
+	</div>
+
+</div>
+

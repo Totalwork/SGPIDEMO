@@ -1,0 +1,337 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Configurar Unidades Constructivas{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'control_cambios.index' %}">Control de cambios</a></li>
+  <li class="active">Configurar Unidades Constructivas</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Listado unidades constructivas</span>
+
+               <span data-bind="text:'- N° de Registos: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+              <span class="panel-controls">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar unidades constructivas" data-bind="click:filtrar_unidades_constructivas" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                </a>
+              </span>
+
+              <span class="panel-controls">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Carga masiva" data-bind="click:carga_masiva" data-toggle="modal" style="cursor:pointer;">
+                  <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+                </a>
+              </span>
+
+            </div>
+
+            <div class="panel-body" >
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:10%">
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:checkall">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div> 
+                        </th>
+                        <th style="width:15%">Codigo</th>
+                        <th style="width:35%">Descripción</th>
+                        <th style="width:15%">Valor mano obra</th>
+                        <th style="width:15%">Valor materiales</th> 
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+                      <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:eliminado,value:id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div>  
+                      </td> 
+                      <td data-bind="text: item.codigo"></td>
+                      <td data-bind="text: item.descripcion"></td>
+                      <td class="text-right" data-bind="text:formatMoney(item.valor_mano_obra)"></td>
+                      <td class="text-right" data-bind="text: formatMoney(item.valor_materiales)"></td>
+                      <td>
+
+                        {% if 'control_cambios.change_UnidadConstructiva' in perms %}
+                          <a href="#" data-bind="click:$root.consultar_por_id">
+                            <i class="fa fa-pencil-square-o fa-2x"></i>
+                          </a>
+                        {% endif %}
+                        
+                      </td>
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <!--ko if: ConfigurarUnidadConstructivaVO.id()=='' -->
+          <div class="form-group">
+            <label>Macrocontrato</label>
+
+              <select class="form-control" data-bind="value:ConfigurarUnidadConstructivaVO.contrato_id">
+                <option value="">[Seleccione...]</option>
+                <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                <!--/ko-->
+              </select>
+          </div>
+
+            <div class="form-group">
+              <label>Proyecto</label>
+
+                <select class="form-control" data-bind="value:ConfigurarUnidadConstructivaVO.proyecto_id">
+                  <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_proyecto, as:'item'} -->
+                    <option data-bind="value:item.proyecto.id,text:item.proyecto.nombre"></option>
+                  <!--/ko-->
+                </select>
+            </div>
+          <!--/ko-->
+
+          <!--ko if: ConfigurarUnidadConstructivaVO.id()!='' -->
+          <div class="form-group">
+            <label>Macrocontrato</label>
+              <input type="text" data-bind="value:nombre_contrato" class="form-control" disabled=""/>
+              <input type="hidden" data-bind="value:ConfigurarUnidadConstructivaVO.contrato_id" class="form-control">
+          </div>
+
+          <div class="form-group">
+            <label>Proyecto</label>
+              <input type="text" data-bind="value:nombre_proyecto" class="form-control" disabled=""/>
+              <input type="hidden" data-bind="value:ConfigurarUnidadConstructivaVO.proyecto_id" class="form-control">
+          </div>
+          <!--/ko--> 
+
+          <div class="form-group">
+            <label>Codigo</label>
+              <input type="text" data-bind="value:ConfigurarUnidadConstructivaVO.codigo" class="form-control" placeholder="Dígite el codigo"/>
+          </div>
+
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea rows="3" data-bind="value:ConfigurarUnidadConstructivaVO.descripcion" class="form-control" placeholder="Dígite la descripción"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Valor Mano de obra</label>
+              <input type="text" data-bind="value:ConfigurarUnidadConstructivaVO.valor_mano_obra,onlyNumber:ConfigurarUnidadConstructivaVO.valor_mano_obra" class="form-control" placeholder="Dígite el valor de la mano de obra"/>
+          </div>
+
+          <div class="form-group">
+            <label>Valor Materiales</label>
+              <input type="text" data-bind="value:ConfigurarUnidadConstructivaVO.valor_materiales,onlyNumber:ConfigurarUnidadConstructivaVO.valor_materiales" class="form-control" placeholder="Dígite el valor de los materiales"/>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<!--Modal filtrar las cuentas-->
+
+  <div id="modal_filtro_unidades" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label>Macrocontrato</label>
+
+                <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" data-bind="value:macrocontrato_select">
+                  <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+            </div>
+
+            <div class="form-group">
+              <label>Proyecto</label>
+
+                <select class="form-control" id="proyecto_filtro" name="proyecto_filtro" data-bind="value:proyecto_select">
+                  <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_proyecto, as:'item'} -->
+                    <option data-bind="value:item.proyecto.id,text:item.proyecto.nombre"></option>
+                  <!--/ko-->
+                </select>
+            </div>
+
+             <input type="hidden" id="id_empresa" value="{{user.usuario.empresa_id}}" class="form-control" >
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+
+<!--Modal para carga masiva-->
+<div id="modal_carga_masiva" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+          
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+        <div class="modal-body">
+
+          <div class="form-group">                 
+            <a style="cursor:pointer;" href="{% url 'control_cambios.descargar_plantilla_configuracion' %}" target="_blank">
+              <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+              <label style="cursor:pointer;">Plantilla para cargar masiva (xls)</label>
+            </a>
+          </div>
+
+          <div class="form-group">
+            <label>Macrocontrato</label>
+
+              <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" data-bind="value:contrato_id">
+                <option value="">[Seleccione...]</option>
+                <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                <!--/ko-->
+              </select>
+          </div>
+
+
+          <div class="form-group">          
+            <label>Documento</label>
+            <input type="file" class="note-image-input" id="archivo" name="archivo"  
+            data-bind="fileData:{value:archivo,elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:carga_excel">
+            <i class="fa fa-floppy-o"></i> Cargar
+          </button> 
+        </div>
+
+      </div>
+    </div>
+</div><!--cierra modal_filtro-->
+<!--Fin del modal de fcarga masiva-->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/control_cambios/configurar_unidades_constructivas.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      //unidad_constructiva.consultar(1);//iniciamos la primera funcion
+      $('#txtBuscar').val(sessionStorage.getItem("dato_puntos_unidades"));
+      unidad_constructiva.cargar(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

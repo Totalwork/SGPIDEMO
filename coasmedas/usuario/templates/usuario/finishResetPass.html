@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Recuperar clave de acceso</title>
+    <meta name="keywords" content="HTML5 Bootstrap 3 Admin Template UI Theme" />
+	<meta name="description" content="AdminDesigns - A Responsive HTML5 Admin UI Framework">
+	<meta name="author" content="AdminDesigns">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+
+   	<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600'>
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/skin/default_skin/css/theme.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/skin/default_skin/css/theme2.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/skin/default_skin/css/theme3.css' %}">
+
+  <!-- Admin Forms CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/admin-tools/admin-forms/css/admin-forms.css' %}">
+
+</head>
+
+<body class="external-page sb-l-c sb-r-c">
+
+  <!-- Start: Main -->
+  <div id="main" class="animated fadeIn">
+
+    <!-- Start: Content-Wrapper -->
+    <section id="content_wrapper">
+
+      <!-- begin canvas animation bg -->
+      <div id="canvas-wrapper">
+        <canvas id="demo-canvas"></canvas>
+      </div>
+
+      <!-- Begin: Content -->
+      <section id="content">
+
+        <div class="admin-form theme-info" id="login1">
+
+        
+          <div class="panel panel-info mt10 br-n">
+
+            <div class="panel-heading heading-border bg-white">
+	            <div class="row">
+	            	<div class="col-lg-3">
+	            		 <a href="#" title="Login">
+			                <img src="{% static 'assets/img/logo.png' %}" title="AdminDesigns Logo" class="img-responsive w250">
+			              </a>	
+	            	</div>
+	            	<div class="col-lg-6">
+	            		 <h3 class="text-center" style="margin-bottom: 25px;">Sistema de recuperación de clave de acceso a SININ</h3>
+	            	</div>
+	            </div>     
+            </div>
+
+            <!-- end .form-header section -->
+
+            <form action="#" class="form-horizontal" style="margin-bottom: 0px !important;" method="post">
+                            {% csrf_token %}
+                            {% if mensaje  %}
+                                
+                                  {% if status == 'ok' %}
+                                    <div class="alert alert-success">
+                                      <i class="fa fa-info-circle fa-2x"></i>    
+                                  {% else %}
+                                    <div class="alert alert-danger">
+                                      <i class="fa fa-warning fa-2x"></i>  
+                                  {% endif %}
+                                {{ mensaje }}
+                                </div>
+                            {% endif %}
+              <div class="panel-body bg-light p30">
+                <div class="row">
+                  <input type="hidden" id="idUsuario" name="idUsuario" value=""/>
+                  <div class="col-sm-7 pr30">
+                  
+                    <div class="section">
+                      <label for="password" class="field-label text-muted fs18 mb10">Contraseña</label>
+                      <label for="password" class="field prepend-icon">
+                        <input type="password" name="password" id="password" class="gui-input" required>
+                        <label for="password" class="field-icon">
+                          <i class="fa fa-lock"></i>
+                        </label>
+                      </label>
+                    </div>
+                    <!-- end section -->
+
+                    <div class="section">
+                      <label for="confirmPassword" class="field-label text-muted fs18 mb10">Confirme Contraseña</label>
+                      <label for="confirmPassword" class="field prepend-icon">
+                        <input type="Password" name="confirmPassword" id="confirmPassword" class="gui-input" required>
+                        <label for="confirmPassword" class="field-icon">
+                          <i class="fa fa-lock"></i>
+                        </label>
+                      </label>
+                    </div>
+                    <!-- end section -->
+
+                  </div>
+                </div>
+              </div>
+              <!-- end .form-body section -->
+              <div class="panel-footer clearfix p10 ph15">
+                <button type="submit" class="button btn-primary mr10 pull-right">Actualizar</button>
+                <a href="{% url 'usuario.login' %}" class="theme-link">Ingreso a SININ</a>
+              </div>
+              <!-- end .form-footer section -->
+            </form>
+          </div>
+        </div>
+
+      </section>
+      <!-- End: Content -->
+
+    </section>
+    <!-- End: Content-Wrapper -->
+
+  </div>
+  <!-- End: Main -->
+
+  <!-- BEGIN: PAGE SCRIPTS -->
+
+  <!-- jQuery -->
+  <script src="{% static 'vendor/jquery/jquery-1.11.1.min.js' %}"></script>
+  <script src="{% static 'vendor/jquery/jquery_ui/jquery-ui.min.js' %}"></script>
+
+  <!-- CanvasBG Plugin(creates mousehover effect) -->
+  <script src="{% static 'vendor/plugins/canvasbg/canvasbg.js' %}"></script>
+  <!-- Theme Javascript -->
+  <script src="{% static 'assets/js/utility/utility.js' %}"></script>
+  <script src="{% static 'assets/js/demo/demo.js' %}"></script>
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+  <!-- Page Javascript -->
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+
+    "use strict";
+
+    // Init Theme Core      
+    Core.init();
+
+    // Init Demo JS
+    Demo.init();
+
+    // Init CanvasBG and pass target starting location
+    CanvasBG.init({
+      Loc: {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 3.3
+      },
+    });
+
+  });
+  </script>
+
+  <!-- END: PAGE SCRIPTS -->
+
+</body>
+</html>

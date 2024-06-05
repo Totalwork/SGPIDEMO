@@ -1,0 +1,174 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Permisos de acceso a los Diseños{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li><a href="{% url 'gestion_proyecto.opciones' %}">Opciones</a></li>
+  <li class="active">Permisos de acceso a los Diseños</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'gestion_proyecto.opciones' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar a las opciones">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Permisos de acceso a los Diseños
+{% endblock encabezado %}
+
+{% block opciones_listado %}
+    <li>
+      <a href="#" data-placement="right" data-bind="click:abrir_modal" data-toggle="tooltip" data-original-title="Filtrar Diseños">
+         <i class="fa fa-filter" style="font-size: 20px;"></i>
+      </a>
+    </li>
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+                <h4>Listado</h4>
+          </div>
+          <div class="panel-body">
+          <div class="col-lg-12">
+              <div class="col-lg-4">
+                <label>Empresa:</label>
+                              <select class="form-control" data-bind="value:filterVO.empresa_id">  
+                              <option value='0'>[Seleccione...]</option> 
+                              {% for item in empresa %}
+                                <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %} 
+                         </select> 
+                       <p class="help-block">(*)Seleccione la empresa para explorar los permisos.</p>  
+              </div>
+              <br>
+              <div class="col-lg-4">
+                <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar Cambios</button>
+              
+                <button type="button" class="btn btn-primary" data-bind="click:limpiar">Limpiar Filtro</button> 
+              </div>
+          </div>
+          <div class="col-lg-12">
+          <div data-bind="html: mensaje"></div> </div>
+          <div class="table-responsive" data-bind="dropdown,visible:(listado()!=null && listado().length > 0)">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Fondo</th>
+              <th>Departamento</th>
+              <th>Municipio</th>
+              <th>Proyecto</th>
+              <th><input type="checkbox" data-bind="checked:checkall_consultar">Consultar</th>    
+              <th><input type="checkbox" data-bind="checked:checkall_editar">Editar</th>    
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.fondo"></td>
+              <td data-bind="text: item.municipio"></td>   
+              <td data-bind="text: item.departamento"></td>   
+              <td data-bind="text: item.nombre"></td>   
+              <td> <input type="checkbox" data-bind="checked:consultar"></td>  
+              <td> <input type="checkbox" data-bind="checked:editar"></td>  
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+          
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+  </div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >      
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+           <label>Departamento:</label>
+                <select class="form-control" data-bind="value:filterVO.departamento_id">  
+                <option value='0'>[Seleccione...]</option> 
+                {% for item in departamentos %}
+                   <option value="{{ item.id }}">{{ item.nombre }}</option>
+                 {% endfor %} 
+           </select>          
+        </div>
+
+        <div class="form-group">
+           <label>Municipio:</label>
+                <select class="form-control" data-bind="value:filterVO.municipio_id">  
+                <option value='0'>[Seleccione...]</option> 
+                 <!-- ko foreach: listado_municipio -->
+                    <option data-bind="value:id,text:nombre"></option>
+                 <!-- /ko -->  
+           </select>          
+        </div>
+
+        <div class="form-group">
+           <label>Fondo:</label>
+                <select class="form-control" data-bind="value:filterVO.fondo_id">  
+                <option value='0'>[Seleccione...]</option> 
+              {% for item in fondos %}
+                   <option value="{{ item.id }}">{{ item.nombre }}</option>
+                 {% endfor %} 
+           </select>          
+        </div>
+
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:filtrar">Filtrar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/permiso.js" %}'></script>
+{% endblock imports %}

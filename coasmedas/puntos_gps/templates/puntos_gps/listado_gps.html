@@ -1,0 +1,245 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Listado gps{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'puntos.gps' %}">Gps</a></li>
+  <li class="active">Listado gps</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+
+  <div class="row">
+    <div class="col-lg-12">
+      
+      <strong>Macro contrato : </strong><span>{{proyecto.mcontrato.nombre}}</span><br> 
+      <!-- <strong>Contratista : </strong><span>{{proyecto.contrato.first.contratista.nombre}}</span><br> -->
+      <strong>Contratista : </strong><span>{{contratista_asociado}}</span><br>
+      <strong>Departamento : </strong><span>{{proyecto.municipio.departamento.nombre}}</span><br>
+      <strong>Municipio : </strong><span>{{proyecto.municipio.nombre}}</span><br>
+      <strong>Proyecto : </strong><span>{{proyecto.nombre}}</span><br>
+
+    </div>
+  </div>
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading"><span class="panel-title"></span>
+              <span>
+                <a href="{% url 'puntos.gps'%}" data-placement="right"  
+                  data-toggle="tooltip" data-original-title="Regresar al listado de proyectos">
+                  <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                </a> 
+                Listado de puntos gps
+              </span>
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+              <span class="panel-controls">
+                {% if 'puntos_gps.can_see_cargaMasiva' in perms %}
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Carga masiva" data-bind="click:carga_masiva" data-toggle="modal" style="cursor:pointer;">
+                  <i class="fa fa-file-excel-o fa-2x"></i>
+                </a>
+                {% endif %}
+
+                <a data-placement="top"  data-toggle="tooltip" title="" data-original-title="Mapa" 
+                    href="{% url 'puntos.mapa' id_proyecto %}" style="cursor:pointer;" target="_blank">
+                  <i class="fa fa-map-marker fa-2x"></i> 
+                </a>
+
+              </span>
+
+            </div>
+
+            <div class="panel-body">
+              <div data-bind="html: mensaje"></div>
+
+              <div data-bind="visible:(listado()!=null && listado().length > 0)">
+                <div class="table-responsive">
+
+                  <table class="table" >
+                    <thead>
+                        <tr>
+                          <th width="10%">
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input type="checkbox" data-bind="checked:checkall">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div> 
+                          </th>
+                          <th width="27%">Nombre</th>
+                          <th width="26%">Longitud</th>
+                          <th width="26%">Latitud</th>
+                          <th width="10%"></th>
+                        </tr>
+                    </thead>
+
+                    <tbody data-bind="foreach:{data:listado, as:'item'}">
+        
+                      <tr>
+                    
+                        <td>
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div> 
+                        </td> 
+                        <td data-bind="text: item.nombre"></td>
+                        <td data-bind="text: item.longitud"></td>
+                        <td data-bind="text: item.latitud"></td>
+                        <td>
+                          {% if 'puntos_gps.change_puntosgps' in perms %}
+                            <a href="#" data-bind="click:$root.consultar_por_id">
+                              <i class="fa fa-pencil-square-o fa-2x"></i>
+                            </a>
+                          {% endif %}  
+
+                        </td>
+                      </tr>
+                       
+                    </tbody>
+                  </table>
+                 
+                </div>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                  currentPage: paginacion.pagina_actual,
+                                  totalCount: paginacion.total,
+                                  pageSize:paginacion.cantidad_por_paginas,
+                                  maxPages: paginacion.maxPaginas,
+                                  directions: paginacion.direcciones,
+                                  boundary: paginacion.limite,
+                                  text: paginacion.text }">
+
+                  </div>
+                </div>
+
+              </div>
+            </div><!--cierra panel body-->
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Nombre del punto (*)</label>
+              <input type="text" data-bind="value:gpsVO.nombre" class="form-control" placeholder="Dígite el nombre del punto"/>
+          </div>
+
+          <div class="form-group">
+            <label>Longitud (*)</label>
+              <input type="text" data-bind="value:gpsVO.longitud,onlyNumber:gpsVO.longitud" class="form-control" placeholder="Dígite la longitud del punto"/>
+          </div>
+
+          <div class="form-group">
+            <label>Latitud (*)</label>
+              <input type="text" data-bind="value:gpsVO.latitud,onlyNumber:gpsVO.latitud" class="form-control" placeholder="Dígite la latitud del punto"/>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<!--Modal para carga masiva-->
+<div id="modal_carga_masiva" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+          
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+        <div class="modal-body">
+
+          <div class="col-sm-12">                 
+            <a style="cursor:pointer;" href="{% url 'puntos.descargar_plantilla' %}" target="_blank">
+              <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+              <label style="cursor:pointer;">Plantilla para cargar masiva (xls)</label>
+            </a>
+          </div>
+
+          <div class="form-group">          
+            <label>Documento</label>
+            <input type="file" class="note-image-input" id="archivo2" name="archivo2"  
+            data-bind="fileData:{value:archivo,elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:carga_excel">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button> 
+        </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+  <!--Fin del modal de factura vencidas-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/puntos_gps/registro_gps.js" %}?v=2'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      registroGps.gpsVO.proyecto_id({{id_proyecto}});
+      registroGps.consultar(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

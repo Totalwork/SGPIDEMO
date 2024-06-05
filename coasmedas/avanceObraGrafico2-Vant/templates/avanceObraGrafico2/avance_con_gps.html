@@ -1,0 +1,442 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?sensor=false&key=AIzaSyDP-V_ViyXNNnyrI9T3KyqmLfOMq_YA5I8"></script>
+{% endblock imports_css %}
+
+
+{% block title %}Avance de Obra{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.presupuesto' cronograma_id %}">presupuesto</a></li>
+ <li><a href="{% url 'avance_de_obra_grafico2.reporte_trabajo' presupuesto_id %}">Reporte de Trabajo</a></li>
+  <li class="active">Avance de Obra con GPS</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+        
+         <!--ko if: habilitar_reporte()==false --> 
+            <li>
+              <a href="#" data-bind="click:guardar_reporte">
+                  <i class="fa fa-save" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+             <!--/ko-->
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+ <div class="row">
+
+      
+          <div class="col-lg-4">
+            <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+            
+          </div>
+  </div>
+
+  <br>
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+  
+      <div id="map" class="col-lg-12"  style="border-color:black;border-style: solid;height: 450px;">
+      </div>
+  </div>
+
+  </div>
+
+
+  
+
+</div>
+
+<input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >  
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="id_presupuesto" value="{{presupuesto_id}}" class="form-control" > 
+<input type="hidden" id="id_cronograma" value="{{cronograma_id}}" class="form-control" > 
+<input type="hidden" id="id_proyecto" value="{{proyecto_id}}" class="form-control" > 
+<input type="hidden" id="reporte_id" value="{{reporte_id}}" class="form-control" > 
+<input type="hidden" id="reporte_cerrado" value="{{reporte.reporteCerrado}}" class="form-control" > 
+<input type="hidden" id="capa_id" value="{{capa_id}}" class="form-control" > 
+
+<input type="hidden" id="sin_poste" value="{{presupuesto.sin_poste}}" class="form-control" > 
+
+
+  <!--Loading-->
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" data-bind="value:nodoVO.nombre" class="form-control" >           
+        </div>    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  <!--Modal-->
+
+<div id="modal_listado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+           <div class="row">
+              <div class="col-lg-6">
+                <label>Nombre del Apoyo:</label>
+                <span data-bind="text:nombre_apoyo"></span>
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+
+          <!--ko if: sin_poste()==false --> 
+          <div class="progress mt10">
+          <div class="progress-bar progress-bar-primary" data-bind="style: { width: porcentaje_total()+'%' },
+                attr: {'aria-valuenow' : porcentaje_total}" role="progressbar2" aria-valuemin="0" aria-valuemax="100"><span data-bind="text:porcentaje_total()+'%'" style="color: #000000"></span></div>
+              </div>
+              <!--/ko--> 
+        
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Cantidad a Ejecutar</th>
+              <th>Cantidad ejecutada sumada</th>
+              <th>Cantidad ejecutada</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_detalles, as:'item'}">
+            <tr>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+              <td data-bind="text: item.cantidad"></td>
+              <td data-bind="text: item.cantidad_ejecutada"></td>
+             
+              <td>
+                    <input type="text" data-bind="value:item.cantidad_registrar" class="form-control" style="width: 45px">  
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_cambio_cantidades">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+  
+  <!--Modal-->
+
+<div id="modal_tendido" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+         <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Origen</label>
+              </div>
+              <div class="col-lg-2">
+                <span data-bind="text:nombre_nodo_origen"></span>
+              </div>
+        </div>
+
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Destino</label>
+              </div>
+        </div>
+
+        <div class="row">           
+
+              <div class="col-lg-6">
+                    <select class="form-control" data-bind="value:apoyoVO.nodoDestino_id">
+                              <option value="">[Seleccione..]</option>
+                               <!-- ko foreach: listado_apoyos -->
+                                <option data-bind="value:id,text:nombre"></option>
+                              <!-- /ko -->    
+                    </select>    
+              </div>
+        </div>
+        <br>        
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th></th>
+              <th>Hito</th>
+              <th>Actividad</th>              
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+            </tr>
+
+            <tbody data-bind="foreach:{data:listado_nodos, as:'item'}">
+            <tr>
+              <td> 
+                <input type="radio" id="si" data-bind="checked:$parent.apoyoVO.detallepresupuesto_id,value:item.id" name="bdi">
+              </td>
+              <td data-bind="text: item.nombre_padre"></td>
+              <td data-bind="text: item.actividad.nombre"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+            </tr>
+          </tbody>
+
+          </thead>
+        </table>
+        </div>
+        <br>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:crear_tendido">Crear</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+ 
+
+  
+
+<div id="modal_detalle_tendido" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Origen</label>
+              </div>
+              <div class="col-lg-2">
+                <span data-bind="text:nombre_nodo_origen"></span>
+              </div>
+        </div>
+
+        <br>
+
+          <!--ko if: habilitar_reporte()==false --> 
+        <div class="row">
+              <div class="col-lg-2">
+               <div class="btn-group text-right">
+                   <a href="#" data-bind="click:eliminar_tendidos"><i class="fa fa-trash fa-2x" >
+                      </i></a>
+                  </div>
+              </div>
+        </div>
+          <!--/ko-->    
+
+        <br>
+           <div data-bind="html: mensaje_tendidos"></div>   
+          <div class="table-responsive" data-bind="visible:(listado_tendidos()!=null && listado_tendidos().length > 0)">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th> <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall_tendido">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </th>
+              <th>Apoyo Destino</th>              
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+            </tr>
+
+            <tbody data-bind="foreach:{data:listado_tendidos, as:'item'}">
+            <tr>
+              <td> 
+                 <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </td>
+              <td data-bind="text: item.nodoDestino.nombre"></td>
+              <td data-bind="text: item.detallepresupuesto.codigoUC"></td>
+              <td data-bind="text: item.detallepresupuesto.descripcionUC"></td>
+            </tr>
+          </tbody>
+
+          </thead>
+        </table>
+        </div>
+        <br>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+ <!--Modal-->
+
+<div id="modal_detalle_cambio" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+           <div class="row">
+              <div class="col-lg-6">
+                <label>Nombre del Apoyo:</label>
+                <span data-bind="text:nombre_apoyo"></span>
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+          <br><br>
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr>
+              <th>Hito</th> 
+              <th>Actividad</th> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Fecha</th>
+              <th>Cantidad Reportada</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_cambios, as:'item'}">
+            <tr>
+              <td data-bind="text: item.detallepresupuesto.nombre_padre"></td>
+              <td data-bind="text: item.detallepresupuesto.actividad.nombre"></td>
+              <td data-bind="text: item.detallepresupuesto.codigoUC"></td>
+              <td data-bind="text: item.detallepresupuesto.descripcionUC"></td>
+              <td>{{reporte.fechaTrabajo}} </td>
+             
+              <td>
+                    <input type="text" data-bind="value:item.cantidadEjecutada" class="form-control" >  
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+         <!--ko if: habilitar_reporte()==false --> 
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_detalle_cambio">Guardar</button>
+        </div>  
+         <!--/ko-->    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/avance_con_gps.js" %}'></script>
+
+ 
+{% endblock imports %}

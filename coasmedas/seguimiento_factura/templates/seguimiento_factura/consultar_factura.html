@@ -1,0 +1,157 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Listado de facturas pagadas{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'seguimiento_factura.index' %}">Seguimiento factura</a></li>
+  <li class="active">Listado de factura pagadas</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+  <div class="row">
+    <div class="col-lg-12">
+
+      <div class="panel" id="spy4">
+        <div class="panel-heading">
+          <span class="panel-title"></span>
+          <span>      
+            <a href="{% url 'seguimiento_factura.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>           
+          <span>Consulta de facturas pagadas</span>
+        </div>           
+        <div class="panel-body">
+
+          <div class="row">
+
+            <div class="col-sm-2"></div>
+              <div class="col-sm-9">
+                <label>Digite el numero de la factura o valor de la factura (sin puntos y comas) para realizar la busqueda
+                </label>
+              </div>
+              <div class="col-sm-1"></div>
+          </div><br>
+
+          <div class="row">
+
+            <div class="col-sm-4"></div>
+              <div class="col-sm-4">
+                              
+                <div class="form-group input-group">           
+                  <input class="form-control"  id="busqueda_factura" name="busqueda_factura" type="text" placeholder="Busqueda"  data-bind="event:{keydown:function(d,e){if (e.keyCode === 13)consultar();else return true; }}">
+                                          
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" type="button" id="buscar" name="buscar" data-bind="click:function(){ consultar();}"><i class="fa fa-search" style="color: #428bca;"></i>
+                    </button>
+                  </span>
+                </div><!--form-group input-group-->
+                  
+              </div><!--cierra col-sm4-->
+          </div><!--cierra row-->
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12" data-bind="visible:(listado_factura()!=null && listado_factura().length > 0)">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Listado de facturas pagadas</span>
+            </div>
+            
+            <div class="panel-body">
+
+              <div data-bind="html: mensaje"></div>
+
+              <div class="table-responsive">
+
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:12%">Contrato</th>
+                        <th style="width:12%">Proveedor</th>
+                        <th style="width:11%">No. Factura</th>
+                        <th style="width:12%">Valor a pagar</th>
+                        <th style="width:11%">Fecha de pago</th>
+                        <th style="width:10%">TEST-OP/Codigo compensacion</th>
+                        <th style="width:12%">Vlr TEST-OP/Codigo compensacion</th>
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado_factura, as:'item'}">
+
+                    <tr>
+
+                      <td data-bind="cutWord:{num:25,text:item.contrato.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.contrato.contratista.nombre"></td>
+                      <td data-bind="text: item.numero"></td>
+                      <td data-bind="text: formatMoney(item.valor_factura)"></td>
+                      <td data-bind="text: item.codigo_op.fecha_pago"></td>
+                      <td data-bind="text: item.codigo_op.codigo"></td>
+                      <td data-bind="text: formatMoney(item.codigo_op.valor_gestion_op)"></td>
+                      <td>
+
+                          <a href="#" data-bind="attr:{href:'../listado-pagos/' + item.codigo_op.id}">
+                            <i class="fa fa-hand-o-right fa-2x"></i>
+                          </a>      
+
+                      </td>
+
+                    </tr>
+                     
+                  </tbody>
+                </table>
+               
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/consultar_factura_pagada.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      //factura_pagada.consultar();//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

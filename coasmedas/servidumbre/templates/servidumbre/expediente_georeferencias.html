@@ -1,0 +1,87 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBJIu6W6VBANXP1Tq6mCKhjvupUARUNIuI'></script>
+ <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+
+{% endblock imports_css %}
+
+{% block title %}Georreferencias{% endblock title %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+    <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li><a href="/servidumbre/home">Gestion de servidumbres</a></li>
+  <li>Georreferencias</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+<div class="panel panel-sky">
+    <div class="row" >
+
+      <div class="col-lg-12">
+      
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">
+              <a href="{% url 'servidumbre.expediente'%}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar a Gestion de expedientes">
+                 <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              </a>            
+              <span class="panel-title hidden-xs">Georreferencias del Expediente No. {{id}}                
+        </span>                                        
+            </div>
+      </div><!--col-lg-12" -->
+    </div><!--cierra row -->
+
+    <div class="panel-body">
+      <div class="panel" >
+        <div class="form-group col-lg-12">
+          <span class="panel-title hidden-xs">
+            Proyecto: {{expediente.proyecto.nombre}} 
+            | Departamento: {{expediente.proyecto.municipio.departamento.nombre}} 
+            | Municipio: {{expediente.proyecto.municipio.nombre}} 
+            | Contrato/Convenio: {{expediente.proyecto.mcontrato.nombre}} 
+                  
+        </span>
+      </div>
+    </div>
+    </div>
+
+    <input type="hidden" id="id_expediente" value="{{id}}" class="form-control" >
+    <input type="hidden" id="estado" value="{{estado}}" class="form-control" >
+    
+    <div data-bind="html: mensaje"></div>
+    <div class="row" id="content_map" style="display: none;">
+      <div class="col-lg-12"> 
+        <div id="map" class="col-lg-12"  style="border-color:black;border-style: solid;height: 600px;">
+        </div>
+      </div>
+    </div>
+
+ </div>
+{% endblock contenido %}
+
+{% load static %}
+
+{% block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/expediente_georeferencias.js" %}?cache=3.5'></script>
+
+{% endblock imports %}   

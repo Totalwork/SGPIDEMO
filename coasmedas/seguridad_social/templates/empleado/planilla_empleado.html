@@ -1,0 +1,262 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Planilla empleados{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">Seguridad Social</a></li>
+  <li><a href="{% url 'seguridad_social.planilla' %}">Planilla</a></li>
+	<li class="active">Planilla empleado</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+    <li>
+     <a href="{% url 'seguridad_social.crear_empleado' %}" data-toggle="tooltip" data-original-title="Nuevo empleado">
+        <i class="fa fa-plus" style="font-size: 20px;"></i>
+     </a>
+   </li>
+
+    <li>
+      <a href="#" data-bind="click:exportar_planilla_empleado_excel" data-toggle="tooltip" data-original-title="Exportar a excel">
+          <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+      </a>
+    </li>
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  		   
+		    <div class="panel panel-sky">
+		    		    
+		    <div class="panel-heading">
+          <span>      
+            <a href="{% url 'seguridad_social.planilla' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>           
+                Planilla empleado  
+                 <span data-bind="text:'- N° de Registros: ' + listado_planilla_empleado().length"></span>
+                 <span class="panel-controls">
+                  <a data-bind="click:abrir_buscar_empleado" data-placement="top" data-toggle="tooltip" data-original-title="Agregar empleado" style="cursor:pointer;">
+                    <i class="fa fa-plus-circle fa-2x"></i>
+                  </a>
+                </span>           
+          	</div>
+            
+          	 <div class="panel-body">
+          	 	
+             <div class="panel panel-info">
+                <div class="panel-heading">
+                  Información de la planilla
+                </div>
+                <div class="panel-body">
+                  <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Contratista:</label>
+                        <span>{{ planilla.contratista.nombre }}</span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Año:</label>
+                        <span>{{ planilla.ano }}</span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Mes:</label>
+                        <span data-bind="text:obtener_mes({{ planilla.mes }})"></span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Fecha limite:</label>
+                        <span>{{ planilla.fecha_limite }}</span>
+                      </div>
+                     
+                      <div class="form-group">
+                        <label>Fecha pago:</label>
+                        <span>{{ planilla.fecha_pago }}</span>
+                      </div>
+                  </div>
+               
+                </div>
+              </div>
+
+              <div data-bind="html: mensaje"></div> 
+              
+          	 	 <div class="table-responsive" data-bind="visible:(listado_planilla_empleado()!=null && listado_planilla_empleado().length > 0)">
+          	 	 	 <table class="table">
+          	 	 	 	  <thead>
+				            <tr>				              
+				              <th>
+                          
+                      </th>
+				              <th>Cedula</th>				              
+				              <th>Apellidos</th>
+                      <th>Nombres</th>				              
+				            </tr>
+				           </thead>
+				           <tbody data-bind="foreach:{data:listado_planilla_empleado, as:'item'}">
+	          	 	 	 	<tr>	      
+                      <td>
+
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input data-bind="checked:item.tiene_pago" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                       
+                      </td>    	 	 	 
+  	          	 	 	 	<td data-bind="text:item.cedula"></td>
+  	          	 	 	 	<td data-bind="text:item.nombres"></td>
+  	          	 	 	 	<td data-bind="text:item.apellidos"></td>   
+                      <td style="width: 5%;">
+                        <!-- ko if: item.planilla_empleado_id()>0 -->
+                       <div class="btn-group text-right">
+                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                            </i></a>
+                         <ul class="dropdown-menu" role="menu">
+                            {% if 'seguridad_social.delete_planillaempleado' in perms %}
+                             <li>
+                                <a href="#" data-bind="click:$root.eliminar_planilla_empleado">       
+                                Quitar</a>
+                             </li>
+                            {% endif %}
+                            
+                          </ul>
+                        </div>
+                        <!--/ko-->
+                    </td>                                 	 	 	 	
+	          	 	 	 	</tr>
+	          	 	 	 </tbody> 
+          	 	 	 </table>
+          	 	 	
+
+          	 	 </div>
+                <br>
+                <button type="button" class="btn btn-primary" data-bind="click:function(){guardar_planilla_empleado('true');}">Guardar y Notificar</button>
+
+                <button type="button" class="btn btn-primary" data-bind="click:function(){guardar_planilla_empleado('false');}">Guardar y No Notificar</button>
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+<input type="hidden" id="hd_contratista" value="{{contratista_id}}">
+<input type="hidden" id="hd_planilla" value="{{planilla_id}}">
+  <!--Modal-->
+
+
+<div id="modal_buscar_empleado" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Buscar Empleado</h4>
+      </div>
+       <div class="modal-body">
+            
+           
+            <div class="form-group">
+                        
+            <div class="input-group">
+              <input id="txt_buscar_empleado" type="text" class="form-control" placeholder="Buscar Persona" data-bind="event:{keypress:function(d,e){ if (e.which == 13){ consultar_empleados($('#txt_buscar_empleado').val()); return false;}return true; } }">
+                <span class="input-group-addon" title="Buscar persona" data-bind="click:function(){consultar_empleados($('#txt_buscar_empleado').val());}">
+                <i class="fa fa-search"></i>
+              </span>
+            </div>    
+                
+                <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Empleados</span>
+                  </div>
+                   <div data-bind="html: mensaje_empleado, visible:(listado_empleado()==null || listado_empleado().length == 0)"></div> 
+                  <div class="panel-body panel-scroller scroller-xs scroller-pn pn"
+                   data-bind="visible:(listado_empleado()!=null && listado_empleado().length > 0)">
+                    <table class="table mbn tc-med-1 tc-bold-last">
+                      <thead>
+                        <tr> 
+                          <th>
+                            
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input data-bind="checked: seleccionarEmpleados" type="checkbox">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>
+
+                          </th>                        
+                          <th>Cedula</th>                                                
+                          <th>Nombre</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_empleado, as:'item'}">
+                        <tr data-bind="attr:{for:'radio_persona-'+$index()}">
+                        <td>
+                          <!-- <label style="width: 100%;">
+                          <input data-bind="attr:{id:'radio_persona-'+$index(), value:item.id},checked:$parent.empleado_id" type="radio" name="radio_persona"> 
+                          </label> -->
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input data-bind="checked:item.procesar" type="checkbox">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div>
+                        </td>
+                          <td>
+                             <label style="width: 100%;" data-bind="attr:{for:'radio_persona-'+$index()},text:item.cedula"></label>
+                          </td> 
+                          </td>
+                          <td>
+                          <label style="width: 100%;" data-bind="attr:{for:'radio_persona-'+$index()},text:(item.nombres + ' ' + item.apellidos)"></label>
+                          </td>                         
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+
+          </div>
+
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:agregar_empleado_a_planilla">Listo</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    
+  	<script type="text/javascript" src='{% static "js/ViewModels/seguridad_social/Planilla.js" %}?v=1'></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        planilla.consultar_planilla_empleado({{planilla_id}});
+      });
+    </script>
+{% endblock imports %}

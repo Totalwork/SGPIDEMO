@@ -1,0 +1,124 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Informe Financiero{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Informe Financiero</li>
+{% endblock mapa %}
+{% block encabezado %}Informe Financiero{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+{% block contenido %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel">
+
+      <div class="panel-heading">
+        <span>      
+          <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"          aria-hidden="true"></i></a>
+        </span>        
+        <span>Opciones</span>  
+      </div>
+      <div class="panel-body">
+
+        <div class="row mb10" id="spy3">
+          <div class="col-sm-10 col-md-4">
+            <a href="{% url 'financiero_movimiento.informe_financiero' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">                            
+                  <div class="col-md-3">
+                    <i class="fa fa-book fa-5x"></i>
+                  </div>
+                  <div class="col-md-7">                                 
+                    <h4 class="mt8 lh8">Informe Financiero por Macrocontrato</h4>  
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-sm-10 col-md-4">                       
+            <a href="{% url 'financiero_movimiento.informe_financiero_contratista' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-share fa-5x"></i>
+                  </div>
+                  <div class="col-md-7">                                 
+                    <h4 class="mt8 lh8">Informe Financiero por Contratista</h4>  
+                  </div>
+                </div>
+              </div>                       
+            </a>
+          </div>
+
+
+           <div class="col-sm-10 col-md-4">                       
+            <a href="{% url 'financiero_movimiento.reporte_pago' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-dollar fa-5x"></i>
+                  </div>
+                  <div class="col-md-7">                                 
+                    <h4 class="mt8 lh8">Reporte de Pago</h4>  
+                  </div>
+                </div>
+              </div>                       
+            </a>
+          </div>
+
+           <div class="col-sm-10 col-md-4">                       
+            <a href="{% url 'financiero_movimiento.informe_anticipos' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-money fa-5x"></i>
+                  </div>
+                  <div class="col-md-7">                                 
+                    <h4 class="mt8 lh8">Informe de Anticipos</h4>  
+                  </div>
+                </div>
+              </div>                       
+            </a>
+          </div>
+
+        
+
+         <div class="col-sm-10 col-md-4">                       
+            <a href="{% url 'financiero_movimiento.informe_financiero_origen' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p8">
+                  <div class="col-md-3">
+                    <i class="fa fa-book fa-5x"></i>
+                  </div>
+                  <div class="col-md-9">                                 
+                    <h4 class="mt8 lh8">Informe Financiero por Macrocontrato Con Origen de Recursos</h4>  
+                  </div>
+                </div>
+              </div>                       
+            </a>
+          </div>         
+
+        </div>
+
+          
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Loading -->
+{% endblock contenido %}
+
+{% load static %}

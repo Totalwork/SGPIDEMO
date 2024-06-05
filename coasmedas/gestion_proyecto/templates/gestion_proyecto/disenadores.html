@@ -1,0 +1,246 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Diseñadores{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li><a href="{% url 'gestion_proyecto.opciones' %}">Opciones</a></li>
+  <li class="active">Diseñadores</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+            <li>
+              <a href="#" data-placement="right" data-bind="click:abrir_modal" data-toggle="tooltip" data-original-title="Agregar nuevo diseñador">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+{% endblock opciones_listado %}
+
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+
+<div class="row" >
+
+  <div class="col-lg-12">
+   
+  
+    <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                  <span class="panel-title">
+                      <a href="{% url 'gestion_proyecto.opciones' %}" data-placement="right"    
+                        data-toggle="tooltip" data-original-title="Regresar a las opciones">
+                        <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                      </a>
+                      Diseñadores
+                  </span>
+          </div>
+          <div class="panel-body">
+           
+        <section id="content" class="table-layout animated fadeIn">         
+
+        <!-- begin: .tray-left -->
+        <div class="tray tray-center" style="padding: 2px 20px 50px;">
+
+        <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Contratistas</span>
+              </div>
+
+
+                  <div class="panel-body pn">
+                   <br>
+                     <div class="col-lg-8">
+                        <div class="input-group">
+                                  <input class="form-control" id="txtBuscar4" name="txtBuscar4" type="text" placeholder="Buscar contratista" data-bind="event:{keypress:consulta_enter_contratista}">
+                                  <span class="input-group-addon" style="cursor:pointer;" data-bind="click:consultar_contratista"><i class="fa fa-search"></i></span>
+                          </div>
+                         
+                      </div>
+                    <br>
+            <div class="col-lg-12">
+            <br>
+             <div data-bind="html: mensaje"></div> 
+                             <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>
+
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall_contratista">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>    
+              <th >Nombre</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_contratista, as:'item'}">
+            <tr>
+              <td>                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.nombre"></td>    
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+        
+                  </div>
+            </div>
+          </div>
+        <!-- end: .tray-left -->
+
+        <div class="col-lg-2" align="center">
+                <div class="btn-group-vertical">
+                    <button class="btn btn-primary" type="button" data-bind="click:incluir_disenadores">Incluir Diseñador <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i></button> 
+                          <br>
+                    <button class="btn btn-primary" type="button" data-bind="click:quitar_disenadores"><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i> Quitar Diseñador</button>
+                </div> 
+             </div>
+
+        <!-- begin: .tray-center -->
+
+        <div class="tray tray-center" style="padding: 2px 20px 50px;">
+
+        <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Diseñadores</span>
+              </div>
+
+                  <div class="panel-body pn">
+
+                    <br>
+                    <div class="col-lg-12">
+                             <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall_disenadores">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></th>    
+              <th >Nombre</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_disenadores, as:'item'}">
+            <tr>
+              <td>                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.nombre"></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+        
+                  </div>
+            </div>
+          </div>
+
+      </section>
+          </div>
+    </div>
+
+  </div>
+
+</div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >      
+
+
+
+
+<!--Modal-->
+
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!--ko if: disenadorVO.id() >  0 && disenadorVO.logo()!='' -->
+           <div align="center"><img data-bind="attr: {src: disenadorVO.logo}" alt="Archivo" ></div>
+         <!--/ko--> 
+        
+        <div class="form-group">          
+          <label>Nit(*)</label>
+          <input type="text" class="form-control" data-bind='value:disenadorVO.nit,onlyNumber:disenadorVO.nit,enable:desahabilitar_nit,hasfocus:focus_nit'>
+        </div>
+
+        <div class="form-group">
+          <label>Nombre(*)</label>
+          <input type="text" class="form-control" data-bind='value:disenadorVO.nombre'>           
+        </div>
+        <div class="form-group">          
+          <label>Direccion</label>
+          <input type="text" class="form-control" data-bind='value:disenadorVO.direccion'>
+        </div>
+
+        
+        <div class="form-group">          
+          <label>Logo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:disenadorVO.logo,allowedFileExtensions: ['png','jpg','jpge'],
+                                   elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                                   <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg y jpge.<br></small>
+        </div>
+
+        </form>
+       </div>
+
+       
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+
+       
+
+    </div>
+  </div>
+</div>
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/Disenadores.js" %}'></script>
+{% endblock imports %}

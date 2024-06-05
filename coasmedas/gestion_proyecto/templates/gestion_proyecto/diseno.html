@@ -1,0 +1,463 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Diseños{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li class="active">Diseños</li>
+{% endblock mapa %}
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div> 
+  <div class="panel panel-sky" >
+            <div class="panel-heading">
+                <h4>
+                  <a href="{% url 'gestion_proyecto.gestion_proyecto' %}" data-placement="right"    
+                    data-toggle="tooltip" data-original-title="Regresar a la gestion de proyectos">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  Listado de Diseños <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></h4>
+          </div>
+          <div class="panel-body">
+          <div class="col-lg-12">
+                  <div class="form-group input-group">
+                          <i href="#" style="color:#428bca; cursor:pointer;" data-toggle="tooltip" data-original-title="Filtrar Diseños" class="fa fa-filter fa-2x" data-bind="click:abrir_modal_filter"></i>&nbsp;
+                         <i style="color:#428bca; cursor:pointer;" data-toggle="tooltip" data-original-title="Reporte de Archivo" class="fa fa-file-excel-o fa-2x" href="#" data-bind="click:abrir_modal_reporte"></i> &nbsp;
+                         <i style="color:#428bca; cursor:pointer;" data-toggle="tooltip" data-original-title="Limpiar FIltro" class="fa fa-eraser fa-2x" href="#" data-bind="click:limpiar_filtro"></i> 
+                  </div>                   
+          </div>
+          <p class="help-block"><span data-bind="text:total"></span> proyectos encontrados en la busqueda</p>
+          <div class="table-responsive" data-bind="dropdown,visible:(listado()!=null && listado().length > 0)">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>    
+              <th >Campaña</th>
+              <th >Fondo</th>
+              <th >Departamento</th>
+              <th >Municipio</th>
+              <th >Nombre del Proyecto</th>
+              <th >Costo del Proyecto</th>
+              <th >Costo de Diseño</th>
+              <th >Estado</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td>                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.campana.nombre"></td>
+              <td data-bind="text: item.fondo.nombre"></td>
+              <td data-bind="text: item.municipio.departamento.nombre"></td>
+              <td data-bind="text: item.municipio.nombre"></td>
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: formatMoney(item.costo_proyecto)"></td>
+              <td data-bind="text: formatMoney(item.costo_diseno)"></td>
+              <!--ko if: item.estado!=null -->
+                  <td data-bind="text: item.estado.estado__nombre"></td>
+               <!--/ko-->
+
+               <!--ko if: item.estado==null -->
+                  <td></td>
+               <!--/ko-->
+               <td>
+                 <div class="btn-group text-right">
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu">
+                   {% if 'gestion_proyecto.change_diseno' in perms %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                       </li>
+                       {% endif %}
+                       <li>
+                          <a href="#" data-bind="click:$root.version_diseno">Versiones</a>
+                       </li>
+                    </ul>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+         <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+        
+          
+          
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+  </div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >      
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-lg-6">
+              <div class="form-group">
+                <label>Solicitante(*)</label>
+                <select id="campana" class="form-control" data-bind='value:disenoVO.solicitante_id'>
+                       <option value="">[Seleccione...]</option>
+                        {% for item in solicitantes %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label>Diseñador(*)</label>
+                <select id="campana" class="form-control" data-bind='value:disenoVO.disenadores_id'>
+                       <option value="0">[Seleccione...]</option>
+                        {% for item in disenadores %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>            
+              </div>
+          </div>
+
+          
+        </div>
+
+
+        <div class="row">
+          <div class="col-lg-6">
+              <div class="form-group">
+                <label>Campaña(*)</label>
+                <select id="campana" class="form-control" data-bind='value:disenoVO.campana_id'>
+                       <option value="">[Seleccione...]</option>
+                       {% for item in campanas %}
+                         <option value="{{ item.campana.id }}">{{ item.campana.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+            </div>
+
+
+          <div class="col-lg-6">
+              <div class="form-group">
+                <label>Costo del Diseño(*)</label>
+                <input type="text" class="form-control"  data-bind="value:disenoVO.costo_diseno, onlyNumber:disenoVO.costo_diseno">
+              </div>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="col-lg-6">
+              <div class="form-group">
+                <label>Fondo de Financiación(*)</label>
+                <select id="campana" class="form-control" data-bind='value:disenoVO.fondo_id'>
+                       <option value="">[Seleccione...]</option>
+                       {% for item in fondos %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+            </div>
+
+          <div class="col-lg-6">
+              <div class="form-group">
+                <label>Costo de Proyecto(*)</label>
+                <input type="text" class="form-control"  data-bind="value:disenoVO.costo_proyecto, onlyNumber:disenoVO.costo_proyecto">
+              </div>
+          </div>
+        </div>
+
+
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                <label>Departamento</label>
+                <select id="campana" class="form-control" data-bind='value:disenoVO.departamento_id'>
+                       <option value="">[Seleccione...]</option>
+                       {% for item in departamentos %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                <label>Municipio(*)</label>
+                <select id="campana" class="form-control" data-bind='value:disenoVO.municipio_id'>
+                       <option value="">[Seleccione...]</option>
+                        <!-- ko foreach: listado_municipio -->
+                          <option data-bind="value:id,text:nombre"></option>
+                       <!-- /ko --> 
+                </select>    
+              </div>
+              </div>
+            </div>
+              
+            </div>
+
+              <div class="col-lg-6">
+              <div class="form-group">
+                <label>Nombre(*)</label>
+                <textarea class="form-control" data-bind='value:disenoVO.nombre'></textarea>          
+              </div>
+          </div>
+
+        </div>
+
+     
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+<!--Modal-->
+
+<div id="modal_filter" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-lg-6">
+              <div class="form-group">
+                <label>Solicitante</label>
+                <select id="campana" class="form-control" data-bind='value:filterVO.solicitante_id'>
+                       <option value="0">[Seleccione...]</option>
+                        {% for item in solicitantes %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+            </div>
+
+            <div class="col-lg-6">
+              <div class="form-group">
+                <label>Diseñador</label>
+                <select id="campana" class="form-control" data-bind='value:filterVO.disenadores_id'>
+                       <option value="0">[Seleccione...]</option>
+                        {% for item in disenadores %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>            
+              </div>
+          </div>
+
+          
+        </div>
+
+
+        <div class="row">
+
+           <div class="col-lg-6">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                <label>Departamento</label>
+                <select id="campana" class="form-control" data-bind='value:filterVO.departamento_id'>
+                       <option value="0">[Seleccione...]</option>
+                       {% for item in departamentos %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                <label>Municipio</label>
+                <select id="campana" class="form-control" data-bind='value:filterVO.municipio_id'>
+                       <option value="0">[Seleccione...]</option>
+                        <!-- ko foreach: listado_municipio -->
+                          <option data-bind="value:id,text:nombre"></option>
+                       <!-- /ko --> 
+                </select>    
+              </div>
+              </div>
+            </div>
+              
+            </div>
+
+
+             <div class="col-lg-6">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                <label>Campaña</label>
+                <select id="campana" class="form-control" data-bind='value:filterVO.campana_id'>
+                       <option value="0">[Seleccione...]</option>
+                       {% for item in campanas %}
+                         <option value="{{ item.campana.id }}">{{ item.campana.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="form-group">
+                <label>Fondo de Financiación</label>
+                <select id="campana" class="form-control" data-bind='value:filterVO.fondo_id'>
+                       <option value="0">[Seleccione...]</option>
+                       {% for item in fondos %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+              </div>
+            </div>
+              
+            </div>
+
+
+        </div>
+
+
+        <div class="row">
+          <div class="col-lg-6">
+              <div class="form-group">
+                <label>Estado</label>
+                <select id="campana" class="form-control" data-bind='value:filterVO.estado_id'>
+                       <option value="0">[Seleccione...]</option>
+                        {% for item in estado %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+            </div>
+          </div>
+     
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:filtrar">Filtrar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_reporte" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+          <div class="form-group">
+                <label>Campaña</label>
+                <select id="campana" class="form-control" data-bind='value:id_campana_reporte'>
+                       <option value="0">[Seleccione...]</option>
+                       {% for item in campanas %}
+                         <option value="{{ item.campana.id }}">{{ item.campana.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:exportar_excel_convocatoria">Generar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/diseno.js" %}'></script>
+{% endblock imports %}

@@ -1,0 +1,236 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Esquema de Capitulos{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Esquema de Capitulos</li>
+{% endblock mapa %}
+
+ {% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#">
+                  <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+
+{% endblock opciones_listado %} 
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                     <span class="panel-title"> 
+                      <a href="{% url 'usuario.index' %}" data-placement="right"    
+                        data-toggle="tooltip" data-original-title="Regresar al inicio">
+                        <i class="fa fa-arrow-left"></i>
+                      </a>
+                      Listado de Esquema de Capitulos <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+          </div>
+          <div data-bind="html: mensaje"></div> 
+          <div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+            
+          <div class="table-responsive">
+                <table class="table" style="table-layout: fixed;" >
+              <thead>
+            <tr> 
+              <th width="5">  
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> 
+              </th>
+              <th width="40">Macrontrato</th>
+              <th width="45">Nombre</th>
+              <th width="10"></th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+               <td width="5">                                                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+               </td> 
+              <td  width="40" data-bind="text: item.macrocontrato.nombre"></td>
+              <td width="45" data-bind="cutWord:{num:150,text:item.nombre, verMax:'...', verMin:'...'}"></td>
+                <td width="10">
+                 <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                        {% if 'avanceObraGrafico2.change_besquemacapitulosg' in perms %}
+                           <li>
+                              <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                           </li>
+                       {% endif %}
+
+                       {% if 'avanceObraGrafico2.can_see_esquemacapitulosactividadesgrafico' in perms %}
+
+                       <li>
+                          <a href="#" data-bind="click:$root.agregar_capitulos">Capitulos</a>
+                        </li>
+                        {% endif %}
+                       <li>
+                          <a href="#" data-bind="click:$root.abrir_modal_clonacion">Clonar</a>
+                        </li>
+                        {% if 'avanceObraGrafico2.can_see_reglaEstadog' in perms %}
+                        <li>
+                          <a href="#" data-bind="click:$root.regla_estado">Regla de Estado</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+<input type="hidden" id="nombre_empresa" value="{{user.usuario.empresa.abreviatura}}" class="form-control" >  
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+       <div class="modal-body">
+        
+        
+         <div class="form-group">
+            <label>Macrocontrato(*)</label>
+            <select class="form-control" data-bind="value:etiquetaVO.macrocontrato_id">
+                      <option value="">[Seleccione..]</option>
+                       {% for item in macrocontrato %}
+                        <option value="{{ item.contrato.id }}">{{ item.contrato.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+         <div class="form-group">
+            <label>Nombre(*)</label>
+            <input type="text" data-bind="value:etiquetaVO.nombre" class="form-control" >           
+        </div>
+
+         
+
+        
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>       
+      </form>
+  </div>
+</div>
+</div>
+
+<div id="modal_clonacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+       <div class="modal-body">
+        
+        
+         <div class="form-group">
+            <label>Macrocontrato(*)</label>
+            <select class="form-control" data-bind="value:clonaVO.id_macrocontrato">
+                      <option value="">[Seleccione..]</option>
+                       {% for item in macrocontrato %}
+                        <option value="{{ item.contrato.id }}">{{ item.contrato.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+
+        <div class="form-group">
+            <label>Nombre del esquema(*)</label>
+            <input type="text" data-bind="value:clonaVO.nombre_esquema" class="form-control" >          
+        </div>         
+
+        
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:clonar_esquema">Clonar</button>
+        </div>       
+        </form>
+  </div>
+</div>
+</div>
+
+          
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.abreviatura}}" class="form-control" >    
+<!--Modal-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/hitos.js" %}'></script>
+{% endblock imports %}

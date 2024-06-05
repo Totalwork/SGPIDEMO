@@ -1,0 +1,520 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Multa{% endblock title%}
+
+{% block opciones_listado %}{% endblock opciones_listado %}  
+
+
+{% block mapa %}
+
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="../index/">Multas</a></li>
+  <li><a href="../multaElaboradas/">Elaboradas</a></li>
+  <li class="active">Registrar Solicitud</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+{% block busqueda %}{% endblock busqueda %}
+{% block contenido %}
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>  
+
+<!-- <div class="row" >
+  <div class="col-lg-12">        
+    <div class="panel panel-sky" >
+      <div class="panel-heading">
+        Registrar Solicitud
+      </div>
+      <div class="panel-body"> -->
+
+        <div>
+          <!-- INICIA DATOS GENERALES -->
+            <div class="col-md-12">  
+              <div  class="panel" >
+                <div class="panel-heading">
+                  <span>      
+                    <a href="../multaElaboradas/"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                    aria-hidden="true"></i></a>
+                  </span>                  
+                  <span class="panel-title">Datos generales</span>
+                </div>
+                <div class="panel-body" >  
+                  <div class="form-group col-lg-3">
+                    <label>(*) Fecha De Solicitud</label>
+                    <input type="text" placeholder="AAAA-MM-DD." class="form-control" data-bind='datePicker:multaVO.fechaEnvio,value:multaVO.fechaEnvio'>       
+                  </div>                       
+
+                  <div class="form-group col-lg-3">
+                    <label>(*) Departamento </label>
+                    <select class="form-control" data-bind="value: multaVO.departamento_id"  >
+                        <option value="">Seleccione el departamento...</option>
+                        {% for item in departamentos %}
+                           <option value="{{ item.id }}">{{ item.nombre }}</option>
+                        {% endfor %}
+                    </select>     
+                  </div>
+
+                  <div class="form-group col-lg-3">          
+                    <label>(*) Ciudad</label>
+                    <select class="form-control" data-bind="options: listado_municipios,
+                                       optionsText: 'nombre', 
+                                       optionsValue: 'id', 
+                                       optionsCaption: 'Seleccione...',
+                                       value: multaVO.ciudad_id
+                                       ">
+                    </select>    
+                  </div>                            
+
+                  <div class="form-group col-lg-3">          
+                    <label>(*) Prefijo</label>
+                    <select class="form-control" data-bind="value: multaVO.prefijo_id"  >
+                        <option value="">Seleccione el prefijo...</option>
+                        {% for item in prefijos %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %}   
+                    </select>    
+                  </div>
+
+                   <div class="col-lg-12"> 
+                    <input type="hidden" class="form-control" id="consecutivoHabilitado" value="{{user.usuario.empresa.consecutivoDigitado}}"> 
+
+                    <!--ko if: "{{user.usuario.empresa.consecutivoDigitado}}"=="True" --> 
+                        <div class="form-group col-lg-2"> 
+                          <label>Consecutivo</label>
+                          <input type="text" placeholder="Numero del cons." class="form-control" data-bind='value:multaVO.consecutivo_carta'>  
+                        </div>                                
+                    <!-- /ko -->
+                  </div>
+                  
+                  <div class="form-group  col-lg-12">
+                      <div class="form-group col-lg-6">  
+                        <label>Hechos generadores de incumplimiento</label>                                
+                        <textarea id="echos" >
+                        </textarea>
+                      </div>
+
+                      <div class="form-group col-lg-6">  
+                        <label>Clausulas afectadas</label>                                
+                        <textarea id="clausulas" >
+                        </textarea>
+                      </div>
+
+                       
+                  </div>
+
+                  <div class="col-lg-12">
+                    <div class="form-group col-md-6"  > 
+                      <div class="form-group col-lg-12">
+                        <label>(*) Contrato</label>  
+                        <div class="input-group">
+                          <input type="text" placeholder="Seleccione un contrato." class="form-control" id="contratoAsignado" data-bind='value:multaVO.contrato_id' readonly> 
+                          <span class="input-group-addon" data-bind='click: abrir_modal_contratos' style="cursor:pointer">
+                            <i class="fa fa-search"></i>
+                          </span>
+                        </div>             
+                      </div> 
+
+                      <div class="form-group col-lg-12">
+                        <label>(*) Valor</label>  
+                        <div class="input-group">
+                          <input type="text" placeholder="10000" class="form-control" data-bind='onlyNumber:multaVO.valorSolicitado  ,value:multaVO.valorSolicitado' readonly>    
+                          <span class="input-group-addon" data-bind='click: abrir_modal_eventos' style="cursor:pointer">
+                            <i class="fa fa-bolt"></i>
+                          </span>
+                        </div>  
+                      </div>
+
+                      <div class="form-group col-lg-12">          
+                        <label>(*) Firma</label>
+                        <select class="form-control form-group" data-bind='value:multaVO.firmaSolicitud_id' >  
+                          <option value="">Seleccione el funcionario...</option> 
+                          {% for item in funcionarios_firman %}
+                             <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }}</option>
+                          {% endfor %}
+                        </select>     
+                      </div>  
+
+                    </div>  
+                    
+                    <div class="form-group col-md-6"  > 
+                    <br> 
+                    <div  class="panel" >
+                      <div class="panel-heading">
+                        <span class="panel-title">Destinatario</span>
+                      </div>
+                      <div class="panel-body" >
+                          <label>Se encuentra en el grupo SININ:</label> 
+
+                              <!--ko if: multaVO.contrato_id() --> 
+                              <div class="input-group form-group">
+                                  <input class="form-control" placeholder="Nombres o apellidos" type="text" id="filtro_Destinatario" data-bind="event:{keypress: consultar_funcionarios_enter }" >
+                                    <span class="input-group-addon"  data-bind="click:consultar_funcionarios_btn" style="cursor:pointer">Consultar</span>
+                              </div> 
+                              <!-- /ko -->
+
+                              <div class="form-group">
+                                <select class="form-control form-group" size="9" data-bind='value:multaVO.destinatario_id'>  
+                                  <!--ko foreach: { data:listado_funcionarios , as:'item'}-->       
+                                    <option data-bind="value:item.id, text: item.persona__nombres+' '+item.persona__apellidos+' - ('+item.user__username+')'"></option>
+                                  <!-- /ko -->
+                                </select>  
+                              </div>   
+                            </div> 
+                        
+                            <div class="form-group">
+                              <label>(*) Departamento </label>
+                              <select class="form-control" data-bind="value: departamentoEmpresa_id"  >
+                                  <option value="">Seleccione el departamento de ubicación...</option>      
+                                  {% for item in departamentos %}
+                                     <option value="{{ item.id }}">{{ item.nombre }}</option>
+                                  {% endfor %}
+                              </select>     
+                            </div>
+                            <div class="form-group">          
+                              <label>(*) Ciudad del Destinatario</label>
+                              <select class="form-control" data-bind="options: listado_municipiosEmpresa,
+                                                 optionsText: 'nombre', 
+                                                 optionsValue: 'id', 
+                                                 optionsCaption: 'Seleccione la ciudad de ubicación...',
+                                                 value: multaVO.ciudad_destinatario_id
+                                                 ">
+                              </select>    
+                      </div>  
+                    </div> 
+                  </div> 
+
+                  </div>         
+                </div>                          
+              </div> 
+            </div>
+          <!-- FINALIZA DATOS GENERALES -->
+          <!-- INICIA DATOS A COPIAR -->
+
+            <div class="form-group col-md-6">  
+              <div  class="panel" >
+                <div class="panel-heading"><span class="panel-title">Agregar copia</span></div>
+                <div class="panel-body" >
+                  <div class="form-group">
+                    <select class="form-control form-group" data-bind="value: filtro_empresaDestinatarioCopia" >  
+                      <option value="">Seleccione la empresa ...</option> 
+                      {% for item in empresas %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %}
+                    </select>  
+                  </div> 
+                  <div class="input-group form-group">
+                    <input class="form-control" placeholder="Nombres o apellidos" type="text" id="filtro_DestinatarioCopia" data-bind="event:{keypress:consultar_funcionariosCopia_enter }" >
+                      <span class="input-group-addon"  data-bind="click:consultar_funcionariosCopia_btn" style="cursor:pointer" >Consultar</span>    
+                  </div>
+                  <div class=" form-group">
+                    <button type="button"  data-bind="event:{click:asignar_copia}" class="btn btn-sm btn-primary btn-block" >
+                      <h4>Asignar usuarios a copiar -
+                            <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                      </h4> 
+                    </button>
+                  </div>
+
+                  <div class="form-group">
+                      <select class="form-control form-group" size="7" id="destinatarioCopia" data-bind="event:{dblclick:asignar_copia} ">  
+                              <!--ko foreach: { data:listado_funcionarios_copia , as:'item'}-->        
+                                      <option data-bind="value:item.id, text: item.persona.nombres+' '+item.persona.apellidos+' - ('+item.user.username+')' "></option>
+                                    <!-- /ko -->
+                      </select>  
+                  </div> 
+                </div> 
+              </div> 
+            </div> 
+
+            <div class="form-group col-md-6">  
+              <div  class="panel" >
+                <div class="panel-heading">
+                  <span class="panel-title">Usuarios  con  copia</span>
+                </div>
+                <div class="panel-body" >
+                  <div class=" form-group">
+                    <button type="button" data-bind="event:{click:quitar_copia}" class="btn btn-sm btn-primary btn-block" >
+                    <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                        - Quitar usuarios                           
+                    </h4>
+                    </button>
+                  </div>
+                  <div class="form-group">
+                    <select class="form-control form-group" size="13" id="destinatarioConCopia" data-bind="event:{dblclick:quitar_copia} " >  
+                        <!--ko foreach: { data:listado_destinatarios_con_copia , as:'item'}-->        
+                          <option data-bind="value:item.id, text: item.nombres "></option>
+                        <!-- /ko -->
+                    </select>      
+                  </div> 
+                </div> 
+              </div> 
+            </div> 
+
+          <!-- FINALIZA DATOS A COPIAR -->
+        </div>     
+        <div class="form-group col-md-12">         
+          <button type="button" class="btn btn-primary pull-right" data-bind="click:guardar , text:titulo_btn"></button>   
+        </div> 
+ <!--      </div>
+ <div class="modal-footer">
+   <button type="button" class="btn btn-primary" data-bind="click:guardar , text:titulo_btn"></button>
+ </div>
+     </div>
+   </div>
+ </div> -->
+<!--Modal-->
+
+
+<!-- INICIA MODAL DE BUSQUEDA DE CONTRATO -->
+<div id="modal_contratos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+          <div class="col-md-12 form-group"> 
+            <i class="text-success fa fa-bell" style="font-size:16px"></i>
+            &nbsp;:&nbsp;[Vigente];
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <i class="text-primery fa fa-bell-o" style="font-size:16px"></i>
+            &nbsp;:&nbsp;[Liquidado];
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <i class="text-alert fa fa-bell" style="font-size:16px"></i>
+            &nbsp;:&nbsp;[Suspendido];
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <i class="text-warning fa fa-bell" style="font-size:16px"></i>
+            &nbsp;:&nbsp;[Por Vencer];
+            &nbsp;&nbsp;&nbsp;&nbsp;
+
+            <i class="text-danger fa fa-bell" style="font-size:16px"></i>
+            &nbsp;:&nbsp;[Vencido];
+          </div>
+
+          <div class="form-group col-lg-3">
+            <label> Estado de Contrato</label>
+            <select class="form-control" data-bind="value: filtro_contratoVO.id_estado"  >
+                <option value="">Seleccione...</option>        
+                {% for item in estados_contratos %}
+                  <option value="{{ item.id }}">{{ item.nombre }}</option>
+                {% endfor %}
+            </select>     
+          </div>
+          <div class="form-group col-lg-6">
+            <div class="input-group" style="margin-top:22px">           
+              <input class="form-control"  placeholder="Nombre o numero del contrato" type="text" id="filtroContrato" data-bind="event:{keypress:consultar_contratos_enter}" >
+                <span class="input-group-addon"  data-bind="click:consultar_contratos_btn" style="cursor:pointer" >Consultar</span>
+            </div>
+          </div>
+       
+          <div class="col-md-12"> 
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Listado</span>
+              </div>
+              <div class="panel-body" > 
+
+                <div data-bind="html: mensajeListadoContrato"></div>  
+
+                <div class="col-lg-12" data-bind="visible:(listado_contrato()!=null && listado_contrato().length > 0)">                     
+
+                    <div class="table-responsive">
+                      <table class="table">
+                      <thead>
+                        <tr>                  
+                          <th>Nombre</th>
+                          <th>Número</th>
+                          <th>Opcion</th>
+                        </tr>         
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_contrato, as:'item'}">
+                        <tr data-bind="css:{'success': item.estado.id == $parent.estado.vigente(),
+                                    'primery': item.estado.id == $parent.estado.liquidado(),
+                                    'alert': item.estado.id == $parent.estado.suspendido(),
+                                    'warning': item.estado.id == $parent.estado.porVencer(),
+                                    'danger': item.estado.id == $parent.estado.vencido()
+                                    }">
+                          <td data-bind="text: item.nombre"></td>
+                          <td data-bind="text: item.numero"></td>  
+                          <td>
+                            <!-- ko if: item.estado.id!=32 -->
+                            <i class="fa fa-arrow-circle-right fa-2x" aria-hidden="true" data-bind="click:$root.asignar_contrato" style="cursor:pointer" >
+                            </i>
+                            <!-- /ko -->
+                          </td>        
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div> 
+                </div>
+              </div>
+            </div>
+          </div>
+       </div>       
+    </div>
+  </div>
+</div>
+<!-- FINALIZA MODAL BUSQUEDA DE CONTRATO -->
+
+<!-- INICIA MODAL DE BUSQUEDA DE CONTRATO -->
+<div id="modal_eventos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+    
+              <div class="form-group col-lg-6">
+                <div class="form-group col-lg-12">
+                  <label> Conjunto de eventos</label>
+                  <select class="form-control" data-bind="value: conjunto_evento"  >
+                      <option value="">Seleccione...</option>        
+                      {% for item in conjunto_eventos %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %}
+                  </select>     
+                </div>      
+                <div class="form-group col-md-12"> 
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Listado</span>
+                    </div>
+                    <div class="panel-body" > 
+
+                      <div data-bind="html: mensajeListadoEventos"></div>  
+
+                      <div class="col-lg-12" data-bind="visible:(listado_eventos()!=null && listado_eventos().length > 0)">                     
+
+                          <div class="table-responsive">
+                            <table class="table">
+                            <thead>
+                              <tr>                  
+                                <th>Evento</th>
+                                <th>Valor</th>
+                                <th style="width: 20%">Dias</th>
+                                <th></th>
+                              </tr>         
+                            </thead>
+                            <tbody data-bind="foreach:{data:listado_eventos, as:'item'}">
+                              <tr>
+                                <td data-bind="text: item.nombre"></td>
+                                <td data-bind="text: item.valor"></td> 
+                                <td>
+                                  <input  data-bind="attr:{'id' : 'D'+item.id}, value : 1 , onlyNumber" class="form-control"  type="number">
+                                </td> 
+                                <td>
+                                  <a style="cursor:pointer;" data-bind="click: $root.asignar_evento" >
+                                     <i class="fa fa-plus-circle fa-2x"></i>
+                                  </a>                                  
+                                </td>         
+                              </tr>
+                            </tbody>
+                          </table>
+                          </div> 
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+     
+                <div class="form-group col-md-6"> 
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Eventos seleccionados</span>
+                    </div>
+                    <div class="panel-body" > 
+
+                      <!-- <div data-bind="html: mensajeListadoContrato"></div>   -->
+
+                      <div class="col-lg-12" data-bind="visible:(listado_eventos_asignados()!=null && listado_eventos_asignados().length > 0)">                     
+
+                          <div class="table-responsive">
+                            <table class="table">
+                            <thead>
+                              <tr>                  
+                                <th>Evento</th>
+                                <th>Valor</th>
+                                <th>Dias</th>
+                                <th></th>
+                              </tr>         
+                            </thead>
+                            <tbody data-bind="foreach:{data:listado_eventos_asignados, as:'item'}">
+                              <tr>
+                                <td data-bind="text: item.nombre"></td>
+                                <td data-bind="text: item.valor"></td> 
+                                <td data-bind="text: item.dia"></td> 
+                                <td>
+                                  <i data-bind="click : $root.eliminar_evento" class="fa fa-trash-o fa-2x" style="color: #428bca; cursor:pointer;"></i>                                  
+                                </td>         
+                              </tr>
+                            </tbody>
+                          </table>
+                          </div> 
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+       </div>       
+    </div>
+  </div>
+</div>
+<!-- FINALIZA MODAL BUSQUEDA DE CONTRATO -->
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src="https://cdn.tiny.cloud/1/emtxaaumygjz7hfwlsvkmv5zwmvp1ywdl72d04cofj48lyzp/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/multa/multa.js" %}'></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+      tinymce.init({
+          selector: '#echos',
+          height: 400,
+          menubar: false,
+          plugins: [
+            'advlist autolink lists charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media contextmenu paste code',
+
+          ],
+          toolbar: 'undo redo | ',
+          content_css: '//www.tinymce.com/css/codepen.min.css'
+        });
+
+      tinymce.init({
+          selector: '#clausulas',
+          height: 400,
+          menubar: false,
+          plugins: [
+            'advlist autolink lists charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media contextmenu paste code',
+
+          ],
+          toolbar: 'undo redo | ',
+          content_css: '//www.tinymce.com/css/codepen.min.css'
+        });
+
+      $("#contratoAsignado").val('');
+      /*multa.consultar_parameter_select_registro();*/
+
+      /*multa.consultar_funcionarios_copia();
+      multa.consultar_funcionarios_elaboran();*/
+
+    });  
+  </script>
+{% endblock imports %}

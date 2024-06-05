@@ -1,0 +1,425 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %} 
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" type="text/css" href='{% static "assets/skin/default_skin/css/theme.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "assets/skin/default_skin/css/theme2.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "assets/skin/default_skin/css/theme3.css" %}'>
+
+  <!-- Admin Forms CSS -->
+  <link rel="stylesheet" type="text/css" href='{% static "assets/admin-tools/admin-forms/css/admin-forms.css" %}'>
+
+{% endblock imports_css %}
+
+
+{% block title %}Liquidación UUCC{% endblock title%}
+{% block mapa %}
+   <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avanceObraLite.presupuesto' cronograma_id %}">Presupuesto</a></li>
+  <li class="active">Liquidación UUCC</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}
+
+    {% if app in perms %}
+        {% if app|add:'.add_'|add:model in perms%}  
+            <li>
+              <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Registrar liquidación">
+                  <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+			  {% endif %}
+    {% endif %}
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+{% block contenido %}
+<div class="row" >
+	<input type="hidden" id="id_presupuesto" value="{{presupuesto_id}}" class="form-control" > 
+	
+	<div class="col-lg-12">
+		
+		<div class="panel panel-sky" >
+			<div class="panel-heading">
+                <h4>
+                  <a href="{% url 'avanceObraLite.presupuesto' presupuesto.id %}" data-placement="right" 
+                    data-toggle="tooltip" data-original-title="Regresar al presupuesto">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  Listado de liquidaciones  <span data-bind="text:'- N° de Registros: '+ paginacion.total()"></span>
+                </h4>
+                       
+          	</div>
+            <div data-bind="html: mensaje"></div>
+          	<div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">              
+          		<div class="table-responsive" data-bind="dropdown">
+                <div>
+                 <Strong>Proyecto:  {{cronograma.proyecto.nombre}}</Strong><br><br>
+                 <Strong>Cronograma:  {{cronograma.nombre}}</Strong><br><br>
+                </div>
+                  <i class="text-success fa fa-stop fa-2x" ></i>
+                  &nbsp;:&nbsp;[Abierta]
+                  &nbsp;&nbsp;&nbsp;&nbsp;
+
+                  <i class="text-danger fa fa-stop fa-2x" ></i>
+                  &nbsp;:&nbsp;[Cerrada]
+                  &nbsp;&nbsp;&nbsp;&nbsp;
+
+                  <i class="text-alert fa fa-stop fa-2x" ></i>
+                  &nbsp;:&nbsp;[Anulado]
+                  <br>
+          			<table class="table">
+          				<thead>
+          					<tr>
+                      <th>Estado</th>
+          						<th>Codigo</th>          						
+          						<th>Fecha</th>
+          						<th>Cantidad de UUCC</th>
+          						<th>Valor Liquidacion</th>
+          						<th>Opciones</th>
+          					</tr>
+          				</thead>
+          				<tbody data-bind="foreach:{data:listado, as:'item'}">
+          					<tr>
+          						
+
+                      <!--ko if: item.estado==1 -->
+          						  <!-- <td data-bind="text: 'Abierta'"></td> -->
+                        <td>
+                          <i class="text-success fa fa-stop fa-2x" ></i>
+                        </td>                        
+                      <!--/ko -->
+
+                      <!--ko if: item.estado==2 -->                        
+                        <td>
+                          <i class="text-danger fa fa-stop fa-2x" ></i>
+                        </td>                        
+                      <!--/ko -->
+
+                      <!--ko if: item.estado==3 -->                        
+                        <td>
+                          <i class="text-alert fa fa-stop fa-2x" ></i>
+                        </td>                        
+                      <!--/ko -->
+
+                      <td data-bind="text: item.id"></td>
+
+          						<td data-bind="text: item.fecha"></td>
+          						<td data-bind="text: item.cantidaduucc"></td>                      
+          						<td data-bind="text: formatMoney(item.valor_liquidacion)"></td>
+          						<td width="10">
+                        
+            							<div class="btn-group text-right">
+            								<a href="#" class="dropdown-toggle" data-toggle="dropdown" >
+            									<i class="fa fa-ellipsis-h fa-2x"></i>
+            								</a>
+            								<ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;"> 
+
+                              <!--ko if: item.estado==1 ||  item.estado==2-->
+              									<li>
+    	                              <a href="#" data-bind="click: function(){$root.abrir_detalle_cambio(item.id,item.estado)}">Detalle de la liquidacion</a>
+    				                          
+    				                    </li>
+                              <!--/ko --> 
+                          {% if app in perms %}
+                            {% if app|add:'.add_'|add:model in perms%} 
+                              <!--ko if: item.estado==1 -->
+                                <li>
+                                    <a href="#" data-bind="click: function(){$root.anular_abrir_modal(item.id) }">Anular</a>                                    
+                                </li>
+                              <!--/ko --> 
+                            {% endif %}
+                          {% endif %}
+  				                    
+                              <!--ko if: item.estado==2 -->
+                                <li>
+                                  <a href="#" data-bind="click: function(){$root.exportar_excel(item.id)}">Exportar a excel</a>
+                                </li>
+  				                    <!--/ko -->   
+  				                    
+
+                              
+                              <!--ko if: item.estado==3 -->
+                                <li>
+                                  <a href="#" data-bind="click: function(){$root.mostrar_movtivo_anulación(item.id)}">Ver motivo de anulación</a>
+                                </li>
+                              <!--/ko -->   
+                              
+
+  				                  </ul>
+
+            							</div>
+                        
+
+          						</td>
+          					</tr>
+          				</tbody>
+          			</table>
+          			<div id="paginacion" >                               
+                  <div data-bind="pagination: {
+                           currentPage: paginacion.pagina_actual,
+                           totalCount: paginacion.total,
+                           pageSize:paginacion.cantidad_por_paginas,
+                           maxPages: paginacion.maxPaginas,
+                           directions: paginacion.direcciones,
+                           boundary: paginacion.limite,
+                           text: paginacion.text }">
+                  </div>
+                </div>  
+                </div>
+          		</div>
+          	</div>
+		</div>
+	</div>
+</div>
+
+ <!--Modal-->
+
+<div id="modal_registro_liquidacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog modal-sm" style="width:  50%">
+	    <div class="modal-content" >        
+        <div class="panel panel-sky">
+	       	<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	        		<span aria-hidden="true">&times;</span>
+	        	</button>
+	        	<h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+	      	</div>
+	       	<div class="modal-body">
+	        	<form action="." method="post" enctype="multipart/form-data">
+	        		{% csrf_token %}              
+              <!--ko if: liquidacionVO.id -->
+                <h4>Codigo de liquidacion:
+                <span data-bind="text:liquidacionVO.id"></span>
+                </h4>
+              <!--/ko -->
+              <h4>Seleccione UUCC ejecutadas:</h4>
+              <div data-bind="html: mensaje_ejecutado"></div>
+              <div data-bind="html: mensaje_guardando"></div>
+              <table class="table" data-bind="visible:(listado_ejecucion()!=null && listado_ejecucion().length > 0)">
+                <thead>
+                  <tr>
+                    <th>
+                      <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input data-bind="checked:checkall2" type="checkbox">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                    </th>
+                    <!-- <th></th> -->
+                    <th style="width: 20%">Codigo UUCC</th>
+                    <th>Descripcion UUCC</th>
+                    <th>Cantidad ejecutada</th>
+                  </tr>
+                </thead>
+                <tbody data-bind="foreach:{data:listado_ejecucion, as:'item'}">
+                  <tr>
+                    <td>
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input data-bind="checked:eliminado" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>               
+                    </td>
+                    <td data-bind="text: item.detallepresupuesto__codigoUC"></td>
+                    <td data-bind="text: item.detallepresupuesto__descripcionUC"></td>
+                    <td data-bind="text: item.total"></td>
+                  </tr>
+                </tbody>
+              </table>
+  	    		</form>
+  	    	</div>
+
+     
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+            </div>
+
+
+ 
+
+        </div>
+      </div>
+	  </div>
+</div>
+
+
+<div id="anular" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+            <div class="modal-body bg-light">
+              <div class="col-lg-12">              
+                  <div class="row">
+                    <div class="form-group">
+                      <label>(*)Motivo de anulación: </label>
+                      <input type="text" class="form-control" 
+                      data-bind='value:liquidacionAnular.motivo_anular'>
+                    </div>
+
+                  </div>              
+              </div>        
+            </div>
+            <div class="modal-footer">            
+              <button type="button" class="btn btn-primary" data-bind="click:anular_liquidacion"> Anular </button>           
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="motivo_anulacion" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+            <div class="modal-body bg-light">
+              <div class="col-lg-12">              
+                  <div class="row">
+                    <div>
+                     <Strong>Proyecto:  {{cronograma.proyecto.nombre}}</Strong><br><br>
+                     <Strong>Cronograma:  {{cronograma.nombre}}</Strong><br><br>
+                     <Strong>Codigo de liquidación: <span data-bind="text:liquidacionAnular.id"></span></Strong><br><br>
+                    </div>
+                    <div class="form-group">
+                      <label>Motivo de anulación: </label>
+                      <textarea class="form-control" type="text" data-bind="text:liquidacionAnular.motivo_anular" disabled=""></textarea>
+                    </div>
+
+                  </div>              
+              </div>        
+            </div>            
+        </div>
+    </div>
+</div>
+
+
+
+<div id="modal_detalle_cambio" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm" style="width:  70%">  	
+	    <div class="modal-content">
+	       	<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	        		<span aria-hidden="true">&times;</span>
+	        	</button>
+
+            <div class="modal-title" id="gridModalLabel" >
+	        	  <strong><span style="font-size:16px" data-bind='text:titulo'></span></strong>
+              <!--ko if: liquidacionVO.estado()==2 -->
+                <a href="#" data-bind="click: function(){$root.exportar_excel(liquidacionVO.id())}" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar liquidacion">
+                    <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+                </a>
+              <!--/ko -->
+            </div>
+            
+	      	</div>
+	       	<div class="modal-body">            
+	        	<!--ko if: liquidacionVO.id -->
+                <h4>Codigo de liquidacion:
+                  <span data-bind="text:liquidacionVO.id"></span>
+                  {% if app in perms %}
+                    {% if app|add:'.add_'|add:model in perms%} 
+                      <!--ko if: liquidacionVO.estado()==1 -->
+                        <button type="button" 
+                          class="btn btn-primary" 
+                          data-bind="click:cerrar_liquidacion">Cerrar liquidación
+                        </button>
+                      <!--/ko -->
+                    {% endif %}
+                  {% endif %}
+                </h4>
+            <!--/ko -->
+
+
+
+	       		<div class="table-responsive" data-bind="dropdown">
+          			<table class="table">
+          				<thead>
+          					<tr>
+          						<th>Codigo UUCC</th>
+          						<th>Descripcion UUCC</th>
+          						<th>Cantidad ejecutada</th>
+          						<th>Vlr. Mano de obra</th>
+          						<th>Vlr. Materiales</th>
+          						<th>Subtotal Mano de obra</th>
+          						<th>Subtotal Materiales</th>
+          						<th>Total</th>          						
+          					</tr>
+          				</thead>
+          				<tbody data-bind="foreach:{data:listado_detalle, as:'item'}">
+          					<tr>
+          						<td data-bind="text: item.codigoUC"></td>
+          						<td data-bind="text: item.descripcionUC"></td>
+          						<td data-bind="text: item.cantidad_ejecutada"></td>
+                      <!--ko if: item.valorManoObra!=' ' -->
+          						  <td data-bind="text: formatMoney(item.valorManoObra)"></td>
+                      <!--/ko -->
+                      <!--ko ifnot: item.valorManoObra!=' ' -->
+                        <td data-bind="text: item.valorManoObra"></td>
+                      <!--/ko -->
+
+                      <!--ko if: item.valorMaterial!=' ' -->
+          						  <td data-bind="text: formatMoney(item.valorMaterial)"></td>
+                      <!--/ko -->
+                      <!--ko ifnot: item.valorMaterial!=' ' -->
+                        <td data-bind="text: item.valorMaterial"></td>
+                      <!--/ko -->
+
+          						<td width="10" data-bind="text: formatMoney(item.Subtotal_mano_obra)">
+          						<td width="10" data-bind="text: formatMoney(item.Subtotal_materiales)">
+                      <td width="10" data-bind="text: formatMoney(item.Subtotal_mano_obra+item.Subtotal_materiales)">
+          						</td>
+          					</tr>
+          				</tbody>
+          			</table>
+          			<div id="paginacion" >
+                      	<div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      	</div>
+                  	</div>
+          		</div>
+
+	    	</div>
+	    </div>
+	</div>
+</div>
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  	<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>    
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/Liquidacion_uucc.js" %}?cache=2'></script>
+{% endblock imports %}

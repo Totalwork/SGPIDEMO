@@ -1,0 +1,314 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Editar Actividad{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'administrador_tarea.administrador_tarea' %}">Administrador de Tarea</a></li>
+  <li><a href="{% url 'administrador_tarea.agenda' %}">Agenda</a></li>
+  <li class="active">Editar Actividad</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'administrador_tarea.administrador_tarea'%}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al listado de tareas">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a> 
+  Editar Actividad
+{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+   
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                     <span class="panel-title">Detalle de la Actividad</span>
+          </div>
+          <div class="panel-body">
+
+             <div class="row">
+                  <div class="col-lg-6">
+                      <h5>Tipo de la Actvidad:</h5>
+                     <select class="form-control" data-bind="value:edicionVO.tipo_id">
+                            <option value="0">[Seleccione..]</option>
+                            {% for item in tipo %}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                            {% endfor %} 
+                      </select>
+                  </div>  
+
+                  <div class="col-lg-6">
+                      <h5>Fecha de la Actividad:</h5>
+                       <div class="input-group date" id='datetimepicker2'>
+                      <input  type="text" class="form-control" data-bind="datetimePicker:edicionVO.fecha,value:edicionVO.fecha" 
+                        onkeypress="return false">
+                        <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                        </label>
+                      </div>   
+                  </div>               
+             </div> 
+             <div class="row">
+                  <div class="col-lg-6">
+                      <h5>Asunto:</h5>
+                       <input type="text"  class="form-control" data-bind="value:edicionVO.asunto"> 
+                  </div>  
+                  <div class="col-lg-6">
+                      <h5>Lugar:</h5>
+                       <input type="text"  class="form-control" data-bind="value:edicionVO.lugar"> 
+                  </div>             
+             </div>
+
+             <br>
+             <div >
+                <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+              </div> 
+        </div>
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                     <span class="panel-title">Invitados a la actividad</span>
+          </div>
+          <div class="panel-body">
+
+                <div class="row">
+                <div class="col-lg-12">
+                    <div class="btn-group text-right">
+                   <a href="#" data-bind="click:abrir_modal_usuario"><i class="fa fa-plus fa-2x">
+                      </i>Nuevo Invitado</a>
+                  </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                <div class="col-lg-12">
+                 <div data-bind="html: mensaje"></div> 
+                <div data-bind="visible:(listado_invitados()!=null && listado_invitados().length > 0)"> 
+
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                      <tr> 
+                        <th>Nombre Completo</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                     <tbody data-bind="foreach:{data:listado_invitados, as:'item'}">
+                        <tr>
+                            <td data-bind="text: item.persona.nombres+' '+item.persona.apellidos"></td>
+                            <td ><a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:$parent.eliminar_usuario" data-original-title="Eliminar usuario">
+                             <i class="fa fa-trash fa-2x"></i>
+                           </a></td>    
+                      </tr>
+                    </tbody>
+                  </table>
+                  </div>
+                 
+                </div>
+                </div>
+              </div>
+
+              <br>
+             <div >
+                <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+              </div> 
+
+     
+    </div>
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+
+    <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                     <span class="panel-title">Soporte a la actividad</span>
+          </div>
+         <div class="panel-body">
+
+               <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+            
+             <div class="form-group">
+                <label>Soporte(s)</label>  
+            </div>
+
+            <div class="form-group">
+              <div class="input-group">
+                      <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporteVO.ruta,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                   elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                                   <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>
+              </div>              
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary" data-bind="click:guardar_soporte">Guardar</button>
+              </div>
+
+          <div class="form-group">
+          <div data-bind="html: mensaje_soporte"></div>
+          <div data-bind="visible:(listado_archivo()!=null && listado_archivo().length > 0)">
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr> 
+              <th>Nombre</th>
+              <th>Soporte</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_archivo, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nombre"></td>
+                <td><a href="#" 
+                  target="_blank"><i data-bind="click:function(){$root.ver_soporte(item.id)}" class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a>
+                  <a href="#" data-bind="click:$parent.eliminar_soporte"><i class="fa fa-trash fa-2x" aria-hidden="true"></i></a>
+                  </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+        </div>
+
+        </form>
+     
+    </div>
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+  </div>
+
+  <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >            
+   <input type="hidden" id="id_actividad" value="{{id_actividad}}" class="form-control" > 
+
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_usuario" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Registrar/Consultar Usuarios</h4>
+        </div>
+
+       <div class="modal-body">
+        
+            <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Usuarios</span>
+              </div>
+
+              <br>
+              <div class="row">
+                    <div class="col-md-6">
+                      <select class="form-control" data-bind="value:id_empresa">
+                        <option value="0">[Seleccione la empresa..]</option>
+                         {% for item in Empresas %}
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                        {% endfor %} 
+                      </select>
+                    </div> 
+
+                    <div class="col-md-6">
+                      <div class="input-group">
+                          <input class="form-control" id="txtBuscar2" name="txtBuscar2" type="text" placeholder="Buscar" data-bind="event:{keypress:consulta_enter_usuario}">
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:function(){consultar_usuario(1)}"><i class="fa fa-search"></i></span>
+                        </div>
+                    </div> 
+                </div>  
+              <br>
+
+              <div class="panel-body pn">
+                <div data-bind="html: mensaje_usuario"></div>
+               
+                <div data-bind="visible:(listado_usuarios()!=null && listado_usuarios().length > 0)">
+                <div class="table-responsive">
+                      <table class="table">
+                    <thead>
+                  <tr> 
+                    <th><input type="checkbox" data-bind="checked:checkall2"></th>
+                    <th>Nombre</th>
+                    <th>Telefono</th>
+                    <th>Email</th>
+                  </tr>
+                </thead>
+
+                     <tbody data-bind="foreach:{data:listado_usuarios, as:'item'}">
+                      <tr>
+                       <td><input type="checkbox" data-bind="checked:eliminado"></td>
+                        <td data-bind="text: item.persona.nombres+' '+item.persona.apellidos"></td>
+                         <td data-bind="text: item.persona.telefono"></td>
+                         <td data-bind="text: item.persona.correo"></td>
+                      </tr>
+                    </tbody>
+               
+              </table>
+              </div>          
+            
+          
+             <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion_usuario.pagina_actual,
+                                     totalCount: paginacion_usuario.total,
+                                     pageSize:paginacion_usuario.cantidad_por_paginas,
+                                     maxPages: paginacion_usuario.maxPaginas,
+                                     directions: paginacion_usuario.direcciones,
+                                     boundary: paginacion_usuario.limite,
+                                     text: paginacion_usuario.text }">
+
+                        </div>
+                    </div>
+                    </div>
+                    <div data-bind="html: mensaje_guardando_usuario"></div> 
+                      <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-bind="click:guardar_usuario">Guardar</button>
+                    </div>
+                  </div>
+              </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/administrador_tarea/edicion_actividad.js" %}?cache=2'></script>
+{% endblock imports %}

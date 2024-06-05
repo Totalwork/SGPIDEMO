@@ -1,0 +1,177 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Completar información{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  	<li><a href="">Seguridad Social</a></li>
+    <li><a href="../../estudio-personas/">Estudio de personas</a></li>    
+	<li class="active">Empleados</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}      
+
+{% endblock opciones_listado %}   
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		    <div class="panel panel-sky" >
+		    		    
+		        <div class="panel-heading">
+              <span>      
+                <a href="../../estudio-personas/"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>                
+                Completar información del empleado                
+          	</div>
+             
+          	 <div class="panel-body">
+          	 	
+                {% include 'empleado/_empleado_parcial.html' %}
+              <!--   <div class="modal-footer">
+                 <button type="button" class="btn btn-primary pull-left" data-bind="click:guardar">Guardar</button>
+            	 </div> -->
+             </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+
+  <!--Modal-->
+
+
+<div id="modal_buscar_persona" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Buscar Persona</h4>
+      </div>
+       <div class="modal-body">
+       	
+        		<div class="form-group">
+	     				     			
+	     			<div class="input-group">
+              <input type="text" class="form-control" placeholder="Buscar Persona" data-bind="value:filtro_persona">
+                <span class="input-group-addon" title="Buscar persona" data-bind="click:consultar_persona">
+                <i class="fa fa-search"></i>
+              </span>
+            </div>                      
+                
+                <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Personas</span>
+                  </div>
+                  <div class="panel-body panel-scroller scroller-xs scroller-pn pn">
+                    <table class="table mbn tc-med-1 tc-bold-last">
+                      <thead>
+                        <tr class="hidden">                         
+                          <th>Listado</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_persona, as:'item'}">
+                        <tr data-bind="attr:{for:'radio_persona-'+$index()}">
+                        <td>
+                        	<label style="width: 100%;">
+                        	<input data-bind="attr:{id:'radio_persona-'+$index(), value:item.id},checked:$parent.id_persona" type="radio" name="radio_persona"> 
+                        	</label>
+                        </td>
+                        	<td>
+                        	<label style="width: 100%;" data-bind="attr:{for:'radio_persona-'+$index()},text:(item.nombres + ' ' + item.apellidos)"></label>
+                        	</td>                        	
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+
+	     		</div>
+
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:seleccionar_persona">Listo</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<div id="modal_crear_persona" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Crear Persona</h4>
+      </div>
+       <div class="modal-body">
+       	
+         		 {% csrf_token %}
+         		 <div class="form-group">
+         		   <label>Cedula</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.cedula">           
+         		 </div>
+         		 <div class="form-group">          
+         		   <label>Nombres</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.nombres">
+         		 </div>
+
+         		 <div class="form-group">          
+         		   <label>Apellidos</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.apellidos">
+         		 </div>
+
+         		  <div class="form-group">          
+         		   <label>Direccion</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.direccion">
+         		 </div>
+
+         		  <div class="form-group">          
+         		   <label>Correo</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.correo">
+         		 </div>
+         		
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_persona">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  	<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>  	
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>   
+  	<script type="text/javascript" src='{% static "js/ViewModels/seguridad_social/Empleado.js" %}?v=4'></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        empleado.consultar_cargos();
+        empleado.consultar_por_id({{empleado_id}});
+      });
+    </script>
+{% endblock imports %}

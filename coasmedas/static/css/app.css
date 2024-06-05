@@ -1,0 +1,61 @@
+.validationMessage {
+    color: #ed5565;
+    font-weight: normal;
+}
+
+.validationElement {
+    border: 1px solid #ed5565;
+}
+
+.customMessage {
+    color: Orange;
+}
+
+.pop-fondo {
+    background: white;
+    opacity: 0.5;
+    z-index: 10000000;
+    left: 0;
+    top: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+.pop-imagen {
+    z-index: 10000001;
+    left: 0;
+    top: 0;
+    position: fixed;
+    width: 35px;
+    height: 35px;
+    margin-left: -17.5px;
+    margin-top: -17.5px;
+    left: 50%;
+    top: 50%;
+}
+
+.pop-progress {
+    z-index: 10000001;
+    left: 0;
+    top: 0;
+    position: fixed;
+    margin-left: -17.5px;
+    margin-top: -17.5px;
+    left: 30%;
+    top: 50%;
+    width: 40%;
+}
+
+.filtrado {
+    Color:red;
+}
+
+
+.seccionhome {
+    border: 1px solid #6ab8b6;
+    border-radius: 10px 10px 10px 10px;
+    margin-left: 2px;
+    margin-right: 2px;
+    margin-top: 5px;
+}

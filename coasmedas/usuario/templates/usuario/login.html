@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ingreso al sistema</title>
+    <meta name="keywords" content="HTML5 Bootstrap 3 Admin Template UI Theme" />
+  <meta name="description" content="AdminDesigns - A Responsive HTML5 Admin UI Framework">
+  <meta name="author" content="AdminDesigns">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+
+    <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Open+Sans:300,400,600'>
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/skin/default_skin/css/theme.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/skin/default_skin/css/theme2.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/skin/default_skin/css/theme3.css' %}">
+
+  <!-- Admin Forms CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'assets/admin-tools/admin-forms/css/admin-forms.css' %}">
+  <script src='https://www.google.com/recaptcha/api.js'></script>
+</head>
+
+<body class="external-page sb-l-c sb-r-c">
+
+  <!-- Start: Main -->
+  <div id="main" class="animated fadeIn">
+
+    <!-- Start: Content-Wrapper -->
+    <section id="content_wrapper">
+
+      <!-- begin canvas animation bg -->
+      <div id="canvas-wrapper">
+        <canvas id="demo-canvas"></canvas>
+      </div>
+
+      <!-- Begin: Content -->
+      <section id="content">
+
+        <div class="admin-form theme-info" id="login1">
+
+        
+          <div class="panel panel-info mt10 br-n">
+
+            <div class="panel-heading heading-border bg-white">
+              <div class="row">
+                <div class="col-lg-3">
+                   <a href="#" title="Login">
+                      <img src="{% static 'assets/img/logo.png' %}" title="AdminDesigns Logo" class="img-responsive w250">
+                    </a>  
+                </div>
+                <div class="col-lg-6">
+                   <h4 class="text-center" style="margin-bottom: 25px;">Ingreso al sistema</h4>
+                </div>
+              </div>     
+            </div>
+
+            <!-- end .form-header section -->
+            <form action="#" id="login-form" class="form-horizontal" style="margin-bottom: 0px !important;" method="post">
+              {% csrf_token %}
+              {% if mensaje %}
+                  <div class="alert alert-danger">
+                      <i class="fa fa-warning"></i>
+                          {{ mensaje }}
+                  </div>
+              {% endif %}
+              <div id="respuesta_captcha" class="alert alert-danger" style="display:none">
+                <i class="fa fa-warning"></i>
+                Demuestra que no eres un robot.
+              </div>
+              <div class="panel-body bg-light p30">
+                <div class="row">
+                  <div class="col-sm-7 pr30">
+
+                    <div class="section">
+                      <label for="username" class="field-label text-muted fs18 mb10">Nombre de Usuario</label>
+                      <label for="username" class="field prepend-icon">
+                        <input type="text" name="usuario" id="usuario" class="gui-input" placeholder="Nombre de usuario">
+                        <label for="username" class="field-icon">
+                          <i class="fa fa-user"></i>
+                        </label>
+                      </label>
+                    </div>
+                    <!-- end section -->
+
+                    <div class="section">
+                      <label for="username" class="field-label text-muted fs18 mb10">Contraseña</label>
+                      <label for="password" class="field prepend-icon">
+                        <input type="password" name="password" id="password" class="gui-input" placeholder="Clave">
+                        <label for="password" class="field-icon">
+                          <i class="fa fa-lock"></i>
+                        </label>
+                      </label>
+                    </div>
+                    <!-- end section -->
+
+                  </div>
+                </div>
+                
+                <!-- widget de reCAPTCHA -->
+                <!-- <div class="g-recaptcha" data-sitekey="6Le1m1EUAAAAAInG2gOpapfqQdYLmBuiE96pHDM5"></div> --> <!-- old -->
+
+              </div>
+              <!-- end .form-body section -->
+              <div class="panel-footer clearfix p10 ph15">
+                <!-- <button type="submit" class="button btn-primary mr10 pull-right">Ingresar</button> -->
+                <button
+                  class="g-recaptcha button btn-primary mr10 pull-right"
+                  data-sitekey="6LdV0VsUAAAAANkj34li3XxSXe42_aWKm-JexvaZ"
+                  data-callback="onSubmit">
+                  Ingresar
+                </button>
+                <a href="{% url 'usuario.resetPassword' %}" class="theme-link">Olvide mi contraseña</a>
+              </div>
+              <!-- end .form-footer section -->
+            </form>
+          </div>
+        </div>
+
+      </section>
+      <!-- End: Content -->
+
+    </section>
+    <!-- End: Content-Wrapper -->
+
+  </div>
+  <!-- End: Main -->
+
+  <!-- BEGIN: PAGE SCRIPTS -->
+
+  <!-- jQuery -->
+  <script src="{% static 'vendor/jquery/jquery-1.11.1.min.js' %}"></script>
+  <script src="{% static 'vendor/jquery/jquery_ui/jquery-ui.min.js' %}"></script>
+
+  <!-- CanvasBG Plugin(creates mousehover effect) -->
+  <script src="{% static 'vendor/plugins/canvasbg/canvasbg.js' %}"></script>
+  <!-- Theme Javascript -->
+  <script src="{% static 'assets/js/utility/utility.js' %}"></script>
+  <script src="{% static 'assets/js/demo/demo.js' %}"></script>
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+  <!-- Page Javascript -->
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+
+    "use strict";
+
+    // Init Theme Core      
+    Core.init();
+
+    // Init Demo JS
+    Demo.init();
+
+    // Init CanvasBG and pass target starting location
+    CanvasBG.init({
+      Loc: {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 3.3
+      },
+    });
+
+  });
+
+  // Validar reCaptcha
+  /*$('form').on('submit', function(e) {
+    if(grecaptcha.getResponse() == "") {
+      e.preventDefault();
+
+      $("#respuesta_captcha").show(1,cerrar);
+    }
+  });*/ // Old
+  function onSubmit(token) {
+    if(grecaptcha.getResponse() == "") {
+      e.preventDefault();
+
+      $("#respuesta_captcha").show(1,cerrar);
+    }else{
+      document.getElementById("login-form").submit();
+    }
+  }
+  function cerrar(){
+    setTimeout(function(){$("#respuesta_captcha").hide(1);}, 3000);
+  }
+  </script>
+
+  <!-- END: PAGE SCRIPTS -->
+
+</body>
+</html>

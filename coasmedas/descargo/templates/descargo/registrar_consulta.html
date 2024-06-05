@@ -1,0 +1,461 @@
+{% extends 'page.html' %}
+{% load static %}
+
+    {% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+    {% endblock opciones_listado %} 
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+  <!-- Select2 Plugin CSS  -->
+  <link rel="stylesheet" type="text/css" href='{% static "vendor/plugins/select2/css/core.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Descargo{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+	<li><a href="{% url 'descargo.descargo' %}">Descargo</a></li>
+	<li class="active">Registro descargo</li>
+{% endblock mapa %}
+{% block encabezado %}<!-- Registro de descargo -->{% endblock encabezado %}
+
+{% block contenido %}
+
+
+<!--Inicio Table-->
+<div class="row" >
+  <div class="col-lg-12">
+  
+
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <a href="{% url 'descargo.descargo'%}" data-placement="right"  
+          data-toggle="tooltip" data-original-title="Regresar a descargos">
+          <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+        </a> 
+        <span class="panel-title">
+          Listado de descargo <span data-bind="text:'- N° de Registos: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+        </span>
+        <div class="pull-right">
+
+            <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Cambiar estado" data-toggle="modal" data-bind="click:abrir_cambio" style="cursor:pointer;">
+            <i class="fa fa-exchange fa-2x"></i>
+            </a>
+
+
+            <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar descargos" data-toggle="modal" data-bind="click:abrir_filtro" style="cursor:pointer;">
+            <i class="fa fa-filter fa-2x"></i>
+            </a>
+        </div>
+      </div>
+      <div class="panel-body">
+      <div data-bind="html: mensaje"></div>
+        <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+          [<i class="fa fa-bell" style="color: #f6bb42"></i> Solicitado]
+          [<i class="fa fa-bell" style="color: #70ca63"></i> Aprobado]
+          [<i class="fa fa-bell" style="color: #4a89dc"></i> Activado]
+          [<i class="fa fa-bell" style="color: #3b3f4f"></i> Reprogramado]
+          [<i class="fa fa-bell" style="color: #967adc"></i> Aplazado prev]
+          [<i class="fa fa-bell" style="color: #37bc9b"></i> En Ejecucion]
+          [<i class="fa fa-bell" style="color: #e9573f"></i> No ejecutado]
+          [<i class="fa fa-bell" style="color: #3bafda"></i> Ejecutado]
+          [<i class="fa fa-bell" style="color: #AAA"></i> Anulado]
+          <br>
+          <br>
+          <table class="table" data-bind="dropdown">
+            <thead>
+                  <tr>
+                      <th width="3%"><div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:checkall">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div></th>
+                      <th >No. Descargo</th>
+                      <th >Id Interno</th>
+                      <th >Proyecto</th>
+                      <th></th>
+                  </tr>
+            </thead>
+            <tbody>
+              <!--ko foreach:{ data:listado, as:'item'} -->
+                  <tr data-bind="css:item.estado.color" >
+                    <td><div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input type="checkbox" data-bind="checked:eliminado">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div> 
+                    </td>
+                    <!--ko if: item.numero()==null || item.numero()==''-->
+                    <td>
+
+                      <input class="form-control" type="text" data-bind='attr:{id:item.id()+"-radicado"},onlyNumber:item.numero,
+                      event:{keypress: function(d,e){if (e.which == 13)
+                      {item.numero($("#"+item.id()+"-radicado").val());  
+                      $root.guardar_no_descargo(item);}return true;}}'>
+
+                    </td>
+                    <!-- /ko -->
+                    <!-- ko if: item.numero() !=null && item.numero()!=''-->
+                    <td data-bind="text: item.numero"></td>
+                    <!-- /ko -->
+                    <td data-bind="text: item.id_interno"></td>
+                    <td data-bind="text: item.proyecto.nombre"></td>
+                    <td>
+                        <div class="btn-group text-right">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+
+                          <ul class="dropdown-menu" role="menu">
+                            <li>
+                              <a href="#" data-bind="attr:{href:'../editar/' + item.id()}">
+                                Editar
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" data-bind="click:$root.ver_mas_detalle">
+                                Detalle descargo
+                              </a>
+                            </li>
+                            <li>
+                              <a href="#" data-bind="attr:{href:'../completarregistro/' + item.id()}" >
+                              Descargo
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
+                    </td>          
+                </tr>
+              <!--/ko-->
+                
+            </tbody>
+          </table>
+          <div id="paginacion" >
+            <div data-bind="pagination: {
+                     currentPage: paginacion.pagina_actual,
+                     totalCount: paginacion.total,
+                     pageSize:paginacion.cantidad_por_paginas,
+                     maxPages: paginacion.maxPaginas,
+                     directions: paginacion.direcciones,
+                     boundary: paginacion.limite,
+                     text: paginacion.text }">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /.panel panel-sky -->
+  </div><!--/.col lg 12-->
+</div><!--/.row-->
+<!--Fin Table-->
+
+
+
+<!--Modal filtrar tabla modificar y consultrar-->
+
+<div id="modal_filtro_descargo" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label>Macrocontrato</label>
+                        <select class="form-control" data-bind="value:macrocontrato_select" >
+                          <option value="0">[Seleccione...]</option>
+                          {% for item in mcontrato%}
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                          {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Contratista</label>
+                        <select class="form-control" data-bind="value:contratista">
+                          <option value="0">[Seleccione...]</option>
+                          <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                          <option data-bind="value:item.contrato__contratista__id,text:item.contrato__contratista__nombre"></option>
+                          <!--/ko-->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Departamento</label>
+                        <select class="form-control" data-bind="value:departamento">
+                          <option value="0">[Seleccione...]</option>
+                          <!--ko foreach:{ data:departamento_select, as:'item'} -->
+                            <option data-bind="value:item.municipio__departamento__id,text:item.municipio__departamento__nombre"></option>
+                          <!--/ko-->
+
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Municipio</label>
+                        <select class="form-control" data-bind="value:municipio">
+                          <option value="0">[Seleccione...]</option>
+                          <!--ko foreach:{ data:listado_municipio, as:'item'} -->
+                          <option data-bind="value:item.municipio__id,text:item.municipio__nombre"></option>
+                          <!--/ko-->
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Proyecto</label>
+                        <select class="form-control" data-bind="value:proyectoid">
+                          <option value="0">[Seleccione...]</option>
+                          <!--ko foreach:{ data:proyecto_select, as:'item'} -->
+                          <option data-bind="value:item.id,text:item.nombre"></option>
+                          <!--/ko-->                      
+                        </select>
+                    </div>                    
+                    
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-group">
+                      <label >Estado</label>
+                          <select class="form-control" data-bind="value:estado">
+                            <option value="0">[Seleccione...]</option>
+                            {% for item in estado %}
+                            <option value="{{ item.id }}">{{ item.nombre }}</option>
+                            {% endfor %}
+                          </select>
+                    </div>
+
+                    <div class="form-group">
+                      <label>Desde</label>         
+                        <div class="input-group date col-lg-12">
+                          <input type="text" class="form-control"  data-bind="datePicker:desde,value:desde">
+                        </div>  
+                    </div>
+
+                    <div class="form-group">
+                      <label>Hasta</label>         
+                        <div class="input-group date col-lg-12">
+                          <input type="text" class="form-control"  data-bind="datePicker:hasta,value:hasta">
+                        </div>  
+                    </div>
+
+                    <div class="form-group">
+                     <label class="col-md-3">BDI</label>
+                     <div class="col-md-9 radio-custom radio-primary mb5">
+                              <input type="radio" id="todos" value="" data-bind="checked:bdi" name="bdi">
+                              <label for="todos">Todos</label>
+                              <input type="radio" id="si" value="1" data-bind="checked:bdi" name="bdi">
+                              <label for="si">Si</label>
+                              <input type="radio" id="no" value="0" data-bind="checked:bdi" name="bdi">
+                              <label for="no">No</label>
+
+                     </div>
+                    </div>
+                    <br/>
+
+
+                    <div class="form-group">
+                     <label class="col-md-3">Orden de servicio</label>
+                     <div class="col-md-9 radio-custom radio-primary mb5">
+                              <input type="radio" id="todos1" value="" data-bind="checked:perdida" name="perdida">
+                              <label for="todos1">Todos</label>
+                              <input type="radio" id="si1" value="1" data-bind="checked:perdida" name="perdida">
+                              <label for="si1">Si</label>
+                              <input type="radio" id="no1" value="0" data-bind="checked:perdida" name="perdida">
+                              <label for="no1">No</label>
+
+                     </div>
+                    </div>
+                    <br/>
+                    
+                  </div>
+                </div>
+              </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+                  <i class="fa fa-search"></i> Filtrar
+                </button>
+            </div>
+
+          </div>
+        </div>
+</div><!--cierra modal_filtro-->
+
+<!--Fin del modal-->
+
+<!--Modal filtrar tabla modificar y consultrar-->
+
+<div id="modal_cambio_estado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-md-12">
+
+                    <div class="form-group">
+                      <label>Estado</label>
+                             {% for field in form %}
+                                    {{field}}
+                             {% endfor %}
+                    </div>
+
+                    <div class="form-group" data-bind="visible: mostrarSGI">
+                      <label>Motivo SGI</label>
+                              {% for field in form2 %}
+                                    {{field}}
+                             {% endfor %}
+                    </div>
+
+                    <div class="form-group" data-bind="visible: showRow">
+                        <label>Observacion SGI</label>         
+                          <div class="input-group date col-lg-12">
+                            <input type="text" class="form-control"  data-bind="value:observacion">
+                          </div>  
+                    </div>
+
+                    <div class="form-group" data-bind="visible: mostrarSGI">
+                      <label>Motivo Interventor</label>
+                              {% for field in form3 %}
+                                    {{field}}
+                             {% endfor %}
+                    </div>
+
+                    <div class="form-group" data-bind="visible: showRow">
+                        <label>Observacion Interventor</label>         
+                          <div class="input-group date col-lg-12">
+                            <input type="text" class="form-control"  data-bind="value:observacion">
+                          </div>  
+                    </div>
+
+                  </div>
+
+                </div>
+              </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:function(){CambiarEstado();}">
+                   Guardar
+                </button>
+            </div>
+
+          </div>
+        </div>
+</div><!--cierra modal_filtro-->
+
+
+<!--Modal filtrar tabla modificar y consultrar-->
+
+<div id="vermas_descargo" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"  aria-hidden="true">
+      
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                 <strong>ID: </strong><span data-bind="text:id_interno_vermas"></span><br>
+                 <strong>Proyecto: </strong><span data-bind="text:proyecto_vermas"></span><br>  
+                 <strong>Numero de descargo: </strong><span data-bind="text:no_descargo_vermas"></span><br>  
+                 <strong>Estado : </strong><span data-bind="text:estado_vermas"></span><br>
+                 <strong>Fecha : </strong><span data-bind="text:fecha_fin_vermas"></span><br>
+                 <strong>Hora(Inicial-Final) : </strong><span data-bind="text:hora_inicio_vermas"></span>-<span data-bind="text:hora_fin_vermas"></span><br>
+                 <strong>Contrato : </strong><span data-bind="text:contrato_vermas"></span><br>
+                 <strong>Maniobra : </strong><span data-bind="text:maniobra_vermas"></span><br>
+                 <strong>Trabajo : </strong><span data-bind="text:trabajo_vermas"></span><br>
+                 <strong>soporte protocolo : </strong>
+
+                 <!-- ko if: soporteprotocolo_vermas() !=null -->
+                 <a data-bind="attr:{href:'/descargo/ver-soporte/?tipo=soporte_protocolo&id=' + descargo_id()}" target="_blank"><i class="fa fa-file kv-caption-icon"></i></a>
+                 <!--/ko-->
+                 <!-- ko if: soporteprotocolo_vermas() ==null -->
+                  Por subir
+                 <!--/ko-->
+                 <br> 
+                 <strong>soporte ops : </strong>
+                 <!-- ko if: soporteops_vermas() !=null -->                 
+                 <a data-bind="attr:{href:'/descargo/ver-soporte/?tipo=soporte_ops&id=' + descargo_id()}" target="_blank"><i class="fa fa-file kv-caption-icon"></i></a><br> 
+                 <!--/ko-->
+                 <!-- ko if: soporteprotocolo_vermas() ==null -->
+                   Por subir
+                 <!--/ko-->              
+              </div>
+          </div>
+        </div>
+</div><!--cierra modal_filtro-->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "vendor/plugins/select2/select2.min.js" %}'></script>
+
+<script type="text/javascript" src='{% static "js/ViewModels/descargo/descargo.js" %}'></script>
+
+<!-- <script type="text/javascript" src='{% static "vendor/plugins/select2/bootstrap-multiselect.js" %}'></script> -->
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+      // $('#txtBuscar').val(sessionStorage.getItem("desg_desg_filtro"));
+      // descargo.macrocontrato_select(sessionStorage.getItem("desg_desg_macrocontrato_select"));
+      // descargo.contratista(sessionStorage.getItem("desg_desg_contratista"));
+      // descargo.municipio(sessionStorage.getItem("desg_desg_municipio"));
+      // descargo.departamento(sessionStorage.getItem("desg_desg_departamento"));
+      // descargo.proyectoid(sessionStorage.getItem("desg_desg_proyectoid"));
+      // descargo.estado(sessionStorage.getItem("desg_desg_estado"));
+      // descargo.desde(sessionStorage.getItem("desg_desg_desde"));
+      // descargo.hasta(sessionStorage.getItem("desg_desg_hasta"));
+      // descargo.bdi(sessionStorage.getItem("desg_desg_bdi"));
+      // descargo.perdida(sessionStorage.getItem("desg_desg_perdida"));
+
+      // descargo.consultar(1);//iniciamos la primera funcion//iniciamos la primera funcion
+      // descargo.filtros(0,0,0,0);
+      // descargo.consultar_macrocontrato();
+      // descargo.consultar_maniobra();
+      // descargo.consultar_trabajo();
+      // descargo.consultar_proyecto('');
+      // descargo.consultar_agente();
+      // descargo.consultar_jefe();
+    });
+
+</script>
+
+
+
+
+
+
+{% endblock imports %}

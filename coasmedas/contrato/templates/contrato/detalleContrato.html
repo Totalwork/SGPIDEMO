@@ -1,0 +1,116 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+{% block busqueda %}{% endblock busqueda %}
+
+{% block title %}Detalle Contrato{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'contrato.contrato' %}">Contrato</a></li>
+  <li class="active">Detalle Contrato</li>
+{% endblock mapa %}
+{% block encabezado %}<!-- Detalle Contrato -->{% endblock encabezado %}
+
+{% block contenido %}
+<div class="row" >
+  <div class="col-lg-12">
+
+    <div class="panel mb25 mt5">
+      <div class="panel-heading">
+        <span>
+          <a href="{% url 'contrato.contrato' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"          aria-hidden="true"></i></a>
+        </span>        
+        <span class="panel-title hidden-xs" data-bind='text:titulo_tab'></span>
+        <!-- <span class="panel-title hidden-xs" data-bind="cutWord:{num:75,text:titulo_tab}"></span> -->
+        <ul class="nav panel-tabs-border panel-tabs">
+          <li class="active">
+            <a href="#contrato" data-toggle="tab" aria-expanded="true">Contrato</a>
+          </li>
+          <li class="">
+            <a href="#vigencias" data-toggle="tab" aria-expanded="true">Vigencias</a>
+          </li>
+          <li class="">
+            <a href="#gestionar_proyecto" data-toggle="tab" aria-expanded="false">Gestionar Proyecto</a>
+          </li>
+          <li class="">
+            <a href="#poliza" data-toggle="tab" aria-expanded="false">Poliza</a>
+          </li>
+          <li class="">
+            <a href="#actas" data-toggle="tab" aria-expanded="false">Actas</a>
+          </li>
+        </ul>
+      </div>
+      <div class="panel-body p25 pb5">
+        <div class="tab-content pn br-n admin-form">
+          <div id="contrato" class="tab-pane active">
+
+            {% include 'contrato/_contratoResumen.html' %}
+
+          </div>
+          <div id="vigencias" class="tab-pane">
+
+            <div data-bind="html: mensaje_vigencia"></div>
+            {% include 'contrato/_historial.html' %}
+
+          </div>
+          <div id="gestionar_proyecto" class="tab-pane">
+
+            <div data-bind="html: mensaje_proyecto"></div>
+            {% include 'contrato/_gestionar_proyecto.html' %}
+
+            <div class="section row">
+              <div class="col-md-6">
+
+              </div>
+              <!-- end section -->
+            </div>
+            <!-- end section row section -->
+          </div>
+          <div id="poliza" class="tab-pane">
+            <div data-bind="html: mensaje_poliza"></div>
+            {% include 'contrato/_polizaContrato.html' %}
+          </div>
+          <div id="actas" class="tab-pane">
+            <div data-bind="html: mensaje_actas"></div>
+            {% include 'contrato/_actasResumen.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/detalleContrato.js" %}?v=2'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    contratoVigencia.list_vigencias({{id_contrato}});//iniciamos la primera funcion
+    contratoVigencia.vigenciaVO.contrato_id({{id_contrato}});
+    contratoVigencia.list_contrato({{id_contrato}});
+    contratoVigencia.list_proyecto2();
+    contratoVigencia.list_actas({{id_contrato}});
+    contratoVigencia.list_poliza({{id_contrato}});
+    //contratoVigencia.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script>
+{% endblock imports %}

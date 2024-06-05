@@ -1,0 +1,78 @@
+<div class="panel-body"> 
+
+
+	<div class="col-md-12">		
+		
+		<div id="panel_asistencia">
+	      <!--ko ifnot: $root.actaVO.estado_id()==156 || $root.actaVO.estado_id()==158--> 
+  			  <button type="button" class="btn btn-primary" style="margin-bottom: 10px;" 
+  				   data-bind="click:guardar_asistencia, visible:({{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}})">
+  				   Guardar cambios en la asistencia
+  				</button>		   	
+	      <!--/ko-->
+		<div data-bind="html: mensajeAsistencia"></div> 
+        <div class="table-responsive" data-bind="visible:(listado_participantes()!=null && listado_participantes().length > 0)">
+            <table class="table">                                        
+              <thead>
+                <tr>
+
+                  <th style="width: 45%">Nombre completo</th>
+                  <th style="width: 35%">Empresa</th>  
+                  <th style="width: 35%">Función</th>
+                  <th style="width: 35%">Asistió</th>
+
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado_participantes, as:'item'}">
+                <tr>                      
+                  
+                  <td data-bind="text: item.nombre_completo"></td>
+                  <td data-bind="text: item.empresa"></td>
+                  <td data-bind="text: item.funcion"></td>
+                  <td>
+                    <div class="option-group field admin-form">
+                      <label class="option option-primary"  style="">
+            
+                        <!--ko ifnot:  {{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}} -->                        
+                            <input type="checkbox" data-bind="checked:item.asistio" disabled>
+                        <!--/ko-->
+                                       
+                        <!--ko if:{{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}} -->
+
+                          <!--ko if: $root.actaVO.estado_id()==156 || $root.actaVO.estado_id()==158--> 
+                            <input type="checkbox" data-bind="checked:item.asistio" disabled>
+                          <!--/ko-->
+
+                          <!--ko ifnot: $root.actaVO.estado_id()==156 || $root.actaVO.estado_id()==158--> 
+                            <input type="checkbox" data-bind="checked:item.asistio" >
+                          <!--/ko-->
+                        <!--/ko-->
+                   
+                        <span class="checkbox"></span>
+                      </label>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+          </div>
+        </div>
+
+	
+        	
+		</div> 	
+	
+	</div>
+
+
+
+
+
+<script type="text/javascript">
+
+  $(document).ready(function () {
+    acta.consultar_participantes(1);    
+  });
+
+</script>

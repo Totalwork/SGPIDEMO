@@ -1,0 +1,149 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Informe Ejecutivo{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  	<li><a href="">Informe Ejecutivo</a></li>
+	<li class="active">Resumen por fondo</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+ {% block opciones_listado %}
+{% endblock opciones_listado %}      
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		    <div class="panel panel-sky" >
+		    		    
+		        <div class="panel-heading">
+                Listado
+                <span class="panel-controls">
+                  <a data-placement="top"  data-toggle="tooltip" data-original-title="Filtros" data-bind="click:abrir_filtros" title="" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+          	</div>
+            <div data-bind="html: mensaje"></div> 
+          	 <div class="panel-body">
+          	 	
+          	 	 <div class="table-responsive">
+               
+               <div class="row">
+                 <div class="col-lg-12 btn-group">
+
+
+                   <div>
+
+                        <i class="fa fa-arrow-circle-left fa-2x btn" aria-hidden="true" onclick="window.history.back();"></i>
+                     
+                        <i class="fa fa-print fa-2x btn" aria-hidden="true" data-bind="click:exportar_balance_financiero"></i>
+
+                        <i class="fa fa-ellipsis-v fa-2x btn dropdown-toggle" aria-hidden="true" data-toggle="dropdown"></i>
+
+                        <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'proyecto.resumen_por_fondo' %}">0.Resumen por fondo</a></li>
+                          <li><a href="{% url 'proyecto.resumen_por_contrato' 0 %}">1.Detallar por contrato interadministrativo</a></li>
+                          <li><a href="{% url 'proyecto.resumen_por_contrato_tipo_proyecto' 0 %}">2.Detallar por tipo de proyecto</a></li>
+                          <li><a href="{% url 'proyecto.resumen_por_proyecto' 0 %}">3.Detallar por proyecto</a></li>
+                           <li><a href="{% url 'proyecto.resumen_por_giros' 0 %}">4.Resumen de giros</a></li>
+                          <li><a href="#">6. Balance financiero</a></li>
+                        </ul>
+                      </div>
+
+                       <h3>6. Balance financiero</h3>
+                    
+                    <div class="col-sm-12">
+                       <label>Contrato MME:</label>
+                        <div style="padding: 0% 0% 0% 48%;" class="row" id="carga_municipio"></div>
+                        <div class="form-group">
+                          <select name="contrato" id="contrato" class="form-control proyecto" data-bind="value:contrato_id">
+                            <option value="0">[Todos...]</option>
+                            <!-- ko foreach: {data:listado_contratos_mme, as:'item'} -->
+                              <option data-bind="text:item.nombre, value:item.id"></option>
+                            <!--/ko-->
+                           </select>
+                        </div>
+
+                    </div>
+                    <br>
+
+
+                      
+
+                    </div>
+                </div>
+               <br>
+               <br>     
+                              
+                  <div data-bind="visible:(listado_balance_fininaciero()==null || listado_balance_fininaciero().length==0)"><div class="alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>No se encontraron registros</div></div> 
+                               
+          	 	 	 <table class="table" data-bind="visible:(listado_balance_fininaciero!=null && listado_balance_fininaciero().length>0)">
+          	 	 	 	  <thead>
+				            <tr>
+				              <th>Estado</th>    
+				              <th>No.Proyectos</th>
+				              <th>No. Usuarios Normalizados</th>				              
+				              <th>Valor Proyecto Aprobado MME</th>                     
+				              <th>Valor Liquidacion Proyecto</th>
+                      <th>Valor Girado al proyecto</th>
+                      <th>Balance Contratista</th>
+                      <th>Balance Proyecto</th>
+                      <th>Total Materiales</th>
+				            </tr>
+				           </thead>
+				           <tbody data-bind="foreach:{data:listado_balance_fininaciero, as:'item'}">                  
+  	          	 	 	 	<tr>	          	 	 	 
+      	          	 	 	 	<td data-bind="text:item.estado"></td>
+      	          	 	 	 	<td data-bind="text:item.n_proyectos"></td>
+      	          	 	 	 	<td data-bind="text:item.diseno"><td>  
+                          <td data-bind="text:formatMoney(item.valor_proyecto)"></td>                          
+                          <td data-bind="text:formatMoney(item.valor_liquidacion)"></td>
+                          <td data-bind="text:formatMoney(item.valor_girado)"></td>
+                          <td data-bind="text:formatMoney(item.balance_proyecto)"></td>
+                          <td data-bind="text:formatMoney(item.valor_liquidacion)"></td>
+                          <td>$0</td>
+  	          	 	 	 	</tr>                  
+	          	 	 	 </tbody> 
+          	 	 	 </table>
+          	 	 
+          	 	 </div>
+
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>  	
+    <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>   
+    <script src='{% static "js/ViewModels/proyecto/informe_ejecutivo/informe_ejecutivo.js" %}'></script>
+    <script type="text/javascript">
+      $(document).ready(function () {
+         viewModel.consultar_balance_financiero(0);
+         viewModel.consultar_contratos();
+      })
+    </script>
+{% endblock imports %}

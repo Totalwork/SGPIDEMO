@@ -1,0 +1,207 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Facturas por contabilizar{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'seguimiento_factura.index' %}">Seguimiento factura</a></li>
+  <li><a href="{% url 'seguimiento_factura.facturas_por_contabilizar' %}">Facturas por contabilizar</a></li>
+  <li class="active">Listado de facturas por contabilizar</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block opciones_listado %} 
+  <li>
+    <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+        <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+    </a>
+  </li>
+{% endblock opciones_listado %}
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+<div class="row" >
+  <div class="col-lg-12">
+    <div class="panel" id="spy4">
+    
+      <div class="panel-heading">
+        <span>      
+          <a href="{% url 'seguimiento_factura.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"          aria-hidden="true"></i></a>
+        </span>         
+          Listado de facturas por contabilizar - N° de Registros : </span> <span data-bind="text:paginacion.total"></span>
+          <span class="panel-controls">
+            <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros"  title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda" >
+                <i class="fa fa-filter fa-2x"></i>
+            </a>
+          </span>
+      </div>
+            
+            <div class="panel-body">
+
+              <div data-bind="html: mensaje"></div>
+
+              <div data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <div class="table-responsive">
+
+                  <table class="table" >
+                    <thead>
+                        <tr>
+                          <th style="width: 10%;">Documento</th>
+                          <th style="width:18%">Radicado</th>
+                          <th style="width: 10%;">N° Factura</th>
+                          <th style="width:18%">Nit</th>
+                          <th style="width:18%">Cod.Acreedor</th>
+                          <th style="width:18%">Nombre.Acreedor</th>
+                          <th style="width:18%">Valor factura</th>
+                        </tr>
+                    </thead>
+
+                    <tbody data-bind="foreach:{data:listado, as:'item'}">
+
+                      <tr>
+                        <td>
+                            <a data-bind="attr: {href: '/factura/ver-soporte/?id=' + item.id}" target="_blank" style="cursor:pointer;">
+                                        <i class="fa fa-file-text-o fa-2x"></i>
+                            </a>
+                        </td>
+                        <td data-bind="text: item.radicado"></td>
+                        <td data-bind="text: item.numero"></td>
+                        <td data-bind="text: item.contrato.contratista.nit"></td>
+                        <td data-bind="text: item.contrato.contratista.codigo_acreedor"></td>
+                        <td data-bind="text: item.contrato.contratista.nombre"></td>               
+                        <td data-bind="text: formatMoney(item.valor_factura)"></td>
+                      </tr>
+                       
+                    </tbody>
+                  </table>
+                 
+                </div>
+
+                <div id="paginacion" >
+                    <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                    </div>
+                  </div>  
+
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+
+  <div id="modal_busqueda" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" >
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="panel-body bg-light">
+
+        <div class="form-group">
+          <label>M-Contrato:</label>
+          <select class="form-control" data-bind="value:filtro_factura.mcontrato">
+            <option value="">[Seleccione...]</option>
+            {% for item in mcontratos %}
+              <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de Contrato:</label>
+          <select class="form-control" data-bind="value:filtro_factura.tipo">
+            <option value="">[Seleccione...]</option>
+            {% for item in tipos %}
+              <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <label>Contratista:</label>
+        <div class="input-group">
+          <input class="form-control" id="contratista_nom" data-bind='value:filtro_factura.contratista_nom, event:{keypress: $root.consulta_enter_filtro}' placeholder="Buscar el Contratista" type="text">
+          <span class="input-group-addon" data-bind="click:empresa" style="cursor: pointer;">
+            <i class="fa fa-search"></i>
+          </span>
+        </div>
+        <div class="form-group">
+          <select class="form-control" data-bind="value:filtro_factura.contratista">
+            <option value="">[Seleccione...]</option>
+            <!--ko foreach:{ data:filtro_factura.contratista_lista, as:'item'} -->
+              <option data-bind="value:item.id,text:item.nombre"></option>
+            <!--/ko-->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>N° Contrato:</label>
+          <input class="form-control" data-bind='value:filtro_factura.numero_c' type="text">
+        </div>
+
+        <div class="form-group" >
+          <label>N° Factura</label>
+          <input class="form-control" data-bind='value:filtro_factura.numero_f' type="text">
+        </div>                      
+                
+        <!-- datos generales -->    
+       </div>
+       <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click: function(){ consultar(1) }">Consultar</button>
+       </div>
+    </div>
+  </div>
+</div>
+<!--Modal consulta de Correspondencia-->
+
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/facturas_por_contabilizar.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      facturas_por_contabilizar.consultar(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

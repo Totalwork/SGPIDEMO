@@ -1,0 +1,101 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Procesos{% endblock title%}
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block mapa %}
+	&nbsp;&nbsp;&nbsp;
+  	<li class="crumb-active"><a href="{% url 'proceso.procesos' %}" >Procesos</a></li>
+  	<li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  	<li><a href="/usuario/">Inicio</a></li>
+	<li class="active">Procesos</li>
+{% endblock mapa %}
+{% block encabezado %}
+	<a href="{% url 'usuario.index' %}" data-placement="right"    
+	    data-toggle="tooltip" data-original-title="Regresar al inicio">
+	    <i class="fa fa-arrow-left"></i>
+	</a>
+	Aplicación de procesos a proyectos/contratos
+{% endblock encabezado %}
+
+{% block contenido %} 
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-sky" >
+				<div class="panel-heading">
+				</div>
+				<div data-bind="html: mensaje"></div>
+				<input type="hidden" id="idEmpresa" value="{{user.usuario.empresa.id}}"></input>
+				<div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+					<i class="text-success fa fa-bell" style="font-size:16px"></i>: Activo; 
+					<i class="text-danger fa fa-bell" style="font-size:16px"></i>: Inactivo 
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									<th width="10%">Estado</th>
+									<th width="50%">Nombre del proceso</th>
+									<th width="40%">Opciones</th>
+								</tr>
+							</thead>
+							<tbody data-bind="foreach:{data:listado, as:'item'}">
+								<tr>
+									<td>
+                      					<i class="fa fa-bell" data-bind="css:{'text-success': item.activo==1,'text-danger':item.activo==0 }" style="font-size:16px"></i>
+									</td>
+									<td data-bind="text:item.nombre"></td>
+									<td>
+			          	 	 	 		 <div class="btn-group text-right">
+							                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+							                      </i></a>
+							                   <ul class="dropdown-menu" role="menu">
+							                       <li>
+							                          <a href="#" data-bind="attr:{href:'../itemsProceso/'+item.id}"> Ver items</a>
+							                       </li>
+							                       <li>
+							                          <a href="#" data-bind="attr:{href:'../implementacion/'+item.id}"> Implementaciones</a>
+							                        </li>
+							                        <li data-bind="if: item.pasoAPaso">
+							                        	<a href="#" data-bind="attr:{href:'../responsables/'+item.id}"> Responsables</a>
+							                        </li>		
+							                    </ul>
+		                  				  </div>										
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+
+{% endblock contenido %}
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  	<!--<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>  	
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>   -->
+  	<script type="text/javascript" src='{% static "js/ViewModels/procesos/Proceso.js" %}'></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        proceso.consultar(1,$("#idEmpresa").val());
+      });
+    </script>
+{% endblock imports %}

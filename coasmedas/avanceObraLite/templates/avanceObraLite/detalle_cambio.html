@@ -1,0 +1,122 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Detalle de Reporte de Trabajo{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.cambios' %}">Cambio</a></li>
+  <li><a href="{% url 'avanceObraLite.index_cambio' presupuesto_id %}">Listado de Cambio</a></li>
+  <li class="active">Detalle de Cambio</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}  
+ {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:abrir_agregar" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+{% endblock opciones_listado %}
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading">
+                <span class="panel-title">Detalle de Cambio<span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+               
+          </div>
+          <div class="panel-body">
+           <Strong>Proyecto:  {{cambio.presupuesto.cronograma.proyecto.nombre}}</Strong><br><br>
+           <Strong>Cambio:  {{cambio.motivo}}</Strong><br><br>
+           <Strong>Descripcion:  {{cambio.descripcion}}</Strong><br><br>
+
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Descripcion UUCC</th>
+              <th>Codigo UUCC</th>
+              <th>Apoyo</th>
+              <th>Operacion</th>
+              <th>Cantidad Propuesta</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.descripcionUC"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.nodo"></td>
+              <td data-bind="text: item.operacion"></td>
+              <td data-bind="text: item.cantidad_propuesta"></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="proyecto_id" value="{{proyecto_id}}" class="form-control" >  
+<input type="hidden" id="cambio_id" value="{{cambio_id}}" class="form-control" >  
+
+<input type="hidden" id="usuario_id" value="{{user.usuario.id}}" class="form-control" >    
+
+  <!--Loading-->
+
+
+ 
+
+
+ 
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/detalle_cambio.js" %}'></script>
+{% endblock imports %}

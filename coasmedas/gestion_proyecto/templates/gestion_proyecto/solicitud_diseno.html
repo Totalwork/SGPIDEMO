@@ -1,0 +1,188 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Solicitud de Diseños{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li><a href="{% url 'gestion_proyecto.solicitudes' %}">Solicitud</a></li>
+  <li class="active">Solicitud de Diseños</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'gestion_proyecto.solicitudes' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar a las solicitudes">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Solicitud de Diseños
+{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+                <h4>Informacion de la solicitud</h4>
+          </div>
+          <div class="panel-body">
+            <p>
+              <label>Nombre del Solicitante: {{solicitud.nombre}}</label><br>          
+              <label>Fecha de Solicitud: {{solicitud.fecha}}</label><br>
+              <label>Entidad: {{solicitud.entidad}}</label><br>          
+            </p>
+         
+        </div>
+  </div>
+
+  
+  </div>
+
+</div>
+
+
+
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+                <span class="panel-title">Solicitud de Diseños</span>
+                 <span class="panel-controls"> 
+                        <span class="panel-icon">
+                          <a href="#" data-bind="click:abrir_modal"><i class="fa fa-filter" style="font-size: 20px;"></i></a>
+                        </span>
+                </span>
+          </div>
+         <div class="panel-body">
+              <div data-bind="html: mensaje"></div> 
+              <div class="table-responsive" data-bind="dropdown,visible:(listado()!=null && listado().length > 0)">
+              
+              <div class="col-lg-12">
+                  <div class="form-group input-group">     
+                     <button type="button" class="btn btn-primary" data-bind="click:agregar">Agregar a la solicitud</button>          
+                  </div> 
+              </div>
+                <table class="table">
+              <thead>
+            <tr>
+              <th><input type="checkbox" data-bind="checked:checkall"></th>    
+              <th >Fondo</th>
+              <th >Departamento</th>
+              <th>Municipio</th>
+              <th>Proyecto</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td> <input type="checkbox" data-bind="checked:eliminado,value:id"></td> 
+              <td data-bind="text: item.fondo.nombre"></td>
+              <td data-bind="text: item.municipio.departamento.nombre"></td>    
+              <td data-bind="text: item.municipio.nombre"></td>    
+              <td data-bind="text: item.nombre"></td>    
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+
+        </div>
+  </div>
+
+  
+  </div>
+</div>
+
+
+
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" > 
+     <input type="hidden" id="id_solicitud" value="{{solicitud.id}}" class="form-control" >      
+
+
+
+  <!--Loading-->
+  
+
+
+<div id="modal_filter" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label>Departamento</label>
+                     <select class="form-control" data-bind="value:id_departamento">
+                      <option value="0">[Seleccione..]</option>
+                      {% for item in departamentos %}
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+                    </select>         
+        </div>
+
+        <div class="form-group">
+          <label>Municipio</label>
+                     <select class="form-control" data-bind="value:id_municipio">
+                      <option value="0">[Seleccione..]</option>
+                      <!-- ko foreach: listado_municipio -->
+                        <option data-bind="value:id,text:nombre"></option>
+                      <!-- /ko -->                          
+                    </select>         
+        </div>
+
+        <div class="form-group">
+          <label>Fondo</label>
+                     <select class="form-control" data-bind="value:id_fondo">
+                      <option value="0">[Seleccione..]</option>
+                     {% for item in fondos %}
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %}                           
+                    </select>         
+        </div>
+
+        <div class="form-group">
+                <label>Nombre del Diseño</label>
+                <textarea class="form-control" data-bind="value:nombre_diseno"></textarea>            
+          </div>
+
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:consultar">Filtrar</button>
+        </div>       
+
+      </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/solicitud_diseno.js" %}'></script>
+{% endblock imports %}

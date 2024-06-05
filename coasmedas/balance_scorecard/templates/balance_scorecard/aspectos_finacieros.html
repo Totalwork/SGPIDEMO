@@ -1,0 +1,387 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Aspectos financieros{% endblock title%}
+
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}  
+
+ {% block busqueda %}
+ {% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'usuario.index' %}">Inicio</a></li>
+  <li><a href="{% url 'balance_scorecard.inicio' %}">Balance Scorecard</a></li>
+  <li class="active">Aspectos financieros</li>
+{% endblock mapa %}
+
+{% block encabezado %}{% endblock encabezado %}
+
+
+
+{% block contenido %}
+	<script type="text/javascript">
+		function click_boton_info(val){
+			var panel_boton = document.getElementById("panel_boton_"+val);
+			if(panel_boton.style.display == 'none'){
+				panel_boton.style.display = 'block';
+			}else{
+				panel_boton.style.display = 'none';
+			}
+		}
+	</script>
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>   
+
+<div class="row" >
+  	<div class="col-lg-12">    
+    	<div class="panel panel-sky">
+    		<div class="panel-heading">
+    			<a href="{% url 'balance_scorecard.inicio' %}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar a Web Balance Score Card">
+	            	<i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+	            </a> 
+        		Aspectos financieros
+      		</div>
+
+	      	<div class="panel-body">
+	      		<!-- Espacio para Porcentaje de ejecución financiera -->
+	      		<div class="seccionhome col-lg-12">
+
+	      			<div class="panel" >
+	      				<h4>	      					      				
+						    <u>Porcentaje de ejecución financiera
+						      	<div class="pull-right">
+							      	<span class="panel-controls">
+										<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+											<i class="fa fa-info-circle fa-4x" id="" onclick="javascript:click_boton_info(1);" style="font-size: 30px; margin-right: 19px; color:#4a89dc"></i>
+										</a>
+									</span>	
+								</div>									
+							</u>
+						</h4>
+
+		      		</div>	
+		      		<div class="row form-group col-lg-8">
+		      			<table class="table">	      					
+		      				<tbody data-bind="foreach:{data:listado_porcentaje_de_ejecución_financiera, as:'item'}">
+		      					<tr>
+		      						<td style="width: 10%" data-bind="text: item.nombre"></td>
+
+		      						<td style="width: 50%">
+										<div 
+											style=" height: 27px; 
+												background: #fafafa;
+												border: 1px 
+												solid #e5e5e5;
+								    			border-top-right-radius: 1px;
+								    			border-top-left-radius: 1px;">
+
+								        	<div class="progress-bar progress-bar-success" style="padding-top: 0.5%; color:#008080;" role="progressbar" aria-valuemin="0" aria-valuemax="50" 
+								        		data-bind="text:item.porcentaje+'%',attr:{'valuenow':item.porcentaje} ,
+								                style:{width: item.porcentaje + '%'}"></div>								                          
+								        </div>									
+		      						</td>
+
+		      						<td style="width: 5%"> 
+		      							<span class="panel-controls">
+											<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+												<i class="fa fa-eye" data-bind="click:function(){ $root.consultar_por_id(item,1) }" style="font-size: 20px; color:#4a89dc"></i>
+											</a>
+										</span>									
+		      						</td>
+		      					</tr>
+
+		      				</tbody>
+		      			</table>
+		      		</div> 
+		      		<div class="seccionhome col-lg-4" id="panel_boton_1" style="background: #FCF3CF;  ">
+			      		<br>     				 				
+							Corresponde al porcentaje de dinero girado al contratista para la ejecución de los proyectos, se calcula tomando como meta el valor de los contratos de obra, interventoría y servicios adicionales contratados.
+						<br>
+						&nbsp;
+			      	</div>
+
+
+	      		</div>	      		
+	      		<!-- Espacio para Saldo en cuentas para administración de recursos -->
+	      		<div class="seccionhome col-lg-12" >
+
+	      			<div class="panel" >
+	      				<h4>	      					      				
+						    <u>Saldo en cuentas para administración de recursos
+						      	<div class="pull-right">
+							      	<span class="panel-controls">
+										<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+											<i class="fa fa-info-circle fa-4x" id="" onclick="javascript:click_boton_info(2);" style="font-size: 30px; margin-right: 19px; color:#4a89dc"></i>
+										</a>
+									</span>	
+								</div>									
+							</u>
+						</h4>
+
+		      		</div>	
+		      		<div class="row form-group col-lg-8">
+		      			<table class="table">	      					
+		      				<tbody data-bind="foreach:{data:listado_saldo_cuentas_administración_recursos, as:'item'}">
+		      					<tr>
+		      						<td style="width: 10%" data-bind="text: item.nombre"></td>
+
+		      						<td style="width: 50%">
+										<div 
+											style=" height: 27px; 
+												background: #fafafa;
+												border: 1px 
+												solid #e5e5e5;
+								    			border-top-right-radius: 1px;
+								    			border-top-left-radius: 1px;">
+
+								        	<div class="progress-bar progress-bar-success" style="padding-top: 0.5%; color:#008080;" role="progressbar" aria-valuemin="0" aria-valuemax="50" 
+								        		data-bind="text:item.porcentaje+'%',attr:{'valuenow':item.porcentaje} ,
+								                style:{width: item.porcentaje + '%'}"></div>								                          
+								        </div>									
+		      						</td>
+
+		      						<td style="width: 5%"> 
+		      							<span class="panel-controls">
+											<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+												<i class="fa fa-eye" data-bind="click:function(){ $root.consultar_por_id(item,2) }" style="font-size: 20px; color:#4a89dc"></i>
+											</a>
+										</span>									
+		      						</td>
+		      					</tr>
+
+		      				</tbody>
+		      			</table>
+		      		</div> 
+		      		<div class="seccionhome col-lg-4" id="panel_boton_2" style="background: #FCF3CF;  ">
+			      		<br>     				 				
+							Corresponde al porcentaje de dinero en las cuentas de administración de recursos v.s. los ingresos provenientes de los desembolsos del MME.
+
+
+						<br>
+						&nbsp;
+			      	</div>
+	      		</div>	      		
+
+	      		<!-- Espacio para Recursos adjudicados FAER -->
+	      		<div class="seccionhome col-lg-12"  >
+
+	      			<div class="panel" >
+	      				<h4>	      					      				
+						    <u>Recursos adjudicados FAER
+						      	<div class="pull-right">
+							      	<span class="panel-controls">
+										<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+											<i class="fa fa-info-circle fa-4x" id="" onclick="javascript:click_boton_info(3);" style="font-size: 30px; margin-right: 19px; color:#4a89dc"></i>
+										</a>
+									</span>	
+								</div>									
+							</u>
+						</h4>
+
+		      		</div>	
+		      		<div class="row form-group col-lg-8">
+		      			<table class="table">	      					
+		      				<tbody data-bind="foreach:{data:listado_recursos_adjudicados_faer, as:'item'}">
+		      					<tr>
+		      						<!-- <td style="width: 10%" data-bind="text: item.nombre + ' - ('+item.porcentaje+'%)'"></td> -->
+		      						<td style="width: 10%" data-bind="text: item.nombre"></td>
+
+		      						<td style="width: 50%">
+										<div  
+											style=" height: 27px; 
+												background: #fafafa;
+												border: 1px 
+												solid #e5e5e5;
+								    			border-top-right-radius: 1px;
+								    			border-top-left-radius: 1px;">
+
+								        	<div class="progress-bar progress-bar-success" style="padding-top: 0.5%; color:#008080;" role="progressbar" aria-valuemin="0" aria-valuemax="50" 
+								        		data-bind="text:formatMoney(item.valor_total) ,attr:{'valuenow':item.porcentaje} ,
+								                style:{width: item.porcentaje + '%'}"></div>								                          
+								        </div>	
+
+								        <!-- <span data-bind="text:'Valor adjudicado : '+formatMoney(item.valor_total)"></span>	 -->
+
+
+		      						</td>
+
+		      						<td style="width: 5%"> 
+		      							<span class="panel-controls">
+											<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+												<i class="fa fa-eye" data-bind="click:function(){ $root.consultar_por_id(item,3) }" style="font-size: 20px; color:#4a89dc"></i>
+											</a>
+										</span>									
+		      						</td>
+		      					</tr>
+
+		      				</tbody>
+		      			</table>
+		      		</div> 
+		      		<div class="seccionhome col-lg-4" id="panel_boton_3" style="background: #FCF3CF;  ">
+			      		<br>     				 				
+							Corresponde a los recursos financieros adjudicados a través de los fondos estatales FAER.
+
+						<br>
+						&nbsp;
+			      	</div>
+
+	      		</div>
+
+	      		<!-- Espacio para Recursos adjudicados PRONE -->
+	      		<div class="seccionhome col-lg-12"  >
+
+	      			<div class="panel" >
+	      				<h4>	      					      				
+						    <u>Recursos adjudicados PRONE
+						      	<div class="pull-right">
+							      	<span class="panel-controls">
+										<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+											<i class="fa fa-info-circle fa-4x" id="" onclick="javascript:click_boton_info(4);" style="font-size: 30px; margin-right: 19px; color:#4a89dc"></i>
+										</a>
+									</span>	
+								</div>									
+							</u>
+						</h4>
+
+		      		</div>	
+		      		<div class="row form-group col-lg-8">
+		      			<table class="table">	      					
+		      				<tbody data-bind="foreach:{data:listado_recursos_adjudicados_prone, as:'item'}">
+		      					<tr>
+		      						<!-- <td style="width: 10%" data-bind="text: item.nombre + ' - ('+item.porcentaje+'%)'"></td> -->
+		      						<td style="width: 10%" data-bind="text: item.nombre"></td>
+
+		      						<td style="width: 50%">
+										<div 
+											style=" height: 27px; 
+												background: #fafafa;
+												border: 1px 
+												solid #e5e5e5;
+								    			border-top-right-radius: 1px;
+								    			border-top-left-radius: 1px;">
+
+								        	<div class="progress-bar progress-bar-success" style="padding-top: 0.5%; color:#008080;" role="progressbar" aria-valuemin="0" aria-valuemax="50" 
+								        		data-bind="text: formatMoney(item.valor_total),attr:{'valuenow':item.porcentaje} ,
+								                style:{width: item.porcentaje + '%'}"></div>								                          
+								        </div>	
+
+								       <!--   <span data-bind="text:'Valor adjudicado : '+formatMoney(item.valor_total)"></span>		 -->								
+		      						</td>
+
+		      						<td style="width: 5%"> 
+		      							<span class="panel-controls">
+											<a data-placement="top" data-toggle="tooltip" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+												<i class="fa fa-eye" data-bind="click:function(){ $root.consultar_por_id(item,4) }" style="font-size: 20px; color:#4a89dc"></i>
+											</a>
+										</span>	
+
+		      						</td>
+		      					</tr>
+
+		      				</tbody>
+		      			</table>
+		      		</div> 
+		      		<div class="seccionhome col-lg-4" id="panel_boton_4" style="background: #FCF3CF;  ">
+			      		<br>     				 				
+							Corresponde a los recursos financieros adjudicados a través de los fondos estatales PRONE.
+
+						<br>
+						&nbsp;
+			      	</div>
+	      		</div>
+
+	    	</div>
+  		</div>
+	</div>
+</div>
+<!--Modal Proyecto-->
+<div id="modal_detalle_contrato" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" style="width:70%">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+			</div>
+			<div style="padding:25px">
+
+				<table class="table">
+					<thead class="bg-primary">
+						<tr>
+						<th scope="col">Contrato</th>
+						<th scope="col" data-bind='text:titulo_tarjeta'></th>
+						</tr>
+					</thead>		  
+					<tbody data-bind="foreach:{data:listado_contratos, as:'item'}">			
+						<tr>
+
+							<!-- <td style="width: 38%" data-bind="text: item.nombre + ' - ('+item.porcentaje+'%)'"></td> -->
+
+							<td style="width: 20%" data-bind="text: item.nombre"></td>
+
+
+							<td style="width: 50%">
+								<div 
+									style=" height: 27px; 
+										background: #fafafa;
+										border: 1px 
+										solid #e5e5e5;
+										border-top-right-radius: 1px;
+										border-top-left-radius: 1px;">
+
+
+									<!--ko if: $root.tarjeta_id()==1 || $root.tarjeta_id()==2-->				
+										<div class="progress-bar progress-bar-success" style="padding-top: 0.5%; color:#008080;" role="progressbar" aria-valuemin="0" aria-valuemax="50" 
+											data-bind="text:item.porcentaje+'%',attr:{'valuenow':item.porcentaje} ,
+											style:{width: item.porcentaje + '%'}"></div>	
+									<!-- /ko -->
+
+									<!--ko if: $root.tarjeta_id()==3 || $root.tarjeta_id()==4-->				
+										<div class="progress-bar progress-bar-success" style="padding-top: 0.5%; color:#008080;" role="progressbar" aria-valuemin="0" aria-valuemax="50" 
+											data-bind="text:formatMoney(item.valor_total),attr:{'valuenow':item.porcentaje} ,
+											style:{width: item.porcentaje + '%'}"></div>	
+
+									<!-- /ko -->	
+
+
+								</div>	
+
+							</td>														
+						</tr>
+					</tbody>
+				</table>
+			</div>	  
+		</div>     
+	</div>
+</div>
+<!--Modal Proyecto-->
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+	<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  	<script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/ViewModels/balance_scorecard/aspectos_financieros.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+    	aspectos_financieros.consultar_tarjeta(1);
+    	aspectos_financieros.consultar_tarjeta(2);
+    	aspectos_financieros.consultar_tarjeta(3);
+    	aspectos_financieros.consultar_tarjeta(4);
+
+
+    });  
+
+  </script>
+
+
+  <!-- END: PAGE SCRIPTS -->
+{% endblock imports %} 

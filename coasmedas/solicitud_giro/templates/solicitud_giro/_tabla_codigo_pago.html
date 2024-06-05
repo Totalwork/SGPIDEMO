@@ -1,0 +1,145 @@
+<div class="row" >
+  <div class="col-lg-12"> 
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <span class="panel-title">
+          Listado Sol. Giros sin codigo de pago - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+        </span>
+        <div class="pull-right">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar referencia" data-toggle="modal" data-bind="click:abrir_filtro" style="cursor:pointer;">
+                <i class="fa fa-filter fa-2x"></i>
+                </a>
+        </div>
+
+      </div>
+      <div class="panel-body">
+      <div data-bind="html: mensaje"></div>  
+      <div data-bind="visible:(listado()!=null && listado().length > 0)"> 
+        <div class="table-responsive" >
+
+            <table class="table">
+              <thead>
+                  <tr>
+                    <th width="20%" >Beneficiario/Proveedor</th>
+                    <th width="15%" >Nit</th>
+                    <th width="12%" >Entidad bancaria</th>
+                    <th width="15%" >N° Cuenta destino</th>
+                    <th width="15%" >Tipo cuenta destino</th>
+                    <th width="11%" >Valor neto a girar</th>
+                    <th width="10%" >Codigo de pago</th>
+                  </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado, as:'item'}">
+                  <tr>
+                    <td data-bind="text: item.contratista.nombre"></td>
+                    <td data-bind="text: item.contratista.nit"></td>
+                    <td data-bind="text: item.banco.nombre"></td>
+                    <td data-bind="text: item.no_cuenta"></td>
+                    <td data-bind="text: item.tipo_cuenta.nombre"></td>
+                    <td data-bind="text: formatMoney(item.valor_girar)"></td>
+                    <!-- ko if: item.codigo_pago==''  -->
+                    <td class="form-group has-error">
+                      
+
+                        
+                      <input class="form-control" type="text" data-bind='value:item.codigo_pago,
+                      attr:{id:item.id+"-radicado"},onlyNumber:item.codigo_pago,
+                      event:{keypress: function(d,e){if (e.which == 13)
+                      {item.codigo_pago=$("#"+item.id+"-radicado").val();  
+                      $root.guardar_no_codigo_pago(item);}return true;}}'>
+
+                    </td>
+                    <!-- /ko-->
+                      
+                    <!-- ko if: item.codigo_pago!=''  -->
+                    <td class="form-group has-success">
+                      
+
+                        
+                      <input class="form-control" type="text" data-bind='value:item.codigo_pago,
+                      attr:{id:item.id+"-radicado"},onlyNumber:item.codigo_pago,
+                      event:{keypress: function(d,e){if (e.which == 13)
+                      {item.codigo_pago=$("#"+item.id+"-radicado").val();  
+                      $root.guardar_no_codigo_pago(item);}return true;}}'>
+
+                    </td>
+                    <!-- /ko-->                      
+                  </tr>
+                       
+              </tbody>
+            </table>
+        </div>
+
+        <div id="paginacion" >
+          <div data-bind="pagination: {
+                      currentPage: paginacion.pagina_actual,
+                      totalCount: paginacion.total,
+                      pageSize:paginacion.cantidad_por_paginas,
+                      maxPages: paginacion.maxPaginas,
+                      directions: paginacion.direcciones,
+                      boundary: paginacion.limite,
+                      text: paginacion.text }">
+
+          </div>
+        </div>
+
+        </div>          
+      </div>
+    </div>  
+  </div>
+</div>
+
+    <!--Modal filtrar tabla modificar y consultrar-->
+
+    <div id="modal_referencia" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+          
+          <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row">
+                      <div class="col-md-12">
+                        <div class="form-group">
+                        </div> <br>   
+                        <div class="form-group">
+                          <label>Macrocontrato</label>
+                            <select class="form-control" data-bind="value:macrocontrato_select" >
+                              <option value="">[Seleccione...]</option>
+                              {% for item in mcontrato%}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Contratista</label>
+                            <select class="form-control" data-bind="value:contratista">
+                              <option value="">[Seleccione...]</option>
+                              <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                              <option data-bind="value:item.id,text:item.nombre"></option>
+                              <!--/ko-->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                          <label>Proyecto</label>
+                            <input type="text" placeholder="Buscar referencia por sap, proyecto, contrato" class="form-control" data-bind="value:contratoobra">
+                        </div>                                        
+
+                      </div>
+
+                    </div>
+                  </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+                      <i class="fa fa-search"></i> Filtrar
+                    </button>
+                </div>
+
+              </div>
+            </div>
+    </div><!--cierra modal_filtro-->
+
+

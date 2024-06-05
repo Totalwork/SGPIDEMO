@@ -1,0 +1,263 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Multa{% endblock title%}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block opciones_listado %}
+   <li>
+    <a href="#" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar Listado" >
+        <i class="fa fa-cloud-download" data-bind="click:exportar_excel" style="font-size: 20px;"></i>
+    </a>
+  </li>
+{% endblock opciones_listado %}  
+
+
+{% block mapa %}
+ 
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="../index/">Multas</a></li>
+  <li class="active">Descargos</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+ 
+<div class="row" >
+  <div class="col-lg-12">
+  
+    
+      
+  <div class="panel panel-sky" >
+          <div class="panel-heading">
+            <span>      
+              <a href="../index/"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"              aria-hidden="true"></i></a>
+            </span>            
+            Listado de descargos - N° de Registros : </span> <span data-bind="text:paginacion.total"></span>
+            <span class="panel-controls">
+              <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros"  title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda" >
+                <i class="fa fa-filter fa-2x"></i>
+              </a>
+            </span>
+          </div>
+          <div class="panel-body">
+
+            <div data-bind="html: mensaje"></div>  
+          <div data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>                
+              <th width="3%" >Cons. No</th>
+              <th width="4%" >Cons. carta</th>
+              <th width="4%" >Confirmadas</th>
+              <th width="10%" >No Contrato</th>
+              <th width="22%" >Nombre</th>
+              <th width="13%" >Fecha Solicitud</th>
+              <th width="20%" >Contratista</th>
+              <th width="12%" >Valor Multa</th>
+              <th width="3%"></th>  
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.solicitud.consecutivo"></td>
+              <!-- ko if: item.solicitud.correspondenciasolicita.prefijo.nombre -->
+              <td data-bind="text: item.solicitud.correspondenciasolicita.prefijo.nombre+'-'+item.solicitud.correspondenciasolicita.consecutivo"></td>
+              <!-- /ko --> 
+              <!-- ko ifnot: item.solicitud.correspondenciasolicita.prefijo.nombre -->
+              <td data-bind="text: item.solicitud.correspondenciasolicita.consecutivo"></td>
+              <!-- /ko --> 
+              <td data-bind="text: item.totalMultaContrato"> </td> 
+              <td data-bind="text: item.solicitud.contrato.numero"> </td> 
+              <td data-bind="text: item.solicitud.contrato.nombre"></td> 
+              <td data-bind="text: moment(item.fechasolicitud).format('LL')"></td>
+              <td data-bind="text: item.solicitud.contrato.contratista.nombre"></td>
+              <td data-bind="text: item.solicitud.valorImpuesto"> </td> 
+              <td>
+                 <div class="btn-group text-right">
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                      {% if 'multa.change_solicitudpronunciamiento' in perms %}
+                      <!-- ko if: item.totalPronunciamientos==0 -->
+                      <li>
+                        <a href="#" data-bind="click:$root.abrir_modal_pronunciar">Pronunciar</a>
+                      </li>
+                      <!-- /ko --> 
+                      <!-- ko if: item.totalPronunciamientos>0 -->  
+                        <li>
+                         <a href="#" data-bind="click:$root.abrir_modal_ver_pronunciamiento">Ver pronunciamiento</a>
+                        </li>
+                      <!-- /ko -->   
+                      {% endif %}               
+                        <li>
+                          <a  data-bind="attr:{href:item.soporte}" target="_blank" style="cursor:pointer;">Descargar soporte</a>
+                        </li>
+                    </ul>
+                  </div>
+              </td>      
+            </tr>
+          </tbody>
+        </table>
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>  
+        </div>     
+      </div>
+  </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+          <div class="form-group">  
+              <textarea type="text" class="form-control" data-bind='value:solicitudPronunciamientoVO.comentarios' placeholder="Digite los comentarios" rows="15" > </textarea> 
+          </div> 
+       </div>
+       <div class="modal-footer">
+          <!-- ko if: solicitudPronunciamientoVO.apelacion_id()>0 -->
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_pronunciamiento">Guardar</button>
+          <!-- /ko -->
+       </div>    
+    </div>
+  </div>
+</div>
+<!--Modal-->
+
+<div id="modal_busqueda" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" >
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body bg-light">
+               <div class="col-lg-7"  >  
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Datos Generales</span>
+                    </div>
+                    <div class="panel-body" > 
+                      
+                      <div class="form-group" >
+                        <label>Macro Contrato</label>
+                        <select class="form-control form-group" data-bind='value:filtro_solicitudApelacionVO.mcontrato'>    
+                            <option value="">Seleccione el macro contrato...</option> 
+                            <!--ko foreach: { data:listado_mcontrato , as:'item'}-->        
+                              <option data-bind="value:item.contrato.id, text: item.contrato.nombre"></option>
+                            <!-- /ko -->
+                        </select>         
+                      </div>
+                      <div class="form-group" >
+                        <label>Contratista</label>
+                        <select class="form-control form-group" data-bind='value:filtro_solicitudApelacionVO.contratista_id'>    
+                            <option value="">Seleccione el contratista...</option> 
+                            <!--ko foreach: { data:listado_contratista , as:'item'}-->        
+                              <option data-bind="value:item.id, text:item.nombre"></option>
+                            <!-- /ko -->
+                        </select>          
+                      </div> 
+                      <div class="form-group" >
+                        <label>Numero de Contrato</label>
+                        <input type="text" class="form-control" data-bind='value:filtro_solicitudApelacionVO.numerocontrato' placeholder="Digite el numero de contrato" >                        
+                      </div>  
+                      <div class="form-group" >
+                        <label>Solicitante</label>
+                        <select class="form-control form-group" data-bind='value:filtro_solicitudApelacionVO.solicitante_id'>    
+                            <option value="">Seleccione el solicitante...</option> 
+                            <!--ko foreach: { data:listado_solicitante , as:'item'}-->        
+                              <option data-bind="value:item.id, text: item.nombre"></option>
+                            <!-- /ko -->
+                        </select>         
+                      </div>
+
+                      <div class="form-group" >
+                        <label>Estado</label>
+                        <select class="form-control form-group" data-bind='value:filtro_solicitudApelacionVO.estado'>    
+                            <option value="">Seleccione el estado...</option> 
+                            <!--ko foreach: { data:listado_estado , as:'item'}-->        
+                              <option data-bind="value:item.id, text: item.nombre"></option>
+                            <!-- /ko -->
+                        </select>  
+                      </div>
+                    </div>  
+                  </div>  
+                </div>  
+                <!-- datos generales --> 
+
+                <div class="col-lg-5"  >  
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Rango de Busqueda</span>
+                    </div>
+                    <div class="panel-body" > 
+                      
+                   
+                      <div class="form-group" >
+                        <label>Desde</label>
+                        <input type="text" class="form-control" data-bind='datePicker:filtro_solicitudApelacionVO.desde, value:filtro_solicitudApelacionVO.desde' placeholder="Digite fecha de inicio" >
+                      </div>
+
+                      <div class="form-group" >
+                        <label>Hasta</label>
+                        <input type="text" class="form-control" data-bind='datePicker:filtro_solicitudApelacionVO.hasta,value:filtro_solicitudApelacionVO.hasta' placeholder="Digite fecha fin" >
+                      </div>
+                      
+                    </div>  
+                  </div>  
+                </div> 
+                <!-- rango de fechas -->             
+       </div>     
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click: function(){ consultar(1) }">Consultar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+<!--Modal -->
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/multa/descargo.js" %}'></script>
+  <script type="text/javascript">
+  $(document).ready(function () {
+
+    descargo.consultar(1);
+  });  
+</script>
+{% endblock imports %}

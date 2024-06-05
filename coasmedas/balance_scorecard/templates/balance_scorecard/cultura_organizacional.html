@@ -1,0 +1,53 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Cultura organizacional{% endblock title%}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}  
+
+ {% block busqueda %}
+ {% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'usuario.index' %}">Inicio</a></li>
+  <li><a href="{% url 'balance_scorecard.inicio' %}">Balance Scorecard</a></li>
+  <li class="active">Cultura organizacional</li>
+{% endblock mapa %}
+
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>   
+
+<div class="row" >
+  	<div class="col-lg-12">    
+    	<div class="panel panel-sky">
+    		<div class="panel-heading">
+            <a href="{% url 'balance_scorecard.inicio' %}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar a Web Balance Score Card">
+              <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+            </a> 
+        		Cultura organizacional
+      	</div>
+      
+	      <div class="panel-body">
+          <div class="seccionhome col-lg-4" id="panel_boton_4" style="background: #FCF3CF;  ">
+              <br>                    
+                Sección en construcción
+
+              <br>
+              &nbsp;
+          </div>
+	      		
+	    	</div>
+  		</div>
+	</div>
+</div>
+
+
+
+{% endblock contenido %}
+
+{% load static %}

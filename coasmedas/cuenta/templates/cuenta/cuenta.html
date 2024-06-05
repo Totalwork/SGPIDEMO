@@ -1,0 +1,305 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Cuenta{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'cuenta.cuenta' %}">Cuenta</a></li>
+	<li class="active">administrar</li>
+{% endblock mapa %}
+{% block encabezado %}Cuenta{% endblock encabezado %}
+
+{% block contenido %}   
+
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+      
+  <div class="panel panel-sky" data-bind="visible:(listado_cuenta()!=null && listado_cuenta().length > 0)">
+            <div class="panel-heading">
+                <h4>Listado</h4>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr>
+              <th><input type="checkbox" data-bind="checked:checkall"></th>    
+              <th width="30%">Macro Contrato</th>
+              <th width="20%">Nombre</th>
+              <th width="20%">Numero</th>
+              <th width="20%">Fiduciaria</th>
+              <th width="20%">Saldo</th>
+              <th width="10%">Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_cuenta, as:'item'}">
+            <tr>
+              <td> <input type="checkbox" data-bind="checked:eliminado,value:id"></td> 
+              <td data-bind="text: item.contrato.nombre"></td>
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.numero"></td>
+              <td data-bind="text: item.fiduciaria"></td>
+              <td data-bind="text: item.valor"></td>
+              <td>
+                  <div class="btn-group text-right">
+                      <i  class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        </i>
+                      <ul class="dropdown-menu" role="menu">
+                        <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                        </li>
+                        <li>
+                          <a href="#" data-bind="click: function(){ $root.ver_movimientos(item.id); }"> Ver Movimientos</a>
+                        </li>                       
+                      </ul>
+                  </div>
+              </td>       
+            </tr>
+          </tbody>
+        </table>
+        </div>              
+                  <div id="paginacion" >
+                    <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                    </div>
+                  </div>
+        </div>
+  </div>	
+  </div>
+</div>
+
+<!--Modal Proyecto-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="panel-body bg-light">
+          
+            <form action="." method="post" enctype="multipart/form-data" id="form-wizard">
+            {% csrf_token %}       
+
+                      <div class="col-lg-6">
+                      <label>Tipo de cuenta</label>
+                        <select class="form-control" data-bind="options: listado_tipos_cuenta,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el tipo de proyecto...',
+                                           value: cuentaVO.tipo_id ">
+                        </select>               
+                      </div>
+
+                      <div class="col-lg-6">
+                      <label>Macro Contrato</label>
+                        <select class="form-control" data-bind="options: listado_contratos,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el tipo de proyecto...',
+                                           value: cuentaVO.contrato_id ">
+                        </select>               
+                      </div>
+
+                      <div class="col-lg-6">
+                        <label>Numero de cuenta</label>
+                        <input type="text" class="form-control" data-bind='value:cuentaVO.numero'>            
+                      </div>
+
+                      <div class="col-lg-6">          
+                        <label>Nombre de la cuenta</label>
+                        <input type="text" class="form-control" data-bind='value:cuentaVO.nombre'>    
+                      </div>
+
+                      <div class="col-lg-6">          
+                        <label>Valor</label>
+                        <input type="text" class="form-control" data-bind='value:cuentaVO.valor'>  
+                      </div>
+
+                      <div class="col-lg-12">
+                        <label>Fiduciaria</label>
+                        <input type="text" class="form-control" data-bind='value:cuentaVO.fiduciaria'>          
+                      </div>
+
+                      <div class="col-lg-12">
+                        <label>Codigo</label>
+                        <input type="text" class="form-control" data-bind='value:cuentaVO.codigo_fidecomiso'>          
+                      </div>
+
+                      <div class="col-lg-12">
+                        <label>Codigo Fidecomiso</label>
+                        <input type="text" class="form-control" data-bind='value:cuentaVO.codigo_fidecomiso_a'>          
+                      </div>                      
+            </form>
+            <!-- End Account2 Form -->                    
+         
+       </div>     
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:guardar_cuenta">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+<!--Modal Proyecto-->
+
+<!--Modal movimientos de la cuenta -->
+<div id="modal_acciones_movimientos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+          <div class="row">
+            <div class="col-md-4">
+              <h4 class="modal-title" id="gridModalLabel">Movimientos de la cuenta </h4>
+            </div>
+            <div class="col-md-8 text-right">
+              <div id="admin-panel-filter">
+                <a data-filter=".panel-warning" class="btn btn-dark light mr5" data-bind="click:abrir_modal_movimiento" >Registrar Movimiento</a>
+              </div>
+            </div>
+          </div>
+      </div>
+       <div class="panel-body bg-light">
+            <div class="col-lg-12" data-bind="visible:(listado_cuenta_movimiento()!=null && listado_cuenta_movimiento().length > 0)">
+                      <div class="table-responsive" > 
+                            <table class="table">
+                          <thead>
+                        <tr>                          
+                          <th width="15%">Fecha</th>
+                          <th width="20%">Valor</th>
+                          <th width="15%">Tipo</th>
+                          <th width="50%">Descripcion</th>                         
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_cuenta_movimiento, as:'item'}">
+                        <tr>
+                          <td data-bind="text: item.fecha"></td>
+                          <td data-bind="text: item.valor"></td>
+                          <td data-bind="text: item.tipo.nombre"></td>
+                          <td data-bind="text: item.descripcion"></td>  
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>              
+                    <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                     currentPage: paginacion.pagina_actual,
+                                     totalCount: paginacion.total,
+                                     pageSize:paginacion.cantidad_por_paginas,
+                                     maxPages: paginacion.maxPaginas,
+                                     directions: paginacion.direcciones,
+                                     boundary: paginacion.limite,
+                                     text: paginacion.text }">
+
+                      </div>
+                    </div>
+              </div>         
+       </div>     
+    </div>
+  </div>
+</div>
+<!--Modal movimientos de la cuenta -->	
+
+<div id="modal_acciones_form_movimientos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="panel-body bg-light">
+          
+            <form action="." method="post" enctype="multipart/form-data" id="form-wizard">
+            {% csrf_token %}       
+
+                      <div class="col-lg-12">
+                      <label>Fecha</label>
+                        <input type="text" class="form-control" data-bind='value:cuenta_movimientoVO.fecha'>               
+                      </div>
+
+                      <div class="col-lg-12">
+                        <label>Tipo Movimiento</label>
+                        <select class="form-control" data-bind="options: listado_tipos_movimiento,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el tipo de movimiento...',
+                                           value: cuenta_movimientoVO.tipo_id ">
+                        </select>             
+                      </div>
+
+                      <div class="col-lg-12" >          
+                        <label>Periodo</label>
+                        <div class="row" >
+                            <div class="col-lg-4"> 
+                            <select class="form-control" data-bind="options: listado_contratos,
+                                               optionsText: 'nombre', 
+                                               optionsValue: 'id', 
+                                               optionsCaption: 'Seleccione el mes inicial...',
+                                               value: cuenta_movimientoVO.periodo_inicial ">
+                            </select>  
+                            </div>
+                            <div class="col-lg-4">   
+                            <select class="form-control" data-bind="options: listado_contratos,
+                                               optionsText: 'nombre', 
+                                               optionsValue: 'id', 
+                                               optionsCaption: 'Seleccione el mes final...',
+                                               value: cuenta_movimientoVO.periodo_final ">
+                            </select>
+                            </div>  
+                            <div class="col-lg-4">   
+                            <input type="text" class="form-control" data-bind='value:cuenta_movimientoVO.ano'>   
+                            </div>
+                        </div>
+                      </div>
+   
+                      <div class="col-lg-12">          
+                        <label>Valor</label>
+                        <input type="text" class="form-control" data-bind='value:cuenta_movimientoVO.valor'>  
+                      </div>
+
+                      <div class="col-lg-12">
+                        <label>Descripción</label>
+                        <textarea type="text" class="form-control" data-bind='value:cuenta_movimientoVO.descripcion'></textarea>          
+                      </div>
+                                         
+            </form>
+            <!-- End Account2 Form -->                    
+         
+       </div>     
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:guardar_cuenta_movimiento">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+<!--Modal CuentaMovimiento-->
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/ViewModels/cuenta/cuenta.js" %}'></script>
+
+  <!-- END: PAGE SCRIPTS -->
+{% endblock imports %}

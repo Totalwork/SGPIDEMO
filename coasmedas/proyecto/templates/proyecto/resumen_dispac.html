@@ -1,0 +1,212 @@
+{% extends 'page2.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Resumen del proyecto{% endblock title%}
+{% block mapa %}
+  <li><a><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li class="active">Resumen del proyecto</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Resumen del proyecto</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar proyectos" data-bind="click:filtrar_proyecto" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+            </div>
+
+            <div class="panel-body" >
+
+              <div data-bind="html: mensaje_proyecto"></div>
+
+              <div class="table-responsive">
+
+                <table class="table" data-bind="visible:(listado_proyecto()!=null && listado_proyecto().length > 0)">
+                  <thead>
+                      <tr>
+                        <th style="width:22%">Macro contrato</th>
+                        <th style="width:22%">Departamento</th>
+                        <th style="width:22%">Municipio</th>
+                        <th style="width:22%">Proyecto</th>
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado_proyecto, as:'item'}">
+                    <tr>
+                      <td>
+
+                        <!--ko if: item.proyecto.mcontrato!=null -->
+                            <span data-bind="cutWord:{num:25,text:item.proyecto.mcontrato.nombre, verMax:'...', verMin:'...'}"></span>
+                        <!--/ko -->
+
+                        <!--ko if: item.proyecto.mcontrato==null -->
+                          Sin contrato asociado
+                        <!--/ko -->
+
+                      </td>
+                     <!-- <td data-bind="text: item.proyecto.contrato[0].contratista.nombre"></td> -->
+                      <td data-bind="text: item.proyecto.municipio.departamento.nombre"></td>
+                      <td data-bind="text: item.proyecto.municipio.nombre"></td>
+                      <td data-bind="cutWord:{num:25,text:item.proyecto.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td>
+
+                          <a href="#" data-bind="attr:{href:'../hoja_proyecto_dispac/' + item.proyecto.id}">
+                            <i class="fa fa-book fa-2x"></i>
+                          </a>
+  
+                      </td>
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                  <div id="paginacion" >
+                    <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                    </div>
+                  </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal filtrar-->
+
+  <div id="modal_filtro_proyecto" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label>Macrocontrato</label>
+
+                <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" data-bind="value:macrocontrato_select">
+                  <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+              <label>Contratista</label>
+
+                <select class="form-control" id="contratista_filtro" name="contratista_filtro" data-bind="value:contratista">
+                  <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+              <label>Departamento</label>
+
+                <select class="form-control" id="departamento_filtro" name="departamento_filtro" data-bind="value:departamento">
+                  <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:listado_departamento, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+              <label>Municipio</label>
+
+                <select class="form-control" id="municipio_filtro" name="municipio_filtro">
+                  <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:listado_municipio, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:function(){consultar_proyectos_dispac(1);}">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+<input type="hidden" value="{{empresa}}" id="empresa" name="empresa"/>
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/proyecto/resumen_dispac.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      resumen.consultar_proyectos_dispac(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

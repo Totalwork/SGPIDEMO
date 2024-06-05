@@ -1,0 +1,359 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBJIu6W6VBANXP1Tq6mCKhjvupUARUNIuI'></script>
+ <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+{% endblock imports_css %}
+
+{% block title %}Georreferencias{% endblock title %}
+
+{% block opciones_listado %}
+ 
+  {% if estado == 159 %}
+
+    {% if app in perms %}
+      {% if app|add:'.add_'|add:model in perms%}        
+        <li>
+          <a href="#" data-bind="click:abrir_registro" data-placement="right"  data-toggle="tooltip" data-original-title="Lista de Georreferencias">
+             <i class="fa fa-map-marker" style="font-size: 20px;"></i>
+          </a>
+        </li>
+
+
+      {% endif %}
+    {% endif %}
+
+    {% if app in perms %}
+      {% if app|add:'.add_'|add:model in perms%} 
+        <li>
+          <a href="#" data-bind="click:abrir_carga_masiva">
+             <i class="fa fa-upload" style="font-size: 20px;"></i>
+          </a>
+        </li>
+      {% endif %}
+    {% endif %}
+
+    {% if app in perms %}
+      {% if app|add:'.change_'|add:model in perms%} 
+        <li>
+          <a href="#" data-bind="click:cambiar_orden">
+             <i class="fa fa-exchange" style="font-size: 20px;"></i>
+             
+          </a>
+        </li>
+      {% endif %}
+    {% endif %}
+
+    {% if app in perms %}
+      {% if app|add:'.change_'|add:model in perms%} 
+        <li>
+          <a >
+            <div class="switch switch-info round switch-inline switch-dark">
+              <input id="toogledash" type="checkbox"  onchange="javascript:toogleDash();">
+              <label for="toogledash" style="color:black;">&nbsp;Editar&nbsp;mapa</label>
+
+            </div>
+          </a>
+        </li> 
+      {% endif %}
+    {% endif %}
+
+  {% endif %} 
+  
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+    <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li><a href="/servidumbre/home">Gestion de servidumbres</a></li>
+  <li><a href="{% url 'servidumbre.predios' id=expediente.id %}">Predios</a></li>
+  <li>Georreferencias</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+<script type="text/javascript">
+    function toogleDash(){      
+      var checkDash = document.getElementById("toogledash");
+
+      if (checkDash.checked) {
+        $(document).ready(function () {
+          
+          $.confirm({
+            title:'Informativo',
+            content: '<h4><i class="text-info fa fa-info-circle fa-2x"></i> El mapa ya se puede editar<h4>',
+            cancelButton: 'Cerrar',
+            confirmButton: false
+          });
+          georeferencias.editar_mapa(true);
+          georeferencias.initMap();
+          
+  
+
+        });   
+      }else{
+        $(document).ready(function () {
+          
+          $.confirm({
+            title:'Informativo',
+            content: '<h4><i class="text-info fa fa-info-circle fa-2x"></i> El mapa no se puede editar<h4>',
+            cancelButton: 'Cerrar',
+            confirmButton: false
+          });
+          
+          georeferencias.editar_mapa(false);
+          georeferencias.initMap_noeditable();
+
+        });  
+      }
+    
+    
+    }
+  </script>
+
+
+<div class="panel panel-sky">
+    <div class="row" >
+
+      <div class="col-lg-12">
+      
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">
+              <a href="#" data-bind="attr:{href:'../../../predios/'+{{expediente.id}} }" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar al listado de predios">
+                 <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              </a>            
+              <span class="panel-title hidden-xs">Georreferencias del Predio [{{predio.nombre_direccion}}] | Asociado al expediente No. {{expediente.id}}                
+        </span>                                        
+            </div>
+      </div><!--col-lg-12" -->
+    </div><!--cierra row -->
+
+    <div class="panel-body">
+      <div class="panel" >         
+          <div class="form-group col-lg-12">
+              <span class="panel-title hidden-xs">
+                  Proyecto: {{expediente.proyecto.nombre}} 
+                  | Departamento: {{expediente.proyecto.municipio.departamento.nombre}} 
+                  | Municipio: {{expediente.proyecto.municipio.nombre}} 
+                  | Contrato/Convenio: {{expediente.proyecto.mcontrato}}       
+            </span>
+          </div>
+        </div>
+    </div>
+    <div data-bind="html: mensaje"></div>
+    <div class="row" id="content_map" style="display: none;">
+      <div class="col-lg-12"> 
+        <div id="map" class="col-lg-12"  style="border-color:black;border-style: solid;height: 600px;">
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" id="editar_mapa" value="false" class="form-control" >
+ </div>
+
+
+ <div id="modal_acciones_carga_masiva" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <form action="." method="post" enctype="multipart/form-data">
+       <div class="modal-body">
+        
+        {% csrf_token %}
+        
+        <Strong>Contrato/convenio: </Strong> {{expediente.proyecto.mcontrato}}  <br>
+        <Strong>Departamento: </Strong> {{expediente.proyecto.municipio.departamento.nombre}}<br>
+        <Strong>Municipio: </Strong> {{expediente.proyecto.municipio.nombre}}<br>
+        <Strong>Proyecto: </Strong> {{expediente.proyecto.nombre}} <br>
+        <Strong>Expediente: </Strong> {{expediente.id}}  <br>
+        <Strong>Predio: </Strong>  {{predio.nombre_direccion}}<br><br>
+        
+         <div class="form-group">
+            <a href="#" data-bind="click:descargar_plantilla"><label style="cursor: pointer;">Plantilla para diligenciar <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i></label></a>       
+        </div>
+        <input type="hidden" id="id_expediente" value=" {{expediente.id}}" class="form-control" >
+        <input type="hidden" id="id_predio" value="{{predio.id}}" class="form-control" >
+       
+
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+        </div>       
+
+        
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_carga_masiva">Iniciar Carga</button>
+        </div>    
+      </form>
+  </div>
+</div>
+</div>
+
+
+<div id="modal_acciones" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      
+      <div class="modal-body">
+        <div id="divNuevoRegistro" style="cursor:pointer;">
+          <a onclick="nuevaRegistro()"><i class="fa fa-plus-circle fa-2x"></i></a>
+        </div>
+        <div id="divOcultarRegistro" style="display: None;cursor:pointer;">
+          <a onclick="ocultarNuevoRegistro()"><i class="fa fa-minus-circle fa-2x"></i></a>
+        </div>
+
+        <div id="nuevoRegistro"  style="display: None;border-style: solid;border-color:#CACFD2;">
+
+          <form id="panel_registro" action="." method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              {% csrf_token %}              
+                               
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo2'></h4><br>
+                <div class="form-group">
+                  <label>Longitud</label>
+                  <input type="text" class="form-control" data-bind='value:georeferenciaVO.longitud'>           
+                </div>
+
+                <div class="form-group">
+                  <label>Latitud</label>
+                  <input type="text" class="form-control" data-bind='value:georeferenciaVO.latitud'>           
+                </div>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:guardar_nodo_por_nodo">Guardar</button>
+            </div>
+          </form>
+        </div>     
+        
+        <div data-bind="html: mensaje"></div>
+        <div data-bind="visible:(listado()!=null && listado().length > 0)">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Vertices</th>
+                <th>Longitud</th>
+                <th>Latitud</th>
+                <th>Opciones</th>              
+              </tr>
+            </thead>
+            <tbody data-bind="foreach:{data:listado, as:'item'}">
+              <tr>
+                <td data-bind="text: item.orden"></td>
+                <td data-bind="text: item.longitud"></td>
+                <td data-bind="text: item.latitud"></td>
+                <td>
+                  <div class="btn-group text-right">
+                      <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                      <ul class="dropdown-menu" role="menu">
+                        <li>
+                          <a href="#" data-bind="click:$root.abrir_edicion">Editar</a>
+                        </li>
+                        <li>
+                          <a href="#" data-bind="click: function(){ $root.eliminar_coordenada(item.id); }">Eliminar</a>
+
+
+                        </li>
+
+                      </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+         
+      
+  </div>
+</div>
+</div>
+
+
+<div id="modal_change" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      
+      <div data-bind="html: mensaje"></div>
+      <div class="table-responsive" style="padding-left: 20px;padding-right: 20px;">
+          <table class="table"data-bind="visible:(listado()!=null && listado().length > 0)">
+            <thead>
+              <tr>
+                <th>Vertices</th>
+                <th>Longitud</th>
+                <th>Latitud</th>           
+              </tr>
+            </thead>
+            <tbody data-bind="foreach:{data:listado, as:'item'}">
+              <tr>
+                <td>
+                  <input type="text" data-bind="value:item.orden" class="form-control" style="width: 45px">
+                </td>
+                <td data-bind="text: item.longitud"></td>
+                <td data-bind="text: item.latitud"></td>
+                
+              </tr>
+            </tbody>
+          </table>
+       
+        
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_cambios">Guardar cambios</button>
+        </div>
+      
+  </div>
+</div>
+</div>
+{% endblock contenido %}
+
+{% load static %}
+
+{% block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/predio_georeferencias.js" %}?cache=3.5'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      if (georeferencias.listado()!=null && georeferencias.listado().length != 0){
+        $.confirm({
+          title:'Informativo',
+          content: '<h4><i class="text-info fa fa-info-circle fa-2x"></i> El mapa no se puede editar<h4>',
+          cancelButton: 'Cerrar',
+          confirmButton: false
+        });
+      }
+      
+    });  
+
+  </script>
+
+{% endblock imports %}   

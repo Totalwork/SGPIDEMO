@@ -1,0 +1,201 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Empresa{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+	<li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrización</a></li>  
+	<li><a href="{% url  'empresa.empresa' %}">Empresa</a></li>  
+	<li class="active">Correspondencia</li>
+	<li class="active">Plantilla</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}    
+    <!--ko if: listado()==null || listado().length == 0 -->      
+      <li>
+        <a href="" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+           <i class="fa fa-plus"  style="font-size: 20px;"></i>
+        </a>
+      </li>
+    <!-- /ko --> 
+    {% endif %}
+  {% endif %}
+ 
+  
+
+{% endblock opciones_listado %} 
+
+
+{% block contenido %}
+<input type="hidden" id="empresa_id" value="{{ user.usuario.empresa.id }}">
+<div class="col-lg-3">
+
+	<div class="panel mobile-controls" id="p21">
+
+		<div class="panel-heading ui-sortable-handle">
+			<span class="panel-title">Listado de etiquetas</span>
+		</div>
+
+		<div class="panel-body pn">
+
+
+			
+				<table class="table mbn tc-list-1 tc-text-muted-2 tc-fw600-2">
+					<thead>
+						<tr class="hidden">
+							<th class="w30">#</th>
+							<th>etiqueta</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1.</td>
+							<td> &#60;fechaenvio></td>
+						</tr>
+						<tr>
+							<td>2.</td>
+							<td>&#60;consecutivo></td>
+						</tr>
+						<tr>
+							<td>3.</td>
+							<td>&#60;iniciales></td>
+						</tr>
+						<tr>
+							<td>4.</td>
+							<td>&#60;referencia></td>
+						</tr>
+						<tr>
+							<td>5.</td>
+							<td>&#60;destinatario></td>
+						</tr>
+						<tr>
+							<td>6.</td>
+							<td>&#60;asunto></td>
+						</tr>
+						<tr>
+							<td>7.</td>
+							<td>&#60;contenido></td>
+						</tr>
+						<tr>
+							<td>8.</td>
+							<td>&#60;autor></td>
+						</tr>
+						<tr>
+							<td>9.</td>
+							<td>&#60;elaboro></td>
+						</tr>
+
+					</tbody>
+				</table>
+			
+		</div>
+	</div>
+</div>
+
+<div class="col-lg-8">        
+  	<div class="panel panel-sky" >
+		<div class="panel-heading">
+			<span>      
+                <a href="{% url 'empresa.empresa' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span> 			
+			Plantillas de correspondencia enviada</div>
+        <div class="panel-body">
+            <div data-bind="html: mensaje"></div>   
+            <div data-bind="visible:(listado()!=null && listado().length > 0)">
+
+		        <table class="table table-bordered table-hover">
+		            <thead>
+		            <tr>    
+		            	<th>Soporte</th>                     
+		                <th>Opciones</th>                                    
+		            </tr>
+		           </thead>
+		           <tbody data-bind="foreach:{data:listado, as:'item'}">
+		            <tr> 
+		            	<td style="width: 70%">                   
+			               	<!-- <a data-bind="attr: {href: item.soporte}" target="_blank" style="cursor:pointer;"> -->
+			               		<a data-bind="attr: {href: '/correspondencia/soporte-descarga/?id=' + item.id }" target="_blank" style="cursor:pointer;">
+	                            <i class="fa fa-file kv-caption-icon"></i> Documento
+	                        </a>
+			            </td>  
+			            <!-- <td data-bind="text:item.empresa.abreviatura"></td>  --> 
+			            <td>
+			            	<div class="btn-group text-right">
+                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                  <i  class="fa fa-ellipsis-h fa-2x"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-right" role="menu">                     
+                                  	<li>
+                                    	<a data-bind="click:$root.consultar_por_id" >Editar</a>
+                                  	</li>                                                    
+                                </ul>
+                            </div>
+
+			            </td>
+		            </tr>
+		           </tbody> 
+		        </table>
+  	 	 	
+  	 	 	</div>
+  	 	</div>
+    </div>
+</div>
+
+
+<!--Modal form subir soporte-->
+<div id="modal_acciones_soporte" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog " >
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+ 
+			<div class="form-group">  
+				<input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:plantillaVO.soporte,allowedFileExtensions: ['docx'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+				<input type="hidden" data-bind="value:plantillaVO.soporte" >
+				<small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados docx.<br></small>
+			</div>
+
+
+        	<button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:guardar_archivo" >Subir Soporte</button>        
+
+       </div>
+       
+    </div>
+  </div>
+</div>
+<!--Modal form subir soporte-->
+ 
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/correspondencia/plantilla.js" %}'></script>
+  <!-- END: PAGE SCRIPTS -->
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+              
+        /* SE INICIAN LAS FUNCIONES */
+        plantilla.consultar(1);     
+
+    });  
+
+  </script>
+
+{% endblock imports %}

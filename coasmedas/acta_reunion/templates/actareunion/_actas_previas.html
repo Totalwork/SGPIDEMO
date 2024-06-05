@@ -1,0 +1,175 @@
+<div class="panel panel-sky">
+
+  <div class="panel-body">
+    <!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->
+    <a href="#" data-bind="click:abrir_modal_actas_previas, visible:(listado_actasPrevias().length == 0)"
+      data-placement="right" data-toggle="tooltip" data-original-title="Agregar acta previa">
+      <i class="fa fa-plus" style="font-size: 24px;"></i>
+    </a>
+    <!--/ko-->
+    <br>
+    <br>
+    <div data-bind="html: mensajeActasPrevias"></div>
+
+    <div class="table-responsive"
+      data-bind="visible:(listado_actasPrevias()!=null && listado_actasPrevias().length > 0)">
+
+      <i class="fa fa-pause fa-2x" style="font-size:24px;color: #CDCDCD"></i>
+      &nbsp;&nbsp;Pausada
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-stop fa-2x" style="font-size:24px;color:  #C70039"></i>
+      &nbsp;&nbsp;Anulada
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-play fa-2x" style="font-size:24px;color: #FFC300"></i>
+      &nbsp;&nbsp;En curso
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-stop-circle fa-2x" style="font-size:24px;color: #2ECC71"></i>
+      &nbsp;&nbsp;Cerrada
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+
+      <br>
+      <br>
+      <table class="table">
+
+        <thead>
+          <tr>
+            <th style="width: 5%"></th>
+            <th style="width: 15%">No. Acta</th>
+            <th style="width: 15%">Fecha</th>            
+            <th style="width: 40%">Tema principal</th>
+            <th style="width: 10%">Soporte</th>
+            <th style="width: 10%"></th>
+          </tr>
+        </thead>
+        <tbody data-bind="foreach:{data:listado_actasPrevias, as:'item'}">
+          <tr>
+            <td>
+              <i data-bind="css : item.estado.icono+' fa-2x ' ,style:{color:item.estado.color}"></i>
+            </td>
+            <td data-bind="text: item.consecutivo"></td>
+            <td data-bind="text: item.fecha"></td>            
+            <td data-bind="cutWord:{num:65,text:item.tema_principal, verMax:'...', verMin:'...'}"></td>
+
+            <td>
+              <!--ko if: item.soporte -->
+              <a href="#" data-bind="click: function(){$root.ver_soporte(item.id)}" target="_blank"
+                style="cursor:pointer;">
+                <i class="fa fa-file kv-caption-icon"></i>
+              </a>
+              <!--/ko-->
+
+              <!--ko if: !item.soporte -->
+              <span style="color:red">Pendiente</span>
+              <!--/ko-->
+            </td>
+
+            <td>
+
+              <div class="btn-group text-right">
+                <a href="#" data-bind="click: function(){$root.ver_examinar_acta(item.id)}" target="_blank"
+                  style="cursor:pointer;">
+                  <i class="fa fa-eye text-primary fa-lg pr10"></i> 
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div id="paginacion">
+        <div data-bind="pagination: {
+                      currentPage: paginacionActaPrevia.pagina_actual,
+                      totalCount: paginacionActaPrevia.total,
+                      pageSize:paginacionActaPrevia.cantidad_por_paginas,
+                      maxPages: paginacionActaPrevia.maxPaginas,
+                      directions: paginacionActaPrevia.direcciones,
+                      boundary: paginacionActaPrevia.limite,
+                      text: paginacionActaPrevia.text }">
+
+        </div>
+      </div>
+
+    </div>
+    <!--cierra row -->
+  </div><!-- cierra panel body-->
+
+  <div id="modal_actas_previas" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">X</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+
+        <div class="modal-body">
+          <div class="col-lg-12">
+            <label><b>Consecutivo de Acta(*)</b></label>
+            <br>
+            <div class="input-group form-group">              
+              <input class="form-control" placeholder="Buscar por consecutivo" type="text" id="txtBuscarActas"
+                data-bind="event:{keypress: consultar_actas_previas_enter }">
+              <span class="input-group-addon" data-bind="click:consultar_actas_previas_btn"
+                style="cursor:pointer">Consultar</span>
+            </div>
+
+            <div data-bind="html: mensajeActasPreviasCrear"></div>
+            <div
+              data-bind="visible:(listado_actasPreviasCrear()!=null && listado_actasPreviasCrear().length > 0)">
+
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <!-- data-bind="checked:checkallResponsables" -->
+                      <th width="5%"></th>
+                      <th width="25%">Consecutivo</th>
+                      <th width="20%">Tema Principal</th>
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado_actasPreviasCrear, as:'item'}">
+                    <tr data-bind="attr:{for:'radio_acta-'+$index()}">
+                      <td>
+                        <label style="width: 100%;">
+                        <input data-bind="attr:{id:'radio_acta-'+$index(), value:item.id},checked:$parent.id_acta" type="radio" name="radio_acta"> 
+                        </label>
+                      </td>
+                     <td style="text-align: left;">
+                        <label style="width: 100%;" data-bind="attr:{for:'radio_acta-'+$index()},text:item.consecutivo"></label>
+                      </td>
+                        <td style="text-align: left;">
+                        <label style="width: 100%;" data-bind="attr:{for:'radio_acta-'+$index()},text:item.tema_principal"></label>
+                      </td>                        	
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_acta_previa">Guardar</button>
+        </div>        
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+<script type="text/javascript">
+
+  $(document).ready(function () {
+    acta.cargar_actas_previas(1,0);
+  });
+
+</script>

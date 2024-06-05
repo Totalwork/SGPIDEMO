@@ -1,0 +1,336 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+<link rel="stylesheet" href="http://blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+<link rel="stylesheet" type="text/css" href='{% static "css/caroussel/bootstrap-image-gallery.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Muro{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Muro</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'usuario.index' %}" data-placement="right"    
+      data-toggle="tooltip" data-original-title="Regresar al inicio">
+      <i class="fa fa-arrow-left"></i>
+  </a>
+  Muro
+{% endblock encabezado %}
+
+{% block opciones_listado %}
+
+            <li>
+              <a href="#" data-placement="right"  data-toggle="tooltip" data-bind="click:abrir_modal_filtro" data-original-title="Filtrar busqueda">
+                  <i class="fa fa-filter" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+             <li>
+              <a href="#" data-placement="right"  data-toggle="tooltip" data-bind="click:limpiar_filtro" data-original-title="Limpiar Filtro">
+                  <i class="fa fa-eraser" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+   
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                     <span class="panel-title">Tareas/Actividades</span>
+
+          </div>
+          <div class="panel-body"> 
+            <div data-bind="html: mensaje"></div> </div>
+            <div data-bind="foreach:{data:listado, as:'item'}">
+             <div class="panel panel-info">
+                 <div class="panel-heading"><a style="color: white" href="#" class="pull-right" data-bind="click:$parent.consultar_id_tarea">Detalle de la Tarea</a> 
+                  <h4 data-bind="text:asunto"></h4></div>
+                  <div class="panel-body">
+                    <p><label>Responsable:  </label><span data-bind="text:item.usuario_responsable.persona.nombres()+' '+item.usuario_responsable.persona.apellidos()"></span></p>
+                    <p><label>Fecha Final:  </label><span data-bind="text:item.fecha_fin"></span></p>
+                    <p><label>Descripcion:  </label>
+                    <br><span data-bind="text:item.descripcion"></span></p>
+                    <p><label>Nombre de los Proyectos:  </label></p>
+                      <div class="row">
+                      <div class="col-xs-4">
+                      <!--ko if: item.proyecto().length > 0 -->
+                        <ul>
+                      <!-- ko foreach: item.proyecto -->
+                         <li data-bind="text: nombre"></li>
+                      <!-- /ko -->
+                         </ul>
+                       <!--/ko--> 
+                       <!--ko if: item.proyecto().length == 0 -->
+                          <span>No tiene proyectos actualmente.</span><br><br>
+                       <!--/ko--> 
+                     </div>
+                  </div>
+                    
+                  
+                  <p><label>Archivos:  </label></p>
+                   <div class="row">
+                      <div class="col-xs-4">
+                      <!--ko if: item.soporte().length > 0 -->
+                      <div id="links">
+                        <table border="0" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <!-- ko foreach: item.soporte -->
+                               <td align="center">    
+                              <!--ko if: $index() < 6 -->
+                                  <!--ko if: ruta().indexOf('.pdf')>=0  -->              
+                                    <a  data-bind="attr:{href: ruta_publica}" target="_blank">
+                                    <img src='{% static "admin/img/pdf.jpg" %}' width="160px" height="160px">
+                                    </a>
+                                  <!-- /ko -->
+
+                                  <!--ko if: ruta().indexOf('.doc')>=0  || ruta().indexOf('.docx')>=0-->              
+                                    <a  data-bind="attr:{href: ruta_publica}" target="_blank">
+                                    <img src='{% static "admin/img/doc.jpg" %}' width="160px" height="160px">
+                                    </a>
+                                  <!-- /ko -->
+
+                                   <!--ko if: ruta().indexOf('.pdf')<0  &&  ruta().indexOf('.doc')<0  && ruta().indexOf('.docx')<0--> 
+                                     <a class="fancybox-effects-b"  data-gallery data-bind="attr:{href: ruta_publica}">
+                                        <img data-bind="attr:{src: ruta_publica,title:nombre}" width="160px" height="160px">
+                                      </a>
+                                   <!-- /ko -->
+                                  <!-- /ko -->
+
+                                  <!--ko if: $index() == 6 -->
+                                        <a href="#" data-bind="click:function(){$root.consultar_id_tarea(item)}">
+                                          Ver mas
+                                        </a>
+                                  <!--/ko--> 
+                               </td>
+                              <!-- /ko -->
+                            </tr>
+                           </table>
+                          </div>
+                       <!--/ko--> 
+                       <!--ko if: item.soporte().length == 0 -->
+                          <span>No tiene archivos actualmente.</span><br><br>
+                       <!--/ko--> 
+                     </div>
+                  </div>
+
+
+                        <hr>
+                        <h3>Comentarios</h3>
+                        <ul>
+                        <!--ko if: item.comentarios().length > 0 -->
+                         <!-- ko foreach: item.comentarios -->
+                            <!--ko if: $index() <= item.procesar() -->
+                               <li> <label><span data-bind="text:usuario.persona.nombres()+' '+usuario.persona.apellidos()" style="font-size:13px;"></span>:</label><span style="font-size:12px;" data-bind="text:comentario"></span><br>
+                                <span style="font-size:10px;" data-bind="text:fecha_format"></span></li>
+                                 <!-- /ko -->                               
+                          <!-- /ko -->                          
+                         <!-- /ko -->
+                         <!--ko if: item.procesar()<item.comentarios().length-1 -->
+                                 <li>  <a href="#" data-bind="click:function(){$root.ver_mar_comentarios(item)}">
+                                          Ver mas
+                                        </a></li>
+                          <!-- /ko -->
+                         </ul>
+                         <!--ko if: item.comentarios().length == 0 -->
+                          <div class="alert alert-warning alert-dismissable"><i class="fa fa-warning fa-2x"></i><button class="close" aria-hidden="true" data-dismiss="alert" type="button">×</button>No hay comentarios actualmente!.</div>
+                          <!-- /ko -->
+
+                         <div class="input-group">
+                          <div class="input-group-btn">
+                          <button class="btn btn-default" data-bind="click:$parent.addcomentarios">+</button>
+                          </div>
+                          <input type="text" class="form-control" placeholder="Agregar comentarios.." data-bind="value:valor_generico,textInput:valor_generico, event:{keypress: $parent.addcomentarios}">
+                        </div>
+                       
+                        
+                  </div>
+               </div>
+               </div>
+
+               <div class="panel-body"> 
+             <div class="alert alert-info alert-dismissable"><i class="fa fa-info fa-2x"></i><button class="close" aria-hidden="true" data-dismiss="alert" type="button">×</button>Para ver los resultados de semana anterior utilice las opciones de filtro.</div></div>
+
+      </div>
+    </div >
+    
+    </div>
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >      
+
+
+
+<!--Modal-->
+
+<div id="modal_filter" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        {% csrf_token %}  
+
+              <div class="row mb15" id="spy1">
+
+              <!-- Calendar Widget -->
+              <div class="col-md-6">
+                    <h5>Macrocontrato:</h5>
+                      <select class="form-control" data-bind="value:id_macrocontrato">
+                             <option value="0">[Seleccione..]</option>
+                            <!--ko foreach:{data:lista_macrocontrato, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+
+                   <h5>Contratista:</h5>
+                      <select class="form-control" data-bind="value:id_contratista">
+                            <option value="0">[Seleccione..]</option>
+                      </select>
+
+                   <h5>Departamento:</h5>
+                      <select class="form-control" data-bind="value:id_departamento">
+                            <option value="0">[Seleccione..]</option>
+                             <!--ko foreach:{data:listado_departamento, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+
+                   <h5>Municipio:</h5>
+                      <select class="form-control" data-bind="value:id_municipio">
+                            <option value="0">[Seleccione..]</option>
+                            <!--ko foreach:{data:listado_municipio, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+
+                   <h5>Proyecto:</h5>
+                    <select class="form-control" data-bind="value:id_proyecto" id="proyecto" name="proyecto">
+                            <option value="0">[Seleccione..]</option>
+                            <!--ko foreach:{data:listado_proyectos, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+              </div>
+
+              <!-- Task Widget -->
+              <div class="col-md-6">
+
+                <div class="panel panel-widget draft-widget">
+                    <div class="panel-heading">
+                      <span class="panel-icon">
+                        <i class="fa fa-cog"></i>
+                      </span>
+                      <span class="panel-title"> Opciones</span>
+                    </div>
+                    <div class="panel-body p20">
+                      <div class="admin-form theme-primary">
+                        
+                        <div class="section mb20">
+                          <div class="form-group">
+                            <label>Desde</label>
+                            <div class="input-group date" id='datetimepicker3'>
+                              <input  type="text" class="form-control" data-bind="datePicker:filterVO.desde,value:filterVO.desde" 
+                              onkeypress="return false">
+                              <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                              </label>
+                            </div>   
+                        </div>
+                        </div>
+
+                        <div class="section mb20">
+                          <div class="form-group">
+                            <label>Hasta</label>
+                            <div class="input-group date" id='datetimepicker4'>
+                              <input  type="text" class="form-control" data-bind="datePicker:filterVO.hasta,value:filterVO.hasta" 
+                              onkeypress="return false">
+                              <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                              </label>
+                            </div>   
+                        </div>
+                        </div>
+
+
+                      </div>
+                    </div>
+                  </div>
+
+              </div>
+
+            </div>        
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:consultar_filtro">Filtrar</button>
+            </div> 
+    </div>
+  </div>
+</div>
+</div>
+
+
+       <!--INICIO DEL VISOR-->
+  <!-- The Bootstrap Image Gallery lightbox, should be a child element of the document body -->
+  <div id="blueimp-gallery" class="blueimp-gallery" data-use-bootstrap-modal="false">
+  <!-- The container for the modal slides -->
+  <div class="slides"></div>
+  <!-- Controls for the borderless lightbox -->
+  <h3 class="title"></h3>
+  <a class="prev">‹</a>
+  <a class="next">›</a>
+  <a class="close">×</a>
+  <a class="play-pause"></a>
+  <ol class="indicator"></ol>
+  <!-- The modal dialog, which will be used to wrap the lightbox content -->
+  <div class="modal fade">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" aria-hidden="true">&times;</button>
+          <h4 class="modal-title"></h4>
+        </div>
+        <div class="modal-body next"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default pull-left prev">
+            <i class="fa fa-chevron-left"></i>
+            Previous
+          </button>
+          <button type="button" class="btn btn-primary next">
+            Next
+            <i class="glyphicon glyphicon-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
+  <!--FINAL DEL VISOR-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>     
+    <script src="http://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/administrador_tarea/muro.js" %}'></script>
+{% endblock imports %}

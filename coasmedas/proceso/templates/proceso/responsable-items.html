@@ -1,0 +1,100 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Items del proceso{% endblock title%}
+
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block mapa %}
+
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="/proceso/procesos">Procesos</a></li>
+	<li class="active">Responsable de items</li>
+{% endblock mapa %}
+{% block encabezado %}Definición de responsable por cada item{% endblock encabezado %}
+
+{% block contenido %} 
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-sky" >
+				<div class="panel-heading">
+				</div>
+				<div data-bind="html: mensaje"></div>
+				<div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+					<i class="text-success fa fa-bell" style="font-size:16px"></i>: Activo; 
+					<i class="text-danger fa fa-bell" style="font-size:16px"></i>: Inactivo
+					<br>
+					<div align="right">
+						<a href="#" data-bind="click:guardarCambiosResponsables.bind($data)">
+							<i class="fa fa-save fa-3x"></i></a>
+					</div>
+					<div class="table-responsive">
+						<table class="table table-hover table-striped">
+							<thead>
+								<tr>
+									<th width="4%">Orden</th>	
+									<th width="46%">Descripcion del item</th>
+									<th width="50%">Responsable</th>
+								</tr>
+							</thead>
+							<tbody data-bind="foreach:{data:listado, as:'item'}">
+								<tr data-bind="css:{'success': item.activo==1,'danger':item.activo==0 }">
+									<td data-bind="text:item.orden"></td>
+									<td data-bind="text:item.descripcion"></td>
+									<td>
+										<div class="col-lg-12">	
+											<select data-bind="attr:{'id':'cmbResponsable'+item.id,'class':'form-control responsableUsuario'}">
+										
+													<option value='0'>[Seleccione el responsable...]</option>
+													<option value='-1'>Ninguno</option>
+										          {% for usuario in usuarios %}
+                   									<option value="{{usuario.id}}">{{usuario.persona__nombres}} {{usuario.persona__apellidos}} ( {{usuario.empresa__nombre}})
+                   									</option>
+                								 {% endfor %}	
+											</select>
+
+											<p data-bind="text: item.responsable == null ? 'Actual: Ninguno' : 'Actual: ' + item.responsable.nombre"></p>
+										</div>
+
+									</td>
+								</tr>
+							</tbody>							
+						</table>
+						<input type="hidden" id="txtProcesoId" value="{{id}}">
+					</div> 						
+				</div>
+			</div>
+		</div>
+		
+	</div>
+
+{% endblock contenido %}
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  	<!--<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>  	
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>   -->
+  	<script type="text/javascript" src='{% static "js/ViewModels/procesos/Item.js" %}'></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        item.consultar({{id}});
+
+      });
+    </script>
+{% endblock imports %}

@@ -1,0 +1,102 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Multa{% endblock title%}
+
+{% block opciones_listado %}{% endblock opciones_listado %}  
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li class="crumb-active">
+    <a href="{% url 'correspondenciaEnviada.correspondenciaEnviada' %}" >Multa</a>
+  </li>
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="../index/">Multas</a></li>
+  <li><a href="../multas/">Listado</a></li>
+  <li class="active">Respuesta a descargo</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+  
+
+<div class="panel">
+  <div class="panel-heading">
+    <ul class="nav panel-tabs-border panel-tabs panel-tabs-left">
+      <li>
+        <a href="#tab2_1" data-toggle="tab">Datos de la multa</a>
+      </li>
+      <li class="active">
+        <a href="#tab2_2" data-toggle="tab">Crear respuesta a descargo</a>
+      </li>
+    </ul>
+  </div>
+<div class="panel-body">
+<div class="tab-content pn br-n">
+  <div id="tab2_1" class="tab-pane">
+    <div class="row">
+      <div class="col-md-12">
+          {% include 'multa/_datos-multa.html' %}  
+      </div>
+    </div>
+  </div>
+  <div id="tab2_2" class="tab-pane active">
+    <div class="row">
+      <div class="col-md-12">
+        <!--ko if: respuesta_descargoVO.correspondenciadescargo_id()==0 && "{{ solicitud.correspondenciadescargo.id}}"==0 -->
+           {% include 'multa/_form-respuesta-descargo.html' %} 
+        <!-- /ko -->
+        <!--ko ifnot: respuesta_descargoVO.correspondenciadescargo_id()==0 && "{{ solicitud.correspondenciadescargo.id}}"==0 -->
+        <div class="form-group pull-left">          
+            <button type="button" data-bind="click: function(){ $root.descargar_carta_respuesta_descargo({{solicitud.id}}); }" class="btn btn-sm btn-primary btn-block"  >
+              <h4>Descargar carta de respuesta a descargo
+                <i class="fa fa-file-word-o fa-lg" aria-hidden="true"></i>
+              </h4>
+            </button>          
+        </div>
+        <!-- /ko -->
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+</div>
+
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+<script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/multa/multa.js" %}'></script>
+<script type="text/javascript">
+  $(document).ready(function () {
+
+    tinymce.init({
+      selector: '#contenido',
+      height: 400,
+      menubar: false,
+      plugins: [
+        'advlist autolink lists charmap print preview anchor',
+        'searchreplace visualblocks code fullscreen',
+        'insertdatetime media contextmenu paste code',
+
+      ],
+      toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist outdent indent | ',
+      content_css: '//www.tinymce.com/css/codepen.min.css'
+    });
+
+    multa.set_respuesta_descargo_id({{solicitud.id}});
+
+  });  
+</script>
+{% endblock imports %}

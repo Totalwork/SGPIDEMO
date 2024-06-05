@@ -1,0 +1,87 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Mapa Grande{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li><a href="{% url 'gestion_proyecto.diseno' %}">Diseños</a></li>
+  <li><a href="{% url 'gestion_proyecto.tablero' version_diseno_id %}">Tablero</a></li>
+  <li class="active">Mapa Grande</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'gestion_proyecto.tablero' version_diseno_id %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al tablero">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Mapa Grande
+{% endblock encabezado %}
+
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div> 
+  <div class="panel panel-sky" >
+            <div class="panel-heading">
+                <h4>Mapa</h4>
+          </div>
+          <div class="panel-body">
+          <div class="col-lg-12">
+              <a href="{% url 'gestion_proyecto.tablero' version_diseno_id %}" class="btn btn-primary">Volver</a></div>
+          <br><br>
+          <div class="col-lg-12">
+            <div id="googleMap" style="width:1030px;height:500px;"></div>          
+        </div>
+        
+          
+          
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+  </div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+     <input type="hidden" id="id_diseno" value="{{diseno_id}}" class="form-control" >      
+
+
+
+
+
+<!--Modal-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDP-V_ViyXNNnyrI9T3KyqmLfOMq_YA5I8&sensor=false"></script>  
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/mapa_grande.js" %}'></script>
+{% endblock imports %}

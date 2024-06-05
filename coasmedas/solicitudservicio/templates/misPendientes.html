@@ -1,0 +1,87 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Mis pendientes{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>  
+	<li><a href="{% url 'serviciosolicitud.servicio_solicitud' %}">Solicitud Servicio</a></li>
+	<li class="active">Mis pendientes</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+  
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  		   
+		    <div class="panel panel-sky">
+		    		    
+			    <div class="panel-heading">
+	                Mis pendientes <span class="badge badge-warning">{{ pendientes | length }}</span> 
+	          	</div>
+	          	<div class="panel-body">
+	          		<a href="{% url 'serviciosolicitud.servicio_solicitud' %}"><i class="fa fa-arrow-circle-left fa-2x"></i>Regresar</a><br/>
+		            {% if pendientes %}	            	
+		            	{% for pendiente in pendientes %}
+		            		<div style="margin-top: 10px" class="pendiente" >
+		            			<div style="float:left; margin-right: 15px; margin-top: 5px" >
+		            				<a href='../../../proceso/solicitudServicioSeguimiento/{{pendiente.procesoRelacion__id}}/'>
+		            					<i class="fa fa-pencil-square fa-2x"></i>
+		            				</a>
+
+		            			</div>
+		            			<div >	
+			            			<font color="red"><span class="fa fa-flag"></span> </font>
+		                            <b>{{pendiente.elementoAnalizado}}</b></br>
+		                            {{pendiente.item__descripcion}} 
+	                            </div>	            			
+		            		</div>
+
+		            	{% endfor %}
+		            {% else %}
+		              <div class="col-lg-9 alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>
+		                 No se encontraron pendientes asociados a su usuario.
+		              </div>	            	
+		            {% endif %}
+	        	</div>
+
+          	
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+   <script type="text/javascript">
+    $(document).ready(function(){
+        $(".pendiente").hover(
+            function(){
+                $(this).css({"background-color":"#cccccc",'cursor':'pointer'});
+            },
+            function(){
+                $(this).css({"background-color":"#ffffff"});
+            }
+        );
+    });
+    </script>
+{% endblock imports %}

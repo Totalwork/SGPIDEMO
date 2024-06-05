@@ -1,0 +1,49 @@
+
+<div class="row" >
+	<div class="col-xs-6">
+
+		<div class="option-group field admin-form" data-bind="foreach:{data:lista_tecnica, as:'item'}"> 		
+
+				<label class="block mt15 option option-primary"  >
+
+					<input name="mobileos" type="checkbox" data-bind="checked:item.estado">
+					<!-- <span data-bind="text: item.nombre"></span> -->
+					<span class="checkbox"></span>
+					<span data-bind="text: item.requisito__nombre"></span>
+
+				</label>
+		</div>
+
+	</div>
+	<div class="col-xs-6">
+
+		<div id="archivo_tecnico_d" class="form-group">
+			<label>Soporte Concepto:</label>
+			<input type="file" class="note-image-input" id="archivo_tecnico" name="archivo_tecnico" data-bind="fileData:{value:favorabilidadTecnicaVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+			<small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados pdf.<br></small>
+			<!--ko if: favorabilidadTecnicaVO.id()>0 && soporteTecnico()!='' && soporteTecnico()!=null -->
+		
+				<a data-bind="attr:{href: soporteTecnico}" target="_blank">
+					<i class="fa fa-file"></i>
+					Ver soporte
+				</a>
+				<br>
+			<!-- /ko -->
+		</div>
+
+		
+
+		<div class="form-group">
+			<label>Observacion:</label>
+			<textarea class="form-control textarea-grow" data-bind='value:favorabilidadTecnicaVO.observacion' rows="4"></textarea>
+		</div>
+
+	</div>
+</div><br/>
+<div class="row" >
+	<div class="col-xs-12">
+		{% if 'solicitud.change_asolicitud' in perms %}
+			<button type="button" class="btn btn-primary" data-bind="click:guardarTecnico">Guardar</button><br /><br />
+		{% endif %}
+	</div>
+</div>

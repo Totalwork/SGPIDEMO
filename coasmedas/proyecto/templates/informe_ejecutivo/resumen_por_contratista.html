@@ -1,0 +1,197 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Informe Ejecutivo{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+    <li><a href="{% url 'proyecto.resumen_por_fondo' %}">Informe Ejecutivo</a></li>
+  <li class="active">Resumen por contratista - proveedor</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+ {% block opciones_listado %}
+{% endblock opciones_listado %}      
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+    <div class="col-lg-12">
+      
+        <div class="panel panel-sky" >
+                
+            <div class="panel-heading">
+                Listado
+                <span class="panel-controls">
+                  <a data-placement="top"  data-toggle="tooltip" data-original-title="Filtros" data-bind="click:abrir_filtros" title="" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+            </div>
+            
+             <div class="panel-body">
+              
+               <div class="table-responsive">
+               
+               <div class="row">  
+                 <div class="col-lg-12 btn-group">
+
+                       <h3>5.Resumen por contratista / Proveedor</h3>
+                    
+                    <br>
+                     
+                        <i class="fa fa-arrow-circle-left fa-2x btn" aria-hidden="true" onclick="window.history.back();"></i>
+                        
+                        <i class="fa fa-print fa-2x btn" aria-hidden="true" data-bind="click:exportar_fondo_giro_contratista"></i>                     
+                                             
+                        <i class="fa fa-ellipsis-v fa-2x btn dropdown-toggle" aria-hidden="true" data-toggle="dropdown"></i>
+
+                       <ul class="dropdown-menu" role="menu">
+                          <li><a href="{% url 'proyecto.resumen_por_fondo' %}">0.Resumen por fondo</a></li>
+                          <li><a href="{% url 'proyecto.resumen_por_fondo_contrato_giro' fondo_id %}">4.1 Detallar por contrato MME</a></li>
+                           <li><a href="{% url 'proyecto.resumen_por_fondo_giro_contratista' fondo_id %}">5.Resumen por contratista / proveedor</a></li>
+                          <li><a href="{% url 'proyecto.balance_financiero' fondo_id 0 %}">6. Balance financiero</a></li>
+                        </ul>
+
+                    </div>
+                  </div>
+               <br>
+               <br>  
+
+               <div class="row">
+                   <div class="col-lg-12">
+                        <div class="col-sm-4">
+                           <label>Contratista:</label>
+                            <div style="padding: 0% 0% 0% 48%;" class="row" id="carga_municipio"></div>
+                            <div class="form-group">
+                              <select class="form-control proyecto" data-bind="value:filtros_contratistas.contratista_id">
+                                <option value="0">[Todos...]</option>
+                                {% for item in contratistas %}
+                                     <option value="{{ item.id }}">{{ item.nombre }}</option>
+                                {% endfor %}
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-4">
+                           <label>Fondo:</label>
+                            <div style="padding: 0% 0% 0% 48%;" class="row" id="carga_municipio"></div>
+                            <div class="form-group">
+                              <select class="form-control proyecto" data-bind="value:filtros_contratistas.fondo_id">
+                                <option value="0">[Todos...]</option>
+                                {% for item in fondos %}
+                                     <option value="{{ item.id }}">{{ item.nombre }}</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+
+                        </div>
+
+                        <div class="col-sm-4">
+                           <label>Contrato MME:</label>                       
+                            <div class="form-group">
+                              <select class="form-control proyecto" data-bind="value:filtros_contratistas.contrato_id">
+                                <option value="0">[Todos...]</option>
+                                <!-- ko foreach: {data:listado_contratos_mme, as:'item'} -->
+                                  <option data-bind="text:item.nombre, value:item.id"></option>
+                                <!--/ko-->
+                               </select>
+                            </div>
+
+                        </div>
+
+                      </div>  
+                  </div>
+
+                  <div data-bind="visible:listado_fondo_giro_contratista()==null || listado_fondo_giro_contratista().length==0"><div class="alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>No se encontraron registros</div></div> 
+              
+                
+                 <table class="table" data-bind="visible:listado_fondo_giro_contratista()!=null && listado_fondo_giro_contratista().length > 0">
+                    <thead>
+                    <tr>
+                      <th>Contratista</th>    
+                      <th>Fondo</th>
+                      <th>Contrato MME</th>                     
+                      <th>Valor girado</th>                       
+                    </tr>
+                   </thead>
+                   <tbody>
+
+                   <!-- ko foreach: {data:listado_fondo_giro_contratista, as: 'item'} -->
+                      <!-- ko if: item.id==1 -->
+                        <tr>
+                          <td data-bind="text: item.contratista"></td>
+                          <td data-bind="text: item.fondo"></td>
+                          <td data-bind="text: item.contrato"></td>
+                          <td data-bind="text: formatMoney(item.valor)"></td>
+                        </tr>
+                      <!-- /ko -->                       
+                    <!-- /ko -->
+
+                        <tr data-bind="visible:suma_prones()>0">
+                          <td>Total Prone</td>                                 
+                          <td></td>                           
+                          <td></td>
+                          <td data-bind="text:formatMoney(suma_prones())"></td>
+                        </tr>
+
+                    <!-- ko foreach: {data:listado_fondo_giro_contratista, as: 'item'} -->
+                      <!-- ko if: item.id==2 -->
+                        <tr>
+                          <td data-bind="text: item.contratista"></td>
+                          <td data-bind="text: item.fondo"></td>
+                          <td data-bind="text: item.contrato"></td>
+                          <td data-bind="text: formatMoney(item.valor)"></td>
+                        </tr>
+                      <!-- /ko -->
+                    <!-- /ko -->
+ 
+                     <tr data-bind="visible:suma_faer()>0">
+                        <td>Total Faer</td>                                 
+                        <td></td>                           
+                        <td></td>
+                        <td data-bind="text:formatMoney(suma_faer())"></td>
+                     </tr>
+                      
+                   </tbody> 
+                   
+                 </table>
+                 
+
+               </div>
+
+
+             </div>
+
+        </div>
+
+    </div>
+
+  </div>   
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>   
+    <script src='{% static "js/ViewModels/proyecto/informe_ejecutivo/informe_ejecutivo.js" %}'></script>   
+    <script type="text/javascript">
+      $(document).ready(function () {
+          viewModel.consultar_contratos();
+          viewModel.consultar_fondo_giro_contratista();
+      });
+    </script>
+{% endblock imports %}

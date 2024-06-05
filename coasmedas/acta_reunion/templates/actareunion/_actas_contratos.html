@@ -1,0 +1,166 @@
+<div class="panel panel-sky">
+ 
+
+  <div class="panel-body">
+    <!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->
+    <div class="option-group field admin-form">
+      <label class="option option-primary">
+        <input id="check_contrato" type="checkbox" data-bind='checked:$root.actaVO.tiene_contrato' name="check_val">
+        <span class="checkbox"></span> Acta asociada a contratos
+      </label>
+    </div>
+    <!--/ko-->
+    <br>
+    <br>
+    <!-- <div data-bind="html: mensajeContrato"></div> -->
+    <div class="alert alert-warning alert-dismissable" id="mensajeContrato">
+      <i class="fa fa-warning"></i>El acta no tiene contratos asociados
+    </div>
+
+    <div id="panel_contratos" style="display: none;">
+      <div class="col-md-6">
+        <div class="panel">
+          <div class="panel-heading">
+            <h5>Contratos por Asignar </h5>
+          </div>
+          <div class="panel-body">
+            <div class="input-group form-group">
+              <input class="form-control" placeholder="Buscar por numero o nombre" type="text"
+                id="txtContratosDisponibles" data-bind="event:{keypress: consultar_contratos_disponibles_enter }">
+              <span class="input-group-addon" data-bind="click:consultar_contratos_disponibles_btn"
+                style="cursor:pointer">Consultar</span>
+            </div>
+
+            <div data-bind="html: mensajePorAsignar"></div>
+            <div
+              data-bind="visible:(listado_contratos_por_asignar()!=null && listado_contratos_por_asignar().length > 0)">
+              <!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->
+              <button type="button" data-bind="click : $root.asignar_contrato" class="btn btn-sm btn-primary btn-block">
+                <h4>Asignar Contrato </h4>
+              </button>
+              <!--/ko-->
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th width="5%">
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:checkallContratosDisponibles">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </th>
+                      <th width="25%">Numero</th>
+                      <th width="40%">Nombre</th>
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado_contratos_por_asignar, as:'item'}">
+                    <tr>
+                      <td>
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:eliminado, value:id">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </td>
+                      <td data-bind="text: numero"></td>
+                      <td data-bind="cutWord:{num:65,text: nombre, verMax:'...', verMin:'...'}"></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div id="paginacion">
+                  <div data-bind="pagination: {
+                                currentPage: paginacionContratosDisponibles.pagina_actual,
+                                totalCount: paginacionContratosDisponibles.total,
+                                pageSize:paginacionContratosDisponibles.cantidad_por_paginas,
+                                maxPages: paginacionContratosDisponibles.maxPaginas,
+                                directions: paginacionContratosDisponibles.direcciones,
+                                boundary: paginacionContratosDisponibles.limite,
+                                text: paginacionContratosDisponibles.text }">
+
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="panel">
+          <div class="panel-heading">
+            <h5>Contratos Asignados </h5>
+          </div>
+          <div class="panel-body">
+            <div class="input-group form-group">
+              <input class="form-control" placeholder="Buscar por numero o nombre" type="text"
+                id="txtContratosAsignados" data-bind="event:{keypress: consultar_contratos_asignados_enter }">
+              <span class="input-group-addon" data-bind="click:consultar_contratos_asignados_btn"
+                style="cursor:pointer">Consultar</span>
+            </div>
+            <div data-bind="html: mensajeAsignados"></div>
+            <div data-bind="visible:(listado_contratos_asignados()!=null && listado_contratos_asignados().length > 0)">
+              <!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->
+              <button type="button" data-bind="click : $root.desasignar_contrato" class="btn btn-sm btn-primary btn-block">
+                <h4>Quitar Contrato </h4>
+              </button>
+              <!--/ko-->
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th width="5%">
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:checkallContratosAsignados">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </th>
+                      <th width="25%">Numero</th>
+                      <th width="40%">Nombre</th>
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado_contratos_asignados, as:'item'}">
+                    <tr>
+                      <td>
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:eliminado, value:id">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </td>
+                      <td data-bind="text: numero"></td>
+                      <td data-bind="cutWord:{num:65,text: nombre, verMax:'...', verMin:'...'}"></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div id="paginacion">
+                  <div data-bind="pagination: {
+                                currentPage: paginacionContratosAsignados.pagina_actual,
+                                totalCount: paginacionContratosAsignados.total,
+                                pageSize:paginacionContratosAsignados.cantidad_por_paginas,
+                                maxPages: paginacionContratosAsignados.maxPaginas,
+                                directions: paginacionContratosAsignados.direcciones,
+                                boundary: paginacionContratosAsignados.limite,
+                                text: paginacionContratosAsignados.text }">
+
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--cierra row -->
+  </div><!-- cierra panel body-->
+
+</div>
+

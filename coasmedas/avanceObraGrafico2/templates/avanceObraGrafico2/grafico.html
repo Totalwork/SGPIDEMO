@@ -1,0 +1,123 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+
+{% block title %}Grafico{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.presupuesto' cronograma_id %}">presupuesto</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.reporte_trabajo' presupuesto_id %}">Reporte de Trabajo</a></li>
+  <li class="active">Grafico</li>
+{% endblock mapa %}
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+
+{% block opciones_listado %}  
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+     
+  
+  <div class="panel panel-sky">
+          <div class="panel-heading">
+                <span class="panel-title">
+                  <a href="{% url 'avance_de_obra_grafico2.reporte_trabajo' presupuesto_id %}" data-placement="right"    
+                    data-toggle="tooltip" data-original-title="Regresar al reporte de trabajo">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  Grafico 
+                </span>
+          </div>
+          
+          <div class="panel-body" >
+
+            <div class="row">               
+
+                  <div class="col-lg-8">    
+                       <Strong>Proyecto:  {{presupuesto.cronograma.proyecto.nombre}}</Strong><br><br>                  
+                       <Strong>Presupuesto: {{presupuesto.nombre}} </Strong><br><br>
+                       <Strong>Cronograma: {{presupuesto.cronograma.nombre}} </Strong><br><br>
+                  </div>
+              
+            </div>
+
+            <br><br>
+
+            <div class="row">
+                 <div class="col-lg-8"> 
+                        <div id="high-line3" style="width: 100%;"></div>
+                  </div>
+
+            </div>
+
+            <br><br>
+
+
+
+            <div class="row">
+                 <div class="col-lg-8"> 
+                        <div id="high-line1" style="width: 100%;"></div>
+                  </div>
+
+            </div>
+
+             <br><br>
+
+            <div class="row">
+                 <div class="col-lg-8"> 
+                        <div id="high-line4" style="width: 100%;"></div>
+                  </div>
+
+            </div>
+
+  
+
+           
+
+      </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" > 
+<input type="hidden" id="proyecto_id" value="{{proyecto_id}}" class="form-control" >
+<input type="hidden" id="presupuesto_id" value="{{presupuesto_id}}" class="form-control" > 
+<input type="hidden" id="cronograma_id" value="{{cronograma_id}}" class="form-control" >
+
+
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+  <script src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/grafico.js" %}'></script>
+{% endblock imports %}

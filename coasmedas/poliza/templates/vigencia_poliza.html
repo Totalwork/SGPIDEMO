@@ -1,0 +1,453 @@
+{% extends 'page.html' %}
+{% load static %}
+{% load humanize %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Vigencias{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">Poliza</a></li>
+  <li><a href="{% url 'poliza.poliza_contrato' %}">Poliza Contratos</a></li>
+  <li><a href="{% url 'poliza.poliza' contrato_id %}">Polizas</a></li>
+	<li class="active">Vigencias</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+<!-- http://52.26.19.129/sinin/contrato/poliza.php?codigo=302 -->
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		   <div data-bind="html: mensaje"></div> 
+
+		    <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+		    		    
+		    <div class="panel-heading">
+          <span>
+            <a href="{% url 'poliza.poliza' contrato_id %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span> 
+                <span>Listado</span>
+          	</div>
+
+          	 <div class="panel-body">
+          	 	
+
+
+              <div class="panel panel-info">
+                <div class="panel-heading">
+                  Datos de referencia
+                </div>
+                <div class="panel-body">
+                
+                  <div class="col-lg-6" data-bind="with:datos_de_rererencia">
+                      <div class="form-group">
+                        <label>Numero de Contrato:</label>
+                        <span data-bind="text:no_contrato"></span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Nombre de Contrato:</label>
+                        <span data-bind="text:nombre_contrato"></span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Contratante:</label>
+                        <span data-bind="text:contratante"></span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Contratista:</label>
+                        <span data-bind="text:contratista"></span>
+                      </div>
+                     
+                      <div class="form-group">
+                        <label>Tipo poliza:</label>
+                        <span data-bind="text:tipo_poliza"></span>
+                      </div>
+                  </div>
+
+                  <div class="col-lg-6" data-bind="with:datos_de_rererencia">
+                      <div class="form-group">
+                        <label>Valor Total:</label>                        
+                        <span data-bind="text:formatMoney(valor_total())"></span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Fecha inicio:</label>
+                        <span data-bind="text:fecha_inicio"></span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Fecha fin:</label>
+                        <span data-bind="text:fecha_final"></span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Aseguradora:</label>
+                        <span data-bind="text:aseguradora">
+                          
+                        </span>                      
+                      </div>
+                                           
+                  </div>
+
+                </div>
+              </div>
+
+          	 	 <div class="table-responsive">
+          	 	 	 <table class="table table-bordered table-hover">
+          	 	 	 	  <thead>
+				            <tr>
+                    <th>
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input name="mobileos" data-bind="checked:seleccionar_vigencias" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </th>
+				              <th>Numero</th>    
+				              <th>Fecha Inicio</th>				              
+				              <th>Fecha Fin</th>
+                      <th>Amparo</th>
+                      <th>Valor</th>
+                      <th>Reemplaza</th>
+                      <th style="text-align: center;">Soporte</th>
+				              <th>Opciones</th>
+				            </tr>
+				           </thead>
+				           <tbody data-bind="foreach:{data:listado, as:'item'}">
+	          	 	 	 	<tr>
+                    <td style="width: 3%;">
+                       <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input name="mobileos" data-bind="checked:item.procesar" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </td>
+	          	 	 	 	<td style="width: 18%;" data-bind="cutWord:{num:35,text:item.numero, verMax:'...', verMin:'...'}"></td>
+	          	 	 	 	<td style="width: 13%;" data-bind="text: item.fecha_inicio"></td>
+	          	 	 	 	<td style="width: 13%;" data-bind="text: item.fecha_final"></td>
+                    <td style="width: 13%;" data-bind="cutWord:{num:25,text:item.amparo, verMax:'...', verMin:'...'}"></td>
+                    <td style="width: 13%;" data-bind="text:formatMoney(item.valor)"></td>
+                    <td style="width: 11%;" data-bind="text: item.reemplaza ? 'Si' : 'No'"></td>
+                    <td style="text-align: center;width: 14%;">
+                    <!-- ko if: item.soporte!=null && item.soporte!='' -->
+                      <a href="#" data-bind="click: $root.ver_soporte">
+                        <i class="fa fa-paperclip fa-2x"></i>                        
+                      </a>
+                    <!-- /ko -->  
+                    </td>
+	          	 	 	 	<td style="width: 5%;">
+	          	 	 	 		 <div class="btn-group text-right">
+					                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+					                      </i></a>
+					                   <ul class="dropdown-menu" role="menu">
+                                {% if 'poliza.change_vigenciapoliza' in perms %}
+					                       <li>
+					                          <a href="#" data-bind="click:function(obj){$root.consultar_por_id(obj.id,false);}">Editar</a>
+					                       </li>
+                                 {% endif %}
+                                 <!-- ko if: item.soporte!=null && item.soporte!='' -->
+					                       <li>
+					                          <a href="#" data-bind="attr:{href:'../../asociar-soporte/'+item.id}">Asociar soporte</a>
+					                        </li>
+                                  <!-- /ko -->
+                                  {% if 'poliza.add_vigenciapoliza' in perms %}
+                                   <li>
+                                    <a href="#" data-bind="click:function(obj){$root.consultar_por_id(obj.id,true);}">Copiar registro</a>
+                                  </li>    
+                                  {% endif %}                              
+					                    </ul>
+                  				  </div>
+	          	 	 	 	</td>          	 	 	 	
+	          	 	 	 	</tr>
+	          	 	 	 </tbody> 
+          	 	 	 </table>
+          	 	 	
+                   
+
+          	 	 </div>
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+<input type="hidden" id="hd_poliza_id" value="{{ poliza.id }}">
+<input type="hidden" id="hd_poliza_fecha_inicio" value="{{ poliza.fecha_inicio | date:"c" }}">
+<input type="hidden" id="hd_poliza_fecha_final" value="{{ poliza.fecha_final | date:"c" }}">
+<input type="hidden" id="hd_poliza_valor" value="{{ poliza.valor }}">
+<input type="hidden" id="hd_poliza_amparo" value="{{ poliza.vigencias.first.amparo }}">
+<input type="hidden" id="hd_poliza_numero" value="{{ poliza.vigencias.first.numero }}">
+<input type="hidden" id="hd_poliza_aseguradora_id" value="{{ poliza.vigencias.first.aseguradora.id }}">
+<input type="hidden" id="hd_TipoActaNinguno" value="{{ enTipoActa.Ninguno }}">
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+       	<form action="." method="post" enctype="multipart/form-data">
+        <div class="row">
+        <div class="col-lg-6">
+           
+            
+            <div class="form-group">
+              <label>Fecha inicio</label>
+              <input type="text" id="fecha_inicio" class="form-control" data-bind="value:vigencia_polizaVO.fecha_inicio,datePicker:vigencia_polizaVO.fecha_inicio">
+            </div>
+
+            <div class="form-group">
+              <label>Fecha final</label>
+              <input type="text" id="fecha_final" class="form-control" data-bind="value:vigencia_polizaVO.fecha_final,datePicker:vigencia_polizaVO.fecha_final">
+            </div>
+
+              <div class="form-group">
+              <label>Valor asegurado</label>
+              <input type="text" class="form-control" data-bind="value:vigencia_polizaVO.valor.formatted,onlyNumber:vigencia_polizaVO.valor,selectedText">
+              <input type="hidden" name="" data-bind="value:vigencia_polizaVO.valor">
+            </div>
+                       
+             <div class="form-group">
+              <label>Amparo</label>
+              <input type="text" class="form-control" data-bind="value:vigencia_polizaVO.amparo">
+            </div>
+
+            <div class="form-group">
+              <label>Observación</label>
+              <textarea class="form-control" data-bind="value:vigencia_polizaVO.observacion" rows="3" cols="55"></textarea> 
+            </div>
+            
+             <div class="form-group">
+              <label>Soporte</label>
+              <input id="soporte" type="file" class="note-image-input" data-bind="fileData:{value:vigencia_polizaVO.soporte,allowedFileExtensions: ['pdf','zip'],elErrorContainer: '#errorBlock', removeLabel:''}">
+              <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados pdf y zip.<br></small>
+              <!-- ko if: soporte() -->
+                <a href="#" data-bind="click: function() { ver_soporte({id: vigencia_polizaVO.id()}) }" target="_blank">
+                <i class="fa fa-file"></i>
+                Ver soporte
+                </a>
+                <br>
+              <!-- /ko -->
+            </div>
+          
+            <div class="form-group">
+              <label>Aseguradora</label>
+              <select class="form-control" data-bind="value:vigencia_polizaVO.aseguradora_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in aseguradoras  %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+           </div> 
+
+          <div class="col-lg-6">
+           
+            <div class="form-group">
+              <label>Num. Certificado</label>
+              <input type="text"  class="form-control" data-bind="value:vigencia_polizaVO.numero_certificado"> 
+            </div>
+
+            <div class="form-group">
+              <label>Número poliza</label>
+              <input type="text" class="form-control" data-bind="value:vigencia_polizaVO.numero">
+            </div>
+
+            <div class="form-group">
+              <label>Tipo Documento Asociado</label>
+              <select class="form-control" data-bind="value:vigencia_polizaVO.tipo_documento_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in tipoDocumento  %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                {% endfor %}
+              </select>
+            </div>
+           
+            <!-- ko if: vigencia_polizaVO.tipo_documento_id()=={{enTipoDocumento.VigenciaContrato}}-->
+             <div class="form-group">              
+              <label>Documento Asociado</label>
+              <select class="form-control" data-bind="value:vigencia_polizaVO.documento_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in vigencias  %}
+                  {% if item.tipo.id == enTipoVigencia.contrato %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>              
+            </div>
+            <!--/ko-->
+
+            <!-- ko if: vigencia_polizaVO.tipo_documento_id()=={{enTipoDocumento.OtroSi}}-->
+             <div class="form-group">              
+              <label>Documento Asociado</label>
+              <select class="form-control" data-bind="value:vigencia_polizaVO.documento_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in vigencias  %}
+                   {% if item.tipo.id == enTipoVigencia.otrosi %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>              
+            </div>
+            <!--/ko-->
+
+            <!-- ko if: vigencia_polizaVO.tipo_documento_id()=={{enTipoActa.ActaReinicio}} -->
+             <div class="form-group">              
+              <label>Documento Asociado</label>
+              <select class="form-control" data-bind="value:vigencia_polizaVO.documento_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in vigencias  %}
+                   {% if item.tipo.id == enTipoVigencia.actaReinicio %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>              
+            </div>
+            <!--/ko-->
+
+            <!-- ko if: vigencia_polizaVO.tipo_documento_id() == {{enTipoActa.ActaSuspension}} -->
+             <div class="form-group">              
+              <label>Documento Asociado</label>
+              <select class="form-control" data-bind="value:vigencia_polizaVO.documento_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in vigencias  %}
+                   {% if item.tipo.id == enTipoVigencia.actaSuspension %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>              
+            </div>
+            <!--/ko-->
+
+            <!-- ko if: vigencia_polizaVO.tipo_documento_id()=={{enTipoActa.ActaLiquidacion}} -->
+             <div class="form-group">              
+              <label>Documento Asociado</label>
+              <select class="form-control" data-bind="value:vigencia_polizaVO.documento_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in vigencias  %}
+                   {% if item.tipo.id == enTipoVigencia.liquidacion %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                  {% endif %}
+                {% endfor %}
+              </select>              
+            </div>
+            <!--/ko-->
+           
+            <!-- ko if: vigencia_polizaVO.tipo_documento_id()=={{enTipoDocumento.Giro}}-->
+            <div class="form-group">              
+              <label>Documento Asociado</label>             
+              <select class="form-control" data-bind="value:vigencia_polizaVO.documento_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in giros  %}
+                  <option value="{{item.id}}">{{item.nombre}}</option>
+                {% endfor %}
+              </select>              
+            </div>
+            <!--/ko-->
+
+            <div class="form-group">
+              <div class="option-group field admin-form">
+                <label class="option option-primary"  style="">
+                  <input name="mobileos" data-bind="checked:vigencia_polizaVO.reemplaza" type="checkbox">
+                  <span class="checkbox"></span>Reemplaza
+                </label>
+              </div>
+            </div>
+
+             <div class="form-group">             
+                          
+                <label>Beneficiario(s)</label>           
+                 <div class="input-group date">
+                   <input type="text" class="form-control" data-bind="value:nombre_beneficiario"
+                   placeholder="Ingrese el beneficiario" list="browsers">
+                     <label for="fecha_tsa" class="input-group-addon cursor" data-bind="click:agregar_beneficiario" title="Agregar beneficiario">
+                       <i class="fa fa-plus" data-bind="click:agregar_beneficiario"></i>
+                     </label>                       
+                 </div> 
+                   <!-- <span style="display: none;" id="validacion_beneficiario" class="validationMessage"> -->
+                 Ingrese el(los) beneficiario(s).<br><br></span>
+                 <datalist id="browsers">
+                    {% for item in beneficiarios %}
+                      <option value="{{ item.nombre }}">
+                    {% endfor %}
+                  </datalist> 
+              
+               <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Nombre</span>
+                  </div>
+
+                    <table class="table mbn tc-med-1 tc-bold-last">  
+                     <thead>
+                        <tr class="hidden">                         
+                          <th>Listado</th>
+                        </tr>
+                      </thead>                   
+                      <tbody data-bind="foreach:{data:vigencia_polizaVO.beneficiarios, as:'item'}">
+                        <tr>
+                          <td style="text-align: left;" data-bind="text:item.nombre"></td> 
+                          <td>
+                            <a href="#" data-bind="click:$parent.remover_beneficiario">
+                              <i class="fa fa-trash fa-2x"></i>
+                            </a>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+              </div>
+            </div>
+
+          </div> 
+
+          </div>
+        </form>
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+     <script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>   
+  	<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>  	
+  	<script type="text/javascript" src='{% static "js/ViewModels/poliza/Vigencia.js" %}?v=3.3'></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        vigencia.consultar(1);
+        vigencia.consultar_poliza_por_id();
+      });
+    </script>
+{% endblock imports %}

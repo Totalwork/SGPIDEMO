@@ -1,0 +1,30 @@
+<li class="dropdown">
+  <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+    <span class="fa fa-bell-o fs18"></span>
+    <span class="badge badge-hero badge-info">{{ total }}</span>
+  </a>
+  <ul class="dropdown-menu media-list w350 animated animated-shorter fadeIn" role="menu">
+    <li class="dropdown-header">
+      <span class="dropdown-title"> Notificaciones</span>
+      <!-- <span class="label label-warning">{{ total }}</span> -->
+    </li>
+    {% for i in lista %}
+      <li class="media">
+        <div class="media-body">
+          <h5 class="media-heading">Radicado No. {{i.radicado}}  
+            <small class="text-muted">{{i.fechaAsignacion}}</small>
+          </h5> {{i.asunto}}
+          <!-- <a class="text-system" href="#"> Max </a> -->
+        </div>
+      </li>
+    {% endfor%}
+    
+    <li class="media">
+      <div class="media-body">
+        <h5 class="media-heading"><a href="{% url 'correspondenciaRecibida.miscorrespondencias' %}" >Ver mas...</a>
+        </h5>
+      </div>
+    </li>
+
+  </ul>
+</li>

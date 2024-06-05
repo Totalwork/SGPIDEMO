@@ -1,0 +1,70 @@
+<!--Inicio de la table -->
+<div class=" row">
+
+	<div class="col-lg-12">
+
+		<div data-bind="html: mensaje_poliza"></div>
+
+		<div class="panel panel-sky">
+			<div class="panel-heading">
+				<span class="panel-title">
+					Validación de Poliza <span data-bind="html:num_registro_poliza"></span>
+				</span>
+				<!-- <div class="pull-right">
+					<a href="#" title="Filtrar"><i data-bind="click:abrir_filtro" class="fa fa-filter fa-3x" style="color:#4a89dc; cursor:pointer;"></i></a>
+				</div> -->
+      </div>
+			<div class="panel-body">
+				<div class="table-responsive" data-bind="visible:(lista_poliza()!=null && lista_poliza().length > 0), dropdown">
+					<table class="table">
+						<thead>
+							<tr>
+								<th style="width: 80%;">Tipo de Poliza</th>
+								<th style="width: 10%;">Requisitos Cumplidos</th>
+								<th style="width: 10%;">Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--ko foreach:{ data:lista_poliza, as:'item'} -->
+								<tr>
+									<td data-bind="text: item.tipo__nombre"></td>
+									<td data-bind="text: item.activos +'/'+ item.requisito.length "></td>
+									<td>
+										<i style="cursor: pointer; color:#4a89dc" data-bind="click:$root.consultarRequisitosPoliza" class="fa fa-ellipsis-h fa-2x " aria-expanded="false"></i>
+									</td>
+								</tr>
+							<!--/ko-->
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+		</div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+<div class="form-group">
+	<label>Soporte Concepto:</label>
+	<input type="file" class="note-image-input" id="archivo_poliza" name="archivo_poliza" data-bind="fileData:{value:validarPolizaVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+	<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>
+
+	<!--ko if: validarPolizaVO.sb_soporte()==1 && validarPolizaVO.id()>0 && soportePoliza()!='' && soportePoliza()!=null -->
+
+		<a data-bind="attr:{href: soportePoliza}" target="_blank">
+			<i class="fa fa-file"></i>
+			Ver soporte
+		</a>
+		<br>
+	<!-- /ko -->
+</div>
+
+
+
+<!--ko if: validarPolizaVO.sb_soporte()==1 -->
+<div class="row"><div class="col-lg-12">
+	{% if 'solicitud.change_asolicitud' in perms %}
+		<button type="button" class="btn btn-primary" data-bind="click:function(){ guardarPoliza();}">Guardar</button>
+	{% endif %}
+</div></div>
+<!-- /ko -->
+<!--Fin de la table -->

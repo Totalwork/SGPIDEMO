@@ -1,0 +1,81 @@
+<div class="row" >
+	<div class="col-lg-12">
+
+		<!-- <div data-bind="html: mensajePoliza"></div>  -->
+
+		<div class="panel panel-sky" data-bind="visible:(lista_poliza()!=null && lista_poliza().length > 0)">
+
+			<div class="panel-heading" style="padding:1px 2px 2px 22px;">
+				<span class="panel-title"></span>Listado Poliza
+			</div>
+			<div class="panel-body">
+
+				<div class="table-responsive" data-bind="dropdown">
+					<i class="text-alert fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Encabezado];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-warning fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Vigencias];
+					<br>
+					<br>
+					<table class="table">
+						<thead>
+							<tr>
+								<th style="width: 30%;">Contrato</th>    
+								<th style="width: 35%;">Tipo</th>
+								<th style="width: 10%;">Fecha Inicio</th>				              
+								<th style="width: 10%;">Fecha Fin</th>
+								<th style="width: 10%;">Valor</th>
+								<th style="width: 5%;">Soporte</th>
+							</tr>
+						</thead>
+						<tbody data-bind="foreach:{data:lista_poliza, as:'item'}">
+							<tr class="alert">
+								<td data-bind="cutWord:{num:26,text:item.contrato.nombre}"></td>
+								<td data-bind="cutWord:{num:28,text:item.tipo.nombre}"></td>
+								<td data-bind="text: item.fecha_inicio"></td>
+								<td data-bind="text: item.fecha_final"></td>
+								<td data-bind="text:formatMoney(item.valor)"></td>
+								<td ></td>
+							</tr>
+							<!--ko foreach:{ data:item.vigencias, as:'itemVig'} -->
+								<tr class="warning">
+									<td></td>
+									<td></td>
+									<td data-bind="text: itemVig.fecha_inicio"></td>
+									<td data-bind="text: itemVig.fecha_final"></td>
+									<td data-bind="text:formatMoney(itemVig.valor)"></td>
+									<td >
+										<!-- <a data-toggle="tooltip" id="" href="" target="_blank" title="Ver soporte"><i class="fa fa-paperclip fa-2x"></i></a> -->
+										<!--ko if: itemVig.soporte!='' && itemVig.soporte!=null-->
+		                  <a data-bind="attr: {href: '/poliza/ver-soporte/?id=' + itemVig.id}" target="_blank" style="cursor:pointer;">
+												<i class="fa fa-file kv-caption-icon fa-2x"></i>
+		                  </a>
+		                <!--/ko-->
+									</td>
+								</tr>
+							<!--/ko-->
+						</tbody>
+					</table>
+
+					<!-- <div id="paginacion" >
+						<div data-bind="pagination: {
+															currentPage: paginacion.pagina_actual,
+															totalCount: paginacion.total,
+															pageSize:paginacion.cantidad_por_paginas,
+															maxPages: paginacion.maxPaginas,
+															directions: paginacion.direcciones,
+															boundary: paginacion.limite,
+															text: paginacion.text }">
+						</div>
+					</div> -->
+
+				</div>
+
+			</div>
+
+		</div>
+
+	</div>
+</div>

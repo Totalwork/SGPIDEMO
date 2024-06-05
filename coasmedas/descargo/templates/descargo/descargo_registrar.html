@@ -1,0 +1,318 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+  <!-- Select2 Plugin CSS  -->
+  <link rel="stylesheet" type="text/css" href='{% static "vendor/plugins/select2/css/core.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Descargo{% endblock title%}
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'descargo.descargo' %}">Descargo</a></li>
+  <li><a href="{% url 'descargo.registro' %}">Consultar descargos</a></li>
+  <li class="active">Registro</li>
+{% endblock mapa %}
+{% block encabezado %}Registro de descargo{% endblock encabezado %}
+
+
+{% block contenido %}
+
+<!--Registrar descargo-->
+<div class="panel">
+  <div class="panel-heading">
+    <a href="{% url 'descargo.descargo'%}" data-placement="right"  
+      data-toggle="tooltip" data-original-title="Regresar a consulta de descargos">
+      <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+    </a>
+    <span class="panel-icon pl5">
+      <i class="fa fa-pencil"></i>
+    </span>
+    <span class="panel-title">Registrar descargo</span>
+  </div>
+  <div class="panel-body">
+    <div class='row'>
+      <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="col-md-6">
+
+          {% if id_descargo_editar %} {% if copia %} {% else %}
+          <div class="form-group">
+            <label>Numero</label>
+            <input type="text" data-bind="value:descargoVO.numero" class="form-control"><span class="validationMessage" style="display:  none;"></span>
+          </div>
+          {% endif %} {% endif %}
+
+          <div class="form-group">
+            <label>(*)Proyecto</label>
+            <div class="input-group colorpicker-component demo demo-auto cursor">
+              <input type="text" disabled value="" data-bind="value:descargoVO.proyecto,textInput:nombreproyecto" class="form-control" />
+              <span class="input-group-addon" data-bind="click:abrir_proyecto">
+                <i class="fa fa-binoculars"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Barrio</label>
+            <input type="text" data-bind="value:descargoVO.barrio" class="form-control"><span class="validationMessage" style="display:  none;"></span>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Direcci&oacuten</label>
+            <input type="text" data-bind="value:descargoVO.direccion" class="form-control"><span class="validationMessage" style="display:   none;"></span>
+          </div>
+
+          <div class="option-group field admin-form">
+            <label class="option option-primary" style="">
+              <input name="mobileos" data-bind="checked:descargoVO.bdi" type="checkbox">
+              <span class="checkbox"></span>BDI
+            </label>
+          </div>
+          <br/>
+
+          <div class="option-group field admin-form">
+            <label class="option option-primary" style="">
+              <input name="mobileos" data-bind="checked:descargoVO.perdida_mercado" type="checkbox">
+              <span class="checkbox"></span>Con Perdida de Mercado
+            </label>
+          </div>
+          <br/>
+
+          <div class="form-group">
+            <label>Codigo elemento intervenir</label>
+            <input type="text" data-bind="value:descargoVO.elemento_intervenir" class="form-control"><span class="validationMessage" style="display: none;"></span>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Area afectada</label>
+            <input type="text" class="form-control" data-bind="value:descargoVO.area_afectada"><span class="validationMessage" style=" display: none;"></span>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Maniobra</label>
+            <select class="form-control" data-bind="value:descargoVO.maniobra_id">
+              <option value="0">[Seleccione...]</option>
+              {% for item in maniobra %}
+                <option value="{{ item.id }}">{{ item.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="multiselect2" class="control-label">(*)Trabajo</label>
+            <br/>
+            <select id="multiselect2" multiple="multiple" data-bind="selectedOptions:descargoVO.trabajo_id">
+              {% for item in trabajo %}
+                <option value="{{ item.id }}">{{ item.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Fecha Descargo</label>
+            <div class="input-group date col-lg-12">
+              <input type="text" class="form-control" data-bind="datePicker:descargoVO.fecha,value:descargoVO.fecha">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Hora inicio</label>
+            <input type="text" class="form-control" data-bind="timePicker:descargoVO.hora_inicio,value:descargoVO.hora_inicio"><span class="validationMessage" style="display: none;"></span>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Hora fin</label>
+            <input type="text" class="form-control" data-bind="timePicker:descargoVO.hora_fin,value:descargoVO.hora_fin"><span class=" validationMessage" style="display: none;"></span>
+          </div>
+
+          <div class="form-group">
+            <label>Sub-Contratista</label>
+            <select class="form-control" data-bind="value:subcontratista">
+              <option value="0">[Seleccione...]</option>
+              <!--ko foreach:{ data:lista_subcontratista, as:'item'} -->
+              <option data-bind="value:item.empresa.id,text:item.empresa.nombre"></option>
+              <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Jefe trabajo</label>
+            <select class="form-control" data-bind="value:descargoVO.jefe_trabajo_id">
+              <option value="0">[Seleccione...]</option>
+              <!--ko if: lista_jefe -->
+                <!--ko foreach:{ data:lista_jefe, as:'item'} -->
+                <option data-bind="value:item.id,text:item.persona.nombres+' '+item.persona.apellidos"></option>
+                <!--/ko-->
+              <!--/ko-->
+              <!--ko if: lista_jefe2 -->
+                <!--ko foreach:{ data:lista_jefe2, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.persona__nombres+' '+item.persona__apellidos"></option>
+                <!--/ko-->
+              <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Contratista secundario</label>
+            <select class="form-control" data-bind="value:contratista">
+              <option value="0">[Seleccione...]</option>
+              {% for item in contratista_sec %}
+                <option value="{{ item.id }}">{{ item.nombre }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>(*)Agente descargo</label>
+            <select class="form-control" data-bind="value:descargoVO.agente_descargo_id">
+              <option value="0">[Seleccione...]</option>
+              <!--ko if: lista_agente -->
+                <!--ko foreach:{ data:lista_agente, as:'item'} -->
+                  <!--<option data-bind="value:item.id,text:item.persona__nombres+' '+item.persona__apellidos"></option>-->
+                  <option data-bind="value:item.id,text:item.persona.nombres+' '+item.persona.apellidos"></option>
+                <!--/ko-->
+              <!--/ko-->
+              <!--ko if: lista_agente2 -->
+                <!--ko foreach:{ data:lista_agente2, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.persona__nombres+' '+item.persona__apellidos"></option>
+                <!--/ko-->
+              <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Correo BDI</label>
+            <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="  fileData:{value:descargoVO.correo_bdi,allowedFileExtensions: ['msg','zip'], elErrorContainer:'#errorBlock', removeLabel:''}" />
+            <p style="display:inline-block;" class="help-block"> Tipos de archivos aceptados msg y zip.<br></p>
+          </div>
+
+          <div class="form-group">
+            <label>Protocolo</label>
+            <input type="file" class="note-image-input" id="archivo2" name="archivo2" data-bind="  fileData:{value:descargoVO.soporte_protocolo,allowedFileExtensions: ['doc','docx','pdf'],elErrorContainer: '#errorBlock', removeLabel:''}" />
+            <p style="display:inline-block;" class="help-block">Tipos de archivos aceptados doc, docx y pdf.<br></p>
+          </div>
+        </div> <!--class="col-md-6"-->
+
+      </form>
+    </div> <!--class='row'-->
+  </div> <!--class="panel-body"-->
+  <div class="panel-footer">
+    <button type="button" class="btn btn-primary" data-bind="click:guardar">{{guardar}}</button>
+  </div>
+</div>
+
+<!--Inicio Modal Buscar proyecto-->
+<div id="proyecto" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Buscar proyecto</h4>
+      </div>
+      <div class="modal-body">
+
+        <div class="form-group">
+          <label>Macrocontrato</label>
+          <select class="form-control" data-bind="value:macrocontrato_select">
+            <option value="0">[Seleccione...]</option>
+            {% for item in mcontrato%}
+              <!-- <option data-bind="value:item.id,text:item.nombre">1</option> -->
+              <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Contratista</label>
+          <select class="form-control" data-bind="value:contratistafiltrobusqueda">
+            <option value="0">[Seleccione...]</option>
+            <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+              <option data-bind="value:item.contrato__contratista__id,text:item.contrato__contratista__nombre"></option>
+            <!--/ko-->
+          </select>
+        </div>
+
+        <div class="form-group" data-bind="visible: showRow">
+          <label>Departamento</label>
+          <select class="form-control" data-bind="value:departamento">
+            <option value="">[Seleccione...]</option>
+            <!--ko foreach:{ data:departamento_select, as:'item'} -->
+              <option data-bind="value:item.municipio__departamento__id,text:item.municipio__departamento__nombre"></option>
+            <!--/ko-->
+          </select>
+        </div>
+
+        <div class="form-group" data-bind="visible: showRow">
+          <label>Municipio</label>
+          <select class="form-control" data-bind="value:municipio">
+            <option value="0">[Seleccione...]</option>
+            <!--ko foreach:{ data:listado_municipio, as:'item'} -->
+              <option data-bind="value:item.municipio__id,text:item.municipio__nombre"></option>
+            <!--/ko-->
+          </select>
+        </div>
+
+        <div class="form-group" data-bind="visible: showRow">
+          <label>Proyecto</label>
+          <select class="form-control" data-bind="value:proyectoid,valueText:nombreproyecto">
+            <option value="0">[Seleccione...]</option>
+            <!--ko foreach:{ data:proyecto_select, as:'item'} -->
+              <option data-bind="value:item.id,text:item.nombre"></option>
+            <!--/ko-->
+          </select>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:function(){agregar_proyecto(1);}">Seleccionar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!--Fin Modal Buscar proyecto-->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "vendor/plugins/select2/select2.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/descargo/descargoguardado.js" %}?v=1'></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+      if ({{id_descargo_editar}}!=0) {
+        descargo.consultar_agente({{contratista_agente}});
+        {% if contratoobra.contrato_id %} 
+          descargo.consultar_sub_contratista({{contratoobra.contrato_id}});
+        {% endif %}
+        descargo.consultar_jefe({{contratista_jefe}});
+        {% if copia %}
+          // descargo.consultar_por_id_cc({{id_descargo_editar}})
+        {% else %}
+          descargo.consultar_por_id({{id_descargo_editar}});
+        {% endif %}
+      }
+    });
+</script>
+
+<!-- <script type="text/javascript" src='{% static "vendor/plugins/select2/bootstrap-multiselect.js" %}'></script> -->
+
+{% endblock imports %}

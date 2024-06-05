@@ -1,0 +1,87 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> -->
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Historial de Contrato{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'contrato.contrato' %}">Contrato</a></li>
+  <li class="active">Historial de contrato</li>
+{% endblock mapa %}
+{% block encabezado %}Historial Contrato{% endblock encabezado %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+
+{% block contenido %}
+<!--Inicio Table-->
+<div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+  <div class="panel-heading">
+    <h4>Listado Contrato N° <span data-bind="text: numero_c"></span> </h4>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>OtroSi</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Valor</th>
+            <th>Soporte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--ko foreach:{ data:listado, as:'item'} -->
+            <tr>
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.fecha_inicio"></td>
+              <td data-bind="text: item.fecha_fin"></td>
+              <td data-bind="text: formatMoney(item.valor)"></td>
+              <td >
+                <!-- <a data-toggle="tooltip" id="" href="" target="_blank" title="Ver soporte"><i class="fa fa-paperclip fa-2x"></i></a> -->
+                <!--ko if: item.soporte!='' && item.soporte!=null-->
+                  <a data-bind="click: $root.ver_soporte" href="#" style="cursor:pointer;">
+                    <i class="fa fa-file kv-caption-icon"></i> Documento
+                  </a>
+                <!--/ko-->
+              </td>
+            </tr>
+          <!--/ko-->
+            
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div><!-- /.panel panel-sky -->
+<!--Fin Table-->
+
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+<!-- <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script> -->
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/vigencia.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/control.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    contratoVigencia.consultar({{id_contrato}});//iniciamos la primera funcion
+    //contratoVigencia.vigenciaVO.contrato_id({{id_contrato}});
+    //contratoVigencia.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script>
+{% endblock imports %}

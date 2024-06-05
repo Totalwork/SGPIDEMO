@@ -1,0 +1,228 @@
+{% extends 'page.html' %}
+{% load static %}
+{% load humanize %}
+
+{%block imports_css %}
+
+{% endblock imports_css %}
+
+{% block title %}Mapa{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'puntos.gps' %}">Gps</a></li>
+  <li><a href="{% url 'puntos.listado_gps' id_proyecto %}">Listado gps</a></li>
+  <li class="active">Ubicacion del proyecto</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+{% block busqueda %}{% endblock busqueda %}
+
+
+  <div class="row" >
+
+
+    <section id="content" class="animated fadeIn">
+
+        <div class="row">
+          <div class="col-sm-10">
+
+           <strong>Nombre del proyecto : </strong><span>{{proyecto.nombre}}</span><br>
+           <strong>Departamento : </strong><span>{{proyecto.municipio.departamento.nombre}}</span><br>
+           <strong>Municipio : </strong><span>{{proyecto.municipio.nombre}}</span><br>
+
+          </div>
+        </div><br><br>
+
+        {% if puntos.count == 0 %}
+
+          <div class="alert alert-warning alert-dismissable">
+            <i class="fa fa-warning"></i> Sin puntos de ubicación
+          </div>
+
+        {% endif %}
+
+        {% if puntos.count > 0 %}
+        <div class="row">
+
+          <div class="col-sm-12">
+
+            <div class="panel">
+              <div class="panel-heading">
+                <span class="panel-title">
+                  <span class="glyphicon glyphicon-map-marker"></span>Puntos de ubicación del proyecto</span>
+              </div>
+              <div class="panel-body">
+               
+                <!-- <div id="mapa" style="font-size:14px; height: 600; width:800px; border:medium;"></div> -->
+
+                   <div class="col-lg-12">
+           <div id="mapa" class="map" style="width:100%;height:450px;"></div>
+      </div>
+                </div>
+            </div>
+
+          </div>
+        </div>
+        {% endif %}
+
+    </section>
+
+  </div>
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<!-- <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBJIu6W6VBANXP1Tq6mCKhjvupUARUNIuI'></script> -->
+
+<script src="//maps.googleapis.com/maps/api/js?v=3.exp&sensor=false&key=AIzaSyBy5eJYmM2N12m_tE__B0ot6K8AOBc-EwY&libraries=places" type="text/javascript"></script>
+
+
+<script type="text/javascript">
+
+    // $(document).ready(function () {
+    //   initMap();
+      
+    // });
+
+    // function initMap() {
+
+    //     var pyrmont = {lat: 10.1018397 , lng: -74.4825431 };
+    //     map = new google.maps.Map(document.getElementById('mapa'), {
+    //       center: pyrmont,
+    //       zoom: 7
+    //     });     
+
+    //     infowindow = new google.maps.InfoWindow();
+
+    //     var service = new google.maps.places.PlacesService(map);
+    //     service.nearbySearch({
+    //       location: pyrmont,
+    //       radius: 500,
+    //       types: ['store']
+    //     }, callback);
+
+    //     var marker, i; 
+
+    //     {% load humanize %} 
+    //     {% for item in puntos %} 
+    //         alert({{item.latitud}})
+    //         alert({{item.longitud}})
+
+    //         marker = new google.maps.Marker({
+    //           position: new google.maps.LatLng({{item.latitud}}, {{item.longitud}}),
+    //           map: map              
+    //         });
+
+    //         google.maps.event.addListener(marker, 'click', (function(marker, i) {
+    //                               return function() {
+
+    //                                  var contentString = "<h5>{{ item.proyecto__mcontrato__nombre }}</h5>\
+    //                       <h5>{{ item.proyecto__nombre }}</h5>\
+    //                        <p>Contratista: {{ item.proyecto__mcontrato__contratista__nombre }}</p>\
+    //                        <p>Departamento: {{ item.proyecto__municipio__departamento__nombre }}</p>\
+    //                        <p>Municipio: {{ item.proyecto__municipio__nombre }}</p>\
+    //                        <p>Estado del proyecto: {{ item.proyecto__estado_proyecto__nombre }}</p>\
+    //                        <p>No usuarios: {{ item.infotecnica.valor_diseno }}</p>\
+    //                       <p>Valor adjudicado: ${{ item.proyecto__valor_adjudicado|intcomma }}</p>\
+    //                       <p>Nombre del punto: {{ item.nombre }}<p>";
+
+    //                                  infowindow.setContent(contentString);
+    //                                  infowindow.open(map, marker);
+    //                               }
+    //                             })(marker, i));
+
+
+       
+
+    //     {% endfor %}
+
+
+    //   }
+
+    //   function callback(results, status) {
+    //           if (status === google.maps.places.PlacesServiceStatus.OK) {
+    //             for (var i = 0; i < results.length; i++) {
+    //               createMarker(results[i]);
+    //             }
+    //           }
+    //         }
+
+    //         function createMarker(place) {
+    //           var placeLoc = place.geometry.location;
+    //           var marker = new google.maps.Marker({
+    //             map: map,
+    //             position: place.geometry.location
+    //           });
+
+    //           google.maps.event.addListener(marker, 'click', function() {
+    //             infowindow.setContent(place.name);
+    //             infowindow.open(map, this);
+    //           });
+    //         }
+
+
+    function initialize() {
+
+      var marcadores = [
+       {% load humanize %} 
+       {% for item in puntos %}
+
+        {"latitud":{{item.latitud}}, "longitud":{{item.longitud}}, "contenido":
+                          "<h5>{{ item.proyecto__mcontrato__nombre }}</h5>\
+                          <h5>{{ item.proyecto__nombre }}</h5>\
+                          <p>Contratista: {{ contratista_asociado }}</p>\
+                          <p>Departamento: {{ item.proyecto__municipio__departamento__nombre }}</p>\
+                          <p>Municipio: {{ item.proyecto__municipio__nombre }}</p>\
+                          <p>Estado del proyecto: {{ item.proyecto__estado_proyecto__nombre }}</p>\
+                          <p>No usuarios: {{ item.infotecnica.valor_diseno }}</p>\
+                          <p>Valor adjudicado: ${{ item.proyecto__valor_adjudicado|intcomma }}</p>\
+                          <p>Nombre del punto: {{ item.nombre }}<p>" },
+           
+        {% endfor %}
+
+      ];
+
+      var pyrmont = {lat: 10.1018397 , lng: -74.4825431 };
+
+      var map = new google.maps.Map(document.getElementById('mapa'), {
+        zoom: 7,
+        // center: new google.maps.LatLng(5.684568, -74.295508),
+        center: pyrmont
+      });
+
+      var infowindow = new google.maps.InfoWindow();
+      var marker, i;
+
+      for (i = 0; i < marcadores.length; i++) {  
+        marker = new google.maps.Marker({
+          position: new google.maps.LatLng(marcadores[i].latitud, marcadores[i].longitud),
+          map: map
+        });
+
+        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+          return function() {
+            infowindow.setContent(marcadores[i].contenido);            
+            infowindow.open(map, marker);
+          }
+        })(marker, i));
+
+      }
+
+      //alert("prueba")
+
+    }
+    // google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6Mz8he6Bk5SiTRGfFLFN_Vu8pDjeX-18&callback=initialize">
+</script>
+
+{% endblock imports %}
+

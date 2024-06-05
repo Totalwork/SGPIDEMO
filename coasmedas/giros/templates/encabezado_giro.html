@@ -1,0 +1,47 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Contratistas{% endblock title%}
+{% block mapa %}
+  <li><a>Giros</a></li>
+	<li class="active">Contratistas</li>
+{% endblock mapa %}
+{% block encabezado %}Giros{% endblock encabezado %}
+
+{% block contenido %}
+
+ 
+  <div class="row" >
+
+      <div class="col-lg-12">
+  
+        <div data-bind="html: mensaje"></div>   
+      
+            <div class="panel panel-sky">
+                <div class="panel-heading"><h4>Registro y consulta de giros</h4></div>
+                <div class="panel-body">
+   
+
+
+                </div>
+            </div>
+        </div>
+      </div>
+  </div>
+
+
+	<!--Loading-->
+	
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+	<!--<script type="text/javascript" src='{% static "js/ViewModels/empresa/contratista.js" %}'></script>-->
+{% endblock imports %}

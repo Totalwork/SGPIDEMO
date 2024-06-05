@@ -1,0 +1,1614 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}
+	Activo
+
+{% endblock title%}
+
+{% block mapa %}
+  <li><a href="/usuario/home/"><i class="glyphicon glyphicon-home"></i></a></li>
+
+  <li class="active">Activo</li>
+
+  
+{% endblock mapa %}
+
+{% block opciones_listado %}
+				
+				{% if app|add:'.add_'|add:model_activo in perms%}
+					<li>
+		              	<a href="#" data-bind="click:$root.abrir_nuevo_activo" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar un nuevo activo.">
+		                	<i class="fa fa-plus" style="font-size: 20px;"></i>
+		              	</a>
+		    		</li>
+   				{% endif %}
+   				{% if app|add:'.view_'|add:model_activo in perms%}
+       				<li>
+			          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+			              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+			          </a>
+			        </li>
+				{% endif %}
+	    		
+
+{% endblock opciones_listado %}
+
+
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+<div class="row" >
+	<div class="col-lg-12">    
+		<div class="panel panel-sky">
+			<div class="panel-heading">
+				<span>      
+					<a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"					aria-hidden="true"></i></a>
+				  </span>					
+				<span class="panel-title">
+		          Gestión de activos - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+		        </span>
+		        
+				<div class="pull-right">				
+		          <span class="panel-controls">
+		          	
+		            <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros" title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda">
+		              <i id="iconoFiltro" class="fa fa-filter fa-2x"></i>
+		            </a>
+		           
+		          </span>
+        		</div>
+
+        		<br/>
+			</div>
+			<div class="panel-body">
+				<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+				<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>  
+
+
+				
+				<i class="fa fa-bell 2x" style="color: #008000;"></i> De alta&nbsp;&nbsp;
+        		<i class="fa fa-bell 2x" style="color: #FF0000;"></i> De baja
+        		<div data-bind="html: mensaje"></div>
+				<div data-bind="visible:(listado()!=null && listado().length > 0)">
+			
+					<div class="table-responsive">
+					
+						<table class="table">
+							<thead>
+								<tr>
+									<th style="width: 5%;">Estado</th>
+				                    <th style="width: 12%;">Tipo</th>
+				                    <th style="width: 35%;">Descripción</th>
+				                    <th style="width: 25%;">Responsable</th>
+				                    <th style="width: 10%;">Vlr. Compra</th>
+				                    <th style="width: 10%;">No. activo</th>
+				                    <th style="width: 5%;">Opciones</th>
+
+								</tr>
+							</thead>
+							<tbody data-bind="foreach:{data:listado, as:'item'}">
+								<tr>
+									<td> 
+										<!-- ko if: item.debaja==true -->
+										<li data-bind="css: 'fa fa-bell'+' ' ,style:{color:'#FF0000'}"></li>
+										<!-- /ko -->
+										<!-- ko if: item.debaja==false -->
+										<li data-bind="css: 'fa fa-bell'+' ' ,style:{color:'#008000'}"></li>
+										<!-- /ko --> 
+
+										
+									</td>
+									<td data-bind="text: item.tipo.nombre"></td>
+								  	<td data-bind="text: item.descripcion"></td>
+			                      	<td data-bind="text: item.responsable.persona.nombres+' '+item.responsable.persona.apellidos"></td>
+			                      	<td data-bind="text: formatMoney(item.valor_compra)"></td>
+			                      	<td data-bind="text: item.id"></td>
+									<td>
+                          
+			                           <div class="btn-group text-right">
+			                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+			                            </a>
+
+			                            <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+			                           
+			                                <li>
+			                                  <a href="#" data-bind="click:function(){ $root.consultar_activo(item.id)} ">Ver detalle</a>
+			                                </li>	
+			                          
+			                            {% if app|add:'.change_'|add:model_activo in perms%} 
+                      
+			                                <li>
+			                                  <a href="#" data-bind="click: function(){ $root.editar_activo(item.id)}">Editar</a>
+
+			                                </li>
+			                            {% endif %} 
+										{% if app|add:'.view_'|add:model_mantenimiento in perms%} 
+
+			                                <li>
+			                                  <a href="#" data-bind="attr:{href:'../mantenimientos/'+item.id}">Mantenimientos</a>
+										{% endif %}
+			                           
+			                                </li>
+			                            {% if app|add:'.change_'|add:model_activo in perms%} 
+			                                <!-- ko if: item.debaja==false -->
+			                                <li>
+			                                  <a href="#" data-bind="click:$root.dar_debaja">Dar de baja</a>
+
+			                                </li>
+			                                <!-- /ko --> 	
+			                            {% endif %}
+			                            	<li>
+			                            		<a href="#" data-bind="click:$root.observar_punto_gps">Ubicación del activo</a>
+											</li>
+			                            </ul>
+			                          </div>
+                      				</td> 
+								</tr>
+							</tbody>
+						</table>
+						
+					        <div id="paginacion" >
+					          <div data-bind="pagination: {
+					                      currentPage: paginacion.pagina_actual,
+					                      totalCount: paginacion.total,
+					                      pageSize:paginacion.cantidad_por_paginas,
+					                      maxPages: paginacion.maxPaginas,
+					                      directions: paginacion.direcciones,
+					                      boundary: paginacion.limite,
+					                      text: paginacion.text }">
+
+					          </div>
+					        </div>
+					    
+					</div>
+
+				</div>
+			</div>
+		</div>
+
+	</div>
+</div> 
+
+
+<div id="modal_busqueda" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      	<div class="modal-content">
+          	<div class="modal-header">
+	            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	              <span aria-hidden="true">&times;</span>
+	            </button>
+	            <h4 class="modal-title" id="gridModalLabel">Filtro activo</h4>
+	        </div>
+          	<div class="modal-body bg-light">
+            	<div class="col-lg-12">              
+              		<div class="row">
+              			
+				        <div class="form-group admin-form">
+			            	<label>Categoría del activo: </label>
+			              	<label class=" select">
+			              		<select class="form-control" id="categoria_filtrado" name="categoria_filtrado" 
+			              		data-bind="value:filtrado.categoria">
+			              			 <option value="">[Seleccione..]</option>
+			              			 {% for item in categorias %}
+				                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+				                      {% endfor %}
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+
+			            <div class="form-group admin-form">
+			            	<label>Tipo del activo: </label>
+			              	<label class=" select">
+			              		<select class="form-control" id="tipo_filtrado" name="tipo_filtrado" 
+			              		data-bind="value:filtrado.tipo">
+			              			 <option value="">[Seleccione..]</option>			            
+		                             <!--ko foreach:{data:listado_tipo, as:'item'}--> 
+		                            	<option data-bind="text:item.nombre,value:item.id"></option>
+		                             <!--/ko-->
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+
+
+			             <div class="form-group admin-form">
+			            	<label>Estado: </label>
+			              	<label class=" select">
+			              		<select class="form-control" id="estado_filtrado" name="estado_filtrado" 
+			              		data-bind="value:filtrado.estado">
+			              			<option value="2">[Seleccione..]</option>	                            
+		                            <option value="0">De alta</option>
+		                            <option value="1">De baja</option>
+	                  
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+
+			            <div class="form-group admin-form">
+			            	<label> Funcionario: </label>
+			              	<label class=" select">
+			              		<select class="form-control" id="funcionario_filtrado" name="funcionario_filtrado" 
+			              		data-bind="value:filtrado.funcionario">
+			              			 <option value="">[Seleccione..]</option>
+			              			 {% for item in funcionarios %}
+				                        <option value="{{ item.id }}">{{ item.persona.nombres}} {{item.persona.apellidos}} </option>
+				                      {% endfor %}		                          
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+				        
+                		
+              		</div>              
+            	</div>        
+          	</div>
+          	<div class="modal-footer">            
+				<button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}"> Filtrar </button>            
+			</div>
+
+      	</div>
+    </div>
+</div>
+
+
+<div id="nuevo_activo" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog modal-lg">
+    	<div class="modal-content">
+      		<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        	<h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo_activo'></h4>
+      		</div>      		
+	      	<form action="." method="post" enctype="multipart/form-data">
+	      		<div class="modal-body">
+					{% csrf_token %}
+					<div class="col-md-6">
+						<label>(*) Número de contrato:</label>
+						<div class="form-group input-group">							
+								<input type="number" data-bind='value:activoVO.contrato_id' id="activo_contrato_id" value="0" hidden>
+					            
+					            <input class="form-control"type="text" id="activo_contrato_numero"  disabled="" >
+					            <span class="input-group-addon">
+				                  <a href="#" data-bind="click:abrir_modal_contrato" style="height: 10px;">
+				                    <i class="fa fa-search"></i>
+				                  </a>
+				                </span>					      
+					    </div>
+					    <div id="validacionContrato" style="display: none;color: red;">
+			                Debe seleccionar el contrato, haga clic en el icono de busqueda para iniciar.
+			            </div>
+
+
+			            <label>(*) Responsable:</label>
+						<div class="form-group input-group">							
+								<input type="text" data-bind='value:activoVO.responsable_id' id="activo_responsable_id" value="0" hidden>
+					            
+					            <input class="form-control"type="text" id="activo_responsable_nombre"  disabled="" >
+					            <span class="input-group-addon">
+				                  <a href="#" data-bind="click:abrir_modal_responsable" style="height: 10px;">
+				                    <i class="fa fa-search"></i>
+				                  </a>
+				                </span>					      
+					    </div>
+					    <div id="validacionResponsable" style="display: none;color: red;">
+			                Debe seleccionar el responsable, haga clic en el icono de busqueda para iniciar.
+			            </div>
+
+
+
+
+
+			            <div class="form-group admin-form">
+			            	<label>(*) Categoría del activo: </label>
+			              	<label class=" select">
+			              		<select class="form-control" data-bind="value:categoria">
+			              			 <option value="">[Seleccione..]</option>
+	                                  {% for item in categorias %}
+				                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+				                      {% endfor %}
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+
+			            <div class="form-group admin-form">
+			            	<label>(*) Tipo del activo: </label>
+			              	<label class=" select">
+			              		<select class="form-control" data-bind="value:activoVO.tipo_id">
+			              			 <option value="">[Seleccione..]</option>
+	                             <!--ko foreach:{data:listado_tipo, as:'item'}--> 
+	                            	<option data-bind="text:item.nombre,value:item.id"></option>
+	                             <!--/ko-->
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+
+			            <div class="form-group">
+				            <label>(*) Descripción: </label>
+				            <textarea type="text" class="form-control"  
+				            data-bind='value:activoVO.descripcion'></textarea>
+				        </div>
+
+				        <div class="form-group">
+				            <label>(*) Valor compra:: </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO.valor_compra.formatted 
+				            onlyNumber: activoVO.valor_compra'>
+				        </div>
+
+
+				        <div id="validacionValor" style="display: none;color: red;">
+			                Debe ingresar un valor mayor a cero
+			            </div>
+
+			    	</div>
+			    	<div class="col-md-6">
+						<div class="form-group">
+				            <label>(*) Identificación: </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO.identificacion'>
+				        </div>
+
+				        <div class="form-group">
+				            <label>(*) Serial / placa: </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO.serial_placa'>
+				        </div>
+
+
+				        <div class="form-group">
+				            <label>(*) Vida útil (meses): </label>
+				            <input class="form-control" 
+				            data-bind='value:activoVO.vida_util_dias, onlyNumber:activoVO.vida_util_dias'>
+				        </div>
+
+
+				        <div class="form-group">
+				            <label> Periodicidad mantenimiento (meses): </label>
+				            <input  class="form-control" 
+				            data-bind='value:activoVO.periodicidad_mantenimiento, onlyNumber:activoVO.periodicidad_mantenimiento'>
+				        </div>
+
+				        <div class="form-group">
+				            <label>(*) Fecha de alta: </label>
+				            <input class="form-control" 
+				            data-bind='datePicker:activoVO.fecha_alta	, value:activoVO.fecha_alta'>
+				        </div>
+
+			    	</div>
+
+			    </div>
+			</form>			
+			<div class="modal-footer">            
+			    <button type="button" class="btn btn-primary" data-bind="click:guardar"> Guardar activo e iniciar ingreso de atributos </button>            
+			</div>
+      		
+  		</div>
+ 	</div>
+</div>
+
+
+<div id="nuevo_atributo" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog">
+    	<div class="modal-content">
+      		<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        	<h4 class="modal-title" id="gridModalLabel"> Ingresar atributos del activo </h4>
+      		</div>      		
+	      	<form action="." method="post" enctype="multipart/form-data">
+	      		{% csrf_token %}
+	      			<div class="modal-body" id="atributos_nombres">
+						<div class="form-group" style="width:100%"> 			          		                
+			                             
+			                 <!--ko foreach:{data:atributos.listado, as:'elemento'}--> 				                    
+						        <div class="panel-body">
+						         	(*)<label data-bind="text: elemento.nombre"></label>
+						         	<input type="text" class="form-control" data-bind='value:valor'>
+						         	<div data-bind="attr:{'id':'validacionATRIBUTOSvalor'+ $index()}" style="display: none;color: red;">
+									    Ingrese un valor para el atributo
+									</div>
+						                    
+						                    
+					                <!--ko if: elemento.estado -->
+					                	<a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:function(){$root.agregar_soporte_atributo($index())}" data-original-title="Agregar nuevo soporte">
+					                   		<i class="fa fa-plus-circle fa-2x"></i>
+					                	</a>
+					                	
+						               <!--  <a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:function(){$root.eliminar_soporte_atributo_ultimo($index())}" data-original-title="Agregar nuevo soporte">
+						                   	<i class="fa fa-minus-circle fa-2x"></i>
+						                </a> -->
+						            	 
+					                	<label>(*)Archivos:</label>
+					                
+					                    	<!--ko foreach:{data:elemento.lista_soportes, as:'item'}-->					        
+					          					<!--ko if: $index()==0 -->
+					          			
+						          					 <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:soporte,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+					                                   elErrorContainer: '#errorBlock',removeLabel:''}" />
+																			          					
+						          					<div data-bind="attr:{'id':'validacionATRIBUTOSsoporte'+ $parentContext.$index() +'_'+$index()}" style="display: none;color: red;">
+													   El archivo es requerido
+													</div>												
+										
+													<br>
+						          				<!--/ko-->
+
+						          				<!--ko if: $index()>0 -->
+						          				<div class="input-group">
+						          					 <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:soporte,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+					                                   elErrorContainer: '#errorBlock',removeLabel:''}" />													
+													<label for="fecha_nacimiento" class="input-group-addon cursor" 
+														data-bind="click:function(){$root.eliminar_soporte_atributo_select
+														($parentContext.$index(),$index())}">
+							                     		<i class="fa fa-trash"></i>
+													 </label>													 
+							                     </div>
+							                     <div data-bind="attr:{'id':'validacionATRIBUTOSsoporte'+ $parentContext.$index() +'_'+$index()}" 
+							                     	style="display: none;color: red;">
+													   El archivo es requerido
+												</div>	
+							                     	<br>
+						          				<!--/ko-->		          					
+
+					                    	<!--/ko-->
+					                    	<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png, jpg, jpge y pdf.<br></small>	
+					                <!--/ko-->
+				                   
+                    			</div>
+						        
+			                <!--/ko-->        
+			         	</div>
+					</div>
+			</form>
+			<div class="modal-footer">            
+			    <button type="button" class="btn btn-primary" data-bind="click:guardar_atributos"> Guardar atributos del activo e iniciar ingreso de GPS </button>            
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<div id="nuevo_gps" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog">
+    	<div class="modal-content">
+      		<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        	<h4 class="modal-title" id="gridModalLabel"> Ingresar puntos GPS del activo </h4>
+      		</div>      		
+	      	<form action="." method="post" enctype="multipart/form-data">
+	      		<div class="modal-body">
+					{% csrf_token %}
+					<div class="col-md-6">
+
+						<div class="form-group" style="width:100%"> 
+			              <a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:agregar_gps" data-original-title="Agregar nuevo punto gps">
+			                   <i class="fa fa-plus-circle fa-2x"></i>
+			                </a>
+			                            
+			                 <!--ko foreach:{data:puntosgps.listado, as:'item'}--> 
+				                    <!--ko if: $index()==0 -->
+				                    <div class="panel-body">
+				                    	<label> Nombre: </label>
+				                    	<input type="text" class="form-control" 
+				                    	data-bind='value:nombre' >
+				                    	<div data-bind="attr:{'id':'validacionGPSnombre'+ $index()}" style="display: none;color: red;">
+							                Ingrese un nombre.
+							            </div>
+
+					                    <label> Longitud: </label>   
+								        <input type="text" class="form-control" 
+								        data-bind='value:longitud, onlyNumber:longitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlongitud'+ $index()}" style="display: none;color: red;">
+											Ingrese una longitud.
+										</div>
+
+								        <label> Latitud: </label>  								         
+								        <input type="text" class="form-control" 
+								        data-bind='value:latitud, onlyNumber:latitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlatitud'+ $index()}" style="display: none;color: red;">
+											Ingrese una latitud.
+										</div>
+
+										<label for="fecha_nacimiento" class="input-group-addon cursor" data-bind="click:$parent.eliminar_gps">
+					                     	<i class="fa fa-trash"></i>
+					                    </label>
+				                    </div>
+				                    <!--/ko-->
+
+				                    <!--ko if: $index()>0 -->
+				                    <br>
+				                    <div class="panel-body">
+				                    	<label> (*)Nombre: </label>
+				                    	<input type="text" class="form-control"
+				                    	 data-bind='value:nombre' >
+				                    	<div data-bind="attr:{'id':'validacionGPSnombre'+$index()}" style="display: none;color: red;">
+							                Ingrese un nombre.
+							            </div>
+					                    <label> Longitud: </label>   
+								        <input type="text" class="form-control" 
+								        data-bind='value:longitud, onlyNumber:longitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlongitud'+ $index()}" style="display: none;color: red;">
+											Ingrese una longitud.
+										</div>
+								        <label> Latitud: </label>   
+								        <input type="text" class="form-control" 
+								        data-bind='value:latitud, onlyNumber:latitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlatitud'+ $index()}" style="display: none;color: red;">
+											Ingrese una latitud.
+										</div>
+
+					                   	<label for="fecha_nacimiento" class="input-group-addon cursor" data-bind="click:$parent.eliminar_gps">
+					                     	<i class="fa fa-trash"></i>
+					                    </label>
+					                </div>
+				                    <!--/ko-->                     
+			                <!--/ko-->        
+			            </div>
+
+					</div>
+				</div>
+			</form>
+			<div class="modal-footer">            
+			    <button type="button" class="btn btn-primary" data-bind="click:guardar_activo"> Finalizar </button>            
+			</div>
+		</div>
+	</div>
+</div>
+
+
+
+<div id="editar_activo" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog modal-lg">
+    	<div class="modal-content">
+      		<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        	<h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo_activo'></h4>
+      		</div>      		
+	     
+	      		<div class="modal-body">
+			
+					<div class="col-md-6">
+						<label>(*) Número de contrato:</label>
+						<div class="form-group input-group">							
+								<input type="number" data-bind='value:activoVO_editar.contrato_id' id="activo_contrato_id" value="0" hidden>
+					            
+					            <input class="form-control"type="text" id="activo_contrato_numero_editar"  disabled="" >
+					            <span class="input-group-addon">
+				                  <a href="#" data-bind="click:abrir_modal_contrato" style="height: 10px;">
+				                    <i class="fa fa-search"></i>
+				                  </a>
+				                </span>					      
+					    </div>
+					    <div id="validacionContrato" style="display: none;color: red;">
+			                Debe seleccionar el contrato, haga clic en el icono de busqueda para iniciar.
+			            </div>
+
+
+			            <label>(*) Responsable:</label>
+						<div class="form-group input-group">							
+								<input type="text" data-bind='value:activoVO_editar.responsable_id' id="activo_responsable_id" value="0" hidden>
+					            
+					            <input class="form-control"type="text" id="activo_responsable_nombre_editar"  disabled="" >
+					            <span class="input-group-addon">
+				                  <a href="#" data-bind="click:abrir_modal_responsable" style="height: 10px;">
+				                    <i class="fa fa-search"></i>
+				                  </a>
+				                </span>					      
+					    </div>
+					    <div id="validacionResponsable" style="display: none;color: red;">
+			                Debe seleccionar el responsable, haga clic en el icono de busqueda para iniciar.
+			            </div>
+
+
+
+
+
+			            <div class="form-group admin-form">
+			            	<label>(*) Categoría del activo: </label>
+			              	<label class=" select">
+			              		<select class="form-control" data-bind="value:categoria">
+			              			 <option value="">[Seleccione..]</option>
+	                             	  {% for item in categorias %}
+				                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+				                      {% endfor %}
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+
+			            <div class="form-group admin-form">
+			            	<label>(*) Tipo del activo: </label>
+			              	<label class=" select">
+			              		<select class="form-control" data-bind="value:activoVO_editar.tipo_id">
+			              			 <option value="">[Seleccione..]</option>
+	                             <!--ko foreach:{data:listado_tipo, as:'item'}--> 
+	                            	<option data-bind="text:item.nombre,value:item.id"></option>
+	                             <!--/ko-->
+			              	</select><i class="arrow"></i>
+							</label>
+			            </div>
+
+			            <div class="form-group">
+				            <label>(*) Descripción: </label>
+				            <textarea type="text" class="form-control"  
+				            data-bind='value:activoVO_editar.descripcion'></textarea>
+				        </div>
+
+				        <div class="form-group">
+				            <label>(*) Valor compra:: </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO_editar.valor_compra.formatted 
+				            onlyNumber: activoVO_editar.valor_compra'>
+				        </div>
+
+
+				        <div id="validacionValor_editar" style="display: none;color: red;">
+			                Debe ingresar un valor mayor a cero
+			            </div>
+
+			    	</div>
+			    	<div class="col-md-6">
+						<div class="form-group">
+				            <label>(*) Identificación: </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO_editar.identificacion'>
+				        </div>
+
+				        <div class="form-group">
+				            <label>(*) Serial / placa: </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO_editar.serial_placa'>
+				        </div>
+
+
+				        <div class="form-group">
+				            <label>(*) Vida útil (meses): </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO_editar.vida_util_dias'>
+				        </div>
+
+
+				        <div class="form-group">
+				            <label> Periodicidad mantenimiento (meses): </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:activoVO_editar.periodicidad_mantenimiento'>
+				        </div>
+
+				        <div class="form-group">
+				            <label>(*) Fecha de alta: </label>
+				            <input class="form-control" 
+				            data-bind='datePicker:activoVO_editar.fecha_alta, value:activoVO_editar.fecha_alta'>
+				        </div>
+				        <!-- ko if: activoVO_editar.debaja_2 -->
+					        <div class="form-group">
+					            <label>(*) Fecha de baja: </label>
+					            <input class="form-control" 
+					            data-bind='datePicker:activoVO_editar.fecha_baja, value:  activoVO_editar.fecha_baja'>
+					        </div>
+
+
+
+					        <div class="form-group">
+					            <label>(*) Motivo de baja: </label>
+					            <input type="text" class="form-control" 
+					            data-bind='value:activoVO_editar.motivo_debaja'>
+					        </div>
+					        
+
+					        <div class="form-group">
+					            <label>(*) Soporte: </label>
+					            <input type="file" id="soporte" name="soporte" class="note-image-input"  
+						             data-bind="fileData:{value:activoVO_editar.soportedebaja,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+						                                     elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+								<input type="hidden" data-bind="value:activoVO_editar.soportedebaja">
+								<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png,jpg,jpge,pdf,zip,doc,docx,xls,xlsx,msg,ppt,pptx y dwg.<br></small>
+								
+				        	</div>
+				        	
+
+
+					    <!-- /ko -->
+
+			    	</div>
+
+			    </div>
+					
+			<div class="modal-footer">            
+			    <button type="button" class="btn btn-primary" data-bind="click:editar_activo_data"> Actualizar activo e iniciar reingreso de atributos </button>            
+			</div>
+      		
+  		</div>
+ 	</div>
+</div>
+
+<div id="editar_atributo" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog">
+    	<div class="modal-content">
+      		<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        	<h4 class="modal-title" id="gridModalLabel"> Editar atributos del activo </h4>
+      		</div>      		
+	      	<form action="." method="post" enctype="multipart/form-data">
+	      		{% csrf_token %}
+	      			<div class="modal-body" id="atributos_nombres">
+						<div class="form-group" style="width:100%"> 			          		                
+			                             
+			                 <!--ko foreach:{data:atributos.listado, as:'elemento'}--> 				                    
+						        <div class="panel-body">
+						         	(*)<label data-bind="text: elemento.nombre"></label>
+						         	<input type="text" class="form-control" data-bind='value:valor'>
+						         	<div data-bind="attr:{'id':'validacionATRIBUTOSvalor_editar'+ $index()}" style="display: none;color: red;">
+									    Ingrese un valor para el atributo
+									</div>
+						                    
+						                    
+					                <!--ko if: elemento.estado -->
+					                	<br>
+					                	<a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:function(){$root.agregar_soporte_atributo_editar($index())}" data-original-title="Agregar nuevo soporte">
+					                   		<i class="fa fa-plus-circle fa-2x"></i>
+					                	</a>
+					                	
+						                <!-- <a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:function(){$root.eliminar_soporte_atributo_ultimo_editar($index())}" data-original-title="Agregar nuevo soporte">
+						                   	<i class="fa fa-minus-circle fa-2x"></i>
+						                </a> -->
+						            	 
+					                	<label>(*)Archivos:</label>
+					                	
+					                    	<!--ko foreach:{data:elemento.lista_soportes, as:'item'}-->					        
+					          					
+					          					<!--ko if: item.soporte_id -->
+					          						<div class="input-group">
+							          					<input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:soporte,
+							          					 	allowedFileExtensions: ['png','jpg','jpge','pdf'],
+						                                   	elErrorContainer: '#errorBlock',removeLabel:''}" />					          					
+						          						<label for="fecha_nacimiento" class="input-group-addon cursor" 
+						                                	data-bind="click:function(){$root.eliminar_soporte_atributo_editar
+						                                	($parentContext.$index(),$index())}">
+								                     		<i class="fa fa-trash"></i>
+														 </label>														 
+								                     </div>
+							          					<a data-bind="click:function(){
+							          					$root.abrir_soportes_atributos($parentContext.$index(),$index())}" target="_blank" href="#">
+										                  <i class="fa fa-file"></i>
+										                  Ver archivo
+										                </a>
+										            
+						          					<br>						          					
+												  <!--/ko-->												  
+												  
+						          				<!--ko ifnot: item.soporte_id -->
+						          					<div class="input-group">
+							          					<input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:soporte,
+							          					 	allowedFileExtensions: ['png','jpg','jpge','pdf'],
+						                                   	elErrorContainer: '#errorBlock',removeLabel:''}" />
+						                                <label for="fecha_nacimiento" class="input-group-addon cursor" 
+						                                	data-bind="click:function(){$root.eliminar_soporte_atributo_editar
+						                                	($parentContext.$index(),$index())}">
+								                     		<i class="fa fa-trash"></i>
+								                     	</label>
+						                            </div>
+						                                <div data-bind="attr:{'id':'validacionATRIBUTOSsoporte_editar'+ $parentContext.$index() +'_'+$index()}" style="display: none;color: red;">
+														    Ingrese el archivo para el atributo
+														</div>
+													
+													<br>
+												  <!--/ko-->												  						          					
+
+					                    	<!--/ko-->
+
+					                    	<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png, jpg, jpge y pdf.<br></small>
+					                <!--/ko-->
+				                   
+                    			</div>
+						        
+			                <!--/ko-->        
+			         	</div>
+					</div>
+			</form>
+			<div class="modal-footer">            
+			    <button type="button" class="btn btn-primary" data-bind="click:editar_atributos"> Actualizar atributos del activo e iniciar reingreso de GPS </button>            
+			</div>
+		</div>
+	</div>
+</div>
+
+<div id="editar_gps" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog">
+    	<div class="modal-content">
+      		<div class="modal-header">
+	        	<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        	<h4 class="modal-title" id="gridModalLabel"> Editar puntos GPS del activo </h4>
+      		</div>      		
+	      	<form action="." method="post" enctype="multipart/form-data">
+	      		<div class="modal-body">
+					{% csrf_token %}
+					<div class="col-md-6">
+
+						<div class="form-group" style="width:100%"> 
+			              <a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:agregar_gps_editar" data-original-title="Agregar nuevo punto gps">
+			                   <i class="fa fa-plus-circle fa-2x"></i>
+			                </a>
+			                            
+			                 <!--ko foreach:{data:puntosgps.listado, as:'item'}--> 
+				                <!--ko if:item.id--> 
+				                    <div class="panel-body">
+				                    	<label> Nombre: </label>
+				                    	<input type="text" class="form-control" 
+				                    	data-bind='value:nombre' >
+				                    	<div data-bind="attr:{'id':'validacionGPSnombre_editar'+ $index()}" style="display: none;color: red;">
+							                Ingrese un nombre.
+							            </div>
+
+					                    <label> Longitud: </label>   
+								        <input type="text" class="form-control" 
+								        data-bind='value:longitud, onlyNumber:longitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlongitud_editar'+ $index()}" style="display: none;color: red;">
+											Ingrese una longitud.
+										</div>
+
+								        <label> Latitud: </label>  								         
+								        <input type="text" class="form-control" 
+								        data-bind='value:latitud, onlyNumber:latitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlatitud_editar'+ $index()}" style="display: none;color: red;">
+											Ingrese una latitud.
+										</div>
+
+										<label for="fecha_nacimiento" class="input-group-addon cursor" data-bind="click:function(){$root.eliminar_gps_editar($index())}">
+					                     	<i class="fa fa-trash"></i>
+					                    </label>
+				                    </div>
+				                <!--/ko--> 
+
+				                <!--ko ifnot:item.id--> 
+				                    <div class="panel-body">
+				                    	<label> Nombre: </label>
+				                    	<input type="text" class="form-control" 
+				                    	data-bind='value:nombre' >
+				                    	<div data-bind="attr:{'id':'validacionGPSnombre_editar'+ $index()}" style="display: none;color: red;">
+							                Ingrese un nombre.
+							            </div>
+
+					                    <label> Longitud: </label>   
+								        <input type="text" class="form-control" 
+								        data-bind='value:longitud, onlyNumber:longitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlongitud_editar'+ $index()}" style="display: none;color: red;">
+											Ingrese una longitud.
+										</div>
+
+								        <label> Latitud: </label>  								         
+								        <input type="text" class="form-control" 
+								        data-bind='value:latitud, onlyNumber:latitud'>
+								        <div data-bind="attr:{'id':'validacionGPSlatitud_editar'+ $index()}" style="display: none;color: red;">
+											Ingrese una latitud.
+										</div>
+
+										<label for="fecha_nacimiento" class="input-group-addon cursor" data-bind="click:$parent.eliminar_gps">
+					                     	<i class="fa fa-trash"></i>
+					                    </label>
+				                    </div>
+				                <!--/ko--> 
+
+				                   
+				                                      
+			                <!--/ko-->        
+			            </div>
+
+					</div>
+				</div>
+			</form>
+			<div class="modal-footer">            
+			    <button type="button" class="btn btn-primary" data-bind="click:guardar_activo_editar"> Finalizar </button>            
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="dar_debaja" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      	<div class="modal-content">
+          	<div class="modal-header">
+	            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	              <span aria-hidden="true">&times;</span>
+	            </button>
+	            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo_dar_debaja'></h4>
+	        </div>
+          	<div class="modal-body bg-light">
+            	<div class="col-lg-12">              
+              		<div class="row">
+              			<div class="form-group">
+				            <label>(*) Motivo: </label>
+				            <input type="text" class="form-control" 
+				            data-bind='value:dar_debaja_activo.motivo_debaja'>
+				        </div>
+
+				        <div class="form-group">
+				            <label>(*) Soporte: </label>
+				            <input type="file" id="soporte_debja" name="soporte" class="note-image-input"  
+					             data-bind="fileData:{value:dar_debaja_activo.soportedebaja,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+					                                     elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+							<input type="hidden" data-bind="value:dar_debaja_activo.soportedebaja">
+							<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>
+											          					
+				        </div>
+                		
+              		</div>              
+            	</div>        
+          	</div>
+          	<div class="modal-footer">            
+				<button type="button" class="btn btn-primary" data-bind="click:actualizar_dar_debaja"> Dar de baja </button>            
+			</div>
+      	</div>
+    </div>
+</div>
+
+
+
+<div id="asginar_contrato" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo_asignarcontrato'></h4>
+          </div>
+          <div class="modal-body bg-light">
+            <div class="col-lg-12">
+              <div class="row">         
+                <div class="input-group">
+                  <input class="form-control" type="text"
+                  id="txtBuscarContrato" name="txtBuscarContrato" 
+                  data-bind='event:{keypress: $root.buscarContrato}' 
+                  placeholder="Buscar contrato..." >
+                    <span class="input-group-addon">
+                    <a href="#" data-bind="click:get_Contrato">
+                      <i class="fa fa-search"></i>
+                    </a>
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div data-bind="html: mensajecontrato"></div>
+              </div>
+              <div class="row">
+                <div id="divContratos" 
+                data-bind="visible:(listadocontratos()!=null && listadocontratos().length > 0)">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                                <th></th>
+                                <th>Nombre</th>
+                                <th>Número</th>
+                                <th>Descripción</th>                             
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listadocontratos, as:'item'}">
+                        <tr>
+                                <td>
+                                    <a href="#"
+                                    data-bind="click:$root.utilizarContrato">
+                                      <i class="fa fa-check-circle fa-2x"></i>
+                                    </a>
+                                </td>
+                                  <td data-bind="text: item.nombre"></td>
+                                  <td data-bind="text: item.numero"></td>
+                                  <td data-bind="text: item.descripcion"></td>
+                                  
+                                
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+               <!--  </div> -->
+                </div>
+                   
+                    <div id="paginacion" >
+                          <div data-bind="pagination: {
+                                   currentPage: paginacion_contratos.pagina_actual,
+                                   totalCount: paginacion_contratos.total,
+                                   pageSize:paginacion_contratos.cantidad_por_paginas,
+                                   maxPages: paginacion_contratos.maxPaginas,
+                                   directions: paginacion_contratos.direcciones,
+                                   boundary: paginacion_contratos.limite,
+                                   text: paginacion_contratos.text }">
+
+                          </div>
+                    </div>
+              
+                </div>
+              
+           
+                <!--Fin creacion de nuevos proyectos -->
+            </div>        
+          </div>
+      </div>
+    </div>
+</div>
+
+
+
+ <div id="asginar_responsable" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo_asignarresponsable'></h4>
+          </div>
+          <div class="modal-body bg-light">
+            <div class="col-lg-12">
+              <div class="row">         
+                <div class="input-group">
+                  <input class="form-control" type="text"
+                  id="txtBuscarResponsable" name="txtBuscarResponsable" 
+                  data-bind='event:{keypress: $root.buscarResponsable}' 
+                  placeholder="Buscar funcionario..." >
+                    <span class="input-group-addon">
+                    <a href="#" data-bind="click:get_Responsable">
+                      <i class="fa fa-search"></i>
+                    </a>
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div data-bind="html: mensajeresponsable"></div>
+              </div>
+              <div class="row">
+                <div id="divResponsables" 
+                data-bind="visible:(listadoresponsables()!=null && listadoresponsables().length > 0)">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                                <th></th>
+                                <th>Nombre</th>  
+                                <th>Cargo</th>                                                             
+                                <!-- <th>Contrato prestación de servicios</th>                              -->
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listadoresponsables, as:'item'}">
+                        <tr>
+                                <td>
+                                    <a href="#"
+                                    data-bind="click:$root.utilizarResponsable">
+                                      <i class="fa fa-check-circle fa-2x"></i>
+                                    </a>
+                                </td>
+                                	<td data-bind="text: item.persona.nombres+' '+item.persona.apellidos"></td>
+	                                <td data-bind="text: item.cargo.nombre"></td>
+	                                <!-- <td data-bind="text: item.contrato.numero"></td> -->
+                                  
+                                  
+                                
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                
+                </div>
+                   
+                    <div id="paginacion" >
+                          <div data-bind="pagination: {
+                                   currentPage: paginacion_responsables.pagina_actual,
+                                   totalCount: paginacion_responsables.total,
+                                   pageSize:paginacion_responsables.cantidad_por_paginas,
+                                   maxPages: paginacion_responsables.maxPaginas,
+                                   directions: paginacion_responsables.direcciones,
+                                   boundary: paginacion_responsables.limite,
+                                   text: paginacion_responsables.text }">
+
+                          </div>
+                    </div>
+                   
+                </div>
+              
+           
+                <!--Fin creacion de nuevos proyectos -->
+            </div>        
+          </div>
+      </div>
+    </div>
+</div>
+
+
+
+<div id="detalle_activo" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+
+      <div class="panel-heading">
+	    <ul class="nav panel-tabs-border panel-tabs panel-tabs-left">
+	      <li class="active">
+	        <a href="#tab2_1" data-toggle="tab" aria-expanded="true">Info. base  del activo</a>
+	      </li>
+	      <li class="">
+	        <a href="#tab2_2" data-toggle="tab" aria-expanded="false">Atributos</a>
+	      </li>
+	      <li class="">
+	        <a href="#tab2_3" data-toggle="tab" aria-expanded="false">Hoja de vida</a>
+	      </li>
+	      <li class="">
+	        <a href="#tab2_4" data-toggle="tab" aria-expanded="false">Puntos GPS</a>
+	      </li>
+	    </ul>
+	  </div>
+      
+
+
+
+	  <div class="panel-body" >
+    <div class="tab-content pn br-n">
+      <div id="tab2_1" class="tab-pane active">
+        <div class="row">         
+          <ul class="icon-list">
+          	<li>
+              <b> Categoria:</b>&nbsp;<small data-bind="html:detalle.categoria"></small>
+            </li>
+
+
+          	<li>
+              <b> Tipo:</b>&nbsp;<small data-bind="html:detalle.tipo"></small>
+            </li>
+
+            <li>
+              <b> Descripcion:</b>&nbsp;<small data-bind="html:detalle.descripcion"></small>
+            </li>
+
+            <li>
+              <b> Identificación:</b>&nbsp;<small data-bind="html:detalle.identificacion"></small>
+            </li>
+
+            <li>
+              <b> Serial ó placa:</b>&nbsp;<small data-bind="html:detalle.serial_placa"></small>
+            </li>   
+
+            <li>
+              <b> Numero contrato de adquisición:</b>&nbsp;<small data-bind="html:detalle.contrato"></small>
+              <a href="#" data-bind="click: function(){$root.ver_soporte_contrato(detalle.id)}" target="_blank"  style="cursor:pointer;">
+					<i class="fa fa-paperclip fa-2x"></i>
+				</a>
+
+            </li>
+
+            <li>
+              <b> Valor de la compra:</b>&nbsp;$<small data-bind="html: detalle.valor_compra"></small>
+            </li> 
+
+            <li>
+              <b> Responsable :</b>&nbsp;<small data-bind="html:detalle.responsable"></small>
+            </li>
+
+
+           <hr style="margin-top: 25px; 
+           			  margin-bottom: 25px;
+           			  margin-right: 10px; 
+           			  margin-left: 10px; 
+           			  border-top: 1px 
+           			  solid #bbb; 
+           			  border-radius: 5px;">
+
+            <li>
+              <b> Estado:</b>&nbsp;<small data-bind="css: 'fa fa-bell'+' ' ,style:{color:detalle.debaja_color}"></small>
+              <small data-bind="html:detalle.debaja_estado"></small>
+            </li>
+
+    		<!-- ko if: detalle.debaja -->		      
+
+	            <li>
+	              <b> Motivo de baja:</b>&nbsp;<small data-bind="html:detalle.motivo_debaja"></small>
+	            </li>
+
+	            <li>
+	              <b> Soporte de baja:</b>&nbsp;
+	              		<a href="#" data-bind="click: function(){$root.ver_soporte(detalle.id)}" target="_blank"  style="cursor:pointer;">
+							<i class="fa fa-paperclip fa-2x"></i>
+						</a>
+						<a href="#" data-bind="click: function(){$root.archivoFisico()}" target="_blank"  style="cursor:pointer;">
+							<i class="fa fa-archive fa-2x"></i>
+						</a>
+
+	            </li>	       
+		
+	        <!-- /ko -->
+
+          </ul>
+          
+        </div>
+      </div>
+    <div id="tab2_2" class="tab-pane">
+        <div class="modal-body bg-light">
+        	<div data-bind="html: mensaje_activo_atributo"></div>
+        	<div class="col-md-10">         		
+	        	<div class="table-responsive" class="table" data-bind="visible:(listado_activoatributos()!=null && listado_activoatributos().length > 0)">
+	        		{% if app|add:'.view_'|add:model_activo_atributo in perms%} 
+
+	        		<table class="table">
+		                <thead>
+		                    <tr>
+		                        <th style="width: 40%;">Descripción</th>
+		                        <th style="width: 30%;">Valor</th>
+		                        <th style="width: 15%;">Soportes</th>
+		                    </tr>
+		                </thead>
+		                <tbody data-bind="foreach:{data:listado_activoatributos, as:'item'}">
+		                    <tr>
+		                        <td data-bind="text: item.atributo.nombre"></td>
+		                        <td data-bind="text: item.valor"></td>
+		                        <!-- ko if: item.atributo.requiere_soporte -->
+		                        <td>
+		                        	{% if app|add:'.view_'|add:model_activo_atributo_soporte in perms%} 
+		                        	<a href="#" data-bind="click: function(){ $root.ver_soportes_atributo(
+			                        	item.id,
+			                        	item.atributo.nombre)}" 
+		                                target="_blank"  style="cursor:pointer;">
+										<i class="fa fa-paperclip fa-2x"></i>
+									</a>
+									{% endif %}
+		                        </td>
+		                        <!-- /ko -->
+
+		                        <!-- ko ifnot: item.atributo.requiere_soporte -->
+		                        <td>No aplica</td>
+		                        <!-- /ko -->
+		                        
+		                    </tr>
+		                </tbody>
+		            </table>
+		            {% endif %}
+	        	</div>
+	        </div>
+        </div>
+    </div>
+    <div id="tab2_3" class="tab-pane">
+        <div class="modal-body bg-light">          
+          	<div class="col-md-12">          		
+                  	<div class="table-responsive">
+                    	<table class="table">
+	                      	<thead>
+	                        	<tr>		                            
+		                            <th>Evento</th>  
+		                            <th>Fecha</th>                                                             
+		                            <th>Observaciones</th>
+		                            <th>Opciones</th>                           
+		                        	</tr>
+	                      	</thead>
+	                      	<tbody>
+	                      		<tr>
+	                                <td>Alta</td>
+	                                <td data-bind="text: detalle.fecha_alta"></td>
+	                                <td>Dado de alta</td>
+	                                <td>
+	                                	<a href="#" data-bind="click: function(){$root.ver_soporte_contrato(detalle.id)}" 
+	                                		target="_blank"  style="cursor:pointer;">
+											<i class="fa fa-paperclip fa-2x"></i>
+										</a>
+<!-- 	                                	<a href="#" data-bind="click: function(){$root.archivoFisicoAlta()}" 
+		                            		target="_blank"  style="cursor:pointer;">
+											<i class="fa fa-archive fa-2x"></i>
+										</a> -->								
+									</td>
+	                            </tr>
+	                      	</tbody>
+	                      	<div id="divmantenimientos"data-bind="visible:(listadomantenimientos()!=null && listadomantenimientos().length > 0)">
+	                      	{% if app|add:'.view_'|add:model_mantenimiento in perms%} 
+
+	                     	<tbody data-bind="foreach:{data:listadomantenimientos, as:'item'}">
+	                        	<tr>
+	                        		                                 
+	                                <td data-bind="text: item.motivo.nombre"></td>
+		                            <td data-bind="text: item.fecha"></td>
+		                            <td data-bind="text: item.observaciones"></td>
+		                            <td>
+		                            	{% if app|add:'.view_'|add:model_soporte_mantenimiento in perms%}
+		                            	<a href="#" data-bind="click: $root.abrir_modal_soportes_mantenimientos" 
+	                                		target="_blank"  style="cursor:pointer;">
+											<i class="fa fa-paperclip fa-2x"></i>
+										</a>
+										{% endif %}
+									</td>
+									
+	                        	</tr>
+	                      	</tbody>
+	                      	{% endif %}
+	                        </div>
+	                      	<tbody>
+	                      		<tr>
+	                                <td>Baja</td>
+	                                <td data-bind="text: detalle.fecha_baja"></td>
+	                                <!-- ko if: detalle.debaja -->	
+	                                	<td>Dado de baja</td>
+	                                	<td>
+	                                		<a href="#" data-bind="click: function(){$root.ver_soporte(detalle.id)}" 
+		                                		target="_blank"  style="cursor:pointer;">
+												<i class="fa fa-paperclip fa-2x"></i>
+											</a>
+	                                		<a href="#" data-bind="click: function(){$root.archivoFisicoBaja()}" 
+		                                		target="_blank"  style="cursor:pointer;">
+												<i class="fa fa-archive fa-2x"></i>
+											</a>
+
+										</td>
+									<!-- /ko -->
+									<!-- ko ifnot: detalle.debaja  -->	
+										<td>Sin aplicarse</td>
+										<td>No aplica</td>
+									<!-- /ko -->	                                
+	                            </tr>
+	                      	</tbody>
+                    </table>
+                  </div>
+                
+          
+        
+          </div>
+        </div>
+      </div>
+
+      <div id="tab2_4" class="tab-pane">
+        <div class="modal-body bg-light">
+        	<div class="pull-left" style="padding-left: 5px;">
+        		{% if app|add:'.add_'|add:model_activo_gps in perms%} 
+
+	        	<a href="#" data-bind="click: agregar_punto_gps" target="_blank"  style="cursor:pointer;">
+					<i class="fa fa-plus-circle "></i> Agregar un punto GPS
+				</a>&nbsp;&nbsp;&nbsp;
+				{% endif %}
+				<!-- <a href="#" data-bind="click: observar_punto_gps" target="_blank"  style="cursor:pointer;">
+					<i class="fa fa-eye "></i> Ubicación del activo
+				</a>  -->
+			</div>
+        	
+        	<div class="col-md-12">
+        		<div data-bind="html: mensajepuntosgps"></div>
+	        	<div class="table-responsive" class="table" data-bind="visible:(listadopuntosgps()!=null && listadopuntosgps().length > 0)">
+	        		{% if app|add:'.view_'|add:model_activo_gps in perms%} 
+	        		<table class="table">
+		                <thead>
+		                    <tr>
+		                    	<th style="width: 25%;">Nombre</th>
+		                        <th style="width: 25%;">Latitud</th>
+		                        <th style="width: 25%;">Longitud</th>
+		                        <th style="width: 20%;">Opciones</th>
+		                    </tr>
+		                </thead>
+		                <tbody data-bind="foreach:{data:listadopuntosgps, as:'item'}">
+		                    <tr>
+		                    	<td data-bind="text: item.nombre"></td>
+		                        <td data-bind="text: item.latitud"></td>
+		                        <td data-bind="text: item.longitud"></td>
+		                        <td>
+								{% if app|add:'.change_'|add:model_activo_gps in perms%} 
+
+		                        	<a href="#" data-bind="click: function(){$root.editar_punto(item.id)}"
+		                                target="_blank"  style="cursor:pointer;">
+										<i class="fa fa-pencil-square-o fa-2x"></i>
+									</a>
+								{% endif %}
+								{% if app|add:'.delete_'|add:model_activo_gps in perms%} 
+
+									<a href="#" data-bind="click: function(){$root.eliminar_punto(item.id)}"
+		                                target="_blank"  style="cursor:pointer;">
+										<i class="fa fa-trash fa-2x"></i>
+									</a>
+
+								{% endif %}
+		                        </td>
+		                    </tr>
+		                </tbody>
+		            </table>
+		            {% endif %}
+
+	        	</div>
+	        </div>
+        </div>
+      </div>
+
+    </div>
+
+
+  </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div id="ver_soportes_atributo" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+	      		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	      		<h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo_soporte_atributo"> </h4>
+	      	</div>
+	      	{% if app|add:'.add_'|add:model_activo_atributo_soporte in perms%} 
+	      	<div class="panel-body">	      		
+	      		<form action="." method="post" enctype="multipart/form-data">
+	      			{% csrf_token %}
+				    <div class="form-group">          
+				        <label>(*) Documento:</label>
+				        <input type="file" id="soporte_atributo_documento" name="soporte_atributo_documento" class="note-image-input"  
+				             data-bind="fileData:{value:activo_atributoVO.documento,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+				                                     elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+				        <input type="hidden" data-bind="value:activo_atributoVO.documento">
+						<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>						          					
+				        
+				    </div> 
+				</form>
+				<div class="form-group">
+					<button type="button" class="btn btn-primary" data-bind="click:guardarDocumento" >Guardar</button>            
+				</div> 
+	      	</div>
+	      	{% endif %}
+	      	<div class="panel-body">
+	      		<div data-bind="html: mensajesoporte_atributo"></div>
+	      		<div class="col-md-12">
+        		  		
+	        	<div class="table-responsive" class="table" data-bind="visible:(listadosoportes_atributo()!=null && listadosoportes_atributo().length > 0)">
+	        		<table class="table">
+		                <thead>
+		                    <tr>
+		                        <th style="width: 15%"></th>
+		                        <th >Descripción</th>
+		                        <th >Opciones</th>
+		                    </tr>
+		                </thead>
+		                <tbody data-bind="foreach:{data:listadosoportes_atributo, as:'item'}">
+		                    <tr>
+		                        <td >
+		                        	<a href="#" data-bind="click: $root.ver_soporte_atributo"
+		                                target="_blank"  style="cursor:pointer;">
+										<i class="fa fa-file fa-2x"></i>
+									</a>
+		                        </td>
+		                        <td > 
+		                        	Soporte No.<label data-bind="text: $index()+1"></label>
+		                        </td>
+		                        <td>
+		                        	{% if app|add:'.delete_'|add:model_activo_atributo_soporte in perms%} 
+
+		                        	<a href="#" data-bind="click: function(){$root.eliminar_soporte_atributo(item.id,item.activo_atributo.id)}"
+		                                target="_blank"  style="cursor:pointer;">
+										<i class="fa fa-trash fa-2x"></i>
+									</a>
+
+									{% endif %}
+		                        </td>
+		                        
+		                    </tr>
+		                </tbody>
+		            </table>
+	        	</div>
+	        	</div>
+	      		
+	      	</div>	      	
+	    </div>
+	</div>
+</div>
+
+
+
+
+<div id="puntos_gps" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-sm">
+	    <div class="modal-content">
+	      	<div class="modal-header">
+	      		<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	      		<h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo_punto_gps"> </h4>
+	      	</div>
+	      	<div class="modal-body">
+	      		<div class="form-group">
+				    <label>(*) Nombre: </label>
+				    <input type="text" class="form-control" data-bind='value:puntosgpsVO.nombre'>
+				</div>
+	      		<div class="form-group">
+				    <label> Latitud: </label>
+				    <input type="text" class="form-control" data-bind='value:puntosgpsVO.latitud, onlyNumber:puntosgpsVO.latitud'>
+				</div>
+	      		<div class="form-group">
+				    <label> Longitud: </label>
+				    <input type="text" class="form-control" data-bind='value:puntosgpsVO.longitud, onlyNumber:puntosgpsVO.longitud'>
+				</div>
+	      	</div>
+	      	<div class="modal-footer">            
+				<button type="button" class="btn btn-primary" data-bind="click:guardar_punto_gps"> Guardar </button>            
+			</div>
+	    </div>
+	</div>
+</div>
+
+
+
+
+
+ <div id="modal_soportes_mantenimientos" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Listado de soportes del mantenimiento: <label id="MotivoSoporteMantenimiento" name="MotivoSoporteMantenimiento"></label>
+        |Activo No. 
+        <label id="ActivoSoporteMantenimiento" name="MotivoSoporteMantenimiento"></label>
+        </h4>
+      </div>
+
+      <div class="modal-body">
+       <form action="." method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+       <div class="row">       	
+
+            <div class="col-md-12 panel-body">
+				<div data-bind="html: mensajesoportemantenimiento"></div>
+				<div data-bind="visible:(listadosoportesmantenimientos()!=null && listadosoportesmantenimientos().length > 0)">
+					{% if app|add:'.view_'|add:model_mantenimiento in perms%} 
+					<div class="table-responsive">
+					
+						<table class="table">
+							<thead>
+								<tr>									
+									<th width="50%">Nombre</th>
+									<th width="20%">Opciones</th>	
+								</tr>
+							</thead>
+							<tbody data-bind="foreach:{data:listadosoportesmantenimientos, as:'item'}">
+								<tr>
+									<td data-bind="text: item.nombre"></td>	
+									<td>
+										<a href="#" data-bind="click: $root.ver_soporte_mantenimiento" 
+		                                		target="_blank"  style="cursor:pointer;">
+												<i class="fa fa-file kv-caption-icon fa-2x"></i>
+										</a>
+										<a href="#" data-bind="click: function(){$root.archivoFisicoMantenimiento()}" 
+		                            		target="_blank"  style="cursor:pointer;">
+											<i class="fa fa-archive fa-2x"></i>
+										</a>
+									</td>
+									
+									
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					{% endif %} 
+				</div>
+   
+
+          </div> <!-- /.col-md-6 -->
+        </div>
+        </form>
+      </div>  
+
+    </div>
+  </div>
+</div> 
+
+
+
+
+{% endblock contenido %}
+
+{%block imports %}
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/activos/activo.js" %}'></script>	
+
+
+
+{% endblock imports %}

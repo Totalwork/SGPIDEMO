@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Meta, title, CSS, favicons, etc. -->
+  <meta charset="utf-8">
+  <title>{% block title %}{% endblock title %}</title>
+  <meta name="keywords" content="HTML5 Bootstrap 3 Admin Template UI Theme" />
+  <meta name="description" content="AdminDesigns - A Responsive HTML5 Admin UI Framework">
+  <meta name="author" content="AdminDesigns">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% load static %}
+
+  {% include 'styles.html' %}
+ 
+  {%block imports_css %}{% endblock imports_css %}
+  
+</head>
+
+<body class="dashboard-page sb-l-o sb-r-c">
+
+  <div id="main">
+
+  <!-- Header -->
+     <header id="header" class="navbar navbar-fixed-top">
+
+      <!--Nombre de la empresa y opciones varias-->
+      <div class="navbar-branding">
+        <a class="navbar-brand" href="{% url 'usuario.index' %}">
+          <b>SININ </b>
+        </a>
+        <span id="toggle_sidemenu_l" class="ad ad-lines"></span>
+      </div><!-- fin nombre de la empresa y opciones varias-->
+
+
+    <ul class="nav navbar-nav navbar-left">
+
+        <li class="hidden-xs">
+          <a class="request-fullscreen toggle-active" href="#" data-placement="right"  data-toggle="tooltip" data-original-title="Expandir pantalla">
+            <span class="ad ad-screen-full fs18"></span>
+          </a>
+        </li>
+
+      </ul><!-- fin de opciones del modulo-->
+
+      <div class="navbar-form navbar-righ navbar-search" role="search">
+        <div class="form-group">
+          <input type="text" id="txtBuscar" name="txtBuscar" class="form-control" placeholder="Buscar..." data-bind='event:{keypress: $root.consulta_enter}'>
+        </div>
+      </div><!--fin buscador-->
+
+    </header>
+   <!--cierra Header -->
+
+    <!--menu-->
+    {% include '_menu2.html' %}
+
+    <!-- Fin Menu -->
+
+    <!-- Start: Content-Wrapper -->
+    <section id="content_wrapper">
+
+     <!-- Navegacion -->
+
+      <header id="topbar">
+        <div class="topbar-left">
+          <ol class="breadcrumb">
+
+
+               <!-- <li class="crumb-active">
+                  <a>
+
+                  </a>
+               </li> -->
+              <div class="col-lg-12">
+                 <h2>{% block encabezado %}{% endblock encabezado %}</h2>
+              </div>
+                  {% block mapa %}
+                  {% endblock mapa %}
+          </ol>
+        </div>
+        <div class="topbar-right">
+           {% block opciones_izquierda %}
+           {% endblock opciones_izquierda %}
+        </div>
+      </header>
+
+     <!-- Fin Navegacion -->
+
+      <!-- Begin: Content -->
+      <section id="content" class="animated fadeIn">
+
+      <div class="tray tray-center">
+        {% block contenido %}
+        {% endblock contenido %}
+      </div>
+
+      </section><!-- End: Content -->
+
+
+    </section><!-- End: Content-Wrapper -->
+
+
+  </div><!-- End: Main -->
+
+
+ <div id='loading' style="display: none;">
+          <div class="pop-fondo"></div><img class="pop-imagen" src='{% static "css/images/iconoCargando.gif" %}')>
+  </div>
+
+ <div id='progressbar' style="display: none;">
+     <div class="pop-fondo"></div>
+     <div class="progress progress-striped pop-progress">
+         <div class="progress-bar progress-bar-success">0%</div>
+     </div>
+     <div id="status"></div>
+  </div>
+
+{% include 'scripts.html' %}
+
+{%block imports %}{% endblock imports %}
+
+</body>
+
+</html>

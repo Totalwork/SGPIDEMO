@@ -1,0 +1,726 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+	<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+	<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+	<!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/tagmanager/tagmanager.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}Solicitud{% endblock title%}
+	{% block mapa %}
+	  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+	  <li class="active">Solicitud</li>
+	{% endblock mapa %}
+<!-- % block encabezado %}Solicitud{% endblock encabezado % -->
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}  
+		<li>
+			<a href="#">
+				<i class="fa fa-cloud-download" data-bind="click:exportar_excel" style="font-size: 20px;"></i>
+			</a>
+		</li>
+		{% if app|add:'.delete_'|add:model in perms%}
+      <li>
+        <a href="#">
+          <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"><div><div><div></div></div></div></i>
+        </a>
+      </li>
+    {% endif %}
+	{% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+<!--Inicio de la table -->
+<div class=" row">
+  
+  <div class="col-lg-12">
+
+		<div class="panel panel-sky">
+			<div class="panel-heading">
+				<span class="panel-title">
+					<span>      
+						<a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"						aria-hidden="true"></i></a>
+					</span>						
+					Listado de Solicitudes <span data-bind="html:num_registro"></span>
+				</span>
+				<!-- <div class="pull-right">
+					<a href="#" title="Filtrar"><i data-bind="click:abrir_filtro" class="fa fa-filter fa-3x" style="color:#4a89dc; cursor:pointer;"></i></a>
+				</div> -->
+				<div class="pull-right">
+					<span class="panel-controls">
+						<a data-placement="top" data-toggle="tooltip" title="" data-original-title="Filtrar" data-bind="click:abrir_filtro" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+							<i class="fa fa-filter fa-2x"></i>
+						</a>
+					</span>
+				</div>
+      </div>
+			<div class="panel-body">
+				<div data-bind="html: mensaje"></div>
+				<div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0), dropdown">
+					<i class="text-info fa fa-bell" style="font-size:16px"></i><span data-bind="html: num_estado.en_estudio" class="badge badge-hero badge-info"></span>
+					:&nbsp;[En Estudio];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-success fa fa-bell" style="font-size:16px"></i><span data-bind="html: num_estado.aprobada" class="badge badge-hero badge-info"></span>
+					:&nbsp;[Aprobada];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<!-- <i class="text-primery fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Aplicada]; alert
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-danger fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Por Vencer];
+					&nbsp;&nbsp;&nbsp;&nbsp; -->
+
+					<i class="text-warning fa fa-bell" style="font-size:16px"></i><span data-bind="html: num_estado.rechazada" class="badge badge-hero badge-info"></span>
+					:&nbsp;[Rechazada];
+					<br>
+					<br>
+					<table class="table">
+						<thead>
+							<tr>
+								<th style="width: 3%;">
+									<div class="option-group field admin-form">
+										<label class="option option-primary" >
+											<input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+											<span class="checkbox"></span>
+										</label>
+									</div>
+								</th>
+								<th>Contratista</th>
+								<th>N° Contrato</th>
+								<th>Nombre</th>
+								<th style="width: 21%;">Tipo</th>
+								<!-- <th style="width: 10%;">Estado</th> -->
+								<!-- <th>Rev. Poliza</th> -->
+								<th style="width: 8%;">Concepto</th>
+								<th style="width: 8%;">Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--ko foreach:{ data:listado, as:'item'} -->
+								<tr data-bind="css:{'success': item.estado.id == $parent.estado.aprobada(),
+																		'info': item.estado.id == $parent.estado.en_estudio(),
+																		'warning': item.estado.id == $parent.estado.rechazada()
+																		}">
+									<td>
+										<div class="option-group field admin-form" >
+											<label class=" mt10 option option-primary"  >
+												<input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:id" />
+												<span class="checkbox"></span>
+												<!-- <span data-bind="text: item.nombre"></span> -->
+											</label>
+										</div><!-- end .option-group section -->
+									</td>
+									<td data-bind="cutWord:{num:10,text:item.contrato.contratista.nombre}"></td>
+									<td data-bind="text: item.contrato.numero"></td>
+									<td data-bind="cutWord:{num:10,text:item.contrato.nombre}"></td>
+									<td data-bind="text:item.tipo.nombre"></td>
+									<!-- <td data-bind="text: item.estado.nombre"></td> -->
+									<!-- <td data-bind="text: item.estado.nombre"></td> -->
+									<td data-bind="text: item.concepto + '/' + 3"></td>
+									<td>
+										<div class="btn-group text-right">
+											<i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+											<ul class="dropdown-menu" role="menu">
+												<!-- if:(!$parent.buscarId($parent.listado_descuento_c(), item.id)) -->
+													{% if 'solicitud.change_asolicitud' in perms %}
+														<li>
+															<a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+														</li>
+													{% endif %}
+												<!--/-->
+												<li>
+													<a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+												</li>
+												<li>
+													<a href="#" data-bind="click:$root.editarSolicitudRequisitos">Editar Requisitos</a>
+												</li>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							<!--/ko-->
+						</tbody>
+					</table>
+					<div id="paginacion" >
+						<div data-bind="pagination: {
+									   currentPage: paginacion.pagina_actual,
+									   totalCount: paginacion.total,
+									   pageSize:paginacion.cantidad_por_paginas,
+									   maxPages: paginacion.maxPaginas,
+									   directions: paginacion.direcciones,
+									   boundary: paginacion.limite,
+									   text: paginacion.text }">
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+<!--Fin de la table -->
+
+<!--Inicio Modal - Guardar Solicitud -->
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel" data-bind='text:solicitud.titulo'></h4>
+			</div>
+			<div class="modal-body">
+
+					<div class="row">
+						<div class="col-md-6">
+							<label>(*) Contrato</label>
+							<div class="input-group">
+								<input class="form-control" data-bind='value:nombre_contrato' placeholder="Buscar el Contrato" type="text" disabled="">
+								<span class="input-group-addon" data-bind="click:abrir_modal_contrato" style="cursor: pointer;">
+									<i class="fa fa-binoculars"></i>
+								</span>
+								<!-- <input class="form-control" data-bind='value:solicitudVO.contrato_id' type="hidden"> -->
+							</div><br/>
+
+							<label>(*) Tipo:</label>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:solicitudVO.tipo_id">
+										<option value="">[Seleccione...]</option>
+										<!--ko foreach:{ data:listado_tipo, as:'item'} -->
+											<option data-bind="value:item.id,text:item.nombre"></option>
+										<!--/ko-->
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+
+							<div class="form-group">          
+								<label>(*) Fecha de Solicitud:</label>
+								<input class="form-control" data-bind='datePicker:solicitudVO.fecha, value:solicitudVO.fecha'  type="text">
+							</div>
+
+						</div>
+						<div class="col-md-6">
+
+							<div class="form-group">
+								<label>(*) Observacion:</label>
+								<textarea class="form-control textarea-grow" data-bind='value:solicitudVO.observacion' rows="4"></textarea>
+							</div>
+
+							<div class="form-group">
+								<label>(*) Soporte:</label>
+								<input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:solicitudVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+								<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>
+								
+								<!--ko if: solicitudVO.id()>0 && soporte()!='' && soporte()!=null -->
+									<a data-bind="attr:{href: soporte}" target="_blank">
+										<i class="fa fa-file"></i>
+										Ver soporte
+									</a>
+									<br>
+								<!-- /ko -->			
+							</div>
+
+
+						</div>
+					</div>
+
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Guardar Solicitud -->
+
+<!--Inicio Modal - Buscar Contrato -->
+<div id="modal_contrato" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Buscar Contrato</h4>
+			</div>
+			<div class="modal-body">
+				
+				<div class="row">
+					<div class="col-md-12">
+						<div class="form-group">
+							<label>Tipo de Contrato:</label>
+							<select class="form-control" data-bind="value:buscar_contrato.tipo_contrato">
+								<option value="">[Seleccione...]</option>
+								<!--ko foreach:{ data:listado_tipo_contrato, as:'item'} -->
+									<option data-bind="value:item.id,text:item.nombre"></option>
+								<!--/ko-->
+							</select>
+						</div>
+
+						<div class="form-group">
+							<label>Número o Nombre:</label>
+							<input class="form-control" data-bind='value:buscar_contrato.nom_num_contrato' type="text">
+						</div>
+					</div>
+				</div>
+				<br/>
+				<div data-bind="html: mensaje_cont"></div>
+
+				<div class="panel panel-sky" data-bind="visible:(lista_contrato()!=null && lista_contrato().length > 0)">
+					<div class="panel-heading">
+						<span class="panel-title">
+							Listado de contratos
+						</span>
+					</div>
+					<div class="panel-body">
+						<div class="table-responsive" data-bind="dropdown">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Número</th>
+										<th>Nombre</th>
+										<th>Seleccionar</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!--ko foreach:{ data:lista_contrato, as:'item'} -->
+										<tr>
+											<td data-bind="text: item.numero"></td>
+											<td data-bind="text: item.nombre"></td>
+											<td>
+												<!-- <i data-bind="click:$root.ponerContrato" style="cursor: pointer; color:#4a89dc" class="fa fa-check fa-2x"></i> -->
+
+												<div class="col-md-9 radio-custom radio-primary mb5">
+													<input data-bind="checked: $root.solicitudVO.contrato_id, attr: { id: 'idcontrato'+item.id, value:item.id }" type="radio" value="" name="referencia">
+													<label data-bind="attr: { for: 'idcontrato'+item.id }, click:$root.ponerContrato" ></label>
+												</div>
+											</td>
+										</tr>
+									<!--/ko-->
+								</tbody>
+							</table>
+							<div id="paginacion2" >
+								<div data-bind="pagination: {
+											   currentPage: paginacion2.pagina_actual,
+											   totalCount: paginacion2.total,
+											   pageSize:paginacion2.cantidad_por_paginas,
+											   maxPages: paginacion2.maxPaginas,
+											   directions: paginacion2.direcciones,
+											   boundary: paginacion2.limite,
+											   text: paginacion2.text }">
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div><!-- /.panel panel-sky -->
+
+			</div><!-- /.modal-body -->
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ buscarContrato(1);}">Filtrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Buscar Contrato -->
+
+<!--Inicio Modal - Filtro solicitud -->
+<div id="modal_filtro" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Filtro Factura</h4>
+			</div>
+			<div class="modal-body">
+				<form action="." method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col-md-12">
+
+							<label>Tipo:</label>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:filtro_solicitud.tipo">
+										<option value="">[Seleccione...]</option>
+										<!--ko foreach:{ data:listado_tipo, as:'item'} -->
+											<option data-bind="value:item.id,text:item.nombre"></option>
+										<!--/ko-->
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+
+							<label>Estado:</label>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:filtro_solicitud.estado">
+										<option value="">[Seleccione...]</option>
+										<!--ko foreach:{ data:listado_estado, as:'item'} -->
+											<option data-bind="value:item.id,text:item.nombre"></option>
+										<!--/ko-->
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+
+							<label>Contratista:</label>
+							<div class="input-group">
+								<input class="form-control" id="contratista_nom" data-bind='value:filtro_solicitud.contratista_nom, event:{keypress: $root.consulta_enter_filtro}' placeholder="Buscar el Contratista" type="text">
+								<span class="input-group-addon" data-bind="click:empresa" style="cursor: pointer;">
+									<i class="fa fa-search"></i>
+								</span>
+							</div>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:filtro_solicitud.contratista">
+										<option value="">[Seleccione...]</option>
+										<!--ko foreach:{ data:filtro_solicitud.contratista_lista, as:'item'} -->
+											<option data-bind="value:item.id,text:item.nombre"></option>
+										<!--/ko-->
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+
+							<div class="form-group">
+								<label>Periodo:</label>
+								<div class="row">
+									<div class="col-md-6">
+										<input class="form-control" data-bind='datePicker:filtro_solicitud.desde, value:filtro_solicitud.desde' placeholder="Desde" type="text">
+									</div> <!--<p style="float:left;">&nbsp; a &nbsp;</p> -->
+									<div class="col-md-6">
+										<input class="form-control" data-bind='datePicker:filtro_solicitud.hasta, value:filtro_solicitud.hasta' placeholder="Hasta" type="text">
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</form>
+
+			</div><!-- /.modal-body -->
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ consultar(1);}">Filtrar</button>
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ limpiar_filtro();}">Limpiar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Filtro solicitud -->
+
+<!--Inicio Modal - Detalle de la Solicitud-->
+<div id="detalle_solicitud" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Detalle de la Solicitud</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <h4> Información Solicitud </h4>
+          <ul class="icon-list">
+            <li>
+              <b> Tipo:</b>&nbsp;<small data-bind="html:detalle.tipo"></small>
+            </li>
+            <li>
+              <b> Estado:</b>&nbsp;<small data-bind="html:detalle.estado"></small>
+            </li>
+            <li>
+              <b> No. Contrato:</b>&nbsp;<small data-bind="html:detalle.contrato"></small>
+            </li>
+            <li>
+              <b> Fecha:</b>&nbsp;<small data-bind="html:detalle.fecha"></small>
+            </li>
+            <li>
+              <b> Observacion:</b>&nbsp;<small data-bind="html:detalle.observacion"></small>
+            </li>
+            <li>
+              <b> Soporte:</b>&nbsp;<small>
+												              <!--ko if: detalle.soporte()!='' && detalle.soporte()!=null -->
+																				<a data-bind="attr:{href: detalle.soporte}" target="_blank">
+																					<i class="fa fa-file"></i>
+																					Ver soporte
+																				</a>
+																			<!-- /ko -->
+																			<!--ko if: detalle.soporte()=='' || detalle.soporte()==null -->
+																				Sin soporte
+																			<!-- /ko -->
+																		</small>
+            </li>
+            <li>
+              <b> Soporte Carta:</b>&nbsp;<small>
+												              <!--ko if: detalle.soporte_carta()!='' && detalle.soporte_carta()!=null -->
+																				<a data-bind="attr:{href: detalle.soporte_carta}" target="_blank">
+																					<i class="fa fa-file"></i>
+																					Ver soporte
+																				</a>
+																			<!-- /ko -->
+																			<!--ko if: detalle.soporte_carta()=='' || detalle.soporte_carta()==null -->
+																				Sin soporte
+																			<!-- /ko -->
+																		</small>
+            </li>
+          </ul>
+        </div>
+
+        <div class="panel mb25 mt5">
+		      <div class="panel-heading">
+		        <span class="panel-title hidden-xs" data-bind='text:titulo_tab'></span>
+		        <ul class="nav panel-tabs-border panel-tabs">
+		          <li class="active">
+		            <a href="#detalle_juridico" data-toggle="tab" aria-expanded="true">Juridico</a>
+		          </li>
+		          <li class="">
+		            <a href="#detalle_tecnico" data-toggle="tab" aria-expanded="true">Tecnico</a>
+		          </li>
+		          <li class="">
+		            <a href="#detalle_compras" data-toggle="tab" aria-expanded="false">Compras</a>
+		          </li>
+		          <li class="">
+		            <a href="#detalle_poliza" data-toggle="tab" aria-expanded="false">Poliza</a>
+		          </li>
+		        </ul>
+		      </div>
+		      <div class="panel-body p25 pb5">
+		        <div class="tab-content pn br-n admin-form">
+		          <div id="detalle_juridico" class="tab-pane active">
+		          	<!-- <div class="col-xs-12"> -->
+		            	{% include 'solicitud/_detalleJuridico.html' %}
+		            <!-- </div> -->
+		          </div>
+		          <div id="detalle_tecnico" class="tab-pane">
+
+		          	{% include 'solicitud/_detalleTecnico.html' %}
+		            <!-- <div data-bind="html: mensaje_tecnico"></div>
+		            { include 'solicitud/_historial.html' } -->
+
+							</div>
+							<div id="detalle_compras" class="tab-pane">
+
+								{% include 'solicitud/_detalleCompras.html' %}
+								<!-- <div data-bind="html: mensaje_compras"></div>
+								{ include 'solicitud/_gestionar_proyecto.html' } -->
+		          </div>
+							<div id="detalle_poliza" class="tab-pane">
+								<!-- <div class="col-xs-12"> -->
+									{% include 'solicitud/_detallePoliza.html' %}
+								<!-- </div> -->
+							</div>
+		        </div>
+		      </div>
+		    </div>
+
+			</div> <!-- ./modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle de la Solicitud-->
+
+<!--Inicio Modal - Detalle de la Solicitud Ediatr-->
+<div id="editar_solicitud_requisitos" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Conceptos de Favorabilidad</h4>
+			</div>
+			<div class="modal-body">
+
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <h4> Información Solicitud </h4>
+          <ul class="icon-list">
+            <li>
+              <b> Tipo:</b>&nbsp;<small data-bind="html:detalle.tipo"></small>
+            </li>
+            <li>
+              <b> No. Contrato:</b>&nbsp;<small data-bind="html:detalle.contrato"></small>
+            </li>
+            <li>
+              <b> Soporte:</b>&nbsp;<small>
+												              <!--ko if: detalle.soporte()!='' && detalle.soporte()!=null -->
+																				<a data-bind="attr:{href: detalle.soporte}" target="_blank">
+																					<i class="fa fa-file"></i>
+																					Ver soporte
+																				</a>
+																			<!-- /ko -->
+																			<!--ko if: detalle.soporte()=='' || detalle.soporte()==null -->
+																				Sin soporte
+																			<!-- /ko -->
+																		</small>
+            </li>
+            <li>
+              <b> Soporte Carta:</b>&nbsp;<small>
+												              <!--ko if: detalle.soporte_carta()!='' && detalle.soporte_carta()!=null -->
+																				<a data-bind="attr:{href: detalle.soporte_carta}" target="_blank">
+																					<i class="fa fa-file"></i>
+																					Ver soporte
+																				</a>
+																			<!-- /ko -->
+																			<!--ko if: detalle.soporte_carta()=='' || detalle.soporte_carta()==null -->
+																				Sin soporte
+																			<!-- /ko -->
+																		</small>
+            </li>
+          </ul>
+        </div>
+
+				<div class="row" >
+					<div class="col-lg-12">
+						<div id="archivo_carta_d" class="form-group">
+							<label>Soporte Carta de Aceptación:</label>
+							<input type="file" class="note-image-input" id="archivo_carta" name="archivo_carta" data-bind="fileData:{value:solicitudVO.carta_aceptacion,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+							<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>						
+						</div>
+					</div>
+				</div>
+				<div class="row" >
+					<div class="col-xs-12">
+						<!-- <button type="button" class="btn btn-primary" data-bind="click:guardarCompras">Guardar</button><br /><br /> -->
+						<button id="btn_guardar_carta" type="button" class="btn btn-primary" data-bind="click:guardarCartaAceptacion">Guardar</button>
+					</div>
+				</div>
+
+				<div class="row" >
+				  <div class="col-lg-12">
+
+				    <div class="panel mb25 mt5">
+				      <div class="panel-heading">
+				        <span class="panel-title hidden-xs" data-bind='text:titulo_tab'></span>
+				        <ul class="nav panel-tabs-border panel-tabs">
+				          <li class="active">
+				            <a href="#juridico" data-toggle="tab" aria-expanded="true">Juridico</a>
+				          </li>
+				          <li class="">
+				            <a href="#tecnico" data-toggle="tab" aria-expanded="true">Tecnico</a>
+				          </li>
+				          <li class="">
+				            <a href="#compras" data-toggle="tab" aria-expanded="false">Compras</a>
+				          </li>
+				          <li class="">
+				            <a href="#poliza" data-toggle="tab" aria-expanded="false">Poliza</a>
+				          </li>
+				        </ul>
+				      </div>
+				      <div class="panel-body p25 pb5">
+				        <div class="tab-content pn br-n admin-form">
+				          <div id="juridico" class="tab-pane active">
+				          	<!-- <div class="col-xs-12"> -->
+				            	{% include 'solicitud/_editarJuridico.html' %}
+				            <!-- </div> -->
+				          </div>
+				          <div id="tecnico" class="tab-pane">
+
+				          	{% include 'solicitud/_editarTecnico.html' %}
+				            <!-- <div data-bind="html: mensaje_tecnico"></div>
+				            { include 'solicitud/_historial.html' } -->
+
+									</div>
+									<div id="compras" class="tab-pane">
+
+										{% include 'solicitud/_editarCompras.html' %}
+										<!-- <div data-bind="html: mensaje_compras"></div>
+										{ include 'solicitud/_gestionar_proyecto.html' } -->
+
+										<div class="section row">
+				              <div class="col-md-6">
+
+				              </div>
+				              <!-- end section -->
+				            </div>
+				            <!-- end section row section -->
+				          </div>
+									<div id="poliza" class="tab-pane">
+										<!-- <div class="col-xs-12"> -->
+											{% include 'solicitud/_editarPoliza.html' %}
+										<!-- </div> -->
+									</div>
+				        </div>
+				      </div>
+				    </div>
+
+				  </div>
+				</div>
+
+			</div> <!-- ./modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle de la Solicitud Ediatr-->
+
+<!--Inicio Modal - Detalle de Tipo Poliza-->
+<div id="detalle_tipo_poliza" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Requisistos de validación de poliza</h4>
+			</div>
+			<div class="modal-body">
+
+				<h4 data-bind="html: mensaje_tipo_poliza"> Tipo de Poliza: </h4>
+
+				<div class="row" >
+					<div class="col-xs-6">
+
+						<div class="option-group field admin-form" data-bind="foreach:{data:lista_requisito_poliza, as:'item'}">
+
+								<label class="block mt15 option option-primary"  >
+									<input name="mobileos" class="riquisito_poliza" type="checkbox" data-bind="checked:item.estado">
+									<span class="checkbox"></span>
+									<span data-bind="text: item.requisito__nombre"></span>
+
+								</label>
+						</div>
+					</div>
+				</div>
+			</div> <!-- ./modal-body -->
+			<div id="guardar_requisito_poliza" class="modal-footer">
+				{% if 'solicitud.change_asolicitud' in perms %}
+					<button type="button" class="btn btn-primary" data-bind="click:function(){ guardarRequisitoPoliza();}">Guardar</button>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle de Tipo Poliza-->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<!-- <script type="text/javascript" src='{% static "js/plugins/tagmanager/tagmanager.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/ViewModels/solicitud/solicitud.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    //contratoVigencia.consultar({{id_contrato}});//iniciamos la primera funcion
+
+    solicitud.estado.en_estudio({{ est_enEstudio }});
+    solicitud.estado.aprobada({{ aprobada }});
+  });
+</script>
+
+{% endblock imports %}

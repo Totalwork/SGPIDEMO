@@ -1,0 +1,264 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?sensor=false&key=AIzaSyDP-V_ViyXNNnyrI9T3KyqmLfOMq_YA5I8"></script>
+{% endblock imports_css %}
+
+
+{% block title %}Apoyo{% endblock title%}
+{% block mapa %}
+   <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.presupuesto' cronograma_id %}">Presupuesto</a></li>
+  <li class="active">Apoyo</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}
+          
+            {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#">
+                  <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+
+            <li>
+              <a href="#" data-bind="click:abrir_modal_carga">
+                  <i class="fa fa-upload" style="font-size: 20px;"></i>
+              </a>
+            </li>
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div> 
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <div class="panel-heading">
+                <h4>Listado de Apoyos  <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></h4>
+                       
+          </div>
+          <div class="panel-body">
+               <a href="#" data-bind="click:abrir_modal_filter" data-placement="right"  data-toggle="tooltip" data-original-title="Filtro"><i class="fa fa-filter" style="font-size: 20px;"></i></a>
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>    
+              <th >Nombre</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td>                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.nombre"></td>
+               <td>
+                 <div class="btn-group text-right">
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu">
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                       </li>
+                    </ul>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+         <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+        
+          
+          
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+  </div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+     <input type="hidden" id="id_presupuesto" value="{{id_presupuesto}}" class="form-control" >  
+    <input type="hidden" id="id_capa_manual" value="{{id_capa_manual}}" class="form-control" >  
+    <input type="hidden" id="id_capa_archivo" value="{{id_capa_archivo}}" class="form-control" >      
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Nombre(*)</label>
+          <input type="text" class="form-control" data-bind='value:apoyoVO.nombre'>           
+        </div>
+
+         <div class="form-group">
+          <label>Latitud</label>
+          <input type="text" class="form-control" data-bind='value:apoyoVO.latitud'>           
+        </div>
+
+         <div class="form-group">
+          <label>Longitud</label>
+          <input type="text" class="form-control" data-bind='value:apoyoVO.longitud'>           
+        </div>
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--modal-->
+
+<div id="modal_filter" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+          <form id="asociar" method="post">
+            {% csrf_token %}
+                
+              <div class="form-group">
+                <div class="col-md-9 radio-custom radio-primary mb5">
+                    
+                  <input type="radio" id="si" value="1" data-bind='checked:filtro_gps' name="bdi">
+                  <label for="si">Con GPS</label>
+                              
+                  <input type="radio" id="no" value="2" data-bind='checked:filtro_gps' name="bdi">
+                  <label for="no">Sin GPS</label>
+
+                   <input type="radio" id="ninguno" value="0" data-bind='checked:filtro_gps' name="bdi">
+                  <label for="ninguno">Todos</label>
+
+                </div>
+              </div><br>
+
+          </form><br>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:busqueda_filtro">
+            Filtrar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<div id="modal_cargar" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <Strong>Proyecto:  {{nombre_proyecto}}</Strong><br><br>
+        <Strong>Esquema:  {{nombre_esquema}}</Strong><br><br>
+        <Strong>Presupuesto:  {{nombre_presupuesto}}</Strong><br><br>
+        
+         <div class="form-group">
+            <a href="#" data-bind="click:descargar_plantilla"><label style="cursor: pointer;">Plantilla para diligenciar <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i></label></a>       
+        </div>
+
+
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="form-control" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+        </div>
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_datos">Iniciar Carga</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/apoyo_sin_gps.js" %}'></script>
+{% endblock imports %}

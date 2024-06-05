@@ -1,0 +1,83 @@
+<div class="panel panel-primary" id="p5">
+  <div class="panel-heading ui-sortable-handle">
+    <span class="panel-title">Multa</span>
+  </div>
+  
+  <div class="panel-body" style="display: block;">
+    
+    <div class="mb20 text-right">
+
+    </div>
+    <div class="row">
+
+      <div class="col-lg-12">
+
+        <div data-bind="html: mensaje_multa"></div>
+
+        <div class="panel panel-sky" data-bind="visible:(listado_multa()!=null && listado_multa().length > 0), dropdown">
+          <div class="panel-heading">
+            <span class="panel-title">
+              Listado Multa
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary" >
+                          <input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall_multa">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </th>
+                    <th></th>
+                    <th>Referencia</th>
+                    <th>Fecha</th>
+                    <th>Valor</th>
+                    <th>Estado</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!--ko foreach:{ data:listado_multa, as:'item'} -->
+                    <tr>
+                      <td>
+                        <!--ko if: $root.listado_multa_c().indexOf(item.id) < 0 -->
+                          <div class="option-group field admin-form" >
+                            <label class=" mt10 option option-primary"  >
+                              <input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:id" />
+                              <span class="checkbox"></span>
+                              <!-- <span data-bind="text: item.nombre"></span> -->
+                            </label>
+                          </div><!-- end .option-group section -->
+                        <!-- /ko -->
+                      </td>
+                      <td>
+                        <small>
+                          <!--ko if: item.soporte != '' && item.soporte != null -->
+                            <a data-bind="attr:{href: '../../multa/ver-soporte-solicitud/?id=' + item.id}" target="_blank">
+                              <i class="fa fa-file"></i>
+                            </a>
+                          <!-- /ko -->
+                        </small>
+                      </td>
+                      <td data-bind="text: item.solicitud.codigoReferencia"></td>
+                      <td data-bind="text: moment(item.fechasolicitud).format('LL')"></td>
+                      <td data-bind="text: formatMoney(item.solicitud.valorImpuesto)"></td>
+                      <td data-bind="text: item.estado.nombre"></td>
+                      <!-- <td data-bind="text: sumar_valores(listado_detalla_anticipo(),'valor_giro')"></td> -->
+                    </tr>
+                  <!--/ko-->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div><!-- /.panel panel-sky -->
+      </div>
+
+    </div> <!-- ./row -->
+  </div> <!-- ./panel-body -->
+</div>

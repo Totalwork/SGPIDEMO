@@ -1,0 +1,224 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Desglose Material{% endblock title%}
+{% block encabezado %}
+  <a href="{% url 'avanceObraLite.uucc' uucc.catalogo.id %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar a la UUCC">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Desglose Material
+{% endblock encabezado %}
+
+
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.catalogos' %}">Admin. Catalogo</a></li>
+  <li><a href="{% url 'avanceObraLite.uucc' uucc.catalogo.id %}">UUCC</a></li>
+  <li class="active">Desglose Material</li>
+{% endblock mapa %}
+
+{% block contenido %}
+<div class="row" >  
+  <div class="col-lg-12">    
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <span class="panel-title">
+          Listado de Desglose Material - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+        </span>
+      </div>
+      <div class="panel-body">
+          <b>Catalogo: </b>{{catalogo.nombre}}
+          <input type="hidden" id="catalogo_id" value="{{uucc.catalogo.id}}" class="form-control" >
+          <br>
+          <b>Catalogo Estado: </b>{{catalogo_activo}}  
+          <br>
+          <b>Codigo UUCC: </b>{{uucc.codigo}} 
+          <br>                          
+          <b>Descripcion UUCC: </b>{{uucc.descripcion}} 
+          <br>
+          <br>          
+          <div data-bind="html: mensaje"></div>
+          <div data-bind="visible:(listado()!=null && listado().length > 0)">
+              <div class="table-responsive">
+                 
+                <table class="table">
+                  <thead>
+                    <tr>   
+                      <th width="3%">
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:checkall">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </th>                      
+                      <th width="30%">Codigo Material</th>
+                      <th width="30%">Descripcion</th>
+                      <th width="17%">Cantidad</th>
+                      <th width="17%">Valor Material</th>    
+                      <th width="2%"></th>                                        
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>                      
+                      <td>
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:eliminado">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div> 
+                      </td>
+                      <td data-bind="text: item.material.codigo"></td>
+                      <td data-bind="text: item.material.descripcion"></td>  
+                      <td data-bind="text: item.cantidad"></td>  
+                      <td data-bind="text: formatCurrency(item.material.valorUnitario)"></td>  
+                      <td>
+                          <div class="btn-group text-right">
+                              <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                <i  class="fa fa-ellipsis-h fa-2x" ></i>
+                              </a>
+                              <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                {% if 'avance_de_obra_grafico2.change_desglocematerial' in perms%}  
+                                <li>
+                                  <a href="#" data-bind="click:$root.modificar_desgl_mat">Editar</a>
+                               </li>                                                  
+                               {% endif %}                                                                                                                                                                        
+                              </ul>
+                          </div>
+                      </td>       
+                    </tr>
+                  </tbody>
+                </table>
+              </div>              
+              <div id="paginacion" >
+                <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                </div>
+              </div>          
+          </div>          
+      </div>
+    </div>	
+  </div>
+</div>
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>UUCC(*)</label>
+          <input  type="text" class="form-control" value="{{uucc.descripcion}}" disabled> 
+        </div>
+        <div class="form-group">
+          <label>Material(*)</label>               
+            <div class="input-group">  
+              <input type="text" class="form-control"  id="descripcionMat" disabled>              
+              <span class="input-group-addon" title="Buscar Material" data-bind="click:abrir_buscar_material" style="cursor: pointer;">
+              <i class="fa fa-search"></i>
+              </span>
+            </div>                                
+        </div>        
+        <div class="form-group">
+          <label>Cantidad(*)</label>
+          <input  type="text" class="form-control" data-bind="text:desgl_mat.cantidad, value:desgl_mat.cantidad"> 
+        </div>                
+        <input type="hidden" id="uucc_id" value="{{uucc.id}}" class="form-control" >
+         <!--ko if: habilitar_campos()==true -->    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+        <!--/ko-->       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<div id="modal_buscar_materiales" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Buscar Material</h4>
+      </div>
+       <div class="modal-body">
+       	
+        		<div class="form-group">
+	     				     			
+	     			<div class="input-group">
+              <input id="txt_buscar_material" type="text" class="form-control" placeholder="Buscar Material" data-bind="value:filtro_material, event:{keypress:consulta_enter_material}">
+                <span class="input-group-addon" title="Buscar Material" data-bind="click:consultar_materiales">
+                <i class="fa fa-search"></i>
+              </span>
+            </div>                      
+                
+                <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Materiales</span>
+                  </div>
+                  <div class="panel-body panel-scroller scroller-xs scroller-pn pn">
+                    <table class="table mbn tc-med-1 tc-bold-last">
+                      <thead>
+                        <tr>   
+                          <th></th>                      
+                          <th>Codigo</th>
+                          <th>Descripcion</th>
+                        </tr>
+                      </thead>                                            
+                      <tbody data-bind="foreach:{data:listadoMaterial, as:'item'}">
+                        <tr data-bind="attr:{for:'radio_material-'+$index()}">
+                          <td>
+                          	<label style="width: 100%;">
+                          	<input data-bind="attr:{id:'radio_material-'+$index(), value:item.id},checked:$parent.material_id" type="radio" name="radio_material"> 
+                          	</label>
+                          </td>
+                         <td style="text-align: left;">
+                            <label style="width: 100%;" data-bind="attr:{for:'radio_material-'+$index()},text:item.codigo"></label>
+                          </td>
+                            <td style="text-align: left;">
+                          	<label style="width: 100%;" data-bind="attr:{for:'radio_material-'+$index()},text:item.descripcion"></label>
+                        	</td>                        	
+                        </tr>
+                      </tbody>                      
+                    </table>
+                    <div data-bind="html: mensajeMat"></div>
+                  </div>
+                </div>
+
+
+	     		</div>
+
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:seleccionar_material">Listo</button>
+        </div>      
+    </div>
+  </div>
+</div>
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}    
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/deglo_mat.js" %}?v=2'></script>      
+{% endblock imports %}

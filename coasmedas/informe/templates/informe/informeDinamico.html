@@ -1,0 +1,146 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Informe{% endblock title%}
+
+{% block opciones_listado %}{% endblock opciones_listado %}  
+
+{% block mapa %}
+
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'usuario.index' %}">Inicio</a></li>
+  <!-- <li><a href="../informe/">Informe</a></li> -->
+  <li class="active">Informe Dinamico</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+<div class="row" >
+  <div class="col-lg-12">        
+    <div class="panel panel-sky" >
+      <div class="panel-heading">
+        <a href="{% url 'usuario.index' %}" data-placement="right"    
+          data-toggle="tooltip" data-original-title="Regresar al inicio">
+          <i class="fa fa-arrow-left"></i>
+        </a>
+        Informe Dinamico
+      </div>
+      <div class="panel-body">
+
+        <div class="form-group col-lg-12">
+          <form method="post" action="/informe/generar-informe-dinamico/">
+        <!-- INICIA FORMULARIO -->
+        {% csrf_token %}
+        <div class="row">
+            <div class="form-group col-lg-12">
+              <label>(*) Tipo de informe </label>
+              <select class="form-control" name="opcion" data-bind="value: opcion, event: {change: consultar_columnas}">
+                  <option value="">Seleccione...</option> 
+                  <option value="contratos">Contrato</option>
+                  <option value="vigencias-contrato">Vigencias de Contrato</option>
+                  <option value="proyectos">Proyecto</option>
+                  <option value="facturas">Factura</option>
+                  <option value="detalle giros">Detalle giro</option>
+                  <option value="correspondencias enviadas">Correspondencia enviada</option>
+                  <option value="correspondencias recibidas">Correspondencia recibida</option>
+                  <option value="empleados">Empleados</option>
+                  <option value="planillas">Planillas</option>
+                  <option value="cuentas">Cuentas</option>
+                  <option value="extracto de cuentas">Extracto de Cuentas</option>
+                  <option value="contratistas">Contratistas</option>
+                  <option value="gestion de proyectos">Gestion de Proyectos</option>
+                  <option value="multas">Multas</option>
+                  <option value="polizas">Polizas</option>
+              </select>     
+            </div>
+            <div class="form-group col-lg-8">  
+              <ul class="list-group">
+                <!--ko foreach: { data:columnas, as:'item'}-->        
+                 <li class="list-group-item">
+                  <div class="row">
+                    <div class="col-lg-4">
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary" style="">
+                          <input data-bind="value:item.columna, checked: $root.nombresColumnas" type="checkbox">
+                          <span class="checkbox"></span>
+                          <span data-bind="text: item.columna"></span>
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-lg-4">
+                      <select class="form-control" name="condicional" data-bind="value:item.condicional">
+                        <option value=""></option> 
+                        <option value="=">Igual</option>
+                        <option value="like">Contiene</option>
+                        <option value="between" data-bind="visible: item.tipo()==10">Entre</option>
+                        <option value=">" data-bind="visible: item.tipo()==10 || item.tipo() == 8">Mayor que</option>
+                        <option value="<" data-bind="visible: item.tipo()==10 || item.tipo() == 8">Menor que</option>                        
+                      </select>  
+                    </div>
+                    <div class="col-lg-4">
+                      <input type="text" class="form-control" data-bind="value: item.texto, visible:(item.condicional() != '' &&  item.condicional()!='between' && item.condicional()!='>' && item.condicional()!='<')">
+
+                      <input type="text" class="form-control" data-bind="value: item.texto, visible:((item.condicional() == '>' || item.condicional() == '<') && item.tipo()!=10)">
+
+                      <div class="input-group date" data-bind="visible: item.tipo() == 10 && (item.condicional()=='=' || item.condicional()=='>' || item.condicional()=='<')">
+                        <input type="text" class="form-control" data-bind="datePicker:item.texto,value:item.texto, attr:{id: $index() + '_txt-entre3'}">
+                          <label data-bind="attr:{for: $index() + '_txt-entre3'}" class="input-group-addon cursor">
+                            <i class="fa fa-calendar"></i>
+                          </label>
+                        </div> 
+
+                      <div class="input-group date" data-bind="visible: item.tipo() == 10 && item.condicional()=='between'">
+                        <input type="text" class="form-control" data-bind="datePicker:item.entre1,value:item.entre1, attr:{id: $index() + '_txt-entre1'}">
+                          <label data-bind="attr:{for: $index() + '_txt-entre1'}" class="input-group-addon cursor">
+                            <i class="fa fa-calendar"></i>
+                          </label>
+                        </div> 
+                      <div class="input-group date" data-bind="visible:item.condicional()=='between'">
+                        <input type="text" class="form-control" data-bind="datePicker:item.entre2,value:item.entre2, attr:{id: $index() + '_txt-entre2'}">
+                          <label data-bind="attr:{for: $index() + '_txt-entre2'}" class="input-group-addon cursor">
+                            <i class="fa fa-calendar"></i>
+                          </label>
+                        </div> 
+                    </div>
+                  </div>
+                 </li>
+                <!--/ko -->
+              </ul>              
+            </div> 
+
+            <input type="hidden" name="condicion" id="condicion" value="">
+            <input type="hidden" name="incluir" id="incluir">
+
+            <div class="col-lg-12">
+              <button type="submit" data-bind="click: submit" class="btn btn-primary" >Generar Informe</button>
+            </div>                        
+           </div>
+           </form>         
+        <!-- FINALIZA FORMULARIO --> 
+        </div>       
+      </div>
+     <!--  <div class="modal-footer col-sm-3">
+        <button type="button" class="btn btn-primary" data-bind="click:generar_informe_interventoria">Generar Informe</button>
+      </div> -->
+    </div>
+  </div>
+</div>
+<!--Modal-->
+
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+   <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>    
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/informe/informe.js" %}?v=2.1'></script> 
+{% endblock imports %}

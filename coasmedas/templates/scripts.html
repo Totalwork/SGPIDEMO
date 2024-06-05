@@ -1,0 +1,61 @@
+  {% load static %}
+ <!-- jQuery -->
+  <script type="text/javascript">
+    localStorage.setItem('token', '{{request.session.token.access_token}}');
+  </script>
+  <script src="{% static 'smart-selects/admin/js/chainedfk.js' %}"></script>
+  <!-- Theme Javascript -->
+  <script src="{% static 'assets/js/utility/utility.js' %}"></script>
+  <script src="{% static 'assets/js/demo/demo.js' %}"></script>
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+  <script type="text/javascript" src='{% static "js/callback/ajax-callback.js" %}?v=1'></script>
+  <script type="text/javascript" src='{% static "js/jqueryConfirm/jquery-confirm.js" %}'></script>
+
+	<script type="text/javascript" src='{% static "js/knockout/knockout-3.4.0.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/knockout/knockout.mapping-latest.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/knockout/knockout.validation.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/knockout/knockstrap.min.js" %}'></script>
+
+
+  <script type="text/javascript" src='{% static "js/knockout/controles.js" %}'></script>
+
+ 
+
+    
+
+  <!-- Widget Javascript -->
+  <script type="text/javascript">
+  jQuery(document).ready(function() {
+
+    // Init Theme Core      
+    Core.init();
+
+    // Init Demo JS
+    Demo.init();
+
+    $('.modal').on('show.bs.modal', function () {
+        $('.modal .modal-body').css('overflow-y', 'auto'); 
+        $('.modal .modal-body').css('max-height', $(window).height() * 0.75);
+    });
+
+    localStorage.setItem('token', '{{request.session.token.access_token}}');
+
+  });
+
+
+
+  setInterval(function() {      
+                path = path_principal+'/usuario/esta-autenticado/?format=json';
+                $.get(path, function( data ) {
+                  if (data.success == 'ok' && data.data == false) {
+                    // location.reload();
+                    $('#modalCerrarSesion').modal('show');
+                  }
+                });
+              }, 3000);
+
+  function refrescarSesion() {
+    location.reload();
+  }  
+  </script>

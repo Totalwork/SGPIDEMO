@@ -1,0 +1,612 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "css/datepicker/bootstrap-datetimepicker.css" %}'>
+	<!-- Select2 Plugin CSS   -->
+  <link rel="stylesheet" type="text/css" href='{% static "vendor/plugins/select2/css/core.css" %}'>
+	<!-- Required Plugin CSS  -->
+  <link rel="stylesheet" type="text/css" href='{% static "vendor/plugins/tagmanager/tagmanager.css" %}'>
+
+ <!--  <link rel="stylesheet" type="text/css" href='{% static "assets/admin-tools/admin-forms/css/admin-forms.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}Contrato{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+	<!-- <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li> -->
+	<li class="active">Contrato</li>
+{% endblock mapa %}
+<!-- % block encabezado %}Contrato{% endblock encabezado % -->
+
+{% block opciones_listado %}
+	{% if app in perms %}
+		{% if app|add:'.add_'|add:model in perms%}        
+			<li>
+				<a href="#">
+					<i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+				</a>
+			</li>
+		{% endif %}
+	{% endif %}
+	{% if app in perms %}
+
+			<li>
+				<a href="#">
+					<i class="fa fa-cloud-download" data-bind="click:exportar_excel" style="font-size: 20px;"></i>
+				</a>
+			</li>
+
+	{% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+<!-- <div class="form-group">
+	<label for="multiselect2" class="col-md-4 control-label">Multiple</label>
+	<div class="col-md-8">
+		<select id="multiselect22" multiple="multiple" >
+		<select id="multiselect2" multiple="multiple" style="display: none;">
+			<option value="cheese">Cheese</option>
+			<option value="tomatoes">Tomatoes</option>
+			<option value="mozarella">Mozzarella</option>
+			<option value="mushrooms">Mushrooms</option>
+			<option value="pepperoni">Pepperoni</option>
+			<option value="onions">Opciones</option>
+		</select>
+	</div>
+</div> -->
+
+<!--Inicio Table-->
+<div class="row" >
+	<div class="col-lg-12">
+
+		<div class="panel panel-sky">
+			<div class="panel-heading">
+				<span class="panel-title">
+					<span>      
+						<a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"						aria-hidden="true"></i></a>
+					</span>					
+					Listado Contratos <span data-bind="html:num_registro"></span>
+				</span>
+				<!-- <div class="pull-right">
+					<a href="#" title="Filtrar"><i data-bind="click:abrir_filtro" class="fa fa-filter fa-3x" style="color:#4a89dc; cursor:pointer;"></i></a>
+				</div> -->
+				<div class="pull-right">
+					<span class="panel-controls">
+						<a data-placement="top" data-toggle="tooltip" title="" data-original-title="Filtrar" data-bind="click:abrir_filtro" data-toggle="modal" style="cursor:pointer; margin-top:3px;">
+							<i id='iconoFiltro' class="fa fa-filter fa-2x"></i>
+						</a>
+					</span>
+				</div>
+      </div>
+			<div class="panel-body">
+				<div data-bind="html: mensaje"></div>
+				<div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0), dropdown">
+					<i class="text-success fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Vigente];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-primery fa fa-bell-o" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Liquidado];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-alert fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Suspendido];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-warning fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Por Vencer];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-danger fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Vencido];
+					<br>
+					<br>
+					<table class="table">
+						<thead>
+							<tr>
+								<th style="width: 62%;">Nombre</th>
+								<th style="width: 15%;">Número</th>
+								<th style="width: 9%;">Fecha Inicio</th>
+								<th style="width: 9%;">Fecha Fin</th>
+								<th style="width: 5%;">Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--ko foreach:{ data:listado, as:'item'} -->
+								<tr data-bind="css:{'success': item.estado.id == $parent.estado.vigente(),
+																		'primery': item.estado.id == $parent.estado.liquidado(),
+																		'alert': item.estado.id == $parent.estado.suspendido(),
+																		'warning': item.estado.id == $parent.estado.porVencer(),
+																		'danger': item.estado.id == $parent.estado.vencido()
+																		}">
+									<td data-bind="cutWord:{num:75,text:item.nombre}"></td>
+									<td data-bind="text: item.numero"></td>
+									<td data-bind="text: item.fecha_inicio"></td>
+									<td data-bind="text: item.fecha_fin"></td>
+									<td>
+										<div class="btn-group text-right">
+											<i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+											<ul class="dropdown-menu" role="menu">
+												{% if 'contrato.change_contrato' in perms %}
+												<!--ko if: !item.soloLectura -->
+													<li>
+														<a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+													</li>
+												<!--/ko-->	
+												{% endif %}
+												<li>
+													<a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+												</li>
+												<li>
+													<a href="#" data-bind="attr:{href:'../detalle_contrato/' + item.id }">Resumen</a>
+												</li>
+												<li>
+													<a href="#" data-bind="attr:{href:'../vigencia_contrato/' + item.id }">Vigencia</a>
+												</li>
+												<li>
+													<a href="#" data-bind="attr:{href:'../gestionar_proyectos/' + item.id }">Gestionar Proyectos</a>
+												</li>
+												<li>
+													<!--ko if: !item.soloLectura -->
+													<a href="#" data-bind="attr:{href:'../permiso_contrato/' + item.id }">Dar Permiso</a>
+													<!--/ko-->
+												</li>
+												<!--ko if:(item.estado.id != $parent.estado.liquidado()) -->
+												<li>
+													<a href="#" data-bind="attr:{href:'../actas_contrato/' + item.id }">Actas</a>
+												</li>
+												<!--/ko-->
+												<li>
+													<a href="#" data-bind="attr:{href:'../../poliza/poliza/' + item.id }">Poliza</a>
+												</li>
+												<li>
+													<!-- <a href="#" data-bind="attr:{href:'../sub_contratista/' + item.id }">Sub Contratista</a> -->
+													<a href="#" data-bind="click:$root.abrir_cesion">Cesión</a>
+												</li>
+												<!--ko if:(item.tipo_contrato.id == 12) -->
+												<li>
+													<a href="#" data-bind="click: $root.abrir_actaAdjudicacion">
+														Adjudicación de recursos
+													</a>
+												</li>	
+												<!--/ko-->
+											</ul>
+										</div>
+									</td>
+								</tr>
+							<!--/ko-->
+								
+						</tbody>
+					</table>
+					<div id="paginacion" >
+						<div data-bind="pagination: {
+									   currentPage: paginacion.pagina_actual,
+									   totalCount: paginacion.total,
+									   pageSize:paginacion.cantidad_por_paginas,
+									   maxPages: paginacion.maxPaginas,
+									   directions: paginacion.direcciones,
+									   boundary: paginacion.limite,
+									   text: paginacion.text }">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div><!-- /.panel panel-sky -->
+	</div><!--/.col lg 12-->
+</div><!--/.row-->
+<!--Fin Table-->
+
+<!--Inicio Modal - Guardar Contrato -->
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+			</div>
+			<div class="modal-body">
+				<form action="." method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+				<div class="row">
+          <div class="col-md-6">
+
+            <label>(*) Contratante</label>
+            <div class="form-group admin-form">
+              <label class=" select">
+	              <select class="form-control" data-bind="value:contratoVO.contratante_id">
+	                <option value="">[Seleccione...]</option>
+									<!--ko foreach:{ data:listado_empresa_contratante, as:'item'} -->
+										<option data-bind="value:item.empresa_ver.id,text:item.empresa_ver.nombre"></option>
+									<!--/ko-->
+	              </select><i class="arrow"></i>
+
+	              <!-- <select class="form-control" data-bind="value:contratoVO.contratante_id, options:listado_empresa_contratante, optionsText:'empresa_ver__nombre', optionsValue:'empresa_ver__id', optionsCaption:'[Seleccione...]'">
+	              </select><i class="arrow"></i> -->
+							</label>
+            </div>
+
+            <label>(*) Contratista</label>
+            <div class="form-group admin-form">
+              <label class=" select">
+              	<select class="form-control" data-bind="value:contratoVO.contratista_id, options:listado_empresa_contratista, optionsText:'nombre', optionsValue:'id', optionsCaption:'[Seleccione...]'">
+              	</select><i class="arrow"></i>
+							</label>
+            </div>
+
+            <div class="form-group">
+              <label>(*) Número</label>
+              <input type="text" class="form-control" data-bind='value:contratoVO.numero'>
+            </div>
+
+            <div class="form-group">
+              <label>(*) Nombre</label>
+              <input type="text" class="form-control" data-bind='value:contratoVO.nombre'>
+            </div>
+
+            <label>(*) Tipo Contrato</label>
+            <div class="form-group admin-form" data-bind="event:{ change: changedTipoContrato}">
+              <label class=" select">
+	              <select class="form-control" data-bind="value:contratoVO.tipo_contrato_id">
+	                <option value="">[Seleccione...]</option>
+	                {% for item in tipos %}
+	                  <option value="{{ item.id }}">{{ item.nombre }}</option>
+	                {% endfor %}
+	              </select><i class="arrow"></i>
+							</label>
+            </div>
+
+            <label data-bind="visible:habilitar_mcontrato">(*) M Contrato</label>
+            <div class="form-group admin-form" data-bind="visible:habilitar_mcontrato">
+              <label class=" select">
+	              <select class="form-control" data-bind="value:contratoVO.mcontrato_id">
+	                <option value="">[Seleccione...]</option>
+									<!--ko foreach:{ data:lista_contrato, as:'item'} -->
+										<option data-bind="value:item.id,text:item.nombre"></option>
+									<!--/ko-->
+	              </select><i class="arrow"></i>
+							</label>
+            </div>
+
+						<!--<div class="form-group">
+							<label data-bind="visible:habilitar_proyecto">Proyecto</label>
+								<select class="form-control" data-bind="value:contratoVO.proyecto, visible:habilitar_proyecto">
+									<option value="0">[Seleccione...]</option>
+									<!-- foreach:{ data:lista_proyecto, as:'item'} 
+										<option data-bind="value:item.id,text:item.nombre"></option>
+									<!--/
+								</select>
+						</div>-->
+
+						<!-- <div class="form-group"> -->
+							<div class="col-md-6 hidden-xs" data-bind="visible:habilitar_rubro">
+							<div class="row">
+							<div class="col-xs-12">
+								<!-- end .option-group section -->
+								<div class="option-group field admin-form" data-bind="foreach:{data:contratoVO.rubros, as:'item'}"> 		
+									<!-- <input name="mobileos" type="checkbox" data-bind="checked:rubros[0].rubro_id" value="{{ item.id }}"> -->
+									<!-- <div class="option-group field admin-form"> -->
+										<label class=" mt10 option option-primary"  >
+											<input name="mobileos" type="checkbox" data-bind="checked:item.procesar">
+											<!-- <span data-bind="text: item.nombre"></span> -->
+											<span class="checkbox"></span>
+											<span data-bind="text: item.nombre"></span>
+											
+										</label>
+									<!-- </div> -->
+
+									<!-- <label class="block mt3 option option-primary">
+											<input name="disabled" value="disabled" disabled="" type="checkbox">
+											<span class="checkbox"></span>Disabled
+										</label>
+										<label class="block mt3 option option-primary">
+											<input name="mobileos" value="CH" type="checkbox">
+											<span class="checkbox"></span>Apple IOS 7
+										</label>
+										<label class="block mt3 option option-primary">
+											<input name="checked" value="checked" checked="" type="checkbox">
+											<span class="checkbox"></span>Checked
+										</label>
+									-->
+								</div>
+								<!-- end .option-group section -->
+							</div>
+							</div>
+							</div>
+						<!-- </div> -->
+					</div> <!-- /.col-md-6 -->
+
+          <div class="col-md-6">
+            <div class="form-group">          
+              <label>(*) Descripción:</label>
+              <textarea class="form-control textarea-grow" data-bind='value:contratoVO.descripcion' rows="4"></textarea>
+            </div>
+            <div class="form-group" data-bind="visible:habilitar_campos">          
+              <label>(*) Fecha Inicio:</label>
+              <input class="form-control" data-bind='datePicker:vigenciaVO.fecha_inicio, value:vigenciaVO.fecha_inicio'  type="text">
+            </div>
+            <div class="form-group" data-bind="visible:habilitar_campos">          
+              <label>(*) Fecha Fin:</label>
+              <input class="form-control" data-bind='datePicker:vigenciaVO.fecha_fin, value:vigenciaVO.fecha_fin' id="datetimepicker1" type="text">
+            </div>
+            <div class="form-group" data-bind="visible:habilitar_campos">
+              <label>Valor</label>
+              <input type="text" class="form-control" data-bind='value:vigenciaVO.valor.formatted, onlyNumber:vigenciaVO.valor'>
+            </div>
+            <div class="form-group" data-bind="visible:habilitar_campos">          
+            <label>Soporte</label>
+              <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:vigenciaVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+			  <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>			
+			</div>
+
+						<!-- <div class="section">
+							<label class="field prepend-icon file">
+								<span class="button btn-primary">Soporte</span>
+								<input class="gui-file" name="archivo" id="archivo" type="file" >
+								<input class="gui-input" id="uploader2" placeholder="Please Select A File" type="text">
+								<label class="field-icon"><i class="fa fa-upload"></i></label>
+							</label>
+						</div> -->
+
+          </div> <!-- /.col-md-6 -->
+        </div>
+				</form>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Guardar Contrato -->
+
+<!--Inicio Modal - Filtro-->
+<div id="filtro_contrato" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Filtro Contrato</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+					<label>Tipo Contrato</label>
+					<div class="form-group admin-form">
+						<label class=" select">
+							<select class="form-control" data-bind="value:filtroC.tipo_contrato">
+								<option value="">[Seleccione...]</option>
+								{% for item in tipos %}
+									<option value="{{ item.id }}">{{ item.nombre }}</option>
+								{% endfor %}
+							</select><i class="arrow"></i>
+						</label>
+					</div>
+
+					<label>Estado Contrato</label>
+					<div class="form-group admin-form">
+						<label class=" select">
+							<select class="form-control" data-bind="value:filtroC.estado">
+								<option value="">[Seleccione...]</option>
+								{% for item in estados %}
+									<option value="{{ item.id }}">{{ item.nombre }}</option>
+								{% endfor %}
+							</select><i class="arrow"></i>
+						</label>
+					</div>
+
+					<label>Contratista</label>
+		            <div class="form-group admin-form">
+		              	<label class=" select">
+		              		<select class="form-control" id="contratista_filtro" name="contratista_filtro" data-bind="value:filtroC.contratista_id">
+		              			 <option value="">[Seleccione..]</option>
+                             <!--ko foreach:{data:listado_empresa_contratista, as:'item'}--> 
+                            	<option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+		              	</select><i class="arrow"></i>
+						</label>
+		            </div>
+
+
+					<form class="form-horizontal" role="form">
+						<div class="form-group">
+							<label for="multiselect2" class="col-md-2 control-label">M Contrato</label>
+							<div class="col-md-10">
+								<select id="multiselect21" multiple="multiple" data-bind="selectedOptions:$root.listMcontrato">
+									{% for item in m_contratos %}
+										<option value="{{ item.id }}">{{ item.nombre }}</option>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+					</form>
+
+        </div>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">Filtrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Filtro-->
+
+<!--Inicio Modal - Detalle del contrato-->
+<div id="detalle_contrato" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Detalle del Contrato</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <h4> Información del contrato </h4>
+          <ul class="icon-list">
+            <li>
+              <b> Contratante:</b>&nbsp;<small data-bind="html:detalle.contratante"></small>
+            </li>
+            <li>
+              <b> Contratista:</b>&nbsp;<small data-bind="html:detalle.contratista"></small>
+            </li>
+            <li>
+              <b> Interventor:</b>&nbsp;<small data-bind="html:detalle.interventor"></small>
+            </li>
+            <li>
+              <b> No. Contrato:</b>&nbsp;<small data-bind="html:detalle.numero"></small>
+            </li>
+            <li>
+              <b> Nombre:</b>&nbsp;<small data-bind="html:detalle.nombre"></small>
+            </li>
+            <li>
+              <b> Tipo:</b>&nbsp;<small data-bind="html:detalle.tipo"></small>
+            </li>
+            <li>
+              <b> Estado:</b>&nbsp;<small data-bind="html:detalle.estado_c"></small>
+            </li>
+            <li>
+              <b> Descripción:</b>&nbsp;<small data-bind="html:detalle.descripcion"></small>
+            </li>
+            <li>
+              <b> Macro Contrato:</b>&nbsp;<small data-bind="html:detalle.m_contrato"></small>
+            </li>
+            <li>
+              <b> Fecha Inicio:</b>&nbsp;<small data-bind="html:detalle.f_inicio"></small>
+            </li>
+            <li>
+              <b> Fecha Fin:</b>&nbsp;<small data-bind="html:detalle.f_fin"></small>
+            </li>
+            <li>
+              <b> Valor Contrato:</b>&nbsp;<small data-bind="text: formatMoney(detalle.valor())"></small>
+            </li>
+            <li>
+              <b> Valor Liquidación:</b>&nbsp;<small data-bind="text: formatMoney(detalle.liquidacion())"></small>
+						</li>
+						<li>
+              <b> Valor Total Contrato:</b>&nbsp;<small data-bind="text: formatMoney(detalle.valor_total())"></small>
+            </li><br>
+
+            <strong>Saldo del contrato : </strong><span data-bind="html:formatMoney(detalle.valor_total()-saldo_factura())"></span><br> 
+            
+          </ul>
+        </div>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle del contrato-->
+
+<!--Inicio Modal - Cesion-->
+<div id="cesion" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Tipo Cesión</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+					<label>Tipo Cesión</label>
+					<div class="form-group admin-form">
+						<label class=" select">
+							<select class="form-control" data-bind="value:tipo_secion">
+								<option value="">[Seleccione...]</option>
+								<option value="1">Sub-Contratación</option>
+								<option value="2">Cesión de Contrato</option>
+								<option value="3">Cesión de derechos económicos</option>
+							</select><i class="arrow"></i>
+						</label>
+					</div>
+
+        </div>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:cesion_pagina">Ir</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Cesion-->
+
+<!--Inicio Modal - Acta de adjudicacion de recursos-->
+<div id="adjudicacionRecursos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div data-bind="html: mensajeAdjudicacionRecursos"></div>
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Acta de adjudicación de recursos</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row">
+					<strong>Contrato: </strong><span data-bind='text:actaAsignacionVO.contrato'></span>
+				</div>
+
+				<div class="row">
+					<strong>Acta de asignación de recursos: </strong><span data-bind='text:actaAsignacionVO.nombre'></span>
+				</div>
+				<div class="row">
+					<strong>Fecha de firma: </strong><span data-bind='text:actaAsignacionVO.fechafirma'></span>
+				</div>
+				<div class="row">
+					<input type="hidden" id="idActa" data-bind='value: actaAsignacionVO.id'>
+					<strong>Documento: </strong>
+					<a href="#" data-bind='click: descargarSoporteActaAdjudicacion'>
+						<i class="fa fa-file fa-2x"></i>
+					</a>
+				</div>
+			</div>			
+		</div>
+
+
+	</div>
+
+</div>
+<!--Fin Modal - Acta de adjudicacion de recursos-->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/jquery-ui-datepicker.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<!-- Select2 Plugin Plugin  -->
+<script type="text/javascript" src='{% static "vendor/plugins/select2/select2.min.js" %}'></script>
+<!-- TagManager Plugin  -->
+<script type="text/javascript" src='{% static "vendor/plugins/tagmanager/tagmanager.js" %}'></script>
+<!-- Typeahead Plugin  -->
+<script type="text/javascript" src='{% static "vendor/plugins/typeahead/typeahead.bundle.min.js" %}'></script>
+
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/Contrato.js" %}?v=1'></script>
+
+<!--<script type="text/javascript">
+	$(document).ready(function () {
+		{% for item in rubros %}
+			contrato.contratoVO.rubros.push({procesar:ko.observable(false),id:ko.observable({{item.id}}),nombre:'{{item.nombre}}' });
+		{% endfor %}
+		contrato.lista_m_contrato({{m_contratos}});
+		ko.utils.arrayForEach(contrato.lista_contrato(), function(d) {
+			console.log(d.id);
+			// if(d.eliminado()==true){
+			// 	count=1;
+			// 	lista_id=lista_id+d.id+',';
+			// }
+		});
+	})
+</script>-->
+{% endblock imports %}

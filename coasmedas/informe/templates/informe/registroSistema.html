@@ -1,0 +1,33 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Informe{% endblock title%}
+{% block mapa %}
+  <li class="crumb-active">
+    <a href="{% url 'correspondenciaEnviada.correspondenciaEnviada' %}" >Informe</a>
+  </li>
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="/informe/">Informe</a></li>
+  <li class="active">Informe registro del sistema</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script type="text/javascript">
+    $(document).ready(function () {
+    });  
+  </script>
+{% endblock imports %}

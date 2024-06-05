@@ -1,0 +1,251 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+
+{% endblock imports_css %}
+
+{% block title %}Editar expediente{% endblock title %}
+
+{% block opciones_listado %}
+        
+        {% if 'servidumbre.add_servidumbre_expediente' in perms%}        
+          <li>
+            <a href="{% url 'servidumbre.nuevo_expediente' %}"  data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+               <i class="fa fa-plus" style="font-size: 20px;"></i>
+            </a>
+          </li>
+        {% endif %}
+        
+        <!-- <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li> -->
+        
+        
+        {% if 'servidumbre.change_servidumbre_documento' in perms%} 
+          <li>
+            <a href="{% url 'servidumbre.configuracion' %}" data-placement="right"  data-toggle="tooltip" data-original-title="Configuracion grupos de docs.">
+               <i class="fa fa-cog" style="font-size: 20px;"></i>
+            </a>
+          </li>
+        {% endif %}
+        
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+    <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li><a href="/servidumbre/home">Gestion de servidumbres</a></li>
+  <li>Editar</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+<div class="panel panel-sky">
+  <div class="row" >
+
+    <div class="col-lg-12">
+    	
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">
+              <a href="{% url 'servidumbre.expediente'%}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar a Gestion de expedientes">
+                 <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              </a>            
+              <span class="panel-title hidden-xs">Editar un expediente existente</span>
+            </div>
+   </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+  	<div class="panel-body">
+    	<div data-bind="html: mensaje"></div>  
+        <br>
+        <form action="." method="post" enctype="multipart/form-data" id="form-wizard">
+          {% csrf_token %}
+          <input type="hidden" id="idExpediente"  data-bind='value:expedienteVO.id' >
+          <input type="hidden" id="idProyecto"  data-bind='value:expedienteVO.proyecto_id' >
+          <input type="hidden" id="idUsuario" value="{{ user.usuario.id }}">
+          <div class="row">
+            <div class="form-group col-lg-6">
+              <label>(*) Proyecto</label>
+              <div class="input-group">
+                <textarea class="form-control" type="text" id="txtNombreProyecto" 
+                data-bind="value:proyectoVO.nombre" disabled=""></textarea>
+                <span class="input-group-addon">
+                  <a href="#" data-bind="click:abrir_modal">
+                    <i class="fa fa-binoculars"></i>
+                  </a>
+                </span>
+              </div>
+              <div id="validacionProyecto" style="display: none;color: red;">
+                Debe seleccionar el proyecto, haga clic en el icono de busqueda para iniciar.
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-lg-6">
+              <label>Macro contrato: </label>
+              <input class="form-control" type="text" id="txtMcontratoProyecto" data-bind="value:proyectoVO.mcontrato_id" disabled="" >
+            </div> 
+          </div>
+          
+          <div class="row">
+            <div class="form-group col-lg-6">
+              <label> Departamento de: </label>
+              <input class="form-control" type="text" id="txtDepartamentoProyecto" data-bind="value:proyectoVO.departamento_id" disabled="">               
+            </div> 
+          </div>
+          <div class="row">
+            <div class="form-group col-lg-6">
+              <label>Municipio de: </label>
+              <input class="form-control" type="text" id="txtMunicipioProyecto" data-bind="value:proyectoVO.municipio_id" disabled="">     
+            </div> 
+          </div>
+                 
+          <div class="row">
+            <div class="form-group col-lg-6">
+              <button type="button" class="btn btn-primary" data-bind="click:guardarExpediente">
+                Actualizar
+              </button>
+            </div>
+          </div>
+        
+        </form>
+
+
+
+    </div><!--cierra panel-body -->
+
+
+</div><!--cierra panel panel-sky -->
+
+
+      <!--Inicio modal busqueda de proyecto-->
+  <div id="modal_busqueda_proyecto" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="width:90%">
+      <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body bg-light">
+            <div class="col-lg-12">
+              <div class="row">         
+                <div class="input-group">
+                  <input class="form-control" type="text"
+                  id="txtBuscarProyecto" name="txtBuscarProyecto" 
+                  data-bind='event:{keypress: $root.buscarProyecto}' 
+                  placeholder="Buscar por nombre del proyecto..." >
+                    <span class="input-group-addon">
+                    <a href="#" data-bind="click:get_proyecto2">
+                      <i class="fa fa-search"></i>
+                    </a>
+                  </span>
+                </div>
+              </div>
+              <div class="row">
+                <div data-bind="html: mensajeProyecto"></div>
+              </div>
+              <div class="row">
+                <div id="divProyectos" 
+                data-bind="visible:(listadoproyectos()!=null && listadoproyectos().length > 0)">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                                <th></th>
+                                <th>Macro contrato</th>
+                                <th>Departamento</th>
+                                <th>Municipio</th>
+                                <th>Proyecto</th>
+                                <th></th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listadoproyectos, as:'item'}">
+                        <tr>
+                                <td>
+                                    <a href="#"
+                                    data-bind="click:$root.utilizarProyecto">
+                                      <i class="fa fa-check-circle fa-2x"></i>
+                                    </a>
+                                </td>
+                                  <td data-bind="text: item.mcontrato"></td>
+                                  <td data-bind="text: item.departamento"></td>
+                                  <td data-bind="text: item.municipio"></td>
+                                  <td data-bind="text: item.nombre"></td>
+                                
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                
+                </div>
+                    
+                    <div id="paginacion" >
+                          <div data-bind="pagination: {
+                                   currentPage: paginacionProyecto.pagina_actual,
+                                   totalCount: paginacionProyecto.total,
+                                   pageSize:paginacionProyecto.cantidad_por_paginas,
+                                   maxPages: paginacionProyecto.maxPaginas,
+                                   directions: paginacionProyecto.direcciones,
+                                   boundary: paginacionProyecto.limite,
+                                   text: paginacionProyecto.text }">
+
+                          </div>
+                    </div>
+                    
+                </div>
+              
+           
+                <!--Fin creacion de nuevos proyectos -->
+            </div>        
+          </div>
+      </div>
+    </div>
+</div>
+
+{% endblock contenido %} 
+
+{% load static %}
+
+{% block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/gestion_servidumbres.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      if ({{id}}){
+        expedientes.expedienteVO.id({{id}});
+        expedientes.expedienteVO.proyecto_id({{expediente.proyecto.id}});
+       
+        expedientes.proyectoVO.id({{expediente.proyecto.id}});
+        expedientes.proyectoVO.nombre('{{expediente.proyecto.nombre}}');
+        expedientes.proyectoVO.mcontrato_id('{{expediente.proyecto.mcontrato.nombre}}');   
+        expedientes.proyectoVO.municipio_id('{{expediente.proyecto.municipio.nombre}}');
+        expedientes.proyectoVO.departamento_id('{{expediente.proyecto.municipio.departamento.nombre}}');
+
+        
+          
+      }
+      
+
+      
+    });  
+
+  </script>
+
+{% endblock imports %}   

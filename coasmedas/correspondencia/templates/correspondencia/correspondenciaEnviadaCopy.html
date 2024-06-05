@@ -1,0 +1,74 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block opciones_listado %}{% endblock opciones_listado %}  
+
+{% block title %}Correspondencia Enviada{% endblock title%}
+{% block mapa %}
+
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>  
+  {% if proyecto_id > 0 %}  
+  <li><a href="../proyecto/resumen_proyecto/" >Resumen del proyecto</a></li>
+  {% endif %}
+  <li><a href="{% url 'correspondenciaEnviada.correspondenciaEnviada' %}" >Correspondencia Enviada</a></li>
+  <li class="active">Enviar</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+{% block busqueda %}{% endblock busqueda %}
+{% block contenido %} 
+
+    <input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+    <input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>     
+    {% if proyecto_id > 0 %}          
+      <input type ="hidden" value="{{ proyecto_id }}" id="proyecto_id">
+    {% else %}
+      <input type ="hidden" value="0" id="proyecto_id">
+    {% endif %}
+
+    {% include 'correspondencia/_formCreate.html' %} 
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script  src="https://cdn.tiny.cloud/1/emtxaaumygjz7hfwlsvkmv5zwmvp1ywdl72d04cofj48lyzp/tinymce/5/plugins.min.js" referrerpolicy="origin"></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/correspondencia/correspondenciaEnviada.js" %}'></script>
+  <!-- END: PAGE SCRIPTS -->
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+        
+        tinymce.init({
+          selector: 'textarea',
+          height: 400,
+          menubar: false,
+          plugins: [
+            'advlist autolink lists charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media contextmenu paste code',
+          ],
+          toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist outdent indent | ',
+          content_css: '//www.tinymce.com/css/codepen.min.css'
+        });
+        
+        /* SE INICIAN LAS FUNCIONES */
+        correspondencia.consultar_funcionarios();
+        correspondencia.consultar_funcionarios_copia();
+        correspondencia.consultar_por_idCopia({{ correspondencia }});
+
+    });  
+
+  </script>
+
+{% endblock imports %}

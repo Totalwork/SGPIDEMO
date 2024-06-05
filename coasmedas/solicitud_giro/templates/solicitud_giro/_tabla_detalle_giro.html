@@ -1,0 +1,124 @@
+<div class="row">
+  <div class="col-lg-5">
+    <div class="panel mobile-controls" id="p17">
+      <div class="panel-heading ui-sortable-handle"><span class="panel-title">Información general</span></div>
+        <div class="panel-body">
+
+         <strong>Contratante : </strong><span data-bind="text:contratante_encabezado"></span><br> 
+         <strong>Contratista : </strong><span data-bind="text:contratista_encabezado"></span><br>
+         <strong>Número del contrato : </strong><span data-bind="text:numero_contrato_encabezado"></span><br> 
+         <strong>Nombre del proyecto : </strong><span data-bind="text:nombre_proyecto_encabezado"></span><br> 
+         <strong>Nombre del anticipo : </strong><span data-bind="text:nombre_anticipo_encabezado"></span><br>
+         <i class="fa fa-bell 2x" style="color:#999"></i> Solicitado;
+         <i class="fa fa-bell 2x" style="color:#F90"></i> Autorizado;
+         <i class="fa fa-bell 2x" style="color:#0F0"></i> Pagado;
+         <i class="fa fa-bell 2x" style="color:#F00"></i> Reversado;
+        </div>
+    </div>
+  </div>
+</div>  
+
+
+
+<div class="row">
+  <div class="col-lg-12">    
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        Detalle del giro 
+        <span class="panel-controls">
+   
+        </span>
+      </div>
+    <div class="panel-body">
+      <div data-bind="html: mensaje"></div>  
+      <div data-bind="visible:(listado()!=null && listado().length > 0)">
+        <div class="table-responsive">
+
+          <table class="table">
+            <thead>
+                <tr>
+                  <th width="5%" >Estado</th>
+                  <th width="25%" >Beneficiario / Proveedor</th>
+                  <th width="15%" >Nit</th>
+                  <th width="13%" >Entidad bancaria</th>
+                  <th width="10%" >No.cuenta</th>
+                  <th width="10%" >Tipo cuenta</th>
+                  <th width="12%" >Valor neto a girar</th>
+                  <th width="10%" >Autorización</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach:{data:listado, as:'item'}">
+                <tr>
+                  <td>
+                    <i class="fa fa-bell 2x" data-bind="css:item.estado.color" ></i>
+                  </td>
+                  <td data-bind="cutWord:{num:26,text: item.contratista.nombre , verMax:'...', verMin:'...'}"></td>
+                  <td data-bind="text: item.contratista.nit"></td>
+                  <td data-bind="text: item.banco.nombre"></td>
+                  <td data-bind="text: item.no_cuenta"></td>
+                  <td data-bind="text: item.tipo_cuenta.nombre"></td>
+                  <td data-bind="text: formatMoney(item.valor_girar)"></td>
+                  <td>
+
+                  {% if user.usuario.empresa.consecutivoHabilitado != 0 %}
+
+                    <!--ko if: item.carta_autorizacion==null -->
+                      <font color="#FF0000"> Por Autorizar</font>
+                    <!--/ko -->
+
+                    <!--ko if: item.carta_autorizacion!=null -->
+                    <font color="#FF0000">                      
+                      <a href="#" data-bind="click:$root.abrir_ver_autorizacion">
+                        <span data-bind="text:item.carta_autorizacion.numero"></span>(Autorizado)
+                      </a>
+                    </font>
+                    <!--/ko -->
+
+                  {% endif %}
+
+                  {% if user.usuario.empresa.consecutivoHabilitado == 0 %}
+
+                    <!--ko if: item.soporte_consecutivo_desabilitado ==null -->
+                      <font color="#FF0000"> Por Autorizar</font>
+                    <!--/ko -->
+
+                    <!--ko if: item.soporte_consecutivo_desabilitado != null -->
+                      <a data-bind="attr: {href: item.soporte_consecutivo_desabilitado}" 
+                              target="_blank" style="cursor:pointer;">
+                                (Autorizado)
+                      </a>
+                    <!--/ko -->
+
+                  {% endif %}
+                  </td>
+                </tr>                     
+            </tbody>
+          </table>
+        </div>
+        <!-- <div id="paginacion" >
+          <div data-bind="pagination: {
+                      currentPage: paginacion.pagina_actual,
+                      totalCount: paginacion.total,
+                      pageSize:paginacion.cantidad_por_paginas,
+                      maxPages: paginacion.maxPaginas,
+                      directions: paginacion.direcciones,
+                      boundary: paginacion.limite,
+                      text: paginacion.text }">
+
+          </div>
+        </div> -->
+      </div>  
+    </div>
+  </div>
+  <h2>Total Anticipo : <span data-bind="text:formatMoney(suma_valor_detalles())"></span></h2>
+</div><!--cierra row-->
+
+
+
+
+
+
+
+    
+
+    

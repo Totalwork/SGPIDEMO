@@ -1,0 +1,265 @@
+<div class="row" >
+ <div class="col-lg-12">   
+  <div class="panel panel-sky" >
+   <div class="panel-heading">Datos de la carta</div>
+   <div class="panel-body">      	
+      <div class="col-md-12">           
+        <div class="col-lg-2">          
+            <label>(*) Privado</label> 
+            <div class="radio-custom mb ">    
+               <input id="radioExample3" name="radioExample" type="radio" data-bind="checked : correspondenciaEnviadaVO.privado" value="true" >  <label style="display:block;" for="radioExample3" class="radio-inline" >Si</label> 
+
+            </div>
+            <div class="form-group radio-custom radio-primary mb5 ">
+              <input id="radioExample4" name="radioExample" type="radio" data-bind="checked : correspondenciaEnviadaVO.privado" value="false" >
+              <label style="display:block;" for="radioExample4" class="radio-inline" >No</label>  
+            </div>                              
+        </div>  
+
+        <div class="form-group col-lg-2">
+              <label>(*) Fecha De Envio</label>
+              <input type="text" placeholder="AAAA-MM-DD" class="form-control" data-bind='datePicker:correspondenciaEnviadaVO.fechaEnvio,value:correspondenciaEnviadaVO.fechaEnvio'>       
+        </div>
+
+        <div class="form-group col-lg-3">
+          <label>(*) Departamento </label>
+          <select class="form-control" data-bind="value: correspondenciaEnviadaVO.departamento_id"  >
+            <option value="">Seleccione el departamento de ubicación...</option>
+			      {% for item in departamentos %}
+               <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>     
+        </div>
+
+        <div class="form-group col-lg-3">          
+          <label>(*) Ciudad</label>
+          <select class="form-control" data-bind="options: listado_municipios,
+                             optionsText: 'nombre', 
+                             optionsValue: 'id', 
+                             optionsCaption: 'Seleccione la ciudad de ubicación...',
+                             value: correspondenciaEnviadaVO.ciudad_id
+                             ">
+          </select>    
+        </div>                            
+
+        <div class="form-group col-lg-2">          
+          	<label>(*) Prefijo</label>
+	        <select class="form-control" data-bind="value: correspondenciaEnviadaVO.prefijo_id"  >
+	            <option value="">Seleccione el prefijo...</option>
+	          	{% for item in prefijos %}
+		           <option value="{{ item.id }}">{{ item.nombre }}</option>
+		        {% endfor %}   
+	       	</select> 
+        </div>
+        <div class="col-lg-12"> 
+          <input type="hidden" class="form-control" id="consecutivoHabilitado" value="{{user.usuario.empresa.consecutivoDigitado}}"> 
+
+          <!--ko if: "{{user.usuario.empresa.consecutivoDigitado}}"=="True" --> 
+              <div class="form-group col-lg-2"> 
+                <label>Consecutivo</label>
+                <input type="text" placeholder="Numero del cons." class="form-control" data-bind='value:correspondenciaEnviadaVO.consecutivo'>  
+              </div>                                
+              <div class="form-group col-lg-5">          
+                <label>Asunto</label>
+                <input type="text" placeholder="Digite el asunto de la carta." class="form-control" data-bind='value:correspondenciaEnviadaVO.asunto'>   
+              </div>
+          <!-- /ko -->
+          <!-- ko if: "{{user.usuario.empresa.consecutivoDigitado}}"=="False" -->
+          <div class="form-group col-lg-7">          
+            <label>Asunto</label>
+            <input type="text" placeholder="Digite el asunto de la carta." class="form-control" data-bind='value:correspondenciaEnviadaVO.asunto'>   
+          </div>
+          <!-- /ko -->
+
+          <div class="form-group col-lg-5">          
+            <label>Referencia</label>
+            <input type="text" placeholder="Digite la referencia de la carta." class="form-control" data-bind='value:correspondenciaEnviadaVO.referencia'>   
+          </div>
+        </div>
+
+        <div class="form-group  col-lg-7">
+            <div class="form-group col-lg-12">  
+              <label>Contenido</label>                                
+              <textarea id="contenido" >
+              </textarea>
+            </div>
+            <div class="form-group col-lg-6">          
+              <label>(*) Firma</label>
+              <select class="form-control form-group" data-bind='value:correspondenciaEnviadaVO.firma_id' >  
+              	<option value="">Seleccione el funcionario...</option> 
+              	{% for item in funcionarios_firman %}
+	               <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }}</option>
+	            {% endfor %}
+              </select>     
+            </div>   
+        </div>
+                            
+                <div class="form-group col-md-5"  >  
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Destinatario</span>
+                    </div>
+                    <div class="panel-body" >
+        
+                        <label>Se encuentra en el grupo SININ:</label>     
+                        <div class="col-lg-12">
+                              <div class="radio-custom mb col-lg-2">    
+                                <input id="radioExample5" name="radioDestinatario" type="radio" data-bind="checked : correspondenciaEnviadaVO.grupoSinin" value="1" >                             
+                                <label for="radioExample5" class="radio-inline" >Si</label>
+                               
+                              </div>
+                              <div class="radio-custom radio-primary mb5 col-lg-2">
+                                <input id="radioExample6" name="radioDestinatario" type="radio" data-bind="checked : correspondenciaEnviadaVO.grupoSinin" value="0" >
+                                 <label for="radioExample6" class="radio-inline" >No</label>
+                                
+                              </div>
+                          </div>
+                          <!-- ko if: correspondenciaEnviadaVO.grupoSinin()=='1' -->
+                          <div id="divDestinatarioGrupoSININ">
+                            <div class="form-group">
+                                <select class="form-control form-group" data-bind="value: filtro_empresaDestinatario" >  
+                                    <option value="">Seleccione la empresa ...</option> 
+                                    {% for item in empresas %}
+						               <option value="{{ item.empresa_ver.id }}">{{ item.empresa_ver.nombre }}</option>
+						            {% endfor %}
+                                </select>  
+                            </div> 
+                            <div class="input-group form-group">
+                                <input class="form-control" placeholder="Nombres o apellidos" type="text" id="filtro_Destinatario" data-bind="event:{keypress: consultar_funcionarios_enter }" >
+                                  <span class="input-group-addon"  data-bind="click:consultar_funcionarios_btn" style="cursor:pointer;" >Consultar</span>
+                            </div> 
+
+                            <div class="form-group">
+                                <select class="form-control form-group" size="8" data-bind='value:correspondenciaEnviadaVO.destinatario'>  
+                                        <!--ko foreach: { data:listado_funcionarios , as:'item'}-->        
+                                          <option data-bind="value:item.id, text: item.persona.nombres+' '+item.persona.apellidos+' - ('+item.user.username+')'"></option>
+                                        <!-- /ko -->
+                                </select>  
+                            </div>   
+                          </div> 
+                          <!-- /ko -->
+                          <!-- ko if: correspondenciaEnviadaVO.grupoSinin()=='0' -->
+                          <div id="divDestinatarioForm">
+                              <div class="form-group">          
+                                <label>Empresa:</label>
+                                <input type="text" class="form-control" data-bind="value: correspondenciaEnviadaVO.empresa_destino" >   
+                              </div>
+                              <div class="form-group">          
+                                <label>Cargo:</label>
+                                <input type="text" class="form-control" data-bind="value: correspondenciaEnviadaVO.cargo_persona" >   
+                              </div>
+                              <div class="form-group">          
+                                <label>Atn:</label>
+                                <input type="text" class="form-control" data-bind="value: correspondenciaEnviadaVO.persona_destino" >   
+                              </div>
+                              <div class="form-group">          
+                                <label>Dirección:</label>
+                                <input type="text" class="form-control" data-bind="value: correspondenciaEnviadaVO.direccion" >   
+                              </div>
+                              <div class="form-group">          
+                                <label>Telefono:</label>
+                                <input type="text" class="form-control" data-bind="value: correspondenciaEnviadaVO.telefono" >   
+                              </div>
+                                                            
+                          </div> 
+                          <!-- /ko -->                                    
+                          <div class="form-group">
+                            <label>(*) Departamento </label>
+                            <select class="form-control" data-bind="value: departamentoEmpresa_id"  >
+                                <option value="">Seleccione el departamento de ubicación...</option>        
+                                {% for item in departamentos %}
+					               <option value="{{ item.id }}">{{ item.nombre }}</option>
+					            {% endfor %}
+                            </select>     
+                          </div>
+                          <div class="form-group">          
+                            <label>(*) Ciudad del Destinatario</label>
+                            <select class="form-control" data-bind="options: listado_municipiosEmpresa,
+                                               optionsText: 'nombre', 
+                                               optionsValue: 'id', 
+                                               optionsCaption: 'Seleccione la ciudad de ubicación...',
+                                               value: correspondenciaEnviadaVO.municipioEmpresa_id
+                                               ">
+                            </select>    
+                          </div>  
+                    </div> 
+                  </div> 
+                </div>                                                              
+                     
+                  </div> 
+                  <!-- fin datos generales -->
+                  
+                  <div class="form-group col-md-6">  
+                    <div  class="panel" >
+                      <div class="panel-heading">
+                        <span class="panel-title">Agregar copia</span>
+                      </div>
+                      <div class="panel-body" >
+                        <div class="form-group">
+                            <select class="form-control form-group" data-bind="value: filtro_empresaDestinatarioCopia" >  
+                                <option value="">Seleccione la empresa ...</option> 
+                                {% for item in empresas %}
+					               <option value="{{ item.empresa_ver.id }}">{{ item.empresa_ver.nombre }}</option>
+					            {% endfor %}
+                            </select>  
+                        </div> 
+                        <div class="input-group form-group">
+                            <input class="form-control" placeholder="Nombres o apellidos" type="text" id="filtro_DestinatarioCopia" data-bind="event:{keypress:consultar_funcionariosCopia_enter }" >
+                              <span class="input-group-addon"  data-bind="click:consultar_funcionariosCopia_btn" style="cursor:pointer;" >Consultar</span>    
+                        </div>
+                        <div class=" form-group">
+                          <button type="button"  data-bind="event:{click:asignar_copia}" class="btn btn-sm btn-primary btn-block" >
+                            <h4>Asignar usuarios a copiar -
+                                  <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                            </h4> 
+                          </button>
+                        </div>
+
+                        <div class="form-group">
+                            <select class="form-control form-group" size="7" id="destinatarioCopia" data-bind="event:{dblclick:asignar_copia} ">  
+                                    <!--ko foreach: { data:listado_funcionarios_copia , as:'item'}-->        
+                                      <option data-bind="value:item.id, text: item.persona.nombres+' '+item.persona.apellidos+' - ('+item.user.username+')' "></option>
+                                    <!-- /ko -->
+                            </select>  
+                        </div> 
+                      </div> 
+                    </div> 
+                  </div> 
+
+                  <div class="form-group col-md-6">  
+                    <div  class="panel" >
+                      <div class="panel-heading">
+                        <span class="panel-title">Usuarios  con  copia</span>
+                      </div>
+                      <div class="panel-body" >
+                        <div class=" form-group">
+                          <button type="button" data-bind="event:{click:quitar_copia}" class="btn btn-sm btn-primary btn-block" >
+                          <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                              - Quitar usuarios                           
+                          </h4>
+                          </button>
+                        </div>
+                        <div class="form-group">
+                          <select class="form-control form-group" size="13" id="destinatarioConCopia" data-bind="event:{dblclick:quitar_copia} " >  
+                              <!--ko foreach: { data:listado_destinatarios_con_copia , as:'item'}-->        
+                                <option data-bind="value:item.id, text: item.nombres "></option>
+                              <!-- /ko -->
+                          </select>      
+                        </div> 
+                      </div> 
+                    </div> 
+                  </div> 
+
+            <!-- End Account2 Form -->
+            <div class="col-md-12"> 
+	            <div class="col-lg-12"> 
+	            	<button type="button" class="btn btn-primary" data-bind="click:guardar">
+	            		Generar Consecutivo
+	            	</button>
+	           	</div>	
+	        </div>      
+<!--Modal Correspondencia-->
+   </div>
+  </div>
+ </div>
+</div>

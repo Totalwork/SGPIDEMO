@@ -1,0 +1,101 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <link rel="stylesheet"  href='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1//css/blueimp-gallery.min.css" %}'> 
+ <link rel="stylesheet"  href='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1//css/bootstrap-image-gallery.css" %}'> 
+ 
+{% endblock imports_css %}
+
+{% block title %}Descargo{% endblock title%}
+{% block mapa %}
+  <li><a><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'descargo.registro' %}">Listado descargo</a></li>
+  <li class="active">Descargo</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+{% block busqueda %}
+
+{% endblock busqueda %}
+
+ 
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+
+        <!-- create new order panel -->
+          <div class="panel mb25 mt5">
+            <div class="panel-heading">
+              <span class="panel-title hidden-xs">
+                <a href="{% url 'descargo.registro'%}" data-placement="right"  
+                  data-toggle="tooltip" data-original-title="Regresar a consulta de descargos">
+                  <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                </a>
+                Completar registro
+              </span>
+              <ul class="nav panel-tabs-border panel-tabs">
+                <li class="active"><a href="#tab1_1" data-toggle="tab">Datos del descargo</a></li>
+                <li> <a href="#tab1_2" data-toggle="tab">Actualizacion de datos del descargo</a></li>
+              </ul>
+            </div>
+
+            <div class="panel-body p20 pb10">
+              <div class="tab-content pn br-n admin-form">
+
+                <div id="tab1_1" class="tab-pane active">
+ 
+                  {% include 'descargo/_datos_descargo.html' %}
+
+                </div><!--cierra tap 1-->
+
+                <div id="tab1_2" class="tab-pane">
+ 
+                  {% include 'descargo/_completar_descargo.html' %}
+
+                </div><!--cierra tap 2-->
+
+              </div>
+            </div>
+          </div><!--cierra panel mb25 mt5 -->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/descargo/descargo.js" %}'></script>
+  <script src='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1/js/jquery.blueimp-gallery.min.js" %}'></script>
+  <script src='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1/js/bootstrap-image-gallery.js" %}'></script>
+
+  <script type="text/javascript">
+  
+      $(document).ready(function () {
+        descargo.consultar_por_id({{id_descargo}});//iniciamos la primera funcion 
+        descargo.fotodescargoVO.descargo_id({{id_descargo}})
+        descargo.consultarfotoregla({{id_descargo}},1)
+
+      });
+      
+  
+  </script>
+
+{% endblock imports %}
+

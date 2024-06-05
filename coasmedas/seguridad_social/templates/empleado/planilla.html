@@ -1,0 +1,367 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Administración de planillas{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+    <li><a href="">Seguridad Social</a></li>
+  <li class="active">Planilla</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+  
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+    <div class="col-lg-12">
+             
+        <div class="panel panel-sky">
+                
+        <div class="panel-heading">
+          <span>      
+            <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>           
+                Listado de planillas
+                <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+                 <span class="panel-controls">
+                  <a data-bind="click:abrir_filtros" data-placement="top"  data-toggle="tooltip" data-original-title="Filtros" title="" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+            </div>
+
+            <div data-bind="html: mensaje"></div> 
+
+             <div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+              
+               <div class="table-responsive">
+
+                <i class="text-success fa fa-bell" style="font-size:16px"></i>
+                 &nbsp;:&nbsp;[Pago Completo];
+                 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                  <i class="text-warning fa fa-bell" style="font-size:16px"></i>
+                 &nbsp;:&nbsp;[Pago Completo Empleados Parciales];
+                 &nbsp;&nbsp;&nbsp;&nbsp;
+
+                 <i class="text-danger fa fa-bell" style="font-size:16px"></i>
+                 &nbsp;:&nbsp;[Pago No reportado];
+                 <br>
+                 <br>   
+
+                 <table class="table">
+                    <thead>
+                    <tr>
+                      <th>                        
+                      </th>
+                      <th>                        
+                      </th>
+                      <th>Contratista</th>                      
+                      <th>Mes</th>
+                      <th>Año</th>
+                      <th>Fecha Limite</th>                     
+                      <th>Fecha Pago</th>
+                      <th>Estado</th>
+                      <th>Soporte</th>
+                      <th>Opciones</th>
+                    </tr>
+                   </thead>
+                   <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+
+                      <td style="width: 5%;">
+                        <i class="fa fa-bell" data-bind="css:{'text-success': item.estado_planilla_empleado==1, 'text-warning':item.estado_planilla_empleado==3, 'text-danger':item.estado_planilla_empleado==2 }" style="font-size:16px"></i>
+                      </td>
+                       <td style="width: 5%;">
+                    <!-- ko if: (item.fecha_pago == '' || item.fecha_pago==null)-->
+                       <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input data-bind="checked:item.procesar" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                     <!-- /ko --> 
+                    </td>
+                      <td style="width: 15%;" data-bind="text:item.contratista.nombre"></td>
+                      <td style="width: 10%;" data-bind="text:obtener_mes(item.mes)"></td>
+                      <td style="width: 10%;" data-bind="text:item.ano"></td>     
+                      <td style="width: 15%;" data-bind="text:item.fecha_limite"></td>
+                      <td style="width: 10%;" data-bind="text:item.fecha_pago"></td>
+                      <td style="width: 10%;" data-bind="text:item.estado"></td>
+                      <td style="width: 5%;">
+                      <!-- ko if: item.soporte!=null && item.soporte!='' -->
+                        <a target="_blank" data-bind="attr:{href: '../ver-soporte-planilla/?id=' + item.id}">
+                          <span>Planilla</span>
+                        </a>
+                      <!-- /ko -->  
+                      <!-- ko if: item.soporte==null || item.soporte=='' -->                        
+                          <span>Planilla</span>                       
+                      <!-- /ko -->  
+                      </td>
+                      <td style="width: 5%;">
+                         <div class="btn-group text-right">
+                               <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                                  </i></a>
+                               <ul class="dropdown-menu" role="menu">
+                                   {% if 'seguridad_social.change_planilla' in perms %}
+                                   <li>
+                                      <a href="#" data-bind="click:$root.consultar_por_id">
+                                      Editar
+                                      </a>
+                                   </li>
+                                   {% endif %}
+
+                                   {% if 'seguridad_social.change_planilla' in perms %}
+                                   <li>
+                                      <a href="#" data-bind="click:$root.abrir_cargar_pago">
+                                     <span data-bind="text:(item.fecha_pago != '' && item.fecha_pago!=null) ? 'Editar pago' : 'Cargar pago'"></span>
+                                      </a>
+                                   </li>
+                                   {% endif %}
+
+                                   {% if 'seguridad_social.add_planillaempleado' in perms %}
+                                   <!-- ko if: (item.fecha_pago != '' && item.fecha_pago!=null)-->
+                                   <li>
+                                      <a href="#" data-bind="attr:{href:'../planilla-empleado/'+item.id + '/' + item.contratista.id}">
+                                        Planilla empleado
+                                        </a>
+                                    </li>
+                                    <!-- /ko -->
+                                    {% endif %}
+                                </ul>
+                              </div>
+                      </td>                 
+                    </tr>
+                   </tbody> 
+                 </table>
+                
+
+               </div>
+
+
+                <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+             </div>
+
+        </div>
+
+    </div>
+
+  </div>   
+
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+                
+            <div class="form-group">
+            <label>Contratista</label>             
+            <select id="cmd_contratista" class="form-control" 
+            data-bind="options:listado_contratista,                       
+                       optionsText:'nombre', 
+                       optionsValue:'id',
+                       value:planillaVO.contratista_id,
+                       optionsCaption:'[Seleccionar...]'
+                       ,event:{change:function(){ consultar_contratista_id($('#cmd_contratista').val()); }}">              
+
+            </select>
+            </div>
+
+            <div class="form-group">
+            <label>Nit</label>
+            <input type="text" data-bind="value:nit" class="form-control" readonly>
+            <p>El Nit del contratista se carga automaticamente al seleccionarlo en el campo anterior</p>
+            </div>
+            
+            <div class="form-group">
+            <label>Año</label>
+            <input type="text" placeholder="AAAA" maxlength="4" class="form-control" data-bind="value:planillaVO.ano">            
+            </div>
+          
+            <div class="form-group">
+            <label>Mes</label>
+             <select class="form-control" data-bind="value:planillaVO.mes">
+                 <option value="">[Seleccione...]</option>
+                 <!--ko if:planillaVO.id()==0-->
+                 <!-- ko  foreach: {data:listado_meses ,as:'item'}-->
+                 <option data-bind="text:obtener_mes(item.mes),value:item.mes"></option>
+                 <!--/ko-->
+                 <!--/ko-->
+                 <!--ko if:planillaVO.id() > 0-->
+                   <option value="1">Enero</option>
+                   <option value="2">Febrero</option>
+                   <option value="3">Marzo</option>
+                   <option value="4">Abril</option>
+                   <option value="5">Mayo</option>
+                   <option value="6">Junio</option>
+                   <option value="7">Julio</option>
+                   <option value="8">Agosto</option>
+                   <option value="9">Septiembre</option>
+                   <option value="10">Octubre</option>
+                   <option value="11">Noviembre</option>
+                   <option value="12">Diciembre</option>
+                 <!--/ko-->
+             </select>
+            </div>
+            
+
+            <div class="form-group">
+            <label>Limite: <a href="#" data-bind="click:abrir_image_planilla"><i class="fa fa-question-circle"></i></a> </label>
+            <input type="text" class="form-control" placeholder="AAAA-MM-DD" data-bind="value:planillaVO.fecha_limite,datePicker:planillaVO.fecha_limite"> 
+
+            </div>
+
+       
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<div id="modal_acciones_actualizar" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+                
+            <div class="form-group">
+            <label>Contratista:</label>
+            <span data-bind="text:nombre_contratista"></span>            
+            </div>
+
+            <div class="form-group">
+            <label>Mes:</label>            
+            <span data-bind="text:obtener_mes(mes())"></span>             
+            </div>
+           
+            <div class="form-group">
+            <label>Año</label>
+            <span data-bind="text:planillaVO.ano"></span>                        
+            </div>            
+
+            <div class="form-group">
+            <label>Limite</label>
+            <input type="text" class="form-control" placeholder="AAAA-MM-DD" data-bind="value:planillaVO.fecha_limite,datePicker:planillaVO.fecha_limite">            
+            </div>
+
+            <div class="form-group">
+            <label>Pago</label>
+            <input type="text" class="form-control" placeholder="AAAA-MM-DD" data-bind="value:planillaVO.fecha_pago,datePicker:planillaVO.fecha_pago">            
+            </div>
+
+            <div class="form-group">
+              <label>Planilla</label>
+              <input type="file" id="soporte" class="note-image-input" data-bind="fileData:{value:planillaVO.soporte,allowedFileExtensions: ['pdf','zip'],
+                                       elErrorContainer: '#errorBlock', removeLabel:'', msgSelected:'Solo pdf o zip'}">  
+                                       <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados pdf y zip.<br></small>
+               <input type="hidden" data-bind="value:planillaVO.soporte">
+               
+               <!--ko if: planillaVO.id()>0 && planilla()!='' && planilla()!=null -->
+                <a data-bind="attr:{href: '../ver-soporte-planila/?id=' + planillaVO.id()}" target="_blank">
+                <i class="fa fa-file"></i>
+                Ver planilla
+                </a>
+                <br>
+              <!-- /ko -->
+            </div>
+
+       
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:function(){ guardar('pago'); }">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+
+<div id="modal_filtros" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Filtros</h4>
+      </div>
+       <div class="modal-body">
+                   
+              <div class="form-group">          
+               <label>Constratista:</label>
+               <select class="form-control" data-bind="value:filtros.contratista_id">
+                 <option value="">[Seleccionar...]</option>
+                  {% for item in contratistas %}
+                   <option value="{{item.contrato__contratista__id}}">{{item.contrato__contratista__nombre}}</option>
+                 {% endfor %}
+               </select>           
+             </div>
+
+              <div class="form-group">          
+               <label>Año:</label>
+               <input type="text" id="ano" placeholder="AAAA" class="form-control" data-bind="value:filtros.ano,event:{keypress: $root.consulta_enter}">
+             </div>
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:function(){ consultar_por_filtros(1);}">Consultar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<div id='img_planilla' style="display: none;">
+  <div class="pop-fondo" data-bind="click:cerrar_image_planilla"></div>
+  <img style="width:auto;height:auto; margin-left:-375px;
+    margin-top: -207px;" class="pop-imagen" src='{% static "/static/images/dias_habiles.png" %}')>
+</div>
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> 
+  	<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>  	
+  	<script type="text/javascript" src='{% static "js/ViewModels/seguridad_social/Planilla.js" %}?v=2.1'></script>
+
+{% endblock imports %}

@@ -1,0 +1,526 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Cesion economica{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Cesion economica</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block opciones_listado %}
+
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+           <i class="fa fa-plus" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+  <li>
+    <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+        <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+    </a>
+  </li>
+
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title">
+                <span>      
+                  <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                  aria-hidden="true"></i></a>
+                </span>                
+                </span><span>Cesion economica</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar cesion" data-bind="click:filtrar_cesion" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+            </div>
+
+            <div class="panel-body">
+
+             <i class="fa fa-bell 2x" style="color:#999"></i> En verificacion({{con_verif}})
+             <i class="fa fa-bell 2x" style="color:#F90"></i> En tramite({{con_tramit}});
+             <i class="fa fa-bell 2x" style="color:#0F0"></i> Aprobada({{con_aprob}})
+             <i class="fa fa-bell 2x" style="color: #9817a0"></i>Rechazada({{con_recha}})
+             <i class="fa fa-bell 2x" style="color: #1722a0"></i>Aprobada parcialmente({{con_parcia}})<br>
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+                <br>
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:12%"></th>
+                        <th style="width:12%">Soporte</th>
+                        <th style="width:22%">Contratista</th>
+                        <th style="width:22%">Fecha solicitud</th>
+                        <th style="width:22%">Cant transacciones</th>
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+
+                      <td>
+
+                          <!--ko if: item.estado.id==147 -->
+                            <i class="fa fa-bell 2x" style="color: #999"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==148 -->
+                            <i class="fa fa-bell 2x" style="color: #F90"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==149 -->
+                            <i class="fa fa-bell 2x" style="color: #0F0"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==150 -->
+                            <i class="fa fa-bell 2x" style="color: #9817a0"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==151 -->
+                            <i class="fa fa-bell 2x" style="color: #1722a0"></i>
+                          <!--/ko -->
+
+                      </td>
+                      <td>                       
+                        <a data-bind="attr: {href: '/cesion_v2/ver-soporte/?id=' + item.id}" 
+                        target="_blank" style="cursor:pointer;">
+                          <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                        </a>
+                      </td>
+                      <td data-bind="cutWord:{num:30,text:item.contratista.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.fecha_carta"></td>
+                      <td data-bind="text: item.cantidad_detalle"></td>
+                      <!-- <td data-bind="text: item.detalle_contrato.contrato__id"></td> -->
+                      <td>
+                         <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+
+                              <li>
+                                <a href="#" data-bind="click:$root.consultar_por_id">
+                                  Editar
+                                </a>
+                              </li>
+
+                              <li>
+                                <a href="#" data-bind="attr:{href:'../detalle_cesion/' + item.id}">
+                                  Ver detalle
+                                </a>
+                              </li>
+
+                              <li>
+                                <a href="#" data-bind="attr:{href:'../detalle_proceso/' + item.id}">
+                                  Procesar
+                                </a>
+                              </li>
+
+                            </ul>
+                          </div>       
+                      </td>
+
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<!--Modal filtrar los informe-->
+
+  <div id="modal_filtro" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label>Macrocontrato </label>
+                <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" data-bind="value:mcontrato_fil">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_mcontrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Contratista</label>
+                <select class="form-control" id="contratista_filtro" name="contratista_filtro" data-bind="value:contratista_fil">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Contrato</label>
+                <select class="form-control" id="contrato_filtro" name="contrato_filtro">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+
+            <div class="form-group">
+              <label>Estado</label>
+                <select class="form-control" id="estado_filtrar" name="estado_filtrar">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_estado, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+
+            <div class="form-group">
+              <label>Desde</label>
+              <div class="input-group date">
+
+                <input class="form-control" id="desde" name="desde" type="text" placeholder="Seleccione la fecha" data-bind="value:desde,datePicker:desde" onkeypress="return false">
+                <label for="fecha_desde" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div>
+
+
+            <div class="form-group">
+              <label>Hasta</label>
+              <div class="input-group date">
+
+                <input class="form-control" id="hasta" name="hasta" type="text" placeholder="Seleccione la fecha" data-bind="value:hasta,datePicker:hasta" onkeypress="return false">
+                <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div>  
+
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+        <div class="modal-body">
+
+          <form action="." method="post">
+            {% csrf_token %}
+
+            <div class="col-lg-6">
+              
+              <div class="form-group">
+                <label>Contratista</label>
+                  <select class="form-control" id="contratista_agregar" name="contratista_agregar" data-bind="value:cesionv_VO.contratista_id">
+                    <option value="">[Seleccione...]</option>
+                      <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                      <option data-bind="value:item.id,text:item.nombre"></option>
+                      <!--/ko-->
+                </select>
+              </div>
+
+                <div class="form-group">          
+                  <input type="file" class="note-image-input" id="archivo2" name="archivo2"  data-bind="fileData:{value:cesionv_VO.soporte_solicitud,allowedFileExtensions: ['png','jpg','jpge','pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                  <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>
+                  <div id="errorBlock" class="help-block alert alert-block alert-danger file-error-message" style="display: none;"></div>
+                  <input type="hidden" data-bind="value:cesionv_VO.soporte_solicitud">
+
+                </div>
+
+                <div class="form-group">
+                  <label>Fecha carta</label>
+                  <div class="input-group date">
+
+                    <input class="form-control" type="text" id="fecha_registrar" name="fecha_registrar"
+                    placeholder="Seleccione la fecha"
+                    data-bind="datePicker:cesionv_VO.fecha_carta,value:cesionv_VO.fecha_carta" 
+                    onkeypress="return false">
+                    
+                    <label for="fecha" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                    </label>
+                  </div>   
+                </div> 
+
+                <hr>
+
+                <div class="form-group">
+                  <label>Contrato (*)</label>
+                    <select class="form-control" id="contrato_registrar" name="contrato_registrar" 
+                    data-bind="value:detallecesion_VO.contrato_id">
+                      <option value="">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_contrato_select, as:'item'} -->
+                        <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Nombre giro (*)</label>
+                    <select class="form-control" id="nombre_giro" name="nombre_giro" data-bind="value:detallecesion_VO.nombre_giro_id">
+                      <option value="">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_nombre_giro, as:'item'} -->
+                        <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Beneficiario (*)</label>
+                    <select class="form-control" id="beneficiario" name="beneficiario" data-bind="value:detallecesion_VO.beneficiario_id">
+                      <option value="">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_beneficiario, as:'item'} -->
+                        <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                  </select>
+                </div>
+
+
+                <div class="form-group">
+                  <label>Banco (*)</label>
+                    <select class="form-control" id="banco" name="banco" data-bind="value:detallecesion_VO.banco_id">
+                      <option value="">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_banco, as:'item'} -->
+                        <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Número de cuenta (*)</label>
+                    <input type="text" id="numero_cuenta" name="numero_cuenta" class="form-control" placeholder="Dígite el número de la cuenta" data-bind="value:detallecesion_VO.numero_cuenta"/>
+                </div>
+
+
+                <div class="form-group">
+                  <label>Tipo cuenta (*)</label>
+                    <select class="form-control" id="tipo_cuenta" name="tipo_cuenta" data-bind="value:detallecesion_VO.tipo_cuenta_id">
+                      <option value="">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_tipo_cuenta, as:'item'} -->
+                        <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Valor</label>
+                  <input type="text" id="valor_cesion" name="valor_cesion" 
+                  data-bind="value:detallecesion_VO.valor.formatted,onlyNumber:detallecesion_VO.valor" class="form-control" placeholder="Dígite el valor"/>
+                </div>
+
+                <button type="button" class="btn btn-primary" data-bind="click:function(){agregar_cesion()}">
+                  Agregar <i class="fa fa-hand-o-right"></i>
+                </button>
+
+            </div><!-- cierra div col-lg-6-->
+
+
+            <div class="col-lg-6">
+
+              <div data-bind="visible:(listado_agregar()!=null && listado_agregar().length > 0)">
+                
+                <table class="table table-bordered table-hover table-striped tablesorter">
+                  <thead>
+                    <tr>
+                      <th>Registro</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach: {data:listado_agregar, as:'item'}">
+                    <tr data-bind="visible:!item.eliminado()">
+
+                      <td data-bind="text: (item.contrato.nombre + ' - ' + item.nombre_giro.nombre + ' :$' + item.valor_cesion.valor)"></td>
+                      <td style="text-align: center;">
+                         <a href="#" style="cursor: pointer;" title="Eliminar" data-bind="click:function(obj){$parent.remover_cesion(obj);}" data-toggle="tooltip">
+                          <i class="fa fa-trash fa-2x"></i>
+                          </a>
+                      </td>
+
+                    </tr>
+                  </tbody>
+                </table><br>
+
+                <button type="button" class="btn btn-primary" data-bind="click:function(){guardar()}">
+                  <i class="fa fa-floppy-o"></i> Terminar
+                </button>
+              </div><!--cierra validacion de la lista-->
+
+            </div>
+
+          </form>
+
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Modal-->
+
+<div id="modal_editar" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Contratista</label>
+              <select class="form-control" data-bind="value:cesionv_VO.contratista_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha carta</label>
+            <div class="input-group date">
+
+              <input class="form-control" type="text" placeholder="Seleccione la fecha"
+              data-bind="datePicker:cesionv_VO.fecha_carta,value:cesionv_VO.fecha_carta, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+              
+              <label for="fecha" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+              </label>
+            </div>   
+          </div> 
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:actualizar_cesion">
+            <i class="fa fa-floppy-o"></i> actualizar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/cesionv/cesionv.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      //cuenta.consultar(1);//iniciamos la primera funcion
+      $('#txtBuscar').val(sessionStorage.getItem("dato_informe"));
+      cesion_v.consultar(1);//iniciamos la primera funcion
+      cesion_v.consultar_contratista();
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

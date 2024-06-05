@@ -1,0 +1,344 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Acta {{acta.consecutivo}}{% endblock title %}
+
+{% block opciones_listado %}
+
+<!-- <li>
+  <a href="#" data-bind="click:exportar_excel" data-placement="right" data-toggle="tooltip"
+    data-original-title="Exportar listado">
+    <i class="fa fa-cloud-download" style="font-size: 24px;"></i>
+  </a>
+</li> -->
+
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block mapa %}
+<li><a href="/usuario/">Inicio</a></li>
+<li><a href="../acta/">Actas de reunión</a></li>
+<li>Acta</li>
+{% endblock mapa %}
+
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+<input type="hidden" id="acta_id" value="{{ acta.id }}">
+
+<div class="panel panel-sky">
+  <div class="row">
+
+    <div class="col-lg-12">
+      <div class="panel-heading" style="border: none;">
+        <span class="panel-title hidden-xs"><a href="../acta/"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"              aria-hidden="true"></i></a> Completando el registro del acta No. {{acta.consecutivo}} </span>
+        <span class="panel-controls">
+          <!--ko ifnot: $root.actaVO.estado_id()==156 || $root.actaVO.estado_id()==158-->
+          <span class="panel-icon" data-bind="visible:{{request.user.usuario.id}}=={{acta.usuario_organizador.id}}">
+            <a class="btn btn-primary" href="#" data-bind="click: transferircontrol_acta"
+              style="width: auto!important;cursor:pointer;opacity: initial;color:white;font-size: 12px;">Transferir
+              control</a>
+          </span>
+          <!--/ko-->
+
+          <!--ko ifnot: $root.actaVO.estado_id()==156 || $root.actaVO.estado_id()==158 -->
+          <span class="panel-icon"
+            data-bind="visible:{{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}}">
+            <a class="btn btn-danger" href="#" data-bind="click: anular_acta"
+              style="width: auto!important;cursor:pointer;opacity: initial;color:white;font-size: 12px;">Anular</a>
+          </span>
+          <!--/ko-->
+
+          <!--ko if: $root.actaVO.estado_id()==155 || $root.actaVO.estado_id()==157-->
+          <!--ko ifnot: $root.actaVO.tiene_compromisos()==false -->
+          <span class="panel-icon"
+            data-bind="visible:
+                  ({{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}})">
+            <a class="btn btn-warning" href="#" data-bind="click: cerrar_acta_modal"
+              style="width: auto!important;cursor:pointer;opacity: initial;color:white;font-size: 12px;">Cerrar</a>
+          </span>
+          <!--/ko-->
+          <!--/ko-->
+        </span>
+      </div>
+    </div>
+    <!--col-lg-12" -->
+  </div>
+  <!--cierra row -->
+
+  <div class="panel-body">
+    <div class="table-responsive">
+      <p><b>Tema Principal: </b>{{acta.tema_principal}}</p>
+      <p><b>Organizador: </b>{{acta.usuario_organizador.persona.nombres}} {{acta.usuario_organizador.persona.apellidos}}
+      </p>
+      <p><b>Controlador: </b><span data-bind="text: actaVO.controlador_actual_nombre()"></span></p>
+      <p><b>Soporte del acta: </b>
+
+        <a href="#" id="detalle_soporte_archivo" data-bind="click: ver_soporte" target="_blank"
+          style="cursor:pointer;display: none;">
+          <i class="fa fa-file kv-caption-icon"></i>
+        </a>
+
+        <a style="text-decoration:none; cursor:pointer"
+          data-bind="click: abrir_modal_soporte, 
+                  visible:({{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}})"
+          data-original-title="Cargar Soporte">
+
+          <i class="fa fa-pencil-square-o fa-1x"></i>
+        </a>
+      </p>
+      <p><b>Estado: </b>
+        <i data-bind="css : actaVO.estado_icono(),style:{color:actaVO.estado_color()}"></i>
+        <span data-bind="text: actaVO.estado_nombre()"></span>
+      </p>
+      <div class="progress mt10">
+        <div class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-bind="attr:{'valuenow':porcentaje()} ,style:{width: porcentaje() + '%'}">
+            <span style="color: #000000" data-bind="text:porcentaje()+'%'"></span>            
+      </div>
+      </div>
+
+      
+
+    </div>
+    <div class="panel mb25 mt5">
+    </div>
+    <ul class="nav nav-tabs">
+      <li class="active nav-item"><a href="#tab1_1" data-toggle="tab">Actas Previas</a></li>
+      <li class="nav-item"> <a href="#tab1_2" data-toggle="tab">Contratos</a></li>
+      <li class="nav-item"> <a href="#tab1_3" data-toggle="tab">Proyectos</a></li>
+      <li class="nav-item"> <a href="#tab1_4" data-toggle="tab">Historial</a></li>
+      <li class="nav-item"> <a href="#tab1_5" data-toggle="tab">Asistencia</a></li>
+      <li class="nav-item"> <a href="#tab1_6" data-toggle="tab">Conclusiones</a></li>
+      <li class="nav-item"> <a href="#tab1_7" data-toggle="tab">Compromisos</a></li>
+    </ul>
+    <div class="panel-body p20 pb10">
+      <div class="tab-content pn br-n admin-form">
+        <div id="tab1_1" class="tab-pane active">
+
+          {% include 'actareunion/_actas_previas.html' %}
+
+        </div>
+        <!--cierra tap 1-->
+
+        <div id="tab1_2" class="tab-pane">
+
+          {% include 'actareunion/_actas_contratos.html' %}
+
+        </div>
+        <!--cierra tap 2-->
+
+        <div id="tab1_3" class="tab-pane">
+
+          {% include 'actareunion/_actas_proyectos.html' %}
+
+        </div>
+        <!--cierra tap 3-->        
+
+        <div id="tab1_4" class="tab-pane">
+
+          {% include 'actareunion/_actas_historial.html' %}
+
+        </div>
+        <!--cierra tap 4-->   
+
+        <div id="tab1_5" class="tab-pane">
+
+          {% include 'actareunion/_actas_asistencia.html' %}
+
+        </div>
+        <!--cierra tap 5--> 
+
+        <div id="tab1_6" class="tab-pane">
+
+          {% include 'actareunion/_actas_conclusiones.html' %}
+
+        </div>
+        <!--cierra tap 6--> 
+
+        <div id="tab1_7" class="tab-pane">
+
+          {% include 'actareunion/_actas_compromisos.html' %}
+
+        </div>
+        <!--cierra tap 7--> 
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div id="modal_anular_acta" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+  class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+      </div>
+
+      <div class="modal-body">
+        <div class="col-lg-12">
+          <label>Ingrese el motivo de anulación(*)</label>
+          <div class="form-group col-lg-13">
+            <textarea class="form-control" style="width: 100%" type="text"
+              data-bind="value:anulacionactaVO.motivo"></textarea>
+          </div>
+          <!--cierra tap 3-->
+
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:anular">Anular</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div id="modal_cerrar_acta" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+  class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+      </div>
+
+      <div class="modal-body">
+        <div class="col-lg-12">
+          <label>Observación: </label>
+          <div class="form-group col-lg-13">
+            <textarea class="form-control" style="width: 100%" type="text"
+              data-bind="value:cerraractaVO.motivo"></textarea>
+          </div>
+          <!--cierra tap 3-->
+
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:cerrar_acta">Cerrar Acta</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div id="modal_transferir_acta" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+  class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+        <div class="col-lg-12">
+          <label>Seleccione el nuevo controlador (*)</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:actaVO.controlador_actual_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in participantes_internos %}
+                <option value="{{ item.usuario__id }}">{{ item.usuario__persona__nombres }}
+                  {{item.usuario__persona__apellidos}}</option>
+                {% endfor %}
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+
+          <label>Motivo (*)</label>
+          <div class="form-group col-lg-13">
+            <textarea class="form-control" style="width: 100%" type="text"
+              data-bind="value:transferenciaactaVO.motivo"></textarea>
+          </div>
+
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:transferir">Transferir</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div id="modal_soporte" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+  class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+      </div>
+
+      <div class="modal-body">
+        <div class="col-lg-12">
+          <div class="form-group">
+            <label>Soporte(*)</label>
+            <input type="file" class="note-image-input" id="archivo" name="archivo"
+              data-bind="fileData:{value:actaVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}" />
+          </div>
+
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:subir_soporte">Subir soporte</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{% block imports %}
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+</script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "vendor/plugins/typeahead/typeahead.bundle.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/acta_reunion/examinar.js" %}?v=3'></script>
+
+
+{% endblock imports %}

@@ -1,0 +1,791 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+	<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+	<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+	<!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/tagmanager/tagmanager.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}No Conformidad{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'NoConformidad.graficas' %}">Dashboard</a></li>
+  <li class="active">No Conformidad</li>
+{% endblock mapa %}
+<!-- { block encabezado %}Cesión{% endblock encabezado } -->
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+  {% if app in perms %}
+		{% if app|add:'.add_'|add:model in perms%}
+			<li>
+				<a href="#">
+					<i class="fa fa-cloud-download" data-bind="click:exportar_excel" style="font-size: 20px;"></i>
+				</a>
+			</li>
+		{% endif %}
+		{% if app|add:'.delete_'|add:model in perms%}
+      <li>
+        <a href="#">
+          <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"><div><div><div></div></div></div></i>
+        </a>
+      </li>
+    {% endif %}
+	{% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+<!--Inicio de la table -->
+<div class=" row">
+  
+  	<div class="col-lg-12">
+
+		<div class="panel panel-sky">
+			<div class="panel-heading">
+				<a href="{% url 'NoConformidad.graficas'%}" data-placement="right"  
+	                data-toggle="tooltip" data-original-title="Regresar al dashboard">
+	                <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+	            </a> 
+	            
+				<span class="panel-title">
+					Listado de No Conformidades <span data-bind="html:num_registro"></span>
+				</span>
+				<!-- <div class="pull-right">
+					<a href="#" title="Filtrar"><i data-bind="click:abrir_filtro" class="fa fa-filter fa-3x" style="color:#4a89dc; cursor:pointer;"></i></a>
+				</div> -->
+				<div class="pull-right">
+					<span class="panel-controls">
+						<a data-placement="top" data-toggle="tooltip" title="" data-original-title="Generar Informe" data-bind="click:exportar_word" data-toggle="modal" style="cursor:pointer;  margin-top:3px; font-size:12px">
+							<i class="fa fa-file-word-o fa-2x"></i>
+						</a>
+					</span>
+					<span class="panel-controls">
+						<a data-placement="top" data-toggle="tooltip" title="" data-original-title="Filtrar" data-bind="click:abrir_filtro" data-toggle="modal" style="cursor:pointer;  margin-top:3px; ">
+							<i id='iconoFiltro' class="fa fa-filter fa-2x"></i>
+						</a>
+					</span>
+				</div>
+      		</div>
+			<div class="panel-body">
+				<div data-bind="html: mensaje"></div>
+				<div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0), dropdown">
+                    <i class="text-success fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Corregida];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-danger fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Sin Corregir];
+					<br>
+					<br>
+					<table class="table">
+						<thead>
+							<tr>
+								<th style="width: 5%;">
+									<div class="option-group field admin-form">
+										<label class="option option-primary" >
+											<input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+											<span class="checkbox"></span>
+										</label>
+									</div>
+								</th>
+								<th style="width: 5%;">No.</th>
+								<th style="width: 35%;">Proyecto</th>
+								<th style="width: 35%;">Descripcion</th>
+								<th style="width: 10%;">Fecha levantamiento</th>
+                                <th style="width: 15%;">Detectada</th>
+                                <th style="width: 13%;">Tipo</th>
+                                <th style="width: 13%;">Valoración</th>
+								<!-- <th>Descripción</th> -->
+								<th style="width: 5%;">Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--ko foreach:{ data:listado, as:'item'} -->
+								<tr data-bind="css:item.estado.color">
+									<td>
+										<div class="option-group field admin-form" >
+											<label class=" mt10 option option-primary"  >
+												<input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:id" />
+												<span class="checkbox"></span>
+												<!-- <span data-bind="text: item.nombre"></span> -->
+											</label>
+										</div><!-- end .option-group section -->
+									</td>
+									<td data-bind="text:item.id"></td>
+									<td data-bind="cutWord:{num:60,text:item.proyecto.nombre} "></td>
+									<!--ko if:item.estado.id=='107'-->
+		                              <td data-bind="cutWord:{num:60,text:item.descripcion_no_corregida} "></td>
+		                            <!--/ko-->
+
+		                            <!--ko if:item.estado.id=='108'-->
+		                              <td data-bind="cutWord:{num:60,text:item.descripcion_corregida} "></td>
+		                            <!--/ko-->
+									<td data-bind="text: item.fecha_no_corregida"></td>
+									 <td data-bind="text: item.detectada.persona.nombres +' '+ item.detectada.persona.apellidos"></td> 
+									 <td data-bind="text: item?.tipo?.nombre"></td>
+									 <td data-bind="text: item?.valoracion?.nombre"></td>
+									<td>
+										<div class="btn-group text-right">
+											<i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+											<ul class="dropdown-menu" role="menu">
+												{% if 'factura.change_cesion' in perms %}
+													<li>
+														<a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+													</li>
+												{% endif %}
+												<li>
+													<a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+												</li>
+												<li>
+													<a href="#" data-bind="click:$root.subir_correccion">Subir correccion</a>
+												</li>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							<!--/ko-->
+						</tbody>
+					</table>
+					<div id="paginacion" >
+						<div data-bind="pagination: {
+									   currentPage: paginacion.pagina_actual,
+									   totalCount: paginacion.total,
+									   pageSize:paginacion.cantidad_por_paginas,
+									   maxPages: paginacion.maxPaginas,
+									   directions: paginacion.direcciones,
+									   boundary: paginacion.limite,
+									   text: paginacion.text }">
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div><!-- /.panel panel-sky -->
+
+	</div>
+</div><!-- end section -->
+<!--Fin de la table -->
+
+<!--Inicio Modal - Guardar No_Conformidad -->
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel" data-bind='text:no_conformidad.titulo'></h4>
+			</div>
+			<div class="modal-body">
+				
+				<div class="row">
+					<div data-bind="html: mensaje_guardar"></div>
+					<div class="col-md-6">
+
+						<label>(*) Proyecto:</label>
+						<div class="input-group">
+							<input class="form-control" data-bind="value:nombre_proyecto, textInput:nombre_proyecto" placeholder="Buscar el proyecto" type="text" disabled="">
+							<span class="input-group-addon" data-bind="click:abrir_modal_proyecto" style="cursor: pointer;">
+								<i class="fa fa-binoculars"></i>
+							</span>
+							<input class="form-control" data-bind='value:NoConformidadVO.proyecto_id' type="hidden">
+						</div><br/>
+
+						<label>(*) Levantado por:</label>
+						<div class="input-group">
+							<input class="form-control" data-bind="value:nom_usuario" placeholder="Buscar el usuario" type="text" disabled="">
+							<span class="input-group-addon" data-bind="click:abrir_modal_usuario" style="cursor: pointer;">
+								<i class="fa fa-binoculars"></i>
+							</span>
+							<input class="form-control" data-bind='value:NoConformidadVO.detectada_id' type="hidden">
+						</div><br/>
+						<!-- <div class="form-group admin-form">
+							<div class="smart-widget sm-right smr-50">
+								<label class="field">
+									<input name="sub" id="sub" class="gui-input" placeholder="Smart widget right 50" type="text">
+								</label>
+								<button type="button" class="button btn-primary">
+									<i class="fa fa-search"></i>
+								</button>
+							</div>
+							<!-- end .smart-widget section --
+						</div> -->
+
+						<div class="form-group">
+							<label>(*) Fecha Levantamiento:</label>
+							<input class="form-control" data-bind='datePicker:NoConformidadVO.fecha_no_corregida,value:NoConformidadVO.fecha_no_corregida' type="text">
+						</div>
+
+						<div class="form-group">
+							<label>(*)Tipo</label>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:NoConformidadVO.tipo_id">
+										<option value="0">[Seleccione...]</option>
+										{% for item in tipos%}
+											<option value="{{ item.id }}">{{ item.nombre }}</option>
+										{% endfor %}
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label>(*) Valoración</label>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:NoConformidadVO.valoracion_id">
+										<option value="0">[Seleccione...]</option>
+										{% for item in valoraciones%}
+											<option value="{{ item.id }}">{{ item.nombre }}</option>
+										{% endfor %}
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+						</div>
+
+
+						<div class="form-group">
+							<label>(*) Descripción sin corregir:</label>
+							<textarea class="form-control textarea-grow" data-bind='value:NoConformidadVO.descripcion_no_corregida' rows="4"></textarea>
+						</div>
+
+
+					</div>
+					<div class="col-md-6">
+
+
+						<div class="form-group">
+							<label>(*) Foto sin corregir 1:</label>
+							<input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:NoConformidadVO.foto_no_corregida,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+						</div>
+
+						<div class="form-group">
+							<label>Foto sin corregir 2:</label>
+							<input type="file" class="note-image-input" id="archivo2" name="archivo2" data-bind="fileData:{value:NoConformidadVO.foto_no_corregida2,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+						</div>
+
+						<div class="form-group">
+							<label>Foto sin corregir 3:</label>
+							<input type="file" class="note-image-input" id="archivo3" name="archivo3" data-bind="fileData:{value:NoConformidadVO.foto_no_corregida3,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+						</div>
+
+						<div class="form-group">
+							<label>(*) Estructura:</label>
+							<input class="form-control" data-bind='value:NoConformidadVO.estructura' type="text">
+						</div>
+
+						<div class="form-group">
+							<label>Primer Correo:</label>
+							<input class="form-control" data-bind='datePicker:NoConformidadVO.primer_correo,value:NoConformidadVO.primer_correo' type="text">
+						</div>
+
+						<div class="form-group">
+							<label>Segundo Correo:</label>
+							<input class="form-control" data-bind='datePicker:NoConformidadVO.segundo_correo,value:NoConformidadVO.segundo_correo' type="text">
+						</div>
+
+						<div class="form-group">
+							<label>Tercer Correo:</label>
+							<input class="form-control" data-bind='datePicker:NoConformidadVO.tercer_correo,value:NoConformidadVO.tercer_correo' type="text">
+						</div>
+						<!--ko if: NoConformidadVO.id()>0 && soporte()!='' && soporte()!=null -->
+							<a data-bind="attr:{href: soporte}" target="_blank">
+								<i class="fa fa-file"></i>
+								Ver soporte
+							</a>
+						<!-- /ko -->
+					</div>
+				</div>
+
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Guardar No_Conformidad -->
+
+
+
+<!--Inicio Modal Buscar Usuario-->
+<div id="modal_usuario" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Buscar Usuario</h4>
+			</div>
+			<div class="modal-body">
+
+				<div data-bind="html: mensaje_usuario"></div>
+
+				<label>(*) Empresa:</label>
+				<div class="form-group admin-form">
+					<label class=" select">
+						<select class="form-control" data-bind="value:id_empresa">
+							<option value="0">[Seleccione...]</option>
+							<!--ko foreach:{ data:listado_empresa_contratante, as:'item'} -->
+								<option data-bind="value:item.empresa_ver.id,text:item.empresa_ver.nombre"></option>
+							<!--/ko-->
+						</select><i class="arrow"></i>
+					</label>
+				</div>
+				<!-- <label>(*)Proyecto</label> -->
+				<div class="input-group">
+					<input id="id_nombre_usuario" class="form-control" data-bind="value:$root.nombre_usuario, event:{keypress: $root.consulta_enter_usuario}" placeholder="Nombre Usuario" type="text">
+					<span class="input-group-addon" data-bind="click:listar_usuario" style="cursor: pointer;">
+						<i class="fa fa-search"></i>
+					</span>
+					<!-- <input class="form-control" data-bind='value:cesionVO.contrato_id' type="hidden"> -->
+				</div><br/>
+
+				<label data-bind="visible: ver_usuario">(*) Usuario:</label>
+				<div class="form-group admin-form" data-bind="visible: ver_usuario">
+					<label class=" select">
+						<select class="form-control" data-bind="value:id_detectada" id="nom_usuario">
+							<option value="0">[Seleccione...]</option>
+							<!--ko foreach:{ data:list_usuario, as:'item'} -->
+								<option data-bind="value:item.id,text:item.persona.nombres+' '+item.persona.apellidos"></option>
+							<!--/ko-->
+						</select><i class="arrow"></i>
+					</label>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){agregar_usuario();}">Seleccionar</button>
+			</div>
+
+		</div>
+	</div>
+</div>
+<!--Fin Modal Buscar funcionario-->
+
+<!--Inicio Modal - Detalle de la No Conformidad-->
+<div id="detalle_no_conformidad" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Detalle de la No Conformidad</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <!-- <h4> Información de la Autorización de Giro </h4> -->
+          <ul class="icon-list">
+            <li>
+              <b> Nombre proyecto:</b>&nbsp;<small data-bind="html:detalle.nom_proyecto"></small>
+            </li>
+            <li>
+              <b> Registra:</b>&nbsp;<small data-bind="html:detalle.nom_usuario"></small>
+            </li>
+            <li>
+              <b> Estado:</b>&nbsp;<small data-bind="html:detalle.nom_estado"></small>
+            </li>
+            <li>
+              <b> Detectada:</b>&nbsp;<small data-bind="html:detalle.nom_detectada"></small>
+            </li>
+             <li>
+              <b> Tipo:</b>&nbsp;<small data-bind="html:detalle.nom_tipo"></small>
+            </li>
+             <li>
+              <b> Valoración:</b>&nbsp;<small data-bind="html:detalle.nom_valoracion"></small>
+            </li>
+            <li>
+              <b> Descripcion no corregida:</b>&nbsp;<small data-bind="html:detalle.descripcion_no_corregida"></small>
+            </li>
+            <li>
+              <b> Descripcion corregida:</b>&nbsp;<small data-bind="html:detalle.descripcion_corregida"></small>
+            </li>
+            <li>
+              <b> Fecha no corregida:</b>&nbsp;<small data-bind="html:detalle.fecha_no_corregida"></small>
+			</li>
+			<li>
+				<b> Fecha corregida:</b>&nbsp;<small data-bind="html:detalle.fecha_corregida"></small>
+			</li>
+			<li>
+				<b> Estructura:</b>&nbsp;<small data-bind="html:detalle.estructura"></small>
+			</li>
+			<li>
+				<b> Primer correo:</b>&nbsp;<small data-bind="html:detalle.primer_correo"></small>
+			</li>
+			<li>
+				<b> Segundo Correo:</b>&nbsp;<small data-bind="html:detalle.segundo_correo"></small>
+			</li>
+            <li>
+              <b> Tercer Correo:</b>&nbsp;<small data-bind="html:detalle.tercer_correo"></small>
+            </li>
+            <li>
+              	<b> Foto no corregida 1:</b>&nbsp;<small>
+				<!--ko if: detalle.foto_no_corregida()!='' && detalle.foto_no_corregida()!=null -->
+					<a data-bind="attr:{href: '/no_conformidad/ver-soporte/?tipo=foto_no_corregida&id=' + detalle.id()}" target="_blank">
+					<i class="fa fa-file"></i>
+					Ver Foto
+					</a>
+				<!-- /ko -->
+				<!--ko if: detalle.foto_no_corregida()=='' || detalle.foto_no_corregida()==null -->
+					Sin Foto
+				<!-- /ko -->
+				</small>
+			</li>
+			<li>
+              	<b> Foto no corregida 2:</b>&nbsp;<small>
+				<!--ko if: detalle.foto_no_corregida()!='' && detalle.foto_no_corregida()!=null -->
+					<a data-bind="attr:{href: '/no_conformidad/ver-soporte/?tipo=foto_no_corregida2&id=' + detalle.id()}" target="_blank">
+					<i class="fa fa-file"></i>
+					Ver Foto
+					</a>
+				<!-- /ko -->
+				<!--ko if: detalle.foto_no_corregida()=='' || detalle.foto_no_corregida()==null -->
+					Sin Foto
+				<!-- /ko -->
+				</small>
+			</li>
+			<li>
+              	<b> Foto no corregida 3:</b>&nbsp;<small>
+				<!--ko if: detalle.foto_no_corregida()!='' && detalle.foto_no_corregida()!=null -->
+					<a data-bind="attr:{href: '/no_conformidad/ver-soporte/?tipo=foto_no_corregida3&id=' + detalle.id()}" target="_blank">
+					<i class="fa fa-file"></i>
+					Ver Foto
+					</a>
+				<!-- /ko -->
+				<!--ko if: detalle.foto_no_corregida()=='' || detalle.foto_no_corregida()==null -->
+					Sin Foto
+				<!-- /ko -->
+				</small>
+			</li>
+			<li>
+				<b> Foto corregida 1:</b>&nbsp;<small>
+				<!--ko if: detalle.foto_corregida()!='' && detalle.foto_corregida()!=null -->
+					<a data-bind="attr:{href: '/no_conformidad/ver-soporte/?tipo=foto_corregida&id=' + detalle.id()}" target="_blank">
+					<i class="fa fa-file"></i>
+					Ver Foto
+					</a>
+				<!-- /ko -->
+				<!--ko if: detalle.foto_corregida()=='' || detalle.foto_corregida()==null -->
+					Sin Foto
+				<!-- /ko -->
+				</small>
+			</li>
+			<li>
+				<b> Foto corregida 2:</b>&nbsp;<small>
+				<!--ko if: detalle.foto_corregida()!='' && detalle.foto_corregida()!=null -->
+					<a data-bind="attr:{href: '/no_conformidad/ver-soporte/?tipo=foto_corregida2&id=' + detalle.id()}" target="_blank">
+					<i class="fa fa-file"></i>
+					Ver Foto
+					</a>
+				<!-- /ko -->
+				<!--ko if: detalle.foto_corregida()=='' || detalle.foto_corregida()==null -->
+					Sin Foto
+				<!-- /ko -->
+				</small>
+			</li>
+			<li>
+				<b> Foto corregida 3:</b>&nbsp;<small>
+				<!--ko if: detalle.foto_corregida()!='' && detalle.foto_corregida()!=null -->
+					<a data-bind="attr:{href: '/no_conformidad/ver-soporte/?tipo=foto_corregida3&id=' + detalle.id()}" target="_blank">
+					<i class="fa fa-file"></i>
+					Ver Foto
+					</a>
+				<!-- /ko -->
+				<!--ko if: detalle.foto_corregida()=='' || detalle.foto_corregida()==null -->
+					Sin Foto
+				<!-- /ko -->
+				</small>
+			</li>
+          </ul>
+        </div>
+			</div> <!-- ./modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle de la No Conformida-->
+
+<!--Inicio Modal - Guardar Correccion -->
+<div id="modal_correccion" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel" data-bind='text:no_conformidad.titulo_correccion'></h4>
+			</div>
+			<div class="modal-body">
+				
+				<div class="row">
+					<div data-bind="html: mensaje_guardar"></div>
+					<div class="col-md-6">
+
+						<div class="form-group">
+							<label>(*) Fecha de cierre:</label>
+							<input class="form-control" data-bind='datePicker:NoConformidadVO.fecha_corregida,value:NoConformidadVO.fecha_corregida' type="text">
+						</div>
+
+						<div class="form-group">
+							<label>(*) Descripción:</label>
+							<textarea class="form-control textarea-grow" data-bind='value:NoConformidadVO.descripcion_corregida' rows="4"></textarea>
+						</div>
+
+						<div class="form-group">
+							<label>(*) Foto 1:</label>
+							<input type="file" class="note-image-input" id="archivo_corregido" name="archivo_corregido" data-bind="fileData:{value:NoConformidadVO.foto_corregida,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+						</div>
+						<!--ko if: NoConformidadVO.id()>0 && soporte_corregida()!='' && soporte_corregida()!=null -->
+							<a data-bind="attr:{href: soporte_corregida}" target="_blank">
+								<i class="fa fa-file"></i>
+								Ver Foto 1
+							</a>
+						<!-- /ko -->
+						<div class="form-group">
+							<label>Foto 2:</label>
+							<input type="file" class="note-image-input" id="archivo_corregido2" name="archivo_corregido2" data-bind="fileData:{value:NoConformidadVO.foto_corregida2,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+						</div>
+						<!--ko if: NoConformidadVO.id()>0 && soporte_corregida2()!='' && soporte_corregida2()!=null -->
+							<a data-bind="attr:{href: soporte_corregida2}" target="_blank">
+								<i class="fa fa-file"></i>
+								Ver Foto 2
+							</a>
+						<!-- /ko -->
+						<div class="form-group">
+							<label>Foto 3:</label>
+							<input type="file" class="note-image-input" id="archivo_corregido3" name="archivo_corregido3" data-bind="fileData:{value:NoConformidadVO.foto_corregida3,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+						</div>
+
+						<!--ko if: NoConformidadVO.id()>0 && soporte_corregida3()!='' && soporte_corregida3()!=null -->
+							<a data-bind="attr:{href: soporte_corregida3}" target="_blank">
+								<i class="fa fa-file"></i>
+								Ver Foto 3
+							</a>
+						<!-- /ko -->
+					</div>
+					<div class="col-md-6">	
+					</div>
+				</div>
+
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Guardar Correccion -->
+
+<!--Inicio Modal - Filtro Correccion -->
+<div id="modal_filtro" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Filtro de No Conformidad</h4>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-md-12">
+
+						<label>Proyecto:</label>
+						<div class="input-group">
+							<input class="form-control" data-bind="value:nombre_proyecto, textInput:nombre_proyecto" placeholder="Buscar el proyecto" type="text" disabled="">
+							<span class="input-group-addon" data-bind="click:abrir_modal_proyecto" style="cursor: pointer;">
+								<i class="fa fa-binoculars"></i>
+							</span>
+							<input class="form-control" data-bind='value:filtro_no_conformidad.id_proyecto' type="hidden">
+						</div><br/>
+
+						<div class="row">
+							<div class="col-md-6">
+								<label>Estado</label>
+								<div class="form-group admin-form">
+									<label class=" select">
+										<select class="form-control" data-bind="value:filtro_no_conformidad.id_estado">
+											<option value="">[Seleccione...]</option>
+											{% for item in estado%}
+												<!-- <option data-bind="value:item.id,text:item.nombre">1</option> -->
+												<option value="{{ item.id }}">{{ item.nombre }}</option>
+											{% endfor %}
+										</select><i class="arrow"></i>
+									</label>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Estructura:</label>
+									<textarea class="form-control textarea-grow" data-bind='value:filtro_no_conformidad.estructura' rows="4"></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>(*)Tipo</label>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:filtro_no_conformidad.tipo_id">
+										<option value="">[Seleccione...]</option>
+										{% for item in tipos%}
+											<option value="{{ item.id }}">{{ item.nombre }}</option>
+										{% endfor %}
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label>(*)Valoración</label>
+							<div class="form-group admin-form">
+								<label class=" select">
+									<select class="form-control" data-bind="value:filtro_no_conformidad.valoracion_id">
+										<option value="">[Seleccione...]</option>
+										{% for item in valoraciones%}
+											<option value="{{ item.id }}">{{ item.nombre }}</option>
+										{% endfor %}
+									</select><i class="arrow"></i>
+								</label>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label>Periodo:</label>
+							<div class="row">
+								<div class="col-md-6">
+									<input class="form-control" data-bind='datePicker:filtro_no_conformidad.desde, value:filtro_no_conformidad.desde' placeholder="Desde" type="text">
+								</div> <!--<p style="float:left;">&nbsp; a &nbsp;</p> -->
+								<div class="col-md-6">
+									<input class="form-control" data-bind='datePicker:filtro_no_conformidad.hasta, value:filtro_no_conformidad.hasta' placeholder="Hasta" type="text">
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+			</div><!-- /.modal-body -->
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ consultar(1);}">Filtrar</button>
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ limpiar_filtro();}">Limpiar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Filtro Correccion -->
+
+<!--Inicio Modal Buscar proyecto-->
+<div id="modal_proyecto" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-sm" tabindex="100" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+
+	<div class="modal-dialog modal-sm">
+		<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+			<h4 class="modal-title" id="gridModalLabel">Buscar proyecto</h4>
+		</div>
+		<div class="modal-body">
+	
+			<div class="form-group">
+				<label>Macrocontrato</label>
+				<div class="form-group admin-form">
+					<label class=" select">
+						<select class="form-control" data-bind="value:macrocontrato_select">
+							<option value="0">[Seleccione...]</option>
+							{% for item in mcontrato%}
+								<!-- <option data-bind="value:item.id,text:item.nombre">1</option> -->
+								<option value="{{ item.id }}">{{ item.nombre }}</option>
+							{% endfor %}
+						</select><i class="arrow"></i>
+					</label>
+				</div>
+			</div>
+	
+			<div class="form-group">
+				<label>Contratista</label>
+				<div class="form-group admin-form">
+					<label class=" select">
+						<select class="form-control" data-bind="value:contratista_select">
+							<option value="0">[Seleccione...]</option>
+							<!--ko foreach:{ data:contratista_list, as:'item'} -->
+								<option data-bind="value:item.contrato__contratista__id,text:item.contrato__contratista__nombre"></option>
+							<!--/ko-->
+						</select><i class="arrow"></i>
+					</label>
+				</div>
+			</div>
+	
+			<div class="form-group">
+				<label>Departamento</label>
+				<div class="form-group admin-form">
+					<label class=" select">
+						<select class="form-control" data-bind="value:departamento_select">
+							<option value="">[Seleccione...]</option>
+							<!--ko foreach:{ data:departamento_list, as:'item'} -->
+								<option data-bind="value:item.municipio__departamento__id,text:item.municipio__departamento__nombre"></option>
+							<!--/ko-->
+						</select><i class="arrow"></i>
+					</label>
+				</div>
+			</div>
+	
+			<div class="form-group">
+				<label>Municipio</label>
+				<div class="form-group admin-form">
+					<label class=" select">
+						<select class="form-control" data-bind="value:municipio_select">
+							<option value="0">[Seleccione...]</option>
+							<!--ko foreach:{ data:municipio_list, as:'item'} -->
+								<option data-bind="value:item.municipio__id,text:item.municipio__nombre"></option>
+							<!--/ko-->
+						</select><i class="arrow"></i>
+					</label>
+				</div>
+			</div>
+	
+			<div class="form-group" data-bind="visible: showRow">
+				<label>Proyecto</label>
+				<div class="form-group admin-form">
+					<label class=" select">
+						<select id="nom_proyecto" class="form-control" data-bind="value:proyecto_select,valueText:nombre_proyecto">
+							<option value="">[Seleccione...]</option>
+							<!--ko foreach:{ data:proyecto_list, as:'item'} -->
+								<option data-bind="value:item.id,text:item.nombre"></option>
+							<!--/ko-->
+						</select><i class="arrow"></i>
+					</label>
+				</div>
+			</div>
+	
+		</div>
+	
+		<div class="modal-footer">
+			<button type="button" class="btn btn-primary" data-bind="click:function(){agregar_proyecto(1);}">Seleccionar</button>
+		</div>
+	
+		</div>
+	</div>
+	</div>
+	<!--Fin Modal Buscar proyecto-->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<!-- <script type="text/javascript" src='{% static "js/plugins/tagmanager/tagmanager.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/ViewModels/no_conformidad/no_conformidad.js" %}?v=3.5'></script>
+
+{% endblock imports %}

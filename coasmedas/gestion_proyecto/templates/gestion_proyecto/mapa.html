@@ -1,0 +1,254 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Mapa{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li> 
+  <li class="active">Mapa</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'gestion_proyecto.gestion_proyecto' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar a la gestion de proyectos">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Mapa
+{% endblock encabezado %}
+
+
+{% block opciones_listado %}
+
+            <li>
+              <a href="#" data-placement="right" data-bind="click:abrir_modal" data-toggle="tooltip" data-original-title="Filtro Proyectos">
+                 <i class="fa fa-filter" style="font-size: 20px;"></i>
+              </a>
+            </li>
+{% endblock opciones_listado %}
+
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-6">
+  <div class="row">
+        <div class="col-lg-12">
+          <div class="panel panel-sky">
+           <div class="panel-heading">
+                        <h4>Filtro de Proyectos</h4>
+                  </div>
+                  <div class="panel-body">
+                  <div class="col-lg-4">                      
+                        <button type="button" class="btn btn-primary" data-bind="click:agregar">Agregar</button> 
+                      </div><br>
+                      <div class="col-lg-12"><br>
+                      <div data-bind="html: mensaje"></div> </div>
+                   <div class="table-responsive" data-bind="dropdown,visible:(listado()!=null && listado().length > 0)">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>    
+                          <th >Fondo</th>
+                          <th >Departamento</th>
+                          <th>Municipio</th>
+                          <th>Proyecto</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado, as:'item'}">
+                        <tr>
+                          <td>                
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div></td> 
+                          <td data-bind="text: item.fondo.nombre"></td>
+                          <td data-bind="text: item.municipio.departamento.nombre"></td>
+                          <td data-bind="text: item.municipio.nombre"></td>
+                          <td data-bind="text: item.nombre"></td>  
+                        </tr>
+                      </tbody>
+                    </table>
+                     <div id="paginacion" >
+                                  <div data-bind="pagination: {
+                                               currentPage: paginacion.pagina_actual,
+                                               totalCount: paginacion.total,
+                                               pageSize:paginacion.cantidad_por_paginas,
+                                               maxPages: paginacion.maxPaginas,
+                                               directions: paginacion.direcciones,
+                                               boundary: paginacion.limite,
+                                               text: paginacion.text }">
+
+                                  </div>
+                              </div>
+                    </div>
+                 
+                </div>
+          </div>
+
+          </div>
+  </div>
+
+
+    <div class="row">
+        <div class="col-lg-12">
+          <div class="panel panel-sky">
+           <div class="panel-heading">
+                        <h4>Lista de Proyectos</h4>
+                  </div>
+                  <div class="panel-body">
+                  <div class="col-lg-4"> 
+                        <button type="button" class="btn btn-primary" data-bind="click:limpiar">Limpiar</button> 
+                      </div><br>
+                    <div class="table-responsive" data-bind="dropdown,visible:(listado_proyectos()!=null && listado_proyectos().length > 0)">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall2">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>    
+                          <th >Fondo</th>
+                          <th >Departamento</th>
+                          <th>Municipio</th>
+                          <th>Proyecto</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_proyectos, as:'item'}">
+                        <tr>
+                          <td>               
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:check,click:$parent.eliminar_punto">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div></td> 
+                          <td data-bind="text: item.fondo"></td>
+                          <td data-bind="text: item.departamento"></td>
+                          <td data-bind="text: item.municipio"></td>
+                          <td data-bind="text: item.nombre"></td>  
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>
+                 
+                </div>
+          </div>
+
+          </div>
+  </div>
+
+
+  </div>
+
+<div class="col-lg-6">
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+                <h4>Mapa</h4>
+          </div>
+          <div class="panel-body">
+            
+              <div  id="map_container"  >                    
+                        <div  id="googleMap" style="height: 400px;width: 100%;"></div> 
+              </div> 
+
+        </div>
+  </div>
+
+  
+  </div>
+
+</div>
+
+
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >      
+
+
+<!--Modal-->
+
+<div id="modal_filter" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+                <div class="form-group">
+                <label>Departamento</label>
+                <select id="campana" class="form-control" data-bind='value:departamento_id'>
+                       <option value="0">[Seleccione...]</option>
+                       {% for item in departamentos %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+
+                <div class="form-group">
+                <label>Municipio</label>
+                <select id="campana" class="form-control" data-bind='value:municipio_id'>
+                       <option value="0">[Seleccione...]</option>
+                        <!-- ko foreach: listado_municipio -->
+                          <option data-bind="value:id,text:nombre"></option>
+                       <!-- /ko --> 
+                </select>    
+              </div>
+
+                <div class="form-group">
+                <label>Fondo de Financiación</label>
+                <select id="campana" class="form-control" data-bind='value:fondo_id'>
+                       <option value="0">[Seleccione...]</option>
+                       {% for item in fondos %}
+                         <option value="{{ item.id }}">{{ item.nombre }}</option>
+                       {% endfor %}
+                </select>    
+              </div>
+
+     
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1)}">Filtrar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDP-V_ViyXNNnyrI9T3KyqmLfOMq_YA5I8&sensor=false"></script> 
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/mapa.js" %}'></script>       
+   
+{% endblock imports %}

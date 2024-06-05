@@ -1,0 +1,287 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Detalle solicitud{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'cesion_v2.cesion_v2' %}">Cesiones</a></li>
+  <li class="active">Detalles de solicitud</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span>
+              <span>      
+                <a href="{% url 'cesion_v2.cesion_v2' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>              
+              <span>Detalle de la cesion economica</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+              <span class="panel-controls">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Cargar correo de verificacion" data-bind="click:cverificacion" data-toggle="modal" style="cursor:pointer;">
+                  <i class="fa fa-archive fa-2x"></i>
+                </a>
+              </span>
+
+              <!--ko if: {{con_tramit}} >0-->
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Aprobar o Rechazar" data-bind="click:aprobacion" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-cloud-upload fa-2x"></i>
+                  </a>
+                </span>
+              <!--/ko -->
+
+            </div>
+
+            <div class="panel-body">
+
+                <div class="row">
+                  <div class="col-lg-12">
+                    <strong>Contratista : </strong><span data-bind="text:contratista_encabezado"></span><br> 
+                    <strong>Soporte de la solicitud : </strong>
+                        <a data-bind="attr: {href: '/cesion_v2/ver-soporte/?id=' + idcesion2()}" target="_blank" style="cursor:pointer;">
+                          <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                        </a><br>
+
+                    <strong>Fecha de la solicitud : </strong><span data-bind="text:fecha_solicitud_encabezado"></span><br>
+
+                  </div>
+                </div>
+                <hr>
+                <p style="text-align: center; font-weight: bold;">Detalle de la solicitud</p>
+
+             <i class="fa fa-bell 2x" style="color:#999"></i> En verificacion
+             <i class="fa fa-bell 2x" style="color:#F90"></i> En tramite
+             <i class="fa fa-bell 2x" style="color:#0F0"></i> Aprobada
+             <i class="fa fa-bell 2x" style="color: #9817a0"></i>Rechazada<br>
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+                <br>
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:2%">
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:checkall">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>
+                        </th>
+                        <th style="width:3%"></th>
+                        <th style="width:5%">Soporte verificacion</th>
+                        <th style="width:5%">Aprobacion / Rechazo</th>
+                        <th style="width:15%">No. Contrato</th>
+                        <th style="width:15%">Anticipo / giro</th>
+                        <th style="width:15%">Beneficiario</th>
+                        <th style="width:10%">No. cuenta</th>
+                        <th style="width:10%">Tipo cuenta</th>
+                        <th style="width:10%">Banco</th>
+                        <th style="width:10%">Valor</th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+
+                      <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:eliminado,value:id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div>  
+                      </td>
+
+                      <td>
+
+                          <!--ko if: item.estado.id==147 -->
+                            <i class="fa fa-bell 2x" style="color: #999"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==148 -->
+                            <i class="fa fa-bell 2x" style="color: #F90"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==149 -->
+                            <i class="fa fa-bell 2x" style="color: #0F0"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==150 -->
+                            <i class="fa fa-bell 2x" style="color: #9817a0"></i>
+                          <!--/ko -->
+
+                      </td>
+                      <td>                       
+                        <!--ko if: item.correo_verificacion!='' && item.correo_verificacion!=null-->                      
+                         <a data-bind="attr: {href: '/cesion_v2/ver-soporte-detalle/?tipo=correo_verificacion&id=' + item.id}" 
+                          target="_blank" style="cursor:pointer;">
+                            <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                          </a>
+                        <!--/ko--> 
+                      </td>
+                      <td>                       
+                        <!--ko if: item.carta_rechazo_aprobacion!='' && item.carta_rechazo_aprobacion!=null-->                      
+                          <a data-bind="attr: {href: '/cesion_v2/ver-soporte-detalle/?tipo=carta_rechazo_aprobacion&id=' + item.id}" target="_blank" style="cursor:pointer;">
+                            <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                          </a>
+                        <!--/ko--> 
+                      </td>
+                      <td data-bind="text: item.contrato.numero"></td>
+                      <td data-bind="cutWord:{num:22,text:item.nombre_giro.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="cutWord:{num:30,text:item.beneficiario.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.numero_cuenta"></td>
+                      <td data-bind="text: item.tipo_cuenta.nombre"></td>
+                      <td data-bind="text: item.banco.nombre"></td>
+                      <td data-bind="text: formatMoney(item.valor)"></td>
+                      
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+  <!--Modal correo de verificacion-->
+
+  <div id="modal_verificacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body"> 
+
+          <div class="form-group">          
+             <input type="file" id="archivo" name="archivo" class="note-image-input"  data-bind="fileData:{value:correo_veri,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+                                     elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                                     <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>                                     
+          </div> 
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:verificar_solicitud">
+              <i class="fa fa-floppy-o"></i>&nbsp; Guardar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+
+    <!--Modal correo de verificacion-->
+
+  <div id="modal_aprobacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body"> 
+
+            <div class="form-group">          
+               <input type="file" id="archivo2" name="archivo2" class="note-image-input"  data-bind="fileData:{value:aprobacio_rech,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+                                       elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                                       <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>                                       
+            </div> 
+
+            <div class="form-group">
+                <select class="form-control" id="aproba_recha" name="aproba_recha" data-bind="value:select_aprobar">
+                  <option value="0">Seleccione Aprobar / Rechazar</option>
+                  <option value="149">Aprobada</option>
+                  <option value="150">Rechazada</option>
+              </select>
+            </div> 
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:aprobacion_rechazo">
+              <i class="fa fa-floppy-o"></i>&nbsp; Guardar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/cesionv/detalle_cesion.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      detalle.idcesion2({{id_cesion}});
+      detalle.encabezado_detalle();
+      detalle.consultar(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

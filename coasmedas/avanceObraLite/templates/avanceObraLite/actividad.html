@@ -1,0 +1,187 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/treegrid/jquery.treegrid.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Administrar Actividades{% endblock title%}
+
+
+ {% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:function(){abrir_modal('Capitulo',1,0)}" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#">
+                  <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+
+{% endblock opciones_listado %} 
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.hitos' %}">Esquema de Capitulos</a></li>
+  <li class="active">Administrar Actividades</li>
+{% endblock mapa %}
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+    
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">
+              <span class="panel-title">
+                <a href="{% url 'avanceObraLite.hitos' %}" data-placement="right"    
+                  data-toggle="tooltip" data-original-title="Regresar al esquema de capitulos">
+                  <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                </a>
+                Listado de Actividades
+              </span>
+          </div>
+          <div data-bind="html: mensaje"></div>  
+          <div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <p><span><strong>Esquema:</strong></span>
+            {{nombre_esquema}}</p><br>
+            <button type="button" class="btn btn-primary" data-bind="click:expandir,text:titulo_expandir"></button>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table tree">
+              <thead>
+            <tr> 
+              <th><input type="checkbox" data-bind="checked:checkall"></th>
+              <th>Descripcion</th>
+              <th>Peso(100% / <span data-bind='text:peso_total'></span>%)</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr data-bind="css:item.valor_generico()">
+            <td><input type="checkbox" data-bind="checked:eliminado"></td>
+              <td >
+                  <span data-bind="text: item.nombre"></span>
+                  <!--ko if: item.nivel==1 -->    
+                  <span class="badge" data-bind="text: item.procesar"></span>
+                  <!--/ko--> 
+                </td>
+                <td data-bind="text: item.peso"></td>
+               <td>
+                 <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                        {% if 'avanceObraLite.change_cesquemacapitulosactividadesg' in perms %}
+                           <li>
+                              <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                           </li>
+                       {% endif %}
+                      <!--ko if: item.nivel==1 -->   
+                      {% if 'avanceObraLite.add_cesquemacapitulosactividadesg' in perms %} 
+                        <li>
+                          <a href="#" data-bind="click:function(){$parent.abrir_modal('Actividad',2,item.id)}">Actividades</a>
+                        </li>
+                        {% endif %}
+                      <!--/ko-->
+                    </ul>                    
+                  </div>
+              </td>
+            </tr> 
+          </tbody>
+        </table>
+        </div>
+        
+       
+          
+         
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" data-bind="value:actividadVO.nombre,enable:habilitar_campos" class="form-control" >           
+        </div>
+          <!--ko if: actividadVO.padre()>0 && ((actividadVO.nivel()==2 && filtro()==0 ))   -->    
+        <div class="form-group">
+            <label>Peso</label>
+            <input type="text" data-bind="value:actividadVO.peso,enable:habilitar_campos,onlyNumber:actividadVO.peso" class="form-control" >   
+        </div>  
+      
+         <!--/ko-->           
+
+            <input type="hidden" id="id_esquema" value="{{id_esquema}}" class="form-control" >
+         <!--ko if: habilitar_campos()==true -->    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+        <!--/ko-->       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/treegrid/jquery.treegrid.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/treegrid/jquery.treegrid.bootstrap3.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/actividad.js" %}'></script>
+    <script type="text/javascript">
+    
+</script>
+
+{% endblock imports %}

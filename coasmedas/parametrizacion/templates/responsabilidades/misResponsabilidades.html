@@ -1,0 +1,113 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}Mis Responsabilidades{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li>
+  <li class="active">Mis Responsabilidades</li>
+{% endblock mapa %}
+{% block encabezado %}Mis Responsabilidades{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+<!--Inicio de la table -->
+<div class=" row">
+  
+  <div class="col-lg-12">
+
+    <div data-bind="html: mensaje"></div>
+
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <span class="panel-title">
+          Listado de Mis Responsabilidades <span data-bind="html:num_registro"></span>
+        </span>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0), dropdown">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <!-- <th>Opciones</th> -->
+              </tr>
+            </thead>
+            <tbody>
+              <!--ko foreach:{ data:listado, as:'item'} -->
+                <tr>
+                  <td data-bind="text: item.nombre"></td>
+                  <td data-bind="text: item.descripcion"></td>
+                  <!-- <td>
+                    <div class="btn-group text-right">
+                      <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                      <ul class="dropdown-menu" role="menu">
+                        <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                        </li>
+                        <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td> -->
+                </tr>
+              <!--/ko-->
+            </tbody>
+          </table>
+          <!-- <div id="paginacion" >
+            <div data-bind="pagination: {
+                     currentPage: paginacion.pagina_actual,
+                     totalCount: paginacion.total,
+                     pageSize:paginacion.cantidad_por_paginas,
+                     maxPages: paginacion.maxPaginas,
+                     directions: paginacion.direcciones,
+                     boundary: paginacion.limite,
+                     text: paginacion.text }">
+            </div>
+          </div> -->
+        </div>
+
+      </div>
+    </div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+<!--Fin de la table -->
+
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<!-- <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/parametrizacion/misResponsabilidades.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    //responsabilidades.consultar({{id_contrato}});//iniciamos la primera funcion
+
+    // responsabilidades.contrato_id({{id_contrato}});
+    // responsabilidades.list_sub_contratista2();
+    // responsabilidades.contrato({{id_contrato}});
+
+    //responsabilidades.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script>
+{% endblock imports %}

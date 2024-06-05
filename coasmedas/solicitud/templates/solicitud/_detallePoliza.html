@@ -1,0 +1,56 @@
+<!-- Inicio de la table -->
+<div class=" row">
+
+	<div class="col-lg-12">
+
+		<div data-bind="html: mensaje_poliza"></div>
+
+		<div class="panel panel-sky">
+			<!-- <div class="panel-heading">
+				<span class="panel-title">
+					Validación de Poliza <span data-bind="html:num_registro_poliza"></span>
+				</span>
+				 
+      </div>-->
+			<div class="panel-body">
+				<div class="table-responsive" data-bind="visible:(lista_poliza()!=null && lista_poliza().length > 0), dropdown">
+					<table class="table">
+						<thead>
+							<tr>
+								<th style="width: 80%;">Tipo de Poliza</th>
+								<th style="width: 10%;">Requisitos Cumplidos</th>
+								<th style="width: 10%;">Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--ko foreach:{ data:lista_poliza, as:'item'} -->
+								<tr>
+									<td data-bind="text: item.tipo__nombre"></td>
+									<td data-bind="text: item.activos +'/'+ item.requisito.length "></td>
+									<td>
+										<i style="cursor: pointer; color:#4a89dc" data-bind="click:$root.consultarRequisitosPolizaDetalle" class="fa fa-ellipsis-h fa-2x " aria-expanded="false"></i>
+									</td>
+								</tr>
+							<!--/ko-->
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+		</div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+
+<!--ko if: validarPolizaVO.id()>0 && soportePoliza()!='' && soportePoliza()!=null -->
+<div class="form-group">
+	<a data-bind="attr:{href: soportePoliza}" target="_blank">
+		<i class="fa fa-file"></i>
+		Ver soporte
+	</a>
+</div>
+<!-- /ko -->
+<!--ko if: soportePoliza()=='' || soportePoliza()==null -->
+	Sin soporte<br/><br/>
+<!-- /ko -->
+<!--Fin de la table 

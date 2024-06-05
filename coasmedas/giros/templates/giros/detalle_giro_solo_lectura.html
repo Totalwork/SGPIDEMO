@@ -1,0 +1,286 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Detalle del giro{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'giros.encabezado_giro' %}">Giros</a></li>
+  <li class="active">Detalle giros</li>
+{% endblock mapa %}
+{% block encabezado %}<!--Giros-->{% endblock encabezado %}
+
+{% block contenido %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+
+ 
+  <div class="row" ><br><br>
+
+    <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+    <input type="hidden" value="{{user.usuario.empresa.consecutivoHabilitado}}" id="empresa" name="empresa"/>
+
+    <div class="col-lg-12">
+
+      <div class="row">
+        <div class="col-lg-5">
+          <div class="panel mobile-controls" id="p17">
+            <div class="panel-heading ui-sortable-handle"><span class="panel-title">Información general</span></div>
+              <div class="panel-body">
+
+               <strong>Contratante : </strong><span data-bind="text:contratante_encabezado"></span><br> 
+               <strong>Contratista : </strong><span data-bind="text:contratista_encabezado"></span><br>
+               <strong>Número del contrato : </strong><span data-bind="text:numero_contrato_encabezado"></span><br> 
+               <!--<strong>Nombre del proyecto : </strong><span data-bind="text:nombre_proyecto_encabezado"></span><br>-->
+               <strong>Nombre del proyecto : </strong>
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Deshabilitar factura" data-bind="click:function(){ ver_mas_proyectos({{mcontrato}} ,{{user.usuario.empresa.id}}) }" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-ellipsis-h fa-2x"></i>
+                  </a><br>
+               <strong>Nombre del anticipo : </strong><span data-bind="text:nombre_anticipo_encabezado"></span><br>
+               <i class="fa fa-bell 2x" style="color:#999"></i> Solicitado;
+               <i class="fa fa-bell 2x" style="color:#F90"></i> Autorizado;
+               <i class="fa fa-bell 2x" style="color:#0F0"></i> Pagado;
+               <i class="fa fa-bell 2x" style="color:#F00"></i> Reversado;
+              </div>
+          </div>
+        </div>
+      </div>  
+
+      <div class="row">
+
+        <div class="panel" id="spy4">
+          <div class="panel-heading">
+            <span class="panel-title"></span><span>Detalle del giro</span>
+            <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+          </div>
+          <div class="panel-body">
+
+            <div data-bind="html: mensaje"></div>  
+
+            <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <table class="table">
+                  <thead>
+                      <tr>
+                        <th style="width:10%">Estado</th>
+                        <th style="width:15%">Beneficiario / Proveedor</th>
+                        <th style="width:10%">Nit</th>
+                        <th style="width:15%">Entidad bancaria</th>
+                        <th style="width:15%">No.cuenta</th>
+                        <th style="width:10%">Tipo cuenta</th>
+                        <th style="width:15%">Valor neto a girar</th>
+                        <th style="width:10%">Autorización</th>
+                      </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                      <tr>
+                        <td>
+
+                        <!--ko if: item.estado.id==1 -->
+                        <i class="fa fa-bell 2x" style="color: #999"></i>
+                        <!--/ko -->
+
+                        <!--ko if: item.estado.id==2 -->
+                        <i class="fa fa-bell 2x" style="color: #F90"></i>
+                        <!--/ko -->
+
+                        <!--ko if: item.estado.id==3 -->
+                        <i class="fa fa-bell 2x" style="color: #0F0"></i>
+                        <!--/ko -->
+
+                        <!--ko if: item.estado.id==4 -->
+
+                        <i class="fa fa-bell 2x" style="color:#F00"></i>
+                        <!--/ko -->
+                        </td>
+
+                        <td data-bind="text: item.contratista.nombre"></td>
+                        <td data-bind="text: item.contratista.nit"></td>
+                        <td data-bind="text: item.banco.nombre"></td>
+                        <td data-bind="text: item.no_cuenta"></td>
+                        <td data-bind="text: item.tipo_cuenta.nombre"></td>
+                        <td data-bind="text: formatMoney(item.valor_girar)"></td>
+                        <td>
+
+                                     
+                            {% if user.usuario.empresa.consecutivoDigitado == 0 %}
+
+                              <!--ko if: item.carta_autorizacion==null -->
+                                <font color="#FF0000"> Por Autorizar</font>
+                              <!--/ko -->
+
+                              <!--ko if: item.carta_autorizacion!=null -->
+                              <font color="#FF0000">
+                                
+                                <a href="#" data-bind="click:$root.abrir_ver_autorizacion">
+
+                                  <span data-bind="text:item.carta_autorizacion.numero"></span>(Autorizado)
+                                </a>
+
+                              </font>
+                              <!--/ko -->
+
+                            {% endif %}
+
+                            {% if user.usuario.empresa.consecutivoDigitado != 0 %}
+
+                              <!--ko if: item.soporte_consecutivo_desabilitado ==null -->
+                                <font color="#FF0000"> Por Autorizar</font>
+                              <!--/ko -->
+
+                              <!--ko if: item.soporte_consecutivo_desabilitado != null -->
+
+                                <a data-bind="attr: {href: item.soporte_consecutivo_desabilitado}" 
+                                          target="_blank" style="cursor:pointer;">
+                                            (Autorizado)
+                                </a>
+
+                              <!--/ko -->
+
+                            {% endif %}
+
+                        </td>
+
+                      </tr>
+                           
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                          currentPage: paginacion.pagina_actual,
+                          totalCount: paginacion.total,
+                          pageSize:paginacion.cantidad_por_paginas,
+                          maxPages: paginacion.maxPaginas,
+                          directions: paginacion.direcciones,
+                          boundary: paginacion.limite,
+                          text: paginacion.text }">
+
+                  </div>
+                </div>
+
+            </div>
+
+          </div>
+        </div>
+        <h2>Total Anticipo : <span data-bind="text:formatMoney(suma_valor_detalles())"></span></h2>
+      </div><!--cierra row-->
+
+
+      <!--ver mas proyectos-->
+      <div id="vermas_proyectos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+            
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+            </div>
+            <div class="modal-body">
+
+               <div class="table-responsive">
+
+                <table class="table">
+                  <thead>
+                      <tr>
+                        <th style="width:25%">Macro contrato</th>
+                        <th style="width:25%">Departamento</th>
+                        <th style="width:25%">Municipio</th>
+                        <th style="width:25%">Proyecto</th>
+                      </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:lista_proyecto, as:'item'}">
+                    <tr>
+                      <td data-bind="text: item.proyecto.mcontrato.nombre"></td>
+                      <td data-bind="text: item.proyecto.municipio.departamento.nombre"></td>
+                      <td data-bind="text: item.proyecto.municipio.nombre"></td>
+                      <td data-bind="text: item.proyecto.nombre"></td>
+                    </tr>                    
+                  </tbody>
+                </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <!--cierra modal_filtro-->
+
+
+    </div><!--col-lg-12" -->
+
+
+    <div id="modal_ver_autorizacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+        <div class="modal-body">
+
+          <div class="table-responsive">
+
+            <div id="mensajeListadoSoporte"></div>
+
+            <table class="table" data-bind="visible:(lista_soporte_correspondencia()!=null && lista_soporte_correspondencia().length > 0)">
+              <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Documento</th> 
+                  </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:lista_soporte_correspondencia, as:'item'}">
+                <tr>
+
+                    <td data-bind="text: item.nombre"></td>
+                    <td>
+                        <a data-gallery="" data-bind="click: $root.ver_soporte" href="#" style="cursor:pointer;">
+                           <i class="fa fa-file-text-o fa-2x" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                 
+                </tr>
+                     
+              </tbody>
+            </table>
+          </div><!--cierra para responsive-->
+
+        </div>
+    </div>
+  </div>
+</div><!--cierra para autorizacion-->
+
+  </div><!--cierra row -->
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/giros/detalle_giro.js" %}'></script>
+  
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      detalle_giro.detalle_giroVO.encabezado_id({{id_encabezado}});
+      detalle_giro.consultar(1);//iniciamos la primera funcion
+      detalle_giro.encabezado_detalle();//trae el encabezado
+      
+    });
+    
+  </script>
+
+{% endblock imports %}

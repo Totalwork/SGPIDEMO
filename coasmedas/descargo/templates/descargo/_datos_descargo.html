@@ -1,0 +1,104 @@
+<div class="row">
+      
+      <div class="col-lg-4">
+
+                 <label><b>Numero:</b></label> 
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.numero"></label>
+                 </div>
+
+                 <label>Id interno: </label> 
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.id_interno"></label>
+                 </div>
+                 <label>Proyecto : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:nombreproyecto"></label>
+                 </div>
+                 <label>Barrio : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.barrio"></label>
+                 </div>                 
+                 <label>Direccion : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.direccion"></label>
+                 </div>                 
+                 <div class="form-group ">
+                    <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                        <input name="mobileos" data-bind="checked:descargoVO.bdi" disabled  type="checkbox">
+                        <span class="checkbox"></span>BDI
+                        </label>
+                    </div>
+                 </div>
+
+
+                 <div class="form-group ">
+                    <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                        <input name="mobileos" data-bind="checked:descargoVO.perdida_mercado" disabled  type="checkbox">
+                        <span class="checkbox"></span>Orden de servicio
+                        </label>
+                    </div>
+                 </div>                  
+            
+
+        </div>
+
+      <div class="col-lg-4">
+
+                 <label><b>Area afectada:</b></label> 
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.area_afectada"></label>
+                 </div>
+
+                 <label>cod. elem. intervenir: </label> 
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.elemento_intervenir"></label>
+                 </div>
+                 <label>Maniobra : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:nombremaniobra"></label>
+                 </div>
+                 <label>Trabajo : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:nombretrabajos"></label>
+                 </div>                 
+                 <label>jefe de trabajo : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:jefedetrabajo"></label>
+                 </div>                 
+                 <label>Agente descargo : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:agentedescargo"></label>
+                 </div>                             
+
+        </div>
+
+      <div class="col-lg-4">
+
+                 <label><b>Fecha descargo:</b></label> 
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.fecha"></label>
+                 </div>
+
+                 <label>Hora inicio: </label> 
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.hora_inicio"></label>
+                 </div>
+                 <label>Hora fin : </label>
+                 <div class="form-group ">
+                    <label data-bind="text:descargoVO.hora_fin"></label>
+                 </div>
+                 <label>Correo BDI : </label>
+                 <div class="form-group ">
+                 <label data-bind="text:correo_bdi"></label>
+                 </div>                 
+                 <label>Protocolo : </label>
+                 <div class="form-group ">
+                 <label data-bind="text:soporte_protocolo"></label>
+                 </div>                              
+
+
+        </div>
+</div><!--cierra modal_filtro-->

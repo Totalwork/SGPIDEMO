@@ -1,0 +1,762 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Tablero{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li><a href="{% url 'gestion_proyecto.diseno' %}">Diseños</a></li>
+  <li><a href="{% url 'gestion_proyecto.version_diseno' diseno_id %}">Version de Diseño</a></li>
+  <li class="active">Tablero</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'gestion_proyecto.version_diseno' diseno_id %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar a la version de diseño">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Tablero
+{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-6">
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+               <h4>
+                <a href="{% url 'gestion_proyecto.diseno' %}" data-placement="right"    
+                  data-toggle="tooltip" data-original-title="Regresar al listado de diseños">
+                  <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                </a>
+                Informacion Proyecto
+              </h4>
+            </div>
+          <div class="panel-body">
+            <p>
+              <label>Campaña: {{diseno.campana.nombre}}</label><br>          
+              <label>Fondo: {{diseno.fondo.nombre}}</label><br>
+              <label>Solicitante: {{diseno.solicitante.nombre}}</label><br>
+              <label>Departamento: {{diseno.municipio.departamento.nombre}}</label><br>
+              <label>Municipio: {{diseno.municipio.nombre}}</label><br>
+              <label>Proyecto: {{diseno.nombre}}</label><br>
+              <label>Version del Diseño: {{version.nombre}}</label><br>
+              <label>Diseñadores:</label>
+              <ul>
+                {% for item in diseno.disenadores.all %}
+                   <li>{{item.nombre}}</li>
+                {% endfor %}
+                </ul>             
+            </p>
+         
+        </div>
+  </div>
+
+  
+  </div>
+
+<div class="col-lg-6">
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+                <h4>Empresas y permisos</h4>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th >Empresa</th>
+              <th >Consulta</th>
+              <th>Edita</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_empresa, as:'item'}">
+            <tr>
+              <td data-bind="text: item.empresa__nombre"></td>
+              <td >
+               <!--ko if: item.consultar == 1 || item.consultar==true-->
+                     <i class="fa fa-check fa-2x" style="color:green"></i>
+                <!--/ko--> 
+
+                <!--ko if: item.consultar == 0 || item.consultar==false-->
+                     <i class="fa fa-close fa-2x" style="color:red"></i>
+                <!--/ko--> 
+              </td> 
+              <td >
+                  <!--ko if: item.editar== 1 || item.editar==true-->
+                      <i class="fa fa-check fa-2x" style="color:green"></i>
+                  <!--/ko--> 
+
+                  <!--ko if: item.editar == 0 || item.editar==false-->
+                     <i class="fa fa-close fa-2x" style="color:red"></i>
+                <!--/ko--> 
+              </td>               
+            </tr>
+          </tbody>
+        </table>
+        </div>
+    
+     </div>
+  </div>
+
+  
+  </div>
+
+</div>
+
+
+
+
+  <div class="row" >
+
+<div class="col-lg-12">
+
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+               <span class="panel-title">Trazabilidad del proyecto</span>
+                 <span class="panel-controls"> 
+                        <span class="panel-icon">
+                            {% if 'gestion_proyecto.can_see_reportar_diseno' in perms %}
+                                 <!--ko if: habilitar_btn_reporte()==false -->
+                                      <button type="button" class="btn btn-link" data-bind="click:reportar_diseno">Reportar Proyecto Cargado</button>
+                                <!--/ko-->
+                           {% endif %}
+
+                           {% if 'gestion_proyecto.can_see_revision_diseno' in perms %}
+                              <!--ko if: habilitar_btn_exitosa()==false -->
+                                      <button type="button" class="btn btn-link" data-bind="click:abrir_modal_comentario_diseno">Notificar Inconsistencia</button>
+                                      <button type="button" class="btn btn-link" data-bind="click:reportar_exitosa">Recibido con Satisfaccion</button>
+                               <!--/ko-->
+                           {% endif %}
+                          </span>
+                </span>
+          </div>
+         <div class="panel-body">
+            <table  id="trazabilidad" name="trazabilidad" class="table table-responsive">
+              <tr style="border-style: solid; border-color:#428bca; ">
+                  <td scope="rowgroup" rowspan="3" style="vertical-align:top;border-style: solid; border-color:#428bca;">
+                       <!-- ko foreach: listado_estado -->
+                           <a href="#" style="color:#000000;" data-bind="click:$parent.consultar_soporte_documento"><i style="color:#000000;" class="fa fa-folder fa-1x"></i><span data-bind="text:nombre"></span></a><br>
+                       <!-- /ko --> 
+                  </td>
+              </tr>
+              <tr style="border-style: solid; border-color:#428bca;">
+                  <td scope="col" align="center" style="border-style: solid; border-color:#428bca;">Archivos de <label><span data-bind="text:descripcion_estado"></span></label></td>
+                  <td scope="col" align="center" style="border-style: solid; border-color:#428bca;">Historial del proyecto</td>
+              </tr>
+              <tr style="border-style: solid; border-color:#428bca;">
+                  <td style="vertical-align:top;border-style: solid; border-color:#428bca;" align="center">
+                        <div class="row">
+                             <div class="col-lg-12">
+                             {% if permiso.editar %}
+                             <!--ko if: id_estado() > 0-->  
+                                <div class="col-lg-2" align="left">
+                                <div class="form-group input-group">     
+                                  <i style="color:#428bca; cursor:pointer;" data-bind="click:abrir_modal_documentos" class="fa fa-upload fa-2x"></i>
+                                </div>
+                                </div> 
+                              <!--/ko-->  
+                              {% endif %} 
+                              <div class="col-lg-12">
+                               <div data-bind="html: mensaje_documentos"></div> </div>
+                              <div class="table-responsive" data-bind="dropdown,visible:(listado_documentos()!=null && listado_documentos().length > 0)">
+                            <table class="table">
+                                  <thead>
+                                  <tr>            
+                                  <th>Docs</th>    
+                                  <th>Nombre</th>  
+                                  <th>Opciones</th> 
+                                  </tr>
+                                  </thead>
+                                  <tbody data-bind="foreach: listado_documentos">  
+                                  <td><a  data-bind="attr:{href: '/gestion_proyecto/ver-soporte/?id=' + id}" target="_blank"><i style="color:#428bca; cursor:pointer;" class="fa fa-paperclip fa-2x"></i></a></td>
+                                  <td data-bind="text: documento_estado.nombre"></td>  
+                                    <td>                       
+                                    <a class="editar" href="#" data-bind="click:$parent.abrir_modal_documentos_info" title="Informacion">
+                                               <i class="fa fa-info-circle fa-2x" ></i>
+                                           </a>
+                                         <a href="#" class="editar" data-bind="click:$parent.abrir_modal_documentos_editar" title="Editar Soporte">
+                                            <i class="fa fa-pencil-square-o fa-2x" ></i>
+                                          </a>
+                                         <a  class="editar" href="#" data-bind="click:$parent.abrir_modal_comentario" title="Comentarios">
+                                         <!--ko if: cantidad_comentarios==0 -->
+                                            <i class="fa fa-comment-o fa-2x"  ></i>
+                                          <!--/ko-->
+                                          <!--ko if: cantidad_comentarios>0 -->
+                                            <i class="fa fa-comment fa-2x"  ></i>
+                                          <!--/ko-->
+                                          </a>      
+                                        <a  class="editar" href="#" data-bind="click:$parent.eliminar_soporte" title="Eliminar Soporte">
+                                            <i class="fa fa-trash fa-2x" ></i>
+                                          </a>
+                                      </td>    
+                                  </tbody>         
+                              </table>   
+                              </div>                  
+                             </div>
+                          </div>
+                  </td>
+                  <td style="vertical-align:top;border-style: solid; border-color:#428bca;" align="center">
+                     <div class="col-lg-12">
+                          {% if permiso.editar %}
+                             <div class="col-lg-2" align="left">
+                              <div class="form-group input-group">     
+                                <i style="color:#428bca; cursor:pointer;" class="fa fa-floppy-o fa-2x" data-bind="click:guardar_fechas"></i>
+                              </div>
+                              </div> 
+                          {% endif %}
+                          <div class="row">
+                             <div class="col-lg-12">                            
+                          
+                              <table id="historial" name="historial"  class="table table-bordered table-hover table-striped tablesorter">
+                              <thead>
+                              <tr>            
+                              <th>Estado</th>  
+                              <th>Fecha</th>
+                              </tr>
+                              </thead>   
+                              <tbody data-bind="foreach: listado_fecha">  
+                                <td data-bind="text: nombre"></td> 
+                                <td width="200">
+                                    <div class="input-group date" id='datetimepicker2'>
+                                      <input  type="text" class="form-control" data-bind="datePicker:fecha,value:fecha" 
+                                        onkeypress="return false">
+                                        <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                                        </label>
+                                      </div>
+                                 </td>
+                              </tbody>                    
+                          </table>                        
+                             </div>
+                          </div>
+                  </td>
+              </tr>
+           </table>
+                  </div>
+  </div>
+
+  
+  </div>
+</div>
+
+
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+                <h4>Datos tecnicos del proyecto</h4>
+          </div>
+          <div class="panel-body">
+          <div class="col-lg-8">
+          {% if permiso.editar %}
+          <div class="col-lg-2" align="left">
+                        <div class="form-group input-group">     
+                          <i style="color:#428bca; cursor:pointer;" class="fa fa-floppy-o fa-2x" data-bind="click:guardar_info"></i>
+                        </div> 
+            </div> 
+             {% endif %}
+            
+             <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th >Nombre</th>
+              <th >Unidad de Medida</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_datos, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.unidad"></td>  
+              <td> <input id="valor" name="valor" class="form-control" type="text" data-bind="value:item.valor,onlyNumber:item.valor">
+              </td> 
+            </tr>
+          </tbody>
+        </table>
+        </div>
+         </div>
+        </div>
+  </div>
+
+  
+  </div>
+</div>
+
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  <div class="panel panel-sky">
+            <div class="panel-heading">
+                <h4>Mapa</h4>
+          </div>
+          <div class="panel-body">
+            <div class="row">
+
+                      <div class="col-lg-4">
+                           <div class="row">
+                             <div class="col-lg-10" align="right">
+                            <div class="form-group input-group">     
+                              <i style="color:#428bca; cursor:pointer;"  class="fa fa-arrows-alt fa-2x" data-bind="click:mapa_grande"></i>        
+                            </div> 
+                         </div>
+                   </div>
+                   <!--ko if: listado_gps().length > 0-->
+                        <div class="row">
+                           <div class="col-lg-4">                       
+                          <div id="googleMap" style="width:300px;height:300px;"></div>
+                           </div>
+                        </div> 
+                       <!--/ko-->  
+                     <!--ko if: listado_gps().length == 0-->  
+                       <div class="alert alert-warning alert-dismissable"><i class="fa fa-warning fa-2x"></i><button class="close" aria-hidden="true" data-dismiss="alert" type="button">×</button>No hay punto de localizacion para ubicar en el mapa.</div>
+                     <!--/ko-->  
+                      </div>   
+                        <div class="col-lg-8">
+                        <div class="row" >
+                          <div class="col-lg-4" align="left">
+                            <div class="form-group input-group"> 
+                              <i style="color:#428bca; cursor:pointer;" class="fa fa-plus-square fa-2x" data-toggle="tooltip" data-original-title="Agregar Localizacion" data-bind="click:abrir_modal_mapa"></i>&nbsp;
+                              <i style="color:#428bca; cursor:pointer;" data-toggle="tooltip" data-original-title="Agregar localizacion por Archivo" class="fa fa-file-excel-o fa-2x" href="#" data-bind="click:abrir_modal_mapa_archivo"></i> &nbsp;
+                              <i style="color:#428bca; cursor:pointer;" data-toggle="tooltip" data-original-title="Eliminar Puntos" class="fa fa-trash fa-2x" data-bind="click:eliminar_punto"></i>
+
+                            </div> 
+                         </div>
+
+                         <div class="col-lg-8" align="right">
+                           <div class="form-group input-group">                       
+                            <input  class="form-control"  placeholder="Busqueda" name="txtBuscar" id="txtBuscar" data-bind='event:{keypress:consulta_enter}'>
+                                  <span data-toggle="modal" class="input-group-addon" data-bind="click:function(){consultar_puntos(1)}"><i style="color:#31708F; cursor:pointer;" class="fa fa-search" ></i></span>      
+                           </div>
+                         </div>
+                       </div>
+                      <div data-bind="html: mensaje"></div> 
+
+                        <div class="table-responsive" data-bind="dropdown,visible:(listado_gps()!=null && listado_gps().length > 0)">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th><input type="checkbox" data-bind="checked:checkall"></th>    
+                          <th >Nombre</th>
+                          <th >Longitud</th>
+                          <th >Latitud</th>
+                          <th>Opciones</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_gps, as:'item'}">
+                        <tr>
+                          <td> <input type="checkbox" data-bind="checked:eliminado,value:id"></td> 
+                          <td data-bind="text: item.nombre"></td>
+                           <td data-bind="text: item.longitud"></td>
+                            <td data-bind="text: item.latitud"></td>
+                           <td>
+                             <div class="btn-group text-right">
+                               <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                                  </i></a>
+                               <ul class="dropdown-menu" role="menu">
+                                   <li>
+                                      <a href="#" data-bind="click:$root.consultar_por_id_mapa">Editar</a>
+                                   </li>
+                                </ul>
+                              </div>
+                          </td>     
+                        </tr>
+                      </tbody>
+                    </table>
+                     <div id="paginacion" >
+                                  <div data-bind="pagination: {
+                                               currentPage: paginacion.pagina_actual,
+                                               totalCount: paginacion.total,
+                                               pageSize:paginacion.cantidad_por_paginas,
+                                               maxPages: paginacion.maxPaginas,
+                                               directions: paginacion.direcciones,
+                                               boundary: paginacion.limite,
+                                               text: paginacion.text }">
+
+                                  </div>
+                              </div>
+                    </div>
+                    </div>
+                  </div>
+         
+        </div>
+  </div>
+
+  
+  </div>
+</div>
+
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >    
+     <input type="hidden" id="id_diseno" value="{{diseno.id}}" class="form-control" >  
+     <input type="hidden" id="version_diseno_id" value="{{version_diseno_id}}" class="form-control" >  
+     <input type="hidden" id="id_campana" value="{{diseno.campana.id}}" class="form-control" >  
+     <input type="hidden" id="reportar_diseno" value="{{version.reportar_diseno}}" class="form-control" >      
+     <input type="hidden" id="reportar_satisfaccion" value="{{version.reportar_satisfaccion}}" class="form-control" >      
+
+
+
+
+<!--Modal-->
+
+<div id="modal_documentos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Estado</label><br>
+          <span data-bind="text:descripcion_estado"></span><br>         
+        </div>
+
+
+         <div class="form-group">
+          <label>Documento</label>
+          <select class="form-control" data-bind="value:soporteVO.documento_estado_id">
+                  <option value="">[Seleccione..]</option>
+                   <!-- ko foreach: listado_estado_documentos -->
+                          <option data-bind="value:id,text:nombre"></option>
+                    <!-- /ko --> 
+          </select>         
+        </div>
+
+
+        <div class="form-group">
+         <label>Archivo</label>
+         <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporteVO.ruta,allowedFileExtensions: ['png','jpg','jpeg','pdf'],
+         elErrorContainer: '#errorBlock', removeLabel:''}"/>
+         <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>
+        </div>
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_soporte">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_documentos_info" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Nombre del Documento</label><br>
+          <span data-bind="text:soporteinfoVO.nombre_documento"></span><br>         
+        </div>
+
+         <div class="form-group">
+          <label>Nombre del Soporte</label><br>
+          <span data-bind="text:soporteinfoVO.nombre_soporte"></span><br>         
+        </div>
+
+         <div class="form-group">
+          <label>Fecha del Documento</label><br>
+          <span data-bind="text:soporteinfoVO.fecha"></span><br>         
+        </div>
+
+         <div class="form-group">
+          <label>Nombre del Usuario</label><br>
+          <span data-bind="text:soporteinfoVO.nombre_usuario"></span><br>         
+        </div>
+
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" class="close" data-dismiss="modal">Cancelar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+<!--Modal-->
+
+<div id="modal_agregar_mapa" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+          
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" class="form-control" data-bind='value:mapaVO.nombre'>           
+        </div>
+
+         <div class="form-group">
+          <label>Latitud</label>
+          <input type="text" class="form-control" data-bind='value:mapaVO.latitud'>           
+        </div>
+
+         <div class="form-group">
+          <label>Longitud</label>
+          <input type="text" class="form-control" data-bind='value:mapaVO.longitud'>           
+        </div>
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_localizacion">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_documentos_localizacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Formato</label><br>
+           <a href="#" data-bind="click:descargar_plantilla"><i style="color:#428bca;" class="fa fa-file-excel-o fa-2x"></i></a><br>    
+        </div>
+
+        <div class="form-group">
+         <label>Archivo</label>
+         <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporte_localizacion,allowedFileExtensions: ['xls','xlsx'],
+         elErrorContainer: '#errorBlock', removeLabel:''}"/>
+         <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados xls y xlsx.<br></small>
+        </div>
+
+        
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:cargar_localizaciones">Cargar y Crear</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_documentos_editar" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Estado</label><br>
+          <span data-bind="text:descripcion_estado"></span><br>         
+        </div>
+
+
+         <div class="form-group">
+          <label>Documento</label>
+          <select class="form-control" data-bind="value:soporteVO.documento_estado_id">
+                  <option value="">[Seleccione..]</option>
+                   <!-- ko foreach: listado_estado_documentos -->
+                          <option data-bind="value:id,text:nombre"></option>
+                    <!-- /ko --> 
+          </select>         
+        </div>
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_soporte">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_comentarios" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+             <!-- Chat Widget -->
+              <div class="col-md-12">
+                <div class="panel panel-widget chat-widget">
+                <div class="panel-footer">
+                  <br>
+                      <textarea class="form-control" rows="5" placeholder="Escribir el comentario" data-bind="value:comentarioVO.comentario"></textarea><br>
+                      <div class="text-left">
+                      <button class="btn btn-primary btn-sm ph15" type="button" 
+                      data-bind="click:guardar_comentario">Guardar</button>
+                    </div>
+                    <!-- /input-group -->
+                  </div>
+                   <div class="panel-body bg-light dark panel-scroller scroller-lg pn" style="height: 230px">
+                    <div class="panel-heading">
+                    <span class="panel-icon">
+                      <i class="fa fa-pencil"></i>
+                    </span>
+                    <span class="panel-title"> Comentarios Anteriores</span>
+                  </div>
+                  <!--ko if: listado_comentarios().length > 0 -->
+                   <!--ko foreach:{data:listado_comentarios, as:'comentarios'}-->                      
+                    <div class="media">
+                      <div class="media-body">
+                        <span class="media-status"></span>
+                        <h5 class="media-heading" ><span data-bind='text:comentarios.usuario.persona.nombres+" "+comentarios.usuario.persona.apellidos'></span>
+                          <small><span data-bind='text:comentarios.fecha_format'></span></small>
+                        </h5> <span data-bind='text:comentarios.comentario'></span>
+                      </div>
+                    </div>
+                   <!--/ko-->
+                    <!--/ko-->
+
+                     <!--ko if: listado_comentarios().length==0 --> 
+                        <br>
+                        <div class="alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>No se encontraron comentarios registrados en este intervalo</div>
+                   <!--/ko-->
+
+                  </div>
+                </div>
+              </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_comentarios_diseno" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+             <!-- Chat Widget -->
+              <div class="col-md-12">
+                <div class="panel panel-widget chat-widget">
+                <div class="panel-footer">
+                  <br>
+                      <textarea class="form-control" rows="5" placeholder="Escribir el comentario" data-bind="value:comentario_novedad"></textarea><br>
+                      <div class="text-left">
+                      <button class="btn btn-primary btn-sm ph15" type="button" 
+                      data-bind="click:guardar_insconsistencia">Guardar</button>
+                    </div>
+                    <!-- /input-group -->
+                  </div>
+                   <div class="panel-body bg-light dark panel-scroller scroller-lg pn" style="height: 230px">
+                    <div class="panel-heading">
+                    <span class="panel-icon">
+                      <i class="fa fa-pencil"></i>
+                    </span>
+                    <span class="panel-title"> Comentarios Anteriores</span>
+                  </div>
+                  <!--ko if: listado_comentarios_diseno().length>0 -->
+                   <!--ko foreach:{data:listado_comentarios_diseno, as:'comentarios'}-->                      
+                    <div class="media">
+                      <div class="media-body">
+                        <span class="media-status"></span>
+                        <h5 class="media-heading" ><span data-bind='text:comentarios.usuario.persona.nombres+" "+comentarios.usuario.persona.apellidos'></span>
+                          <small><span data-bind='text:comentarios.fecha_format'></span></small>
+                        </h5> <span data-bind='text:comentarios.comentario'></span>
+                      </div>
+                    </div>
+                   <!--/ko-->
+                    <!--/ko-->
+
+                     <!--ko if: listado_comentarios_diseno().length==0 --> 
+                        <br>
+                        <div class="alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>No se encontraron comentarios registrados en este intervalo</div>
+                   <!--/ko-->
+
+                  </div>
+                </div>
+              </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6Mz8he6Bk5SiTRGfFLFN_Vu8pDjeX-18&sensor=false"></script>  
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/tablero.js" %}'></script>
+{% endblock imports %}

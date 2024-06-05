@@ -1,0 +1,193 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Contratistas{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li>
+	<li class="active">Contratistas</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+      
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <div class="panel-heading">
+              <span>      
+                <a href="{% url 'parametrizacion.parametrizacion' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>               
+              <span>Listado de contratistas 
+                <span data-bind="text:'- N° de Registos: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+              </span>
+          </div>
+          <div class="panel-body">
+
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>
+                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </th>    
+              <th >Nombre</th>
+              <th>Nit</th>
+              <th>Abreviatura</th>
+              <th>Codigo acreedor</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td>
+                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </td> 
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.nit"></td>
+              <td data-bind="text: item.abreviatura"></td>
+              <td data-bind="text: item.codigo_acreedor"></td>
+              <td>
+                 <div class="btn-group text-right"> 
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                       <i  class="fa fa-ellipsis-h fa-2x"></i>
+                    </a>
+                   <ul class="dropdown-menu" role="menu">
+
+                      {% if 'empresa.change_empresa' in perms %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                       </li>
+                       {% endif %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+                        </li>
+                    </ul>
+                </div>
+              </td>   
+            </tr>
+          </tbody>
+        </table>
+         <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+                </div>
+  </div>
+
+	
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <!--ko if: contratistaVO.id() >  0 && contratistaVO.logo()!='' -->
+           <div align="center"><img data-bind="attr: {src: contratistaVO.logo}" alt="Archivo" ></div>
+         <!--/ko--> 
+        
+        <div class="form-group">          
+          <label>Nit (*)</label>
+          <input type="text" class="form-control" data-bind='value:contratistaVO.nit,onlyNumberNit:contratistaVO.nit,enable:desahabilitar_nit,hasfocus:focus_nit'>
+        </div>
+
+        <div class="form-group">
+          <label>Nombre (*)</label>
+          <input type="text" class="form-control" data-bind='value:contratistaVO.nombre,enable:habilitar_campos'>           
+        </div>
+
+        <div class="form-group">
+          <label>Abreviatura</label>
+          <input type="text" class="form-control" data-bind='value:contratistaVO.abreviatura,enable:habilitar_campos'>           
+        </div>
+
+        <div class="form-group">          
+          <label>Direccion (*)</label>
+          <input type="text" class="form-control" data-bind='value:contratistaVO.direccion,enable:habilitar_campos'>
+        </div>
+
+        <div class="form-group">
+          <label>Codigo acreedor</label>
+            <input type="text" data-bind="value:contratistaVO.codigo_acreedor,enable:habilitar_campos,onlyNumber:contratistaVO.codigo_acreedor" class="form-control"/>
+        </div>
+
+        <!--ko if: habilitar_campos()==true -->
+        <div class="form-group">          
+          <label>Logo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:contratistaVO.logo,allowedFileExtensions: ['png','jpg','jpge'],
+                                   elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                                   <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg y jpge.<br></small>                                   
+        </div>
+         <!--/ko--> 
+        </form>
+       </div>
+
+       <!--ko if: habilitar_campos()==true -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+         <!--/ko--> 
+
+       
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+
+	<!--Loading-->
+	
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/ViewModels/empresa/contratista.js" %}'></script>
+{% endblock imports %}

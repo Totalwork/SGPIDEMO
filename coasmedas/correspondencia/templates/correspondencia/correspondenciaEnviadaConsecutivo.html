@@ -1,0 +1,167 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}  
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block title %}Correspondencia Enviada{% endblock title%}
+{% block mapa %}
+
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+	<li class="active">Correspondencia</li>
+  <li class="active">Generar consecutivos </li>
+
+
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}   
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>     
+
+<div class="row" >
+  <div class="col-lg-12">   
+    <div class="panel panel-sky" >
+      <div class="panel-heading">
+            Generar Consecutivos            
+      </div>
+      <div class="panel-body">
+          <div data-bind="html: mensaje"></div>   
+        <div class="col-lg-12"  >  
+          <div  class="panel" >
+            <div class="panel-heading">
+              <span class="panel-title">Datos Generales</span>
+            </div>
+            <div class="panel-body" >  
+              <div class="form-group col-lg-2">
+                <label>(*) No de consecutivos </label>
+                <input type="text" class="form-control"  placeholder="# de consecutivos" data-bind="onlyNumber: correspondenciaEnviadaConsecutivoVO.numeroConsecutivo, value:correspondenciaEnviadaConsecutivoVO.numeroConsecutivo" >
+              </div>
+              <div class="form-group col-lg-2">
+                <label>(*) Fecha de Envio</label>
+                <input type="text" placeholder="yyyy-mm-dd" class="form-control" 
+                data-bind='datePicker:correspondenciaEnviadaConsecutivoVO.fechaEnvio,value:correspondenciaEnviadaConsecutivoVO.fechaEnvio'>       
+              </div>
+              <div class="form-group col-lg-3">
+                <label>(*) Departamento </label>
+                <select class="form-control" data-bind="value: correspondenciaEnviadaConsecutivoVO.departamento_id"  >
+                    <option value="">Seleccione el departamento de ubicación...</option>        
+                    {% for item in departamentos %}
+                       <option value="{{ item.id }}">{{ item.nombre }}</option>
+                    {% endfor %}
+                </select>     
+              </div>
+
+              <div class="form-group col-lg-3">          
+                <label>(*) Ciudad</label>
+                <select class="form-control" data-bind="options: listado_municipios,
+                                   optionsText: 'nombre', 
+                                   optionsValue: 'id', 
+                                   optionsCaption: 'Seleccione la ciudad de ubicación...',
+                                   value: correspondenciaEnviadaConsecutivoVO.ciudad_id
+                                   ">
+                </select>    
+              </div>             
+              <div class="form-group col-lg-3">          
+                <label>(*) Prefijo</label>
+                <select class="form-control" data-bind="value: correspondenciaEnviadaConsecutivoVO.prefijo_id"  >
+                    <option value="">Seleccione el prefijo...</option>
+                    {% for item in prefijos %}
+                     <option value="{{ item.id }}">{{ item.nombre }}</option>
+                  {% endfor %}   
+                </select> 
+
+              </div>
+              <div class="form-group col-lg-3">          
+                <label>(*) Firma</label>
+                <select class="form-control" data-bind='value:correspondenciaEnviadaConsecutivoVO.firma_id' >  
+                  <option value="">Seleccione el funcionario...</option> 
+                  {% for item in funcionarios_firman %}
+                     <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }}</option>
+                  {% endfor %}      
+                </select>     
+              </div> 
+            </div>
+          </div>  
+        </div>
+        <div class="col-lg-12"  >  
+          <div  class="panel" >
+            <div class="panel-heading">
+              <span class="panel-title">Datos del destinatario</span>
+            </div>
+            <div class="panel-body" >  
+              <div class="form-group col-lg-3">
+                <label>Departamento </label>
+                <select class="form-control" data-bind="value: departamentoEmpresa_id"  >
+                    <option value="">Seleccione el departamento de ubicación...</option>        
+                    {% for item in departamentos %}
+                       <option value="{{ item.id }}">{{ item.nombre }}</option>
+                    {% endfor %}
+                </select>     
+              </div>
+              <div class="form-group col-lg-3">          
+                <label>Ciudad del Destinatario</label>
+                <select class="form-control" data-bind="options: listado_municipiosEmpresa,
+                                   optionsText: 'nombre', 
+                                   optionsValue: 'id', 
+                                   optionsCaption: 'Seleccione la ciudad de ubicación...',
+                                   value: correspondenciaEnviadaConsecutivoVO.municipioEmpresa_id
+                                   ">
+                </select>    
+              </div> 
+            </div>
+          </div>  
+        </div>
+        <div class="col-lg-3"> 
+          <button type="button" class="btn btn-primary" data-bind="click: function(){ generar_consecutivos() }">Generar consecutivos</button> 
+        </div>
+        <!-- ko if: url_descarga()!='' -->
+        <div class="col-lg-4"> 
+          <ul class="icon-list">              
+              <li>
+                <i class="fa fa-exclamation-circle text-warning fa-lg pr10"></i>
+                <b> Info:</b>
+                <a data-bind="click: function(){ descargar_consecutivos() }" > Descargar consecutivos generados </a>
+                
+              </li>
+            </ul>
+        </div>
+        <!-- /ko -->   
+          
+      </div>          
+    </div>	
+  </div>
+</div>
+
+<!--Modal Proyecto-->
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/correspondencia/correspondenciaEnviada.js" %}'></script>
+  <!-- END: PAGE SCRIPTS -->
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+                      
+    });  
+
+  </script>
+
+{% endblock imports %}

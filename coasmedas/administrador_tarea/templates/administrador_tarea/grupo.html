@@ -1,0 +1,801 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Grupos{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'administrador_tarea.administrador_tarea' %}">Administrador de Tarea</a></li>
+  <li class="active">Grupos</li>
+{% endblock mapa %}
+{% block encabezado %}Grupos{% endblock encabezado %}
+
+{% block opciones_listado %}
+
+            <li>
+              <a href="#" data-placement="right" data-bind="click:abrir_modal" data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+   
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+              <span class="panel-title">
+                <a href="{% url 'administrador_tarea.administrador_tarea'%}" data-placement="right"    
+                  data-toggle="tooltip" data-original-title="Regresar al listado de tareas">
+                  <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                </a> 
+                Equipos y Tareas
+              </span>
+          </div>
+          <div class="panel-body">
+
+             <!-- Begin: Content -->
+      <section id="content" class="table-layout animated fadeIn">         
+
+        <!-- begin: .tray-left -->
+        <aside class="tray tray-left tray320">
+            <div class="panel">
+                <div class="panel-heading">
+                  <span class="panel-icon">
+                    <i class="fa fa-users"></i>
+                  </span>
+                  <span class="panel-title"> Equipos y Colaboradores </span>
+                </div>
+                <div class="panel-body pn">
+
+                <br>
+                <div class="col-lg-12">
+                <div class="input-group">
+                          <input class="form-control" id="txtBuscar5" name="txtBuscar5" type="text" placeholder="Buscar nombre" data-bind="event:{keypress:consulta_enter_equipo}">
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:function(){consultar(1)}"><i class="fa fa-search"></i></span>
+                  </div>
+                  </div>
+                 
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Nombre
+                         <!--ko if: valor_total()>0 --> 
+                           <span class="badge" style="background-color: #DF0101" data-bind="text:valor_total"></span>
+                          <!--/ko-->
+                        </th>
+                        <th>Rendimiento</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                     <tbody data-bind="foreach:{data:listado, as:'item'}">
+                      <tr>
+                        <td>
+                        <span data-bind="text: item.nombre"></span>
+                          <!--ko if: item.cantidad>0 --> 
+                           <span class="badge" style="background-color: #DF0101" data-bind="text:item.cantidad"></span>
+                          <!--/ko-->
+                        </td>
+                         <td>
+                          <div class="progress mt10">
+                            <div class="progress-bar progress-bar-primary" data-bind="style: { width: item.porcentaje },
+                              attr: {'aria-valuenow' : item.porcentaje}" role="progressbar2" aria-valuemin="0" aria-valuemax="100">
+                              <span data-bind="text:item.porcentaje" style="color: #000000"></span></div>
+                            </div>
+                         </td>
+                         <td>
+                           <a href="#" data-bind="click:$parent.abrir_modal_colaborador,tooltip:{dataPlacement:'top'}" title="Colaboradores">
+                            <i class="fa fa-users fa-2x"></i>
+                           </a>
+                         </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+        </aside>
+        <!-- end: .tray-left -->
+
+        <!-- begin: .tray-center -->
+        <div class="tray tray-center" style="padding: 2px 20px 50px;">
+
+        <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Tareas de los Equipos</span>
+              </div>
+
+
+          <div class="panel-body pn">
+            <br>
+            <div class="col-lg-8">
+                <div class="input-group">
+                          <input class="form-control" id="txtBuscar4" name="txtBuscar4" type="text" placeholder="Buscar asunto" data-bind="event:{keypress:consulta_enter_equipo}">
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:function(){consultar(1)}"><i class="fa fa-search"></i></span>
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:abrir_modal_filtro"><i class="fa fa-filter"></i></span>
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:limpiar_filtro">Limpiar Filtro</span>
+                  </div>
+              </div>
+            
+            <br>
+            <div class="col-lg-12">
+            <div data-bind="html: mensaje"></div> </div>
+            <div data-bind="visible:(listado_tarea()!=null && listado_tarea().length > 0)">            
+
+            <div class="table-responsive">
+                  <table class="table">
+                <thead>
+              <tr> 
+                <th>Estado</th>
+                <th>Fecha de Plazo</th>
+                <th>Asunto</th>
+                <th>Solicitante</th>
+                <th></th>
+              </tr>
+            </thead>
+             <tbody data-bind="foreach:{data:listado_tarea, as:'item'}">
+                <tr>
+                 <td>
+                  <a href="#" data-bind="attr:{title: item.estado.estado__nombre},tooltip:{dataPlacement:'top'}">
+                   <i data-bind="class:item.estado.estado__icono,style:{color:item.estado.estado__color}"></i>
+                </a></td>
+                <td data-bind="text: item.fecha_fin"></td>
+                 <td data-bind="text: item.asunto"></td>
+                  <td data-bind="text: item.nombre_completo"></td>
+                 <td>
+                   <div class="btn-group text-right" >
+                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                        </i></a>
+                     <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">                        
+                          <li>
+                            <a href="#" data-bind="click:$parent.abrir_detalle_tarea">Detalle de la Tarea</a>
+                          </li>
+
+                          <li>
+                            <a href="#" data-bind="click:$parent.abrir_modal_soporte">Archivos</a>
+                          </li>
+                      </ul>
+                    </div>
+                </td>     
+              </tr>
+            </tbody>
+          </table>
+          </div>
+          
+            
+          
+             <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion.pagina_actual,
+                                     totalCount: paginacion.total,
+                                     pageSize:paginacion.cantidad_por_paginas,
+                                     maxPages: paginacion.maxPaginas,
+                                     directions: paginacion.direcciones,
+                                     boundary: paginacion.limite,
+                                     text: paginacion.text }">
+
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+              </div>
+          </div>
+
+      </section>
+        </div>
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+             <div class="form-group">
+                <label>Nombre</label>
+                <input type="text"  class="form-control" data-bind="value:grupoVO.nombre">           
+            </div>
+
+             <div class="form-group">
+                <label>Descripcion</label>
+                <textarea class="form-control" rows="5" placeholder="Escribir la descripcion" data-bind="value:grupoVO.descripcion"></textarea>
+            </div>
+
+             <div class="form-group">
+            <label>Administrador</label>
+            <select class="form-control" data-bind="value:grupoVO.usuario_administrador_id">
+                      <option value="0">[Seleccione..]</option>
+                       {% for item in Usuarios %}
+                        <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }}</option>
+                      {% endfor %} 
+            </select>          
+         </div>
+
+            <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >            
+            <input type="hidden" id="id_empresa" value="{{user.usuario.empresa_id}}" class="form-control" >            
+
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+            </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_colaborador" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        {% csrf_token %}
+        
+            <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Tareas de los Equipos</span>
+              </div>
+
+              <br>
+              <div class="row">
+                    <div class="col-md-6">
+                      <div class="input-group">
+                          <input class="form-control" id="txtBuscar3" name="txtBuscar3" type="text" placeholder="Buscar" data-bind="event:{keypress:consulta_enter_colaborador}">
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:function(){consultar_colaboradores(1)}"><i class="fa fa-search"></i></span>
+                         <span class="input-group-addon" style="cursor:pointer;"  data-placement="right" data-bind="click:abrir_modal_usuario" data-toggle="tooltip" data-original-title="Agregar Colaborador" ><i class="fa fa-plus"></i></span>
+                        </div>
+                    </div> 
+                </div>  
+              <br>
+
+              <div class="panel-body pn">
+                <div data-bind="html: mensaje_colaborador"></div>
+               
+                <div data-bind="visible:(listado_colaboradores()!=null && listado_colaboradores().length > 0)">
+
+                  <div class="row">
+                    <div class="col-lg-12">
+                       <a href="#" style="margin: 5px 5px 0px 0px;" class="pull-right" data-bind="click:abrir_modal_tarea_grupal,tooltip:{dataPlacement:'top'}" title="Agregar tarea grupal">
+                        Agregar tarea grupal<i class="fa fa-plus fa-2x"></i>
+                       </a>
+                    </div>                    
+                  </div>
+                  <br>
+                  
+                <div class="table-responsive">
+                      <table class="table">
+                    <thead>
+                  <tr> 
+                    <th>
+                       <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input data-bind="checked:checkall_coalboradores" type="checkbox">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                    </th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Rendimiento Individual</th>
+                    <th>Tareas Pendientes</th>
+                    <th>Opciones</th>
+                  </tr>
+                </thead>
+
+                 <tbody data-bind="foreach:{data:listado_colaboradores, as:'item'}">
+                      <tr>
+                        <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input data-bind="checked:item.procesar" type="checkbox">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div>
+                        </td>
+                        <td data-bind="text: item.usuario.persona.nombres"></td>
+                         <td data-bind="text:item.usuario.persona.apellidos""></td>
+                         <td data-bind="text:item.porcentajeRendimiento"></td>
+                         <td>
+                        <!--ko if: item.totalTarea==0 --> 
+                         <span class="badge" data-bind="text:item.totalTarea"></span>
+                          <!--/ko-->
+                           <!--ko if: item.totalTarea>0 --> 
+                         <span class="badge" style="background-color: #DF0101" data-bind="text:item.totalTarea"></span>
+                          <!--/ko-->
+                         </td>
+                         <td>
+                           <a href="#" data-bind="click:$parent.abrir_modal_tarea,tooltip:{dataPlacement:'top'}" title="Agregar Tarea">
+                            <i class="fa fa-plus fa-2x"></i>
+                           </a>
+                         </td>
+                      </tr>
+                    </tbody>
+               
+              </table>
+              </div>          
+            
+          
+             <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion_colaboradores.pagina_actual,
+                                     totalCount: paginacion_colaboradores.total,
+                                     pageSize:paginacion_colaboradores.cantidad_por_paginas,
+                                     maxPages: paginacion_colaboradores.maxPaginas,
+                                     directions: paginacion_colaboradores.direcciones,
+                                     boundary: paginacion_colaboradores.limite,
+                                     text: paginacion_colaboradores.text }">
+
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+              </div> 
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_usuario" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Registrar/Consultar Usuarios</h4>
+        </div>
+
+       <div class="modal-body">
+        
+            <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Usuarios</span>
+              </div>
+
+              <br>
+              <div class="row">
+                    <div class="col-md-6">
+                      <select class="form-control" data-bind="value:id_empresa">
+                        <option value="0">[Seleccione la empresa..]</option>
+                         {% for item in Empresas %}
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                        {% endfor %} 
+                      </select>
+                    </div> 
+
+                    <div class="col-md-6">
+                      <div class="input-group">
+                          <input class="form-control" id="txtBuscar2" name="txtBuscar2" type="text" placeholder="Buscar" data-bind="event:{keypress:consulta_enter_usuario}">
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:function(){consultar_usuario(1)}"><i class="fa fa-search"></i></span>
+                        </div>
+                    </div> 
+                </div>  
+              <br>
+
+              <div class="panel-body pn">
+                <div data-bind="html: mensaje_usuario"></div>
+               
+                <div data-bind="visible:(listado_usuarios()!=null && listado_usuarios().length > 0)">
+                <div class="table-responsive">
+                      <table class="table">
+                    <thead>
+                  <tr> 
+                    <th><input type="checkbox" data-bind="checked:checkall2"></th>
+                    <th>Nombre</th>
+                    <th>Telefono</th>
+                    <th>Email</th>
+                  </tr>
+                </thead>
+
+                     <tbody data-bind="foreach:{data:listado_usuarios, as:'item'}">
+                      <tr>
+                       <td><input type="checkbox" data-bind="checked:eliminado"></td>
+                        <td data-bind="text: item.persona.nombres+' '+item.persona.apellidos"></td>
+                         <td data-bind="text: item.persona.telefono"></td>
+                         <td data-bind="text: item.persona.correo"></td>
+                      </tr>
+                    </tbody>
+               
+              </table>
+              </div>          
+            
+          
+             <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion_usuario.pagina_actual,
+                                     totalCount: paginacion_usuario.total,
+                                     pageSize:paginacion_usuario.cantidad_por_paginas,
+                                     maxPages: paginacion_usuario.maxPaginas,
+                                     directions: paginacion_usuario.direcciones,
+                                     boundary: paginacion_usuario.limite,
+                                     text: paginacion_usuario.text }">
+
+                        </div>
+                    </div>
+                    </div>
+                    <div data-bind="html: mensaje_guardando_usuario"></div> 
+                      <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-bind="click:guardar_usuario">Guardar</button>
+                    </div>
+                  </div>
+              </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_tarea" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Registrar Tarea</h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data" id='frmactividad'>
+        {% csrf_token %}
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="form-group">
+                    <label>Asunto(*)</label>
+                      <input type="text"  class="form-control" data-bind="value:tareaVO.asunto">           
+                    </div>
+
+                 <div class="form-group">
+                    <label>Descripcion(*)</label>
+                    <textarea class="form-control" rows="5" placeholder="Escribir la descripcion" data-bind="value:tareaVO.descripcion"></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>Fecha Fin(*)</label>
+                  <div class="input-group date" id='datetimepicker2'>
+                    <input  type="text" class="form-control" data-bind="datePicker:tareaVO.fecha_fin,value:tareaVO.fecha_fin" 
+                    onkeypress="return false">
+                    <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                    </label>
+                  </div>   
+              </div>
+
+                 <div class="form-group">
+                    <label>Comentarios</label>
+                     <textarea class="form-control" rows="5" placeholder="Escribir el comentario" data-bind="value:tareaVO.comentario"></textarea>
+                </div>         
+
+                <div class="form-group"> 
+                  <a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:agregar_soporte" data-original-title="Agregar nuevo soporte">
+                       <i class="fa fa-plus-circle fa-2x"></i>
+                    </a>
+                    <label>Soporte(s)</label>                
+                     <!--ko foreach:{data:tareaVO.listado_archivo, as:'item_soporte'}--> 
+                          <!--ko if: $index()==0 --> 
+                          <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporte,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                       elErrorContainer: '#errorBlock', removeLabel:''}" />                                       
+                         <!--/ko-->
+                           <!--ko if: $index()>0 --> 
+                            <div class="input-group">
+                          <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporte,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                       elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                          <label for="fecha_nacimiento" class="input-group-addon cursor" data-bind="click:$parent.eliminar_soporte">
+                         <i class="fa fa-trash"></i>
+                         </label>                         
+                        </div>
+                         <!--/ko-->                     
+                    <!--/ko-->        
+                    <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>                    
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+              
+               <h5>Macrocontrato:</h5>
+                      <select class="form-control" data-bind="value:id_macrocontrato">
+                             <option value="0">[Seleccione..]</option>
+                            <!--ko foreach:{data:lista_macrocontrato, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+
+                   <h5>Contratista:</h5>
+                      <select class="form-control" data-bind="value:id_contratista">
+                            <option value="0">[Seleccione..]</option>
+                      </select>
+
+                   <h5>Departamento:</h5>
+                      <select class="form-control" data-bind="value:id_departamento">
+                            <option value="0">[Seleccione..]</option>
+                             <!--ko foreach:{data:listado_departamento, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+
+                   <h5>Municipio:</h5>
+                      <select class="form-control" data-bind="value:id_municipio">
+                            <option value="0">[Seleccione..]</option>
+                            <!--ko foreach:{data:listado_municipio, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+
+                   <h5>Proyecto:</h5>
+                   <div class="input-group">
+                    <select class="form-control" data-bind="value:id_proyecto" id="proyecto" name="proyecto">
+                            <option value="0">[Seleccione..]</option>
+                            <!--ko foreach:{data:listado_proyectos, as:'item'}--> 
+                            <option data-bind="text:item.nombre,value:item.id"></option>
+                             <!--/ko-->
+                      </select>
+                     <span class="input-group-addon" data-bind="click:addProyectos"><i style="color:#31708F; cursor:pointer;" class="fa fa-plus"></i></span>
+                   </div>
+
+
+                    <div data-bind="visible:(tareaVO.listado_proyectos()!=null && tareaVO.listado_proyectos().length > 0)">
+                        <div class="table-responsive">
+                              <table class="table">
+                            <thead>
+                          <tr>
+                            <th>Nombre</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody data-bind="foreach:{data:tareaVO.listado_proyectos, as:'item'}">
+                          <tr>
+                            <td data-bind="text: item.nombre"></td>
+                             <td>
+                              <div class="btn-group text-right">
+                               <a href="#" data-bind="click:$parent.deleteProyectos"><i class="fa fa-trash fa-2x">
+                                  </i></a>
+                              </div>
+                            </td>     
+                          </tr>
+                        </tbody>
+                      </table>
+                      </div>
+                  </div>
+
+                     
+            </div>
+            </div>
+        
+             
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:guardar_tarea">Guardar</button>
+            </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<!--Modal-->
+
+<div id="modal_soportes" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+             <div class="form-group">
+                <label>Tarea:</label> <span data-bind="text:nombre_tarea"></span>   
+            </div>
+
+            <div class="form-group">
+              <a style="text-decoration:none; cursor:pointer" data-bind="click:archivo_zip" data-placement="right" data-toggle="tooltip" data-original-title="Permite descargar una carpeta comprimida con los archivos seleccionados"><i class="fa fa-cloud fa-2x" aria-hidden="true" ></i> Descargar Archivos seleccionados</a>
+            </div>
+
+          <div class="form-group">
+          <div data-bind="html: mensaje_soporte"></div>
+          <div data-bind="visible:(listado_soporte()!=null && listado_soporte().length > 0)">
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr> 
+              <th><input type="checkbox" data-bind="checked:checkall"></th>
+              <th>Nombre</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_soporte, as:'item'}">
+            <tr>
+               <td> <input type="checkbox" data-bind="checked:eliminado"></td>
+              <td data-bind="text: item.nombre"></td>
+               <td data-bind="text: item.asignacion_tarea.estado.nombre"></td>
+                <td><a data-bind="attr:{href: item.ruta}"
+                  target="_blank"><i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+
+<!--Modal-->
+
+<div id="modal_filter" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        {% csrf_token %}  
+
+              <div class="row mb15" id="spy1">
+
+              <!-- Calendar Widget -->
+              <div class="col-md-6">
+                    <div class="panel listgroup-widget">
+                      <div class="panel-heading">
+                        <span class="panel-icon">
+                          <i class="fa fa-tag"></i>
+                        </span>
+                        <span class="panel-title"> Estados de la Tarea</span>
+                      </div>
+                        <div class="table-responsive">
+                          <table class="table">
+                              <thead>
+                                <tr> 
+                                  <th><input type="checkbox" data-bind="checked:checkall3"></th>
+                                  <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody data-bind="foreach:{data:listado_estado, as:'item'}">
+                              <tr>
+                                 <td> <input type="checkbox" data-bind="checked:eliminado"></td>
+                                  <td><i data-bind="class:item.icono,style:{color:item.color}">
+                                  </i><span data-bind="text:item.nombre"></span></td>
+                              </tr>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+              </div>
+
+              <!-- Task Widget -->
+              <div class="col-md-6">
+
+                <div class="panel panel-widget draft-widget">
+                    <div class="panel-heading">
+                      <span class="panel-icon">
+                        <i class="fa fa-cog"></i>
+                      </span>
+                      <span class="panel-title"> Opciones</span>
+                    </div>
+                    <div class="panel-body p20">
+                      <div class="admin-form theme-primary">
+                        
+                        <div class="section mb20">
+                          <div class="form-group">
+                            <label>Desde</label>
+                            <div class="input-group date" id='datetimepicker3'>
+                              <input  type="text" class="form-control" data-bind="datePicker:filterVO.desde,value:filterVO.desde" 
+                              onkeypress="return false">
+                              <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                              </label>
+                            </div>   
+                        </div>
+                        </div>
+
+                        <div class="section mb20">
+                          <div class="form-group">
+                            <label>Hasta</label>
+                            <div class="input-group date" id='datetimepicker4'>
+                              <input  type="text" class="form-control" data-bind="datePicker:filterVO.hasta,value:filterVO.hasta" 
+                              onkeypress="return false">
+                              <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                              </label>
+                            </div>   
+                        </div>
+                        </div>
+
+                       <div class="section mb20">
+                         <select class="form-control" data-bind="value:filterVO.equipo_id">
+                          <option value="0">[Seleccione equipo..]</option>
+                           {% for item in Equipos %}
+                            <option value="{{ item.id }}">{{ item.nombre }}</option>
+                          {% endfor %} 
+                        </select>
+                      </div>
+
+                      <div class="section mb20">
+                         <select class="form-control" data-bind="value:filterVO.colaborador_id">
+                          <option value="0">[Seleccione colaborador..]</option>
+                          <!--ko foreach:{data:listado_filter_colaboradores, as:'item2'}--> 
+                          <option data-bind="text:item2.usuario.persona.nombres+' '+item2.usuario.persona.apellidos,value:item2.id"></option>
+                           <!--/ko-->
+                        </select>
+                      </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+              </div>
+
+            </div>        
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:consultar_filtro">Filtrar</button>
+            </div> 
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/administrador_tarea/grupo.js" %}?v=1'></script>
+{% endblock imports %}

@@ -1,0 +1,109 @@
+
+<div class="row">
+  <div class="col-lg-5">
+
+    <form action="." method="post" enctype="multipart/form-data">
+
+      <div class="col-sm-12">                 
+        <a style="cursor:pointer;" href="{% url 'giros.descargar_plantilla' %}" target="_blank" >
+          <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+          <label style="cursor:pointer;">Plantilla para cargar masiva (xlsx)</label>
+        </a><br><br>
+      </div>
+
+
+      <div class="form-group">
+        <label for="datepicker1" class="field prepend-icon">
+
+          <input id="datepicker1" name="datepicker1" class="form-control" type="text" placeholder="Seleccione la fecha inicial"
+          data-bind="datePicker:verificar_giroVO.fecha_ini,value:verificar_giroVO.fecha_ini, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+
+          <label class="field-icon"><i class="fa fa-calendar"></i></label>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="datepicker1" class="field prepend-icon">
+
+          <input id="datepicker2" name="datepicker2" class="form-control" type="text" placeholder="Seleccione la fecha final"
+          data-bind="datePicker:verificar_giroVO.fecha_fin,value:verificar_giroVO.fecha_fin, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+
+          <label class="field-icon"><i class="fa fa-calendar"></i></label>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label>Cuenta</label>
+        <select class="form-control" data-bind="value:verificar_giroVO.cuenta_verif">
+          <option value="">[Selecciones...]</option>
+            <!--ko foreach:{ data:lista_cuenta_select, as:'item'} -->
+              <option data-bind="value:item.id,text:item.nombre"></option>
+            <!--/ko-->
+        </select>
+      </div>
+
+      <div class="form-group">          
+        <label>Archivo</label>
+          <input type="file" class="note-image-input" id="archivo" name="archivo"  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" data-bind="fileData:{value:verificar_giroVO.soporte_verif,allowedFileExtensions: ['xlsx'],
+                                     elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+          <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado xlsx.<br></small>                                               
+      </div>
+
+    </form>
+
+      <button type="button" class="btn btn-primary" data-bind="click:consulta_excel"><i class="fa fa-search"></i> Consultar</button>
+
+  </div><!--cierra col-lg-->
+</div><!--cierra row-->
+
+
+
+<div id="row"><br><br><br>
+
+  <div class="col-lg-12" data-bind="visible:(listado_errores()!=null && listado_errores().length > 0)">
+
+    <center><label>Informe de conflictos entre registros del sistema y archivo recibido</label><center><br>
+
+    <table class="table">
+                            
+        <thead>
+              <tr>
+                  <th>Descripcion error</th>
+                  <th>Archivo recibido</th>
+                  <th>Registro del sistema</th>
+              </tr>
+        </thead>
+
+        <tbody data-bind="foreach:{data:listado_errores, as:'item'}">
+          <tr>
+              <td data-bind="text: item.descripcion"></td>
+
+              <!--ko if:(item.validacion == '1') -->
+                <td data-bind="text: item.archivo_recibido"></td>
+              <!--/ko-->
+
+
+              <!--ko if:(item.validacion == '2') -->
+                <td data-bind="text: formatMoney(item.archivo_recibido)"></td>
+              <!--/ko-->
+
+
+              <!--ko if:(item.validacion == '1') -->
+                <td data-bind="text: item.registro_sistema"></td> 
+              <!--/ko-->
+
+
+              <!--ko if:(item.validacion == '2') -->
+                <td data-bind="text: formatMoney(item.registro_sistema)"></td>
+              <!--/ko-->
+                             
+          </tr>
+        </tbody>
+
+    </table>
+
+  </div><!--cierra col-lg-->
+
+</div><!--cierra el row-->
+
+                  

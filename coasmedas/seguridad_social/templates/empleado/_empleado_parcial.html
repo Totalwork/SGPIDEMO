@@ -1,0 +1,339 @@
+
+
+     <div class="panel-body">
+     
+     	<div class="row">
+
+      <div class="row">
+        
+       
+          
+          <div class="kv-avatar center-block" style="width:200px;">
+                <input id="foto" name="foto1" type="file" class="file-loading" data-bind="perfilImage:{value:empleadoVO.foto_publica,allowedFileExtensions: ['jpg','jpge'],
+                                  elErrorContainer: '#errorBlock', removeLabel:'', source:foto}">
+                                  <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados jpg y jpge.<br></small>
+            </div>  
+          <div id="errorBlock" class="help-block"></div>
+        
+
+      </div>
+
+	     	<div class="col-lg-6">
+	     			     		
+				<div class="form-group">
+	     			
+	     			<label>*Persona</label>
+	     			<input type="text" class="form-control" placeholder="" data-bind="value:nombre_persona,visible:empleadoVO.id()>0" readonly>  
+	     			<div class="input-group" data-bind="visible:empleadoVO.id()==0">
+              <input type="text" class="form-control" placeholder="" data-bind="value:nombre_persona" readonly>  
+              <input type="hidden" data-bind="value:empleadoVO.persona_id">
+              <span class="input-group-addon" title="Crear persona" data-bind="click:abrir_crear_persona" style="cursor: pointer;">
+                <i class="fa fa-plus"></i>
+              </span>
+                <span class="input-group-addon" title="Buscar persona" data-bind="click:abrir_buscar_persona" style="cursor: pointer;">
+                <i class="fa fa-search"></i>
+              </span>
+            </div>                      
+                
+	     		</div>
+
+	     		<div class="form-group">	     			
+	     			<label>*Contratista</label>
+	     			<select class="form-control" data-bind="value:empleadoVO.contratista_id, enable: !(empleadoVO.id()>0) || (contratista_id() == '' && empleadoVO.id()>0) ">
+		            <option value="">[Seleccione..]</option>
+		            {% for cont in contratistas %}
+		              <option value="{{ cont.id }}">{{ cont.nombre }}</option>
+		            {% endfor %}
+		        </select>
+	     		</div>
+
+	     		<div class="form-group">
+	     			<label>*Fecha de nacimiento</label>	     			
+            <div class="input-group date">
+            <input type="text" class="form-control" id="fecha_nacimiento" data-bind="datePicker:empleadoVO.fecha_nacimiento,value:empleadoVO.fecha_nacimiento,dateTimePickerOptions:{maxDate:new Date()}">
+              <label for="fecha_nacimiento" class="input-group-addon cursor">
+                <i class="fa fa-calendar"></i>
+              </label>
+            </div> 
+	     		</div>
+
+         <div class="form-group">
+            <label>*Cargo</label>
+            <select class="form-control" data-bind="optionsValue:'id',value:empleadoVO.cargo_id">
+                 <option value="">[Seleccione..]</option>
+                <!-- ko foreach:{data:listado_cargos, as:'item'} -->
+                  <option data-bind="value:item.id, text:item.nombre"></option>   
+                <!-- /ko -->                   
+            </select>
+           </div>
+
+	     		<div class="form-group">
+	     			<label>*Escolaridad</label>           
+	     			<select class="form-control" data-bind="value:empleadoVO.escolaridad_id">
+		              <option value="">[Seleccione..]</option>
+		              {% for item in escolaridades %}
+		                <option value="{{ item.id }}">{{ item.nombre }}</option>
+		              {% endfor %}   
+		        </select>
+	     		</div>
+
+	     		<div class="form-group" id="test">
+	     			<label data-bind="visible:requiere_soporte_tsa()">*Fecha de trabajo en altura</label>	
+            <label data-bind="visible:!requiere_soporte_tsa()">Fecha de trabajo en altura</label>   			
+	     			 <div class="input-group date">
+                <input type="text" class="form-control" id="fecha_tsa" data-bind="datePicker:empleadoVO.fecha_tsa,value:empleadoVO.fecha_tsa">
+                  <label for="fecha_tsa" class="input-group-addon cursor">
+                    <i class="fa fa-calendar"></i>
+                  </label>                       
+              </div>  
+	     		</div>   
+
+           <div class="form-group">
+            
+            <label data-bind="visible:requiere_soporte_tsa()">*Soporte de trabajo en altura</label>
+            <label data-bind="visible:!requiere_soporte_tsa()">Soporte de trabajo en altura</label>
+            <input id="soporte_tsa" type="file" class="note-image-input" data-bind="fileData:{value:empleadoVO.soporte_tsa,allowedFileExtensions: ['pdf'],
+                                     elErrorContainer: '#errorBlock', removeLabel:'', msgSelected:'Solo pdf'}">
+                  <input type="hidden" data-bind="value:empleadoVO.soporte_tsa"> 
+                  <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>
+                  <!--ko if: empleadoVO.id()>0 && soporte_tsa()!='' && soporte_tsa()!=null -->
+                    <a data-bind="click: function(){ ver_soporte(empleadoVO.id(), 'soporte_tsa');}" target="_blank">
+                    <i class="fa fa-file"></i>
+                    Ver soporte de sta
+                    </a>
+                    <br>
+                  <!-- /ko -->                  
+          </div>		
+
+	     	</div><!--Fin col-lg-6-->
+
+	     	<div class="col-lg-6">
+
+          <div class="form-group">
+            <label>*Licencia de conducción</label>
+             <select id="tiene_licencia" class="form-control" data-bind="value:empleadoVO.tiene_licencia">
+              <option value="">[Seleccione..]</option>
+              <option value="1">Si</option>
+              <option value="0">No</option>
+              
+            </select>
+          </div>
+
+          <div class="form-group" data-bind="visible:empleadoVO.tiene_licencia()=='1'">
+            <label>*Vencimiento de la licencia</label>           
+            <div class="input-group date">
+            <input type="text" class="form-control" id="vencimiento_licencia" data-bind="datePicker:empleadoVO.vencimiento_licencia,value:empleadoVO.vencimiento_licencia">
+              <label for="vencimiento_licencia" class="input-group-addon cursor">
+                <i class="fa fa-calendar"></i>
+              </label>
+            </div> 
+          </div>
+	     		
+          <div class="form-group" data-bind="visible:empleadoVO.tiene_licencia()=='1'">
+            
+            <label>*Soporte de la licencia</label>           
+            <input id="soporte_licencia" type="file" class="note-image-input" data-bind="fileData:{value:empleadoVO.soporte_licencia,allowedFileExtensions: ['doc','docx','pdf'],elErrorContainer: '#errorBlock_lc', removeLabel:'', msgSelected:'Solo doc, docx y pdf'}">
+            <input type="hidden" data-bind="value:empleadoVO.soporte_licencia">
+            <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados doc, docx y pdf.<br></small>            
+            <!--ko if: empleadoVO.id()>0 && soporte_licencia()!='' && soporte_licencia()!=null -->
+              <a data-bind="click: function(obj){ ver_soporte(empleadoVO.id(), 'soporte_licencia');}" href="#">
+              <i class="fa fa-file"></i>
+              Ver licencia
+              </a>
+              <br>
+            <!-- /ko -->
+
+          </div>
+
+	     		<div class="form-group">
+	     			<label>*Matricula</label>
+	     			 <select id="matricula" class="form-control" data-bind="value:empleadoVO.matricula_id">
+              <option value="">[Seleccione..]</option>
+              {% for item in matriculas %}
+                <option value="{{ item.id }}">{{ item.nombre }}</option>
+              {% endfor %}   
+            </select>
+	     		</div>
+
+	     		<div class="form-group" data-bind="visible:(empleadoVO.matricula_id()==2)">
+	     			
+	     			<label data-bind="visible:requiere_soporte_tsa()">*Soporte de matricula</label>
+            <label data-bind="visible:!requiere_soporte_tsa()">Soporte de matricula</label>
+	     			<input id="soporte_matricula" type="file" class="note-image-input" data-bind="fileData:{value:empleadoVO.soporte_matricula,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}">
+	     			<input type="hidden" data-bind="value:empleadoVO.soporte_matricula">
+            <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.</small>
+	     			<span style="display: none;" id="validacion_soporte_matricula" class="validationMessage">(*) Seleccione el soporte de matricula.<br></span>
+
+	     			<!--ko if: empleadoVO.id()>0 && soporte_matricula()!='' && soporte_matricula()!=null -->
+	     				<a data-bind="click: function(obj){ ver_soporte(empleadoVO.id(), 'soporte_matricula');}" href="#">
+	     				<i class="fa fa-file"></i>
+	     				Ver soporte de matricula
+	     				</a>
+              <br>
+	     			<!-- /ko -->
+	     		</div>
+
+	     		<div class="form-group" data-bind="visible:(empleadoVO.matricula_id()==2)">
+	     			<label>*Tipo de matricula</label>
+	     			<select id="tipo_matricula" class="form-control" data-bind="value:empleadoVO.tipo_matricula_id">
+		              <option value="">[Seleccione..]</option>
+		              {% for item in tipos %}
+		                <option value="{{ item.id }}">{{ item.nombre }}</option>
+		              {% endfor %}   
+		            </select>
+					<span style="display: none;" id="validacion_tipo_matricula" class="validationMessage">(*) Seleccione el tipo de matricula.</span>
+
+	     		</div>
+
+	     
+	     	
+	     		<div class="form-group" id="test">
+	     			<label>Ingreso al proyecto</label>	     			
+	     			 <div class="input-group date">
+                      <input type="text" class="form-control" id="fecha_ingreso" data-bind="datePicker:empleadoVO.fecha_ingreso,value:empleadoVO.fecha_ingreso">
+                        <label for="fecha_ingreso" class="input-group-addon cursor">
+                          <i class="fa fa-calendar"></i>
+                        </label>                       
+                      </div>  
+	     		</div>
+
+	     		<div class="form-group">
+	     			
+            <label data-bind="visible:requiere_hoja_de_vida()">*Hoja de vida</label>
+	     			<label data-bind="!visible:requiere_hoja_de_vida()">Hoja de vida</label>
+	     			<input id="hoja_de_vida" type="file" class="note-image-input" data-bind="fileData:{value:empleadoVO.hoja_de_vida,allowedFileExtensions: ['doc','docx','pdf'],elErrorContainer: '#errorBlock_hv', removeLabel:'', msgSelected:'Solo doc, docx y pdf'}">
+	     			<input type="hidden" data-bind="value:empleadoVO.hoja_de_vida">
+            <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados doc, docx y pdf.<br></small>	     			
+	     			<!--ko if: empleadoVO.id()>0 && hoja_de_vida()!='' && hoja_de_vida()!=null -->
+	     				<a data-bind="click: function(obj){ ver_soporte(empleadoVO.id(), 'hoja_de_vida');}" href="#">
+	     				<i class="fa fa-file"></i>
+	     				Ver hoja de vida
+	     				</a>
+              <br>
+	     			<!-- /ko -->
+
+	     		</div>
+
+	     		<div class="form-group">
+	     			<label>Observación</label>
+	     			<textarea class="form-control" data-bind="value:empleadoVO.observacion" rows="5" cols="3"></textarea>
+	     		</div>
+
+
+	     	</div>
+
+		</div>
+
+		<button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+
+     </div>  
+
+          	
+<!--Modal-->
+
+<div id="modal_buscar_persona" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Buscar Persona</h4>
+      </div>
+       <div class="modal-body">
+       	
+        		<div class="form-group">
+	     				     			
+	     			<div class="input-group">
+              <input id="txt_buscar_persona" type="text" class="form-control" placeholder="Buscar Persona" data-bind="value:filtro_persona, event:{keypress:consulta_enter_persona}">
+                <span class="input-group-addon" title="Buscar persona" data-bind="click:consultar_persona">
+                <i class="fa fa-search"></i>
+              </span>
+            </div>                      
+                
+                <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Personas</span>
+                  </div>
+                  <div class="panel-body panel-scroller scroller-xs scroller-pn pn">
+                    <table class="table mbn tc-med-1 tc-bold-last">
+                      <thead>
+                        <tr>   
+                          <th></th>                      
+                          <th>Cédula</th>
+                          <th>Nombre</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_persona, as:'item'}">
+                        <tr data-bind="attr:{for:'radio_persona-'+$index()}">
+                          <td>
+                          	<label style="width: 100%;">
+                          	<input data-bind="attr:{id:'radio_persona-'+$index(), value:item.id},checked:$parent.id_persona" type="radio" name="radio_persona"> 
+                          	</label>
+                          </td>
+                         <td style="text-align: left;">
+                            <label style="width: 100%;" data-bind="attr:{for:'radio_persona-'+$index()},text:item.cedula"></label>
+                          </td>
+                            <td style="text-align: left;">
+                          	<label style="width: 100%;" data-bind="attr:{for:'radio_persona-'+$index()},text:(item.nombres + ' ' + item.apellidos)"></label>
+                        	</td>                        	
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+
+	     		</div>
+
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:seleccionar_persona">Listo</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<div id="modal_crear_persona" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Crear Persona</h4>
+      </div>
+       <div class="modal-body">
+       	
+         		 {% csrf_token %}
+         		 <div class="form-group">
+         		   <label>Cedula(*)</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.cedula">           
+         		 </div>
+         		 <div class="form-group">          
+         		   <label>Nombres(*)</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.nombres">
+         		 </div>
+
+         		 <div class="form-group">          
+         		   <label>Apellidos(*)</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.apellidos">
+         		 </div>
+
+         		  <div class="form-group">          
+         		   <label>Dirección</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.direccion">
+         		 </div>
+
+         		  <div class="form-group">          
+         		   <label>Correo(*)</label>
+         		   <input type="text" class="form-control" data-bind="value:personaVO.correo">
+         		 </div>
+         		
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_persona">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<!--Modal-->

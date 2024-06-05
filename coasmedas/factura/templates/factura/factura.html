@@ -1,0 +1,983 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+	<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+	<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+	<!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/tagmanager/tagmanager.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}Factura{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'factura.inicio' %}">Opciones</a></li>
+  <li class="active">Factura</li>
+{% endblock mapa %}
+{% block encabezado %}<!-- Factura -->{% endblock encabezado %}
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+  {% if app in perms %}
+		  
+			<li>
+				<a href="#">
+					<i class="fa fa-cloud-download" data-bind="click:exportar_excel" style="font-size: 20px;"></i>
+				</a>
+			</li>
+		
+	{% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+<!-- <div class="alert alert-default light alert-dismissable">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+	<i class="fa fa-cog pr10 hidden"></i>
+	<span data-bind="html:tituloPanel"></span>
+</div> -->
+
+<div class=" row">
+  
+  <div class="col-lg-12">
+
+		<div class="panel panel-sky">
+			<div class="panel-heading">
+				<span class="panel-title">
+					<span>      
+						<a href="{% url 'factura.inicio' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"						aria-hidden="true"></i></a>
+					  </span>  					
+					Listado de Facturas <span data-bind="html:num_registro"></span>
+				</span>
+<!-- 
+				<span class="panel-controls">
+		          <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Descargar Plantilla" data-bind="click:abrir_proyecto_factura" data-toggle="modal" style="cursor:pointer;">
+		          <i class="fa fa-th-list fa-2x"></i>
+		          </a>
+        		</span> -->
+
+        		<span class="panel-controls">
+		          <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar" data-bind="click:abrir_filtro" data-toggle="modal" style="cursor:pointer;">
+		          <i class="fa fa-filter fa-2x"></i>
+		          </a>
+        		</span>
+
+        		<!--ko if:'{{user.usuario.empresa.control_pago_factura}}'=='True' -->
+        		<span class="panel-controls">
+		          <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Registrar Pago" data-bind="click:pagar_factura" data-toggle="modal" style="cursor:pointer;">
+		          <i class="fa fa-dollar fa-2x"></i>
+		          </a>
+        		</span>
+						<!--/ko-->
+				{% if 'factura.change_factura' in perms %}
+						<span class="panel-controls">
+							<a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Recursos Propios" data-bind="click:recursos_propios" data-toggle="modal" style="cursor:pointer;">
+							<i class="fa fa-exchange fa-2x"></i>
+							</a>
+						</span>
+				{% endif %}
+
+      </div>
+			<div class="panel-body">
+				<div data-bind="html: mensaje"></div>
+				<div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0), dropdown">
+					<i class="text-danger fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Anulada];
+					&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-primery fa fa-bell-o" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Pendiente de pago];&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="text-alert fa fa-bell" style="font-size:16px"></i>
+					&nbsp;:&nbsp;[Compensada];&nbsp;&nbsp;&nbsp;&nbsp;
+
+					<i class="fa fa-bell" style="color:#0F0;font-size:16px"></i>
+					&nbsp;:&nbsp;[Pagada];
+
+					<br>
+					<br>
+					<table class="table">
+						<thead>
+							<tr>
+								{% if 'factura.change_factura' in perms %}
+								<th style="width:10%">
+			                      <div class="option-group field admin-form">
+			                        <label class="option option-primary"  style="">
+			                          <input type="checkbox" data-bind="checked:checkall_factura">
+			                          <span class="checkbox"></span>
+			                        </label>
+			                      </div>
+                  				</th>
+                  				{% endif %}
+
+								<th style="width: 10%;">Documento</th>
+								<th style="width: 12%;">N° Contrato</th>
+								<th style="width: 10%;">N° Factura</th>
+								<th style="width: 10%;">Referencia</th>
+								<th style="width: 28%;">Conceptos</th>
+								<th style="width: 10%;">Valor Facturado</th>
+								<th style="width: 10%;">Valor Contabilizado</th>
+								<th style="width: 10%;">Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--ko foreach:{ data:listado, as:'item'} -->
+								<tr data-bind="css:{'danger': item.estado.id == $parent.estado.anulada(),
+																		'alert': item.estado.id == $parent.estado.compensada(),
+																		'primery': item.estado.id == $parent.estado.activa()}">
+
+								{% if 'factura.change_factura' in perms %}
+									<td>
+										<!--ko if:((item.estado.id != $parent.estado.anulada())) -->
+					                    <div class="option-group field admin-form">
+					                        <label class="option option-primary"  style="">
+					                          <input type="checkbox" data-bind="checked:eliminado">
+					                          <span class="checkbox"></span>
+					                        </label>
+					                    </div>
+					                    <!--/ko-->
+					                </td> 
+					              {% endif %}
+
+									<td>
+										<a href="#" data-bind="click: $root.ver_soporte" 
+										target="_blank" style="cursor:pointer;">
+                                			<i class="fa fa-file-text-o fa-2x"></i>
+                      					</a>
+									</td>
+									<td data-bind="text: item.contrato.numero"></td>
+									<td data-bind="text: item.numero"></td>
+									<td data-bind="text: item.referencia"></td>
+									<td data-bind="text: item.concepto"></td>
+									<td data-bind="text: formatMoney(item.valor_factura)"></td>
+									<td data-bind="text: formatMoney(item.valor_contable)"></td>
+									<td>
+										<div class="btn-group text-right">
+											<i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+											<ul class="dropdown-menu" role="menu">
+												{% if 'factura.change_factura' in perms %}
+												<!--ko if:((item.estado.id != $parent.estado.anulada()) && (item.estado.id != $parent.estado.compensada())) -->
+													<li data-bind="if: !item.soloLectura">
+														<a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+													</li>
+												<!--/ko-->
+												{% endif %}
+												<li>
+													<a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+												</li>
+												<!--ko if:(item.estado.id != $parent.estado.anulada()) -->
+												{% if 'factura.change_factura' in perms %}
+													<li data-bind="if: !item.soloLectura">
+														<a href="#" data-bind="click:$root.anular_facturas">Anular</a>
+													</li>
+												{% endif %}
+												<!--/ko-->
+												<li>
+													<a href="#" data-bind="click:$root.consultarFacturaProyecto">Proyecto</a>
+												</li>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							<!--/ko-->
+						</tbody>
+					</table>
+					<div id="paginacion" >
+						<div data-bind="pagination: {
+									   currentPage: paginacion.pagina_actual,
+									   totalCount: paginacion.total,
+									   pageSize:paginacion.cantidad_por_paginas,
+									   maxPages: paginacion.maxPaginas,
+									   directions: paginacion.direcciones,
+									   boundary: paginacion.limite,
+									   text: paginacion.text }">
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+
+<!--Inicio Modal - Guardar Factura -->
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel" data-bind='text:factura.titulo'></h4>
+			</div>
+			<div class="modal-body">
+				<form action="." method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col-md-6">
+							<label>Contrato:</label>
+							<div class="input-group">
+								<input class="form-control" data-bind='value:nombre' placeholder="Buscar el Contrato" type="text" disabled="">
+								<span class="input-group-addon" data-bind="click:abrir_modal_contrato" style="cursor: pointer;">
+									<i class="fa fa-binoculars"></i>
+								</span>
+								<!-- <input class="form-control" data-bind='value:facturaVO.contrato_id' type="hidden"> -->
+							</div><br/>
+
+							<div class="form-group" id="validacionMcontrato" style="display: none">
+								<label>Macro Contrato:</label>
+								<input class="form-control" data-bind='value:mc_nombre' placeholder="Buscar el Macro Contrato" type="text" disabled="">
+								</div>
+
+							<div id="validacionContrato" style="display: none;color: red;">
+				                Debe seleccionar el contrato, haga clic en el boton con los binoculares para iniciar.
+				                <br/><br/>
+				            </div>
+
+							<div class="form-group">
+								<label>Número Factura:</label>
+								<input class="form-control" data-bind='value:facturaVO.numero' type="text">
+							</div>
+							<div class="form-group">
+								<label>Referencia:</label>
+								<input class="form-control" data-bind='value:facturaVO.referencia' type="text">
+							</div>
+							<div class="form-group">
+								<label>Fecha:</label>
+								<input class="form-control" data-bind='datePicker:facturaVO.fecha,value:facturaVO.fecha' type="text">
+							</div>
+							<div class="form-group">
+								<label>Concepto:</label>
+								<textarea class="form-control textarea-grow" data-bind='value:facturaVO.concepto' rows="4"></textarea>
+							</div>
+
+							<label >Mes Causado:</label>
+							<div class="row form-group admin-form">
+								
+								<div class="col-xs-6">
+									<label class=" select">
+										<select data-bind='value:mes_causado.mes' id="" name="mes_causado" class="form-control">
+											<option class="mes_casd" id="" value="">[Seleccionar...]</option>
+											<option class="mes_casd" id="01" value="Enero">Enero</option>
+											<option class="mes_casd" id="02" value="Febrero">Febrero</option>
+											<option class="mes_casd" id="03" value="Marzo">Marzo</option>
+											<option class="mes_casd" id="04" value="Abril">Abril</option>
+											<option class="mes_casd" id="05" value="Mayo">Mayo</option>
+											<option class="mes_casd" id="06" value="Junio">Junio</option>
+											<option class="mes_casd" id="07" value="Julio">Julio</option>
+											<option class="mes_casd" id="08" value="Agosto">Agosto</option>
+											<option class="mes_casd" id="09" value="Septiembre">Septiembre</option>
+											<option class="mes_casd" id="10" value="Octubre">Octubre</option>
+											<option class="mes_casd" id="11" value="Noviembre">Noviembre</option>
+											<option class="mes_casd" id="12" value="Diciembre">Diciembre</option>
+										</select><i class="arrow"></i>
+									</label>
+								</div>
+								<div class="col-xs-3">
+									<input data-bind='value:mes_causado.ano, onlyNumber:ano' class="form-control" placeholder="Año" maxlength="4" minlength="4" type="text">
+								</div>
+								<div class="col-xs-3">
+									<button class="btn btn-primary form-control" style="margin-bottom:10px;" data-bind="click:agregarMesCausado">Agregar</button>
+								</div>
+								
+							</div>
+
+							<table data-bind="visible:(mes_causado_array()!=null && mes_causado_array().length > 0), dropdown" class="table table-bordered table-hover table-striped tablesorter">
+								<thead>
+									<tr>
+										<th>Mes</th>
+										<th>Año</th>                              
+										<th></th>
+									</tr>
+								</thead>
+								<tbody data-bind="foreach: {data:mes_causado_array(), as:'item'}">
+									<tr>
+										<td data-bind="text:item.mes"></td>
+										<td data-bind="text:item.ano"></td>
+										<td>
+											<a href="#" data-bind="click: $parent.removerMesCausado">
+												<i class="fa fa-trash fa-2x"></i>
+											</a>
+										</td>
+									</tr>
+								</tbody>
+							</table><br/>
+
+						</div>
+						<div class="col-md-6">
+							
+							<div class="form-group">
+								<label>Valor Facturado:</label>
+								<input type="text" class="form-control" data-bind='value:facturaVO.valor_factura.formatted, onlyNumber:facturaVO.valor_factura'>
+							</div>
+							<div class="form-group">
+								<label>Valor Contabilizado:</label>
+								<input type="text" class="form-control" data-bind='value:facturaVO.valor_contable.formatted, onlyNumber:facturaVO.valor_contable, hasFocus: validarValorContable'>
+							</div>
+
+							<div class="form-group">
+								<label>No Radicado:</label>
+								<input type="text" class="form-control" data-bind='value:facturaVO.radicado'>
+							</div>
+
+							<label>Factura Final:</label>
+							<div class="option-group field admin-form" >
+								<label class="option option-primary">
+									<input name="mobileos" value="ok" type="checkbox" data-bind="checked:facturaVO.factura_final">
+									<span class="checkbox"></span>Seleccionar como Factura Final
+								</label>
+							</div><br>
+
+							<label>Recursos Propios:</label>
+							<div class="option-group field admin-form" >
+								<label class="option option-primary">
+									<input name="mobileos" value="1" type="checkbox" data-bind="checked:facturaVO.recursos_propios">
+									<span class="checkbox"></span>Seleccionar para pagar con recursos propios
+								</label>
+							</div><br>
+
+							<div class="panel panel-sky" data-bind="visible:(lista_proyecto()!=null && lista_proyecto().length > 0)">
+								<div class="panel-heading">
+									<span class="panel-title">
+										Listado de Proyectos
+									</span>
+								</div>
+								<div class="panel-body">
+									<div class="table-responsive" data-bind="dropdown">
+										<table class="table">
+											<thead>
+												<tr>
+													<!-- <th>Número</th> -->
+													<th>
+														<div class="option-group field admin-form">
+															<label class="option option-primary" >
+																<input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+																<span class="checkbox"></span>
+															</label>
+														</div>
+													</th>
+													<th>Nombre</th>
+												</tr>
+											</thead>
+											<tbody>
+												<!--ko foreach:{ data:lista_proyecto, as:'item'} -->
+													<tr>
+														<td>
+															<div class="option-group field admin-form" >
+																<label class=" mt10 option option-primary"  >
+																	<input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:item.id" />
+																	<span class="checkbox"></span>
+																	<!-- <span data-bind="text: item.nombre"></span> -->
+																</label>
+															</div><!-- end .option-group section -->
+														</td>
+														<!-- <td>
+															<i data-bind="click:$root.ponerContrato" style="cursor: pointer; color:#4a89dc" class="fa fa-check fa-2x"></i>
+														</td> -->
+														<!-- <td data-bind="text: item.numero"></td> -->
+														<td data-bind="text: item.nombre"></td>
+													</tr>
+												<!--/ko-->
+											</tbody>
+										</table>
+										<!-- <div id="paginacion2" >
+											<div data-bind="pagination: {
+														   currentPage: paginacion2.pagina_actual,
+														   totalCount: paginacion2.total,
+														   pageSize:paginacion2.cantidad_por_paginas,
+														   maxPages: paginacion2.maxPaginas,
+														   directions: paginacion2.direcciones,
+														   boundary: paginacion2.limite,
+														   text: paginacion2.text }">
+											</div>
+										</div> -->
+									</div>
+
+								</div>
+							</div><!-- /.panel panel-sky -->
+
+							<div class="form-group">
+								<label>Soporte:</label>
+								<input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:facturaVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+								<input type="hidden" data-bind="value:facturaVO.soporte">								
+							
+								<small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>
+								
+								<!--ko if: facturaVO.id()>0 && soporte()!='' && soporte()!=null -->
+									<a data-bind="attr:{href: soporte}" target="_blank">
+										<i class="fa fa-file"></i>
+										Ver soporte
+									</a>
+									<br>
+								<!-- /ko -->
+							</div>
+						</div>
+					</div>
+					<br/>
+					<div data-bind="html: mensaje_nueva_factura"></div>
+				</form>
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Guardar Factura -->
+
+<!--Inicio Modal - Buscar Contrato -->
+<div id="modal_contrato" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Buscar Contrato</h4>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-md-12">
+
+						<label>Tipo de Contrato:</label>
+						<div class="form-group admin-form">
+							<label class=" select">
+							<select class="form-control" data-bind="value:buscar_contrato.tipo_contrato">
+								<option value="">[Seleccione...]</option>
+								{% for item in tipos %}
+									<option value="{{ item.id }}">{{ item.nombre }}</option>
+								{% endfor %}
+							</select><i class="arrow"></i>
+							</label>
+						</div>
+
+						<div class="form-group">
+							<label>Número o Nombre:</label>
+							<input class="form-control" data-bind='value:buscar_contrato.nom_num_contrato' type="text">
+						</div>
+					</div>
+				</div>
+				<br/>
+				<div data-bind="html: mensaje_cont"></div>
+
+				<div class="panel panel-sky" data-bind="visible:(lista_contrato()!=null && lista_contrato().length > 0)">
+					<div class="panel-heading">
+						<span class="panel-title">
+							Listado de contratos
+						</span>
+					</div>
+					<div class="panel-body">
+						<div class="table-responsive" data-bind="dropdown">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Número</th>
+										<th>Nombre</th>
+										<th>Seleccionar</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!--ko foreach:{ data:lista_contrato, as:'item'} -->
+										<tr>
+											<td data-bind="text: item.numero"></td>
+											<td data-bind="text: item.nombre"></td>
+											<td> <!-- data-bind="click:$root.ponerContrato" -->
+												<div  class="col-md-9 radio-custom radio-primary mb5">
+													<input data-bind="checked: $root.facturaVO.contrato_id, attr: { id: 'idcontrato'+item.id, value:item.id }" type="radio" value=""  name="referencia">
+													<label data-bind="attr: { for: 'idcontrato'+item.id }, click:$root.ponerContrato" ></label>
+												</div>
+											</td>
+										</tr>
+									<!--/ko-->
+								</tbody>
+							</table>
+							<div id="paginacion2" >
+								<div data-bind="pagination: {
+											   currentPage: paginacion2.pagina_actual,
+											   totalCount: paginacion2.total,
+											   pageSize:paginacion2.cantidad_por_paginas,
+											   maxPages: paginacion2.maxPaginas,
+											   directions: paginacion2.direcciones,
+											   boundary: paginacion2.limite,
+											   text: paginacion2.text }">
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div><!-- /.panel panel-sky -->
+
+			</div><!-- /.modal-body -->
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ buscarContrato(1);}">Filtrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Buscar Contrato -->
+
+<!--Inicio Modal - Filtro factura -->
+<div id="modal_filtro" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Filtro Factura</h4>
+			</div>
+			<div class="modal-body">
+				<form action="." method="post" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col-md-12">
+
+							<div class="form-group">
+								<label>M-Contrato:</label>
+								<select class="form-control" data-bind="value:filtro_factura.mcontrato">
+									<option value="">[Seleccione...]</option>
+									{% for item in mcontratos %}
+										<option value="{{ item.id }}">{{ item.nombre }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<div class="form-group">
+								<label>Tipo de Contrato:</label>
+								<select class="form-control" data-bind="value:filtro_factura.tipo">
+									<option value="">[Seleccione...]</option>
+									{% for item in tipos %}
+										<option value="{{ item.id }}">{{ item.nombre }}</option>
+									{% endfor %}
+								</select>
+							</div>
+
+							<label>Contratista:</label>
+							<div class="input-group">
+								<input class="form-control" id="contratista_nom" data-bind='value:filtro_factura.contratista_nom, event:{keypress: $root.consulta_enter_filtro}' placeholder="Buscar el Contratista" type="text">
+								<span class="input-group-addon" data-bind="click:empresa" style="cursor: pointer;">
+									<i class="fa fa-search"></i>
+								</span>
+							</div>
+							<div class="form-group">
+								<select class="form-control" data-bind="value:filtro_factura.contratista">
+									<option value="">[Seleccione...]</option>
+									<!--ko foreach:{ data:filtro_factura.contratista_lista, as:'item'} -->
+										<option data-bind="value:item.id,text:item.nombre"></option>
+									<!--/ko-->
+								</select>
+							</div>
+
+
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>N° Contrato:</label>
+										<input class="form-control" data-bind='value:filtro_factura.numero_c' type="text">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>N° Radicado:</label>
+										<input class="form-control" data-bind='value:filtro_factura.radicado' type="text">
+									</div>
+								</div>
+							</div>
+
+							
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Referencia:</label>
+										<input class="form-control" data-bind='value:filtro_factura.referencia' type="text">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>N° Factura:</label>
+										<input class="form-control" data-bind='value:filtro_factura.numero_f' type="text">
+									</div>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label>Periodo:</label>
+								<div class="row">
+									<div class="col-md-6">
+										<input class="form-control" data-bind='datePicker:filtro_factura.desde, value:filtro_factura.desde' placeholder="Desde" type="text">
+									</div> <!--<p style="float:left;">&nbsp; a &nbsp;</p> -->
+									<div class="col-md-6">
+										<input class="form-control" data-bind='datePicker:filtro_factura.hasta, value:filtro_factura.hasta' placeholder="Hasta" type="text">
+									</div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</form>
+
+			</div><!-- /.modal-body -->
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ consultar(1);}">Filtrar</button>
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ limpiar_filtro();}">Limpiar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Filtro factura -->
+
+<!--Inicio Modal - Detalle de la factura-->
+<div id="detalle_factura" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Detalle de la Factura</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <h4> Información de la factura </h4>
+          <ul class="icon-list">
+            <li>
+              <b> Referencia:</b>&nbsp;<small data-bind="html:detalle.referencia"></small>
+            </li>
+            <li>
+              <b> Número:</b>&nbsp;<small data-bind="html:detalle.numero"></small>
+            </li>
+            <li>
+              <b> No. Contrato:</b>&nbsp;<small data-bind="html:detalle.contrato_num"></small>
+            </li>
+            <li>
+              <b> Estado:</b>&nbsp;<small data-bind="html:detalle.estado"></small>
+            </li>
+            <li>
+              <b> Fecha:</b>&nbsp;<small data-bind="html:detalle.fecha"></small>
+            </li>
+            <li>
+              <b> Concepto:</b>&nbsp;<small data-bind="html:detalle.concepto"></small>
+            </li>
+            <li>
+              <b> valor_factura:</b>&nbsp;<small data-bind="html:formatMoney(detalle.valor_factura())"></small>
+            </li>
+            <li>
+              <b> valor_contable:</b>&nbsp;<small data-bind="html:formatMoney(detalle.valor_contable())"></small>
+            </li>
+            <li>
+              <b> valor_subtotal:</b>&nbsp;<small data-bind="html:formatMoney(detalle.valor_subtotal())"></small>
+            </li>
+            <li>
+              <b> No. Radicado:</b>&nbsp;<small data-bind="html:detalle.radicado"></small>
+            </li>
+            <li>
+              <b> Mes Causado:</b>&nbsp;<small data-bind="text: detalle.meses"></small>
+            </li>
+            <li>
+              <b> Soporte:</b>&nbsp;<small>
+												              <!--ko if: detalle.soporte()!='' && detalle.soporte()!=null -->
+																				<a data-bind="attr:{href: detalle.soporte}" target="_blank">
+																					<i class="fa fa-file"></i>
+																					Ver soporte
+																				</a>
+																			<!-- /ko -->
+																			<!--ko if: detalle.soporte()=='' || detalle.soporte()==null -->
+																				Sin soporte
+																			<!-- /ko -->
+																		</small>
+            </li>
+          </ul>
+        </div>
+			</div> <!-- ./modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle Detalle de la factura-->
+
+<!--Inicio Modal - Guardar proyecto-factura -->
+<div id="modal_proyecto_factura" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Descargar Plantilla</h4>
+			</div>
+			<div class="modal-body">
+				
+				<div class="row">
+					<div class="col-md-12">
+						<div class="form-group">
+							<label>M-Contrato:</label>
+							<select class="form-control" data-bind="value:buscar_platilla.mcontrato">
+								<option value="">[Seleccione...]</option>
+								{% for item in mcontratos %}
+									<option value="{{ item.id }}">{{ item.nombre }}</option>
+								{% endfor %}
+							</select>
+						</div>
+
+						<button type="button" class="btn btn-primary" data-bind="click:descargarPlantilla">Descargar</button>
+
+						<div class="form-group">          
+							<label>Soporte:</label>
+							<input type="file" class="note-image-input" id="plantilla" name="plantilla" data-bind="fileData:{value:buscar_platilla.soporte,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+							<small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados xls y xlsx.<br></small>						
+						</div>
+
+						<button type="button" class="btn btn-primary" data-bind="click:guardarFacturaProyecto">Guardar</button>
+					</div>
+				</div>
+				<br/>
+				<div data-bind="html: mensaje_cont"></div>
+			</div><!-- /.modal-body -->
+
+			<!-- <div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ buscarContrato(1);}">Filtrar</button>
+			</div> -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Guardar proyecto-factura -->
+
+<!--Inicio Modal - Detalle de la factura-->
+<div id="detalle_factura_proyecto" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Detalle Factura Proyecto</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <!-- <h4> Información de la factura proyecto </h4> -->
+          <div data-bind="html: mensaje_factura_proyecto"></div>
+          <!--ko foreach:{ data:lista_factura_proyecto, as:'item'} -->
+	          <ul class="icon-list">
+	            <li>
+	              <b> Referencia Factura:</b>&nbsp;<small data-bind="html:item.factura.referencia"></small>
+	            </li>
+	            <li>
+	              <b> Número Factura:</b>&nbsp;<small data-bind="html:item.factura.numero"></small>
+	            </li>
+	            <li>
+	              <b> No. Contrato:</b>&nbsp;<small data-bind="html:item.factura.contrato.numero"></small>
+	            </li>
+	            <li>
+	              <b> Nombre Proyecto:</b>&nbsp;<small data-bind="html:item.proyecto.nombre"></small>
+	            </li>
+	            <li>
+	              <b> Valor:</b>&nbsp;<small data-bind="html:formatMoney(item.valor)"></small>
+	            </li>
+	          </ul>
+	          <hr class="mt10 mb5">
+          <!--/ko-->
+        </div>
+			</div> <!-- ./modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle Detalle de la factura-->
+
+
+<!--Modal para pagar factura-->
+
+<div id="modal_pagar_factura" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+        <div class="modal-body">
+
+          <form>
+
+            <div class="form-group">
+              <label>Fecha de pago</label>
+              <div class="input-group date">
+
+                <input class="form-control" type="text" placeholder="Seleccione la fecha" 
+                data-bind="datePicker:facturaVO.fecha_pago,value:facturaVO.fecha_pago, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+                <label for="fecha_pago" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div> 
+
+          </form>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_pago">
+            <i class="fa fa-floppy-o"></i> Registrar pago
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div><!--cierra para autorizacion-->
+
+
+<!--Modal para motivo de anulacion-->
+
+<div id="modal_anular" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+          <div class="modal-body">
+
+            <form>
+
+	            <div class="form-group">
+	              <label>Motivo:</label>
+	              <textarea rows="3" data-bind="value:facturaVO.motivo_anulacion" class="form-control" placeholder="Dígite el motivo"></textarea>
+	            </div>
+
+            </form>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:anularFactura">
+              <i class="fa fa-floppy-o"></i> Anular
+            </button>
+          </div>
+
+    </div>
+  </div>
+</div><!--cierra para autorizacion-->
+
+<!--Inicio Modal - Buscar MacroContrato -->
+<div id="modal_Mcontrato" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Buscar Macro Contrato</h4>
+			</div>
+			<div class="modal-body">
+
+				<div class="row">
+					<div class="col-md-12">
+
+						<label>Tipo de Contrato:</label>
+						<div class="form-group admin-form">
+							<label class=" select">
+							<select class="form-control" disabled='True' data-bind="value:buscar_mcontrato.tipo_contrato">
+								<option value="">[Seleccione...]</option>
+								{% for item in tipos %}
+									<option value="{{ item.id }}">{{ item.nombre }}</option>
+								{% endfor %}
+							</select><i class="arrow"></i>
+							</label>
+						</div>
+
+						<div class="form-group">
+							<label>Número o Nombre:</label>
+							<input class="form-control" data-bind='value:buscar_mcontrato.nom_num_contrato' type="text">
+						</div>
+					</div>
+				</div>
+				<br/>
+				<div data-bind="html: mensaje_cont"></div>
+
+				<div class="panel panel-sky" data-bind="visible:(lista_mcontrato()!=null && lista_mcontrato().length > 0)">
+					<div class="panel-heading">
+						<span class="panel-title">
+							Listado de contratos
+						</span>
+					</div>
+					<div class="panel-body">
+						<div class="table-responsive" data-bind="dropdown">
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Número</th>
+										<th>Nombre</th>
+										<th>Seleccionar</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!--ko foreach:{ data:lista_mcontrato, as:'item'} -->
+										<tr>
+											<td data-bind="text: item.numero"></td>
+											<td data-bind="text: item.nombre"></td>
+											<td>
+												<div  class="col-md-9 radio-custom radio-primary mb5">
+													<input data-bind="checked: $root.facturaVO.mcontrato_id, attr: { id: 'idcontrato'+item.id, value:item.id }" type="radio" value=""  name="referencia">
+													<label data-bind="attr: { for: 'idcontrato'+item.id }, click:$root.ponerMContrato" ></label>
+												</div>
+											</td>
+										</tr>
+									<!--/ko-->
+								</tbody>
+							</table>
+							<div id="paginacion3" >
+								<div data-bind="pagination: {
+											   currentPage: paginacion3.pagina_actual,
+											   totalCount: paginacion3.total,
+											   pageSize:paginacion3.cantidad_por_paginas,
+											   maxPages: paginacion3.maxPaginas,
+											   directions: paginacion3.direcciones,
+											   boundary: paginacion3.limite,
+											   text: paginacion3.text }">
+								</div>
+							</div>
+						</div>
+
+					</div>
+				</div><!-- /.panel panel-sky -->
+
+			</div><!-- /.modal-body -->
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" data-bind="click:function(){ buscarMContrato(1);}">Filtrar</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Buscar MacroContrato -->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<!-- <script type="text/javascript" src='{% static "js/plugins/tagmanager/tagmanager.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/ViewModels/factura/factura.js" %}?v=3'></script>
+
+<script type="text/javascript">
+	$(document).ready(function () {
+
+		factura.buscar_mcontrato.tipo_contrato({{tipo_mcontrato}});
+	})
+</script>
+
+<!-- <script type="text/javascript">
+  $(document).ready(function () {
+    //contratoVigencia.consultar({{id_contrato}});//iniciamos la primera funcion
+    contratoVigencia.contrato_id({{id_contrato}});
+    contratoVigencia.list_sub_contratista2();
+    contratoVigencia.contrato({{id_contrato}});
+    //contratoVigencia.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script> -->
+{% endblock imports %}

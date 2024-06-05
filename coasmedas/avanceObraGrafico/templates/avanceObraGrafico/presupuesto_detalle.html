@@ -1,0 +1,207 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+
+{% block title %}Presupuesto{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.presupuesto' %}">Presupuesto</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.presupuesto_encabezado' id_proyecto %}">Encabezado Presupuesto</a></li>
+  <li class="active">Detalle Presupuesto</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}  
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+     
+  
+  <div class="panel panel-sky">
+          <div class="panel-heading">
+                <span class="panel-title">Detalle Presupuesto </span>
+                <span class="panel-controls"> 
+
+                      <!--ko if: cerrado_presupuesto() == 'False'-->       
+                       <span class="panel-icon">
+                          <a href="#" data-bind="click:abrir_modal"><i class="fa fa-arrow-up" style="font-size: 20px;"></i></a>
+                        </span>
+
+                                          
+                         <span class="panel-icon">
+                          <a href="#" data-bind="click:guardar_presupuesto"><i class="fa fa-check" style="font-size: 20px;"></i></a>
+                        </span>
+
+                        <span class="panel-icon">
+                          <a href="#" data-bind="click:guardar_cantidad"><i class="fa fa-save" style="font-size: 20px;"></i></a>
+                        </span>
+                        <!--/ko--> 
+
+                        <span class="panel-icon">
+                          <a href="#" data-bind="click:abrir_modal_filter"><i class="fa fa-filter" style="font-size: 20px;"></i></a>
+                        </span>
+                </span>
+          </div>
+          
+          <div class="panel-body" >
+           <Strong>Presupuesto:  {{nombre_presupuesto}}</Strong><br><br>
+           <Strong>Proyecto:  {{nombre_proyecto}}</Strong><br><br>
+           <Strong>Esquema:  {{nombre_esquema}}</Strong><br><br>
+           <div class="col-lg-12" align="right">
+              <Strong>Total Presupuesto:</Strong> <span data-bind="text: formatMoney(valor_total())"></span>
+           </div>
+           <br>
+           <div data-bind="html: mensaje"></div> 
+          <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Hitos</th>
+              <th>Actividad</th>
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Valor UUCC</th>
+              <th>Cantidad</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr data-bind="style:{'background-color':item.color}">
+              <td data-bind="text: item.nombre_padre"></td>
+              <td data-bind="text: item.actividad_nombre"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+              <td data-bind="text: formatMoney(item.valorUC())"></td>
+              <td> 
+                <input style="width: 65px" type="text" data-bind="value:item.cantidad,enable:item.habilitar" class="form-control" > </td>
+              <td data-bind="text: formatMoney(item.subtotal())"></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+      </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <Strong>Proyecto:  {{nombre_proyecto}}</Strong><br><br>
+        <Strong>Esquema:  {{nombre_esquema}}</Strong><br><br>
+        <Strong>Presupuesto:  {{nombre_presupuesto}}</Strong><br><br>
+        
+         <div class="form-group">
+            <a href="#" data-bind="click:descargar_plantilla"><label style="cursor: pointer;">Plantilla para diligenciar <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i></label></a>       
+        </div>
+
+
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+           <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados xls.<br></small>                   
+          </div>
+
+
+        <input type="hidden" id="id_proyecto" value="{{proyecto_id}}" class="form-control" >
+        <input type="hidden" id="id_esquema" value="{{esquema_id}}" class="form-control" >
+        <input type="hidden" id="id_presupuesto" value="{{presupuesto_id}}" class="form-control" >
+        <input type="hidden" id="cerrado" value="{{cerrado}}" class="form-control" >
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Iniciar Carga</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_filtro" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Hitos</label>
+            <select class="form-control" data-bind="value:busquedaVO.hito_id">
+                      <option value="">[Seleccione..]</option>
+                       {% for item in capitulos %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+
+          <div class="form-group">
+            <label>Actividades</label>
+            <select class="form-control" data-bind="value:busquedaVO.actividad_id">
+                      <option value="">[Seleccione..]</option>
+                       <!-- ko foreach: listado_actividades -->
+                          <option data-bind="value:id,text:nombre"></option>
+                       <!-- /ko -->
+            </select>          
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:filtrar">Filtrar</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico/presupuesto_detalle.js" %}'></script>
+{% endblock imports %}

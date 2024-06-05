@@ -1,0 +1,177 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Cambio{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma_proyecto' id_presupuesto id_proyecto %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cambio' id_presupuesto id_proyecto id_cronograma %}">Cambio</a></li>
+  <li class="active">Detalle de Cambio</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}  
+{% endblock opciones_listado %}
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading">
+                <span class="panel-title">Listado de Cambio</span>
+          </div>
+          <div class="panel-body">
+
+            <div class="row">
+
+              {% if cambio.estado.id == 1 %}
+                <div class="col-lg-6">
+
+                    {% if user.usuario.id == cambio.solicitante.id %}
+                     <button type="button" class="btn btn-danger" data-bind="click:function(){abrir_modal(4)}">Cancelado</button>
+                    {% endif %}
+                    
+                    {% if user.usuario.empresa.id == cambio.empresa_tecnica.id %}
+                    <button type="button" class="btn btn-primary" data-bind="click:function(){cambio_estado(2)}">Aprobacion Tecnica</button>
+                    {% endif %}
+
+                     {% if user.usuario.empresa.id == cambio.empresa_financiera.id %}
+                    <button type="button" class="btn btn-primary" data-bind="click:function(){cambio_estado(3)}">Aprobacion Financiera</button>
+                    {% endif %}
+
+                     {% if user.usuario.empresa.id == cambio.empresa_tecnica.id %}
+                    <button type="button" class="btn btn-danger" data-bind="click:function(){abrir_modal(5)}">Rechazado Tecnica</button>
+                    {% endif %}
+
+                     {% if user.usuario.empresa.id == cambio.empresa_financiera.id %}
+                    <button type="button" class="btn btn-danger" data-bind="click:function(){abrir_modal(6)}">Rechazado Financiera</button>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+              {% if cambio.estado.id == 6 or cambio.estado.id == 5 or cambio.estado.id == 4 %}
+                <div class="col-lg-6">
+                  <strong>Motivo</strong><br>
+                  <span>
+                     {% if cambio.motivoRechazoTecnico and cambio.motivoRechazoTecnico != '' %}
+                        {{cambio.motivoRechazoTecnico}}
+                     {% endif %}
+
+                     {% if cambio.motivoRechazoFinanciero and cambio.motivoRechazoFinanciero != '' %}
+                        {{cambio.motivoRechazoFinanciero}}
+                     {% endif %}
+
+                     {% if cambio.motivoCancelacion and cambio.motivoCancelacion != '' %}
+                        {{cambio.motivoCancelacion}}
+                     {% endif %}
+                  </span>
+                </div>
+               {% endif %}
+              
+            </div>
+            <br><br>
+
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr> 
+              <th>Nombre de Apoyo</th>
+              <th>Actividad</th>
+              <th>Cantidad Actual</th>
+              <th>Cantidad Cambio</th>
+              <th>Fecha</th>
+              <th>No Retirado</th>
+              <th>Retirado</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nombre_apoyo"></td>
+              <td data-bind="text: item.nombre_actividad"></td>
+              <td data-bind="text: item.cantidad_actual"></td>
+              <td data-bind="text: item.cantidad_nueva"></td>
+              <td data-bind="text: item.fecha"></td>
+              <td >
+                  <!--ko if: item.tipo != 2-->    
+                 <i data-bind="class:item.icono,style:{color:item.color}"></i>
+                  <!--/ko-->
+              </td>  
+               <td >
+                  <!--ko if: item.tipo == 2-->  
+                 <i data-bind="class:item.icono,style:{color:item.color}"></i>
+                 <!--/ko-->
+              </td>            
+            </tr>
+          </tbody>
+        </table>
+        </div>
+   
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="id_cambio" value="{{id_cambio}}" class="form-control" >  
+
+
+  <!--Loading-->
+
+    <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Motivo</label>
+             <textarea rows="3" data-bind="value: motivo" class="form-control" placeholder="Dígite un motivo"></textarea>        
+        </div>    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico/detalle_cambio.js" %}'></script>
+{% endblock imports %}

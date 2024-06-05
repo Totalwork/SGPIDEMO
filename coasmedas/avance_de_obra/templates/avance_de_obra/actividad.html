@@ -1,0 +1,141 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/treegrid/jquery.treegrid.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Capitulos{% endblock title%}
+
+
+ {% block opciones_listado %}
+
+{% endblock opciones_listado %} 
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra.avance_de_obra' %}">Avance de Obra</a></li>
+  <li><a href="{% url 'avance_de_obra.cronograma' id_proyecto %}">Cronograma</a></li>
+  <li class="active">Capitulos</li>
+{% endblock mapa %}
+{% block encabezado %}Capitulos{% endblock encabezado %}
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading cursor">
+                      <span class="panel-title"> Listado</span>
+          </div>
+          <div class="panel-body">
+            <p><span><strong>Cronograma:</strong></span>
+            {{nombre_cronograma}}</p><br>
+            <button type="button" class="btn btn-primary" data-bind="click:expandir,text:titulo_expandir"></button>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table tree">
+              <thead>
+            <tr> 
+              <th>Descripcion</th>
+              <th>Peso(100% / <span data-bind='text:peso_total'></span>%)</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr data-bind="css:item.valor_generico()">
+              <td >
+                  <span data-bind="text: item.nombre"></span>
+                  <!--ko if: item.nivel==1 -->    
+                  <span class="badge" data-bind="text: item.procesar"></span>
+                  <!--/ko--> 
+                </td>
+                <td data-bind="text: item.peso"></td>
+            </tr> 
+          </tbody>
+        </table>
+        </div>
+        
+       
+          
+         
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" data-bind="value:actividadVO.nombre,enable:habilitar_campos" class="form-control" >           
+        </div>
+          <!--ko if: actividadVO.padre()>0 && ((actividadVO.nivel()==2 && filtro()==0 ) || actividadVO.nivel()==3)   -->    
+        <div class="form-group">
+            <label>Peso</label>
+            <input type="text" data-bind="value:actividadVO.peso,enable:habilitar_campos,onlyNumber:actividadVO.peso" class="form-control" >  
+            <!--ko if: actividadVO.nivel()!=3  --> 
+              <p class="help-block">Si define un peso a la actividad no podra crear sub-actividad.</p> 
+            <!--/ko-->               
+        </div>      
+         <!--/ko-->           
+
+            <input type="hidden" id="id_cronograma" value="{{id_cronograma}}" class="form-control" >
+         <!--ko if: habilitar_campos()==true -->    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+        <!--/ko-->       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/treegrid/jquery.treegrid.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/treegrid/jquery.treegrid.bootstrap3.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avance_de_obra/actividad.js" %}'></script>
+    <script type="text/javascript">
+    
+</script>
+
+{% endblock imports %}

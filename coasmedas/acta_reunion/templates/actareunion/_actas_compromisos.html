@@ -1,0 +1,939 @@
+<div class="panel panel-sky">
+
+  <div class="panel-body">
+    <label class="option option-primary"data-bind="visible: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155">
+      <input id="check" type="checkbox"
+        data-bind='checked:$root.actaVO.tiene_compromisos,
+        visible:({{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}=={{acta.controlador_actual.id}})'
+        name="check_val">
+      <span class="checkbox"></span> Tiene compromisos
+    </label> 
+    <br>
+    <br>
+    <!-- <div data-bind="html: mensajeCompromisos2"></div> -->
+    <div class="table-responsive">
+
+      <!--ko if: $root.actaVO.tiene_compromisos()==true-->      
+        <div class="pull-right">
+          <div class="panel-controls">
+            <a href="#" data-bind="click:abrir_modal_compromisos, visible:$root.actaVO.estado_id()!=158"
+              data-placement="right" data-toggle="tooltip" data-original-title="Agregar Compromiso">
+              <i class="fa fa-plus" style="font-size: 24px;"></i>
+            </a>
+
+            <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros" title="" style="cursor:pointer;"
+              data-bind="click:abrir_modal_busqueda_compromisos">
+              <i id='iconoFiltro2' class="fa fa-filter fa-2x"></i>
+            </a>
+          </div>
+        </div>
+      <!--/ko-->
+      <i class="fa fa-bell" style="font-size:20px;color: #CDCDCD"></i>
+      &nbsp;&nbsp;Por cumplir
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-bell" style="font-size:20px;color:  #FFC300"></i>
+      &nbsp;&nbsp;Por vencer
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-bell" style="font-size:20px;color: #C70039"></i>
+      &nbsp;&nbsp;Vencido
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-bell" style="font-size:20px;color: #2ECC71"></i>
+      &nbsp;&nbsp;Cumplido
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-bell" style="font-size:20px;color: #2874A6"></i>
+      &nbsp;&nbsp;Cumplido despues de vencido
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <i class="fa fa-bell" style="font-size:20px;color: #9B59B6"></i>
+      &nbsp;&nbsp;Cancelado
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+      <br>
+      <br>
+      <div data-bind="html: mensajeCompromisos"></div>
+      <table class="table" data-bind="visible:(listado_compromisos()!=null && listado_compromisos().length > 0)">
+
+        <thead>
+          <tr>
+            <th style="width: 5%"></th>
+            <th style="width: 37%">Descripción</th>
+            <th style="width: 20%">Supervisor</th>
+            <th style="width: 20%">Responsable</th>
+            <th style="width: 10%">Fecha compromiso</th>
+            <th style="width: 10%">Fecha cumplimiento</th>
+            <th style="width: 10%">Cant. de prorrogas</th>
+            <th style="width: 7%"></th>
+          </tr>
+        </thead>
+        <tbody data-bind="foreach:{data:listado_compromisos, as:'item'}">
+          <tr>
+            <td>
+              <i data-bind="css : item.estado.icono ,style:{color:item.estado.color}"></i>
+            </td>
+            <td data-bind="cutWord:{num:35,text:item.descripcion, verMax:'...', verMin:'...'}"></td>
+            <td data-bind="text: item.supervisor.persona.nombres+' '+item.supervisor.persona.apellidos"></td>
+
+            <!--ko if: item.responsable_interno-->
+            <td
+              data-bind="text: item.usuario_responsable.persona.nombres+' '+item.usuario_responsable.persona.apellidos">
+            </td>
+            <!--/ko-->
+
+            <!--ko ifnot: item.responsable_interno-->
+            <td
+              data-bind="text: item.participante_responsable.persona.nombres+' '+item.participante_responsable.persona.apellidos">
+            </td>
+            <!--/ko-->
+
+
+            <td data-bind="text: item.fecha_compromiso"></td>
+            <!--ko if: item.cumplimiento-->
+            <td data-bind="text: item.cumplimiento.fecha_cumplimiento"></td>
+            <!--/ko-->
+            <!--ko ifnot: item.cumplimiento-->
+            <td><span style="color:red">Por definir</span></td>
+            <!--/ko-->
+            <td data-bind="text: item.cant_prorrogas"></td>
+            <td>
+              <div class="btn-group text-right">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                    class="fa fa-ellipsis-h fa-2x"></i>
+                </a>
+
+                <ul class="dropdown-menu" role="menu" style="left:-148px;top:24px;">
+
+                  <!--ko if: $root.actaVO.tiene_compromisos()==true-->  
+                    <!--ko if: item.estado.id!='162' && item.estado.id!='163' && item.estado.id!='164' -->
+                      {% if app in perms %}
+                      {% if app|add:'.change_'|add:model in perms%}
+                        <li data-bind="visible:{{request.user.usuario.id}}=={{acta.controlador_actual.id}}">
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                        </li>
+                      {% endif %}
+                      {% endif %}
+                    <!--/ko-->
+                  <!--/ko-->
+
+                  <li>
+                    <a href="#" data-bind="click:$root.historial_compromiso">Historial</a>
+                  </li>
+
+                  {% if app in perms %}
+                  {% if app|add:'.change_'|add:model in perms%}
+                  <!--ko if: item.estado.id!='162' && item.estado.id!='163' && item.estado.id!='164' -->
+                    <li data-bind="visible:{{request.user.usuario.id}}==item.supervisor.id">                
+                      <a href="#" data-bind="click:$root.prorrogas_compromiso">Prorrogas</a>
+                    </li>
+                  <!--/ko-->
+                  {% endif %}
+                  {% endif %}
+
+                  <!--ko if: item.estado.id!='162' && item.estado.id!='163' && item.estado.id!='164' -->
+                  <li>
+                    <a href="#" data-bind="click:$root.reasignar_compromiso">Reasignaciones</a>
+                  </li>
+                  <!--/ko-->
+
+
+
+                  {% if app in perms %}
+                  {% if app|add:'.change_'|add:model in perms%}
+                  <!--ko if: $root.actaVO.tiene_compromisos()==true-->
+                    <!--ko if: item.estado.id!='162' && item.estado.id!='163' && item.estado.id!='164' -->
+                      <li data-bind="visible:{{request.user.usuario.id}}==item.usuario_responsable.id">
+                        <a href="#" data-bind="click:$root.registrar_cumplimiento_compromiso" >Registrar
+                          cumplimiento</a>
+                      </li>
+                    <!--/ko-->
+                  <!--/ko-->
+                  {% endif %}
+                  {% endif %}
+
+
+                  {% if app in perms %}
+                  {% if app|add:'.change_'|add:model in perms%}
+                  <!--ko if: item.cumplimiento-->
+                    <li>
+                      <a href="#" data-bind="click:$root.ver_cumplimientos_compromiso">Ver
+                        cumplimiento</a>
+                    </li>
+                  <!--/ko-->
+                  {% endif %}
+                  {% endif %}
+
+                  <!--ko if: $root.actaVO.tiene_compromisos()==true-->
+                    <!--ko if: $root.actaVO.estado_id()==157 || $root.actaVO.estado_id()==155-->
+                      <!--ko if: item.estado.id!=164-->
+                        <li data-bind="visible:({{request.user.usuario.id}}==item.supervisor.id || {{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}==$root.actaVO.controlador_actual_id())">
+                          <a href="#" data-bind="click:$root.abrir_cancelar_compromiso">Cancelar</a>
+                        </li>
+                      <!--/ko-->
+
+                      <!--ko if: item.estado.id==164-->
+                        <li data-bind="visible:({{request.user.usuario.id}}==item.supervisor.id || {{request.user.usuario.id}}=={{acta.usuario_organizador.id}} || {{request.user.usuario.id}}==$root.actaVO.controlador_actual_id())">
+                          <a href="#" data-bind="click:$root.restablecer_compromiso">Restablecer</a>
+                        </li>
+                      <!--/ko-->
+                    <!--/ko-->
+                  <!--/ko-->
+
+                </ul>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+
+      <div id="paginacion" data-bind="visible:(listado_compromisos()!=null && listado_compromisos().length > 0)">
+        <div data-bind="pagination: {
+                      currentPage: paginacionCompromisos.pagina_actual,
+                      totalCount: paginacionCompromisos.total,
+                      pageSize:paginacionCompromisos.cantidad_por_paginas,
+                      maxPages: paginacionCompromisos.maxPaginas,
+                      directions: paginacionCompromisos.direcciones,
+                      boundary: paginacionCompromisos.limite,
+                      text: paginacionCompromisos.text }">
+
+        </div>
+      </div>
+
+    </div>
+    <!--cierra row -->
+  </div><!-- cierra panel body-->
+</div>
+
+
+  <div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+        <div class="modal-body">
+          <form action="." method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-12">
+
+
+
+                <div class="col-lg-12">
+                  <label>(*) Descripción:</label>
+                  <div class="form-group col-lg-13">
+                    <textarea class="form-control" style="width: 100%" type="text"
+                      data-bind="value:compromisoVO.descripcion"></textarea>
+                  </div>
+                </div>
+
+                <div class="col-md-7">
+
+                  <!--ko if: compromisoVO.id()==0-->
+                  <div class="form-group">
+                    <label>(*) Plazo: </label>
+                    <div class="input-group date">
+                      <input class="form-control" id="fecha" name="fecha" type="text" placeholder="Seleccione la fecha"
+                        data-bind="value:compromisoVO.fecha_compromiso,datePicker:compromisoVO.fecha_compromiso,dateTimePickerOptions:{minDate: new Date()}"
+                        onkeypress="return false">
+                      <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>(*) Fecha proxima: </label>
+                    <div class="input-group date">
+                      <input class="form-control" id="fecha5" name="fecha" type="text" placeholder="Seleccione la fecha"
+                        data-bind="value:compromisoVO.fecha_proximidad,datePicker:compromisoVO.fecha_proximidad,dateTimePickerOptions:{minDate: new Date()}"
+                        onkeypress="return false">
+                      <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                      </label>
+                    </div>
+                  </div>
+
+
+
+                  <label class="option option-primary">
+                    <input id="check4" type="checkbox" data-bind='checked:$root.compromisoVO.responsable_interno'
+                      name="check_val">
+                    <span class="checkbox"></span> Responsable interno
+                  </label>
+                  <br><br>
+
+                  <label>(*) Responsable:</label>
+                  <div class="form-group admin-form">
+                    <label class=" select">
+                      <!--ko if: compromisoVO.responsable_interno-->
+                      <select class="form-control" data-bind="value:compromisoVO.responsable_id" id="responsable_id">
+                        <option value=''>[Seleccione...]</option>
+                        {% for item in participantes_internos %}
+                        <option value="{{ item.usuario__id }}">{{ item.usuario__persona__nombres }} {{ item.usuario__persona__apellidos }}</option>
+                        {% endfor %}
+                      </select><i class="arrow"></i>
+                      <!--/ko-->
+
+                      <!--ko ifnot: compromisoVO.responsable_interno -->
+                      <select class="form-control" data-bind="value:compromisoVO.responsable_id" id="responsable_id">
+                        <option value=''>[Seleccione...]</option>
+                        {% for item in participantes_externos %}
+                        <option value="{{ item.id }}">{{ item.persona__nombres }} {{ item.persona__apellidos }}</option>
+                        {% endfor %}
+                      </select><i class="arrow"></i>
+                      <!--/ko-->
+
+                    </label>
+                  </div>
+                  <!--/ko-->
+
+
+                  <label>(*) Supervisor: </label>
+                  <div class="form-group admin-form">
+                    <label class=" select">
+                      <select class="form-control" data-bind="value:compromisoVO.supervisor_id">
+                        <option value="">[Seleccione...]</option>
+                        {% for item in participantes_internos %}
+                        <option value="{{ item.usuario__id }}">{{ item.usuario__persona__nombres }} {{ item.usuario__persona__apellidos }}</option>
+                        {% endfor %}
+                      </select><i class="arrow"></i>
+                    </label>
+                  </div>
+
+                  <div class="form-group admin-form">
+                    <label class="option option-primary">
+                      <input id="check1" type="checkbox" data-bind='checked:$root.compromisoVO.requiere_soporte'
+                        name="check_val">
+                      <span class="checkbox"></span>Requiere Soporte
+                    </label>
+                  </div>
+
+                  <div class="form-group admin-form">
+                    <label class="option option-primary">
+                      <input id="check2" type="checkbox" data-bind='checked:$root.compromisoVO.notificar_organizador'
+                        name="check_val">
+                      <span class="checkbox"></span>Notificar seguimiento al organizador
+                    </label>
+                  </div>
+
+                  <div class="form-group admin-form">
+                    <label class="option option-primary">
+                      <input id="check3" type="checkbox" data-bind='checked:$root.compromisoVO.notificar_controlador'
+                        name="check_val">
+                      <span class="checkbox"></span>Notificar seguimiento al controlador
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_compromiso">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="modal_acciones_prorrogas" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+
+        <div class="modal-body">
+          <div class="col-lg-6">
+
+
+            <div class="form-group">
+              <label>(*) Fecha:</label>
+              <div class="input-group date">
+                <input class="form-control" id="fecha2" name="fecha" type="text" placeholder="Seleccione la fecha" data-bind="datePicker:prorrogacompromisoVO.fecha, value:prorrogacompromisoVO.fecha, dateTimePickerOptions:{minDate: new Date()}" onkeypress="return false">
+                <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+              </div> 
+            </div>
+
+            <div class="form-group">
+              <label>(*) Fecha proxima:</label>
+              <div class="input-group date">
+                <input class="form-control" id="fecha4" name="fecha" type="text" placeholder="Seleccione la fecha" data-bind="datePicker:prorrogacompromisoVO.fecha_proximidad, value:prorrogacompromisoVO.fecha_proximidad, dateTimePickerOptions:{minDate: new Date()}" onkeypress="return false">
+                <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+              </div> 
+            </div>
+
+            <div class="form-group">
+              <label>(*) Motivo:</label>
+              <textarea class="form-control" style="width: 100%" type="text"
+                data-bind="value:prorrogacompromisoVO.motivo"></textarea>
+            </div>
+
+            <div class="form-group">
+              <button type="button" class="btn btn-primary" data-bind="click:$root.guardar_prorroga">
+                Registrar prorroga
+              </button>
+            </div>
+
+          </div>
+
+          <div class="seccionhome col-lg-5">
+            <br>
+            <div class="form-group">
+              <p><b>Fecha limite: </b><span id="label_fecha_limite3"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Fecha proxima: </b><span id="label_fecha_proxima3"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Descripción compromiso: </b><span id="label_descripcion3"></span></p>
+            </div>
+          </div>
+
+
+          <div class="col-lg-12">
+            <br>
+            <div data-bind="html: mensajecompromisoHistorial"></div>
+            <table class="table" data-bind="visible:(listado_compromisoHistorial()!=null && listado_compromisoHistorial().length > 0)">
+              <thead>
+                <tr>
+                  <th style="width: 20%">Fecha</th>
+                  <th >Motivo</th>                 
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado_compromisoHistorial, as:'item'}">
+                <tr>
+                  <td data-bind="text: item.fecha"></td>
+                  <td data-bind="text: item.motivo"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <div id="modal_acciones_reasignaciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+
+        <div class="modal-body">
+          <div class="col-lg-6">
+
+             <label class="option option-primary">
+                <input id="check2" type="checkbox" data-bind='checked:$root.reasignacioncompromisoVO.responsable_interno'
+                  name="check_val">
+                <span class="checkbox"></span> Participante interno
+              </label>
+              <br><br>
+
+              <label>(*) Responsable:</label>
+              <div class="form-group admin-form">
+                <label class=" select">
+                  <!--ko if: reasignacioncompromisoVO.responsable_interno-->
+                  <select class="form-control" data-bind="value:reasignacioncompromisoVO.responsable_id" id="responsable_id">
+                    <option value=''>[Seleccione...]</option>
+                    {% for item in participantes_internos %}
+                    <option value="{{ item.usuario__id }}">{{ item.usuario__persona__nombres }} {{ item.usuario__persona__apellidos }}</option>
+                    {% endfor %}
+                  </select><i class="arrow"></i>
+                  <!--/ko-->
+
+                  <!--ko ifnot: reasignacioncompromisoVO.responsable_interno -->
+                  <select class="form-control" data-bind="value:reasignacioncompromisoVO.responsable_id" id="responsable_id">
+                    <option value=''>[Seleccione...]</option>
+                    {% for item in participantes_externos %}
+                    <option value="{{ item.id }}">{{ item.persona__nombres }} {{ item.persona__apellidos }}</option>
+                    {% endfor %}
+                  </select><i class="arrow"></i>
+                  <!--/ko-->
+
+                </label>
+              </div>
+  
+            
+
+            <div class="form-group">
+              <label>(*) Motivo:</label>
+              <textarea class="form-control" style="width: 100%" type="text"
+                data-bind="value:reasignacioncompromisoVO.motivo"></textarea>
+            </div>
+
+            <div class="form-group">
+              <button type="button" class="btn btn-primary" data-bind="click:$root.guardar_reasignacion">
+                Resignar
+              </button>
+            </div>
+
+          </div>
+
+          <div class="seccionhome col-lg-5">
+            <br>
+            <div class="form-group">
+              <p><b>Fecha limite: </b><span id="label_fecha_limite2"></span></p>
+            </div>
+
+             <div class="form-group">
+              <p><b>Fecha proxima: </b><span id="label_fecha_proxima2"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Descripción compromiso: </b><span id="label_descripcion2"></span></p>
+            </div>
+          </div>
+
+
+          <div class="col-lg-12">
+            <br>
+            <div data-bind="html: mensajecompromisoHistorial"></div>
+            <table class="table" data-bind="visible:(listado_compromisoHistorial()!=null && listado_compromisoHistorial().length > 0)">
+              <thead>
+                <tr>
+                  <th style="width: 20%">Fecha</th>
+                  <th style="width: 40%">Motivo</th>   
+                  <th style="width: 20%">Responsable</th>
+                  <th style="width: 20%">Tipo participante</th>              
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado_compromisoHistorial, as:'item'}">
+                <tr>
+                  <td data-bind="text: item.fecha"></td>
+                  <td data-bind="text: item.motivo"></td>
+                  <td data-bind="text: item.participante.nombre_completo"></td>
+                  <td data-bind="text: item.participante.tipo_participante"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+        </div>
+
+
+      </div>
+
+    </div>
+  </div>
+
+  <div id="modal_acciones_cumplimiento" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+
+        <div class="modal-body">
+          <div class="col-lg-6">
+
+            <!--ko if: cumplimientoVO.requiere_soporte -->
+            <div class="form-group">
+              <label>(*)Soporte de cumplimiento:</label>
+              <input type="file" class="note-image-input" id="archivo_cumplimiento" name="archivo"
+                data-bind="fileData:{value:cumplimientoVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}" />
+            </div>
+            <!--/ko-->
+
+            <div class="form-group">
+              <label>Observación:</label>
+              <textarea class="form-control" style="width: 100%" type="text"
+                data-bind="value:cumplimientoVO.motivo"></textarea>
+            </div>
+
+            <div class="form-group">
+              <button type="button" class="btn btn-primary" data-bind="click:$root.guardar_cumplimiento">
+                Registrar cumplimiento
+              </button>
+            </div>
+
+          </div>
+
+          <div class="seccionhome col-lg-5">
+            <br>
+            <div class="form-group">
+              <p><b>Fecha limite: </b><span id="label_fecha_limite"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Fecha proxima: </b><span id="label_fecha_proxima"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Descripción: </b><span id="label_descripcion"></span></p>
+            </div>
+          </div>
+
+
+
+        </div>
+
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <div id="modal_ver_cumplimiento" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+
+        <div class="modal-body">
+          <div class="col-lg-6">
+
+
+            <div class="form-group">
+              <p><b>Soporte de cumplimiento:</b>
+                <a href="#" id="soporte_cumplimiento" data-bind="click: ver_soporte_cumplimiento" target="_blank"
+                  style="cursor:pointer;">
+                  <i class="fa fa-file kv-caption-icon"></i>
+                </a>
+              </p>
+
+            </div>
+
+            <div class="form-group">
+              <p><b>Fecha del cumplimiento: </b><span id="label_fecha_cumplimiento"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Observación:</b></p>
+              <textarea class="form-control" style="width: 100%" type="text" id="cumplimiento_observacion"
+                disabled></textarea>
+            </div>
+
+          </div>
+
+          <div class="seccionhome col-lg-5">
+            <br>
+            <div class="form-group">
+              <p><b>Fecha limite: </b><span id="label_fecha_limite4"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Fecha proxima: </b><span id="label_fecha_proxima4"></span></p>
+            </div>
+
+            <div class="form-group">
+              <p><b>Descripción: </b><span id="label_descripcion4"></span></p>
+            </div>
+          </div>
+
+
+
+        </div>
+
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <div id="modal_ver_historial" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+
+        <div class="modal-body">
+          <div class="col-lg-6">
+            <p><b>Descripción: </b><span id="historial_descripcion"></span></p>
+            <p><b>Supervisor: </b><span id="historial_supervisor"></span></p>
+            <p><b>Responsable: </b><span id="historial_responsable"></span></p>
+            <p><b>Fecha compromiso: </b><span id="historial_fecha_compromiso"></span></p>
+          </div>
+
+
+          <div class="col-lg-12">
+            <div data-bind="html: mensajecompromisoHistorial"></div>
+
+            <div class="table-responsive" data-bind="visible:(listado_compromisoHistorial()!=null && listado_compromisoHistorial().length > 0)">
+
+              <table class="table">
+
+                <thead>
+                  <tr>          
+                    <th style="width: 15%">Fecha</th>
+                    <th style="width: 15%">Tipo de operación</th>
+                    <th style="width: 30%">Motivo/obeservación</th>
+                    <th style="width: 20%">Participante</th>          
+                  </tr>
+                </thead>
+                <tbody data-bind="foreach:{data:listado_compromisoHistorial, as:'item'}">
+                  <tr>
+                    <td data-bind="text: item.fecha"></td>
+                    <td data-bind="text: item.tipo_operacion.nombre"></td>
+                    <!--ko ifnot: item.motivo-->
+                    <td data-bind="ifnot:item.motivo">No registra</td>
+                    <!--/ko-->
+
+                    <!--ko if: item.motivo-->
+                    <td data-bind="cutWord:{num:35,text: item.motivo, verMax:'...', verMin:'...'}"></td>            
+                  <!--/ko-->                
+                 
+                    <td data-bind="text: (item.participante.nombre_completo)"></td>          
+                  </tr>
+                </tbody>
+              </table>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div id="modal_ver_historial" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+      </div>
+
+      <div class="modal-body">
+        <div class="col-lg-6">
+
+          <div class="modal-content">
+           
+          </div>
+
+          <div class="modal-content">
+
+              
+
+          </div>
+        </div>
+
+
+      </div>
+
+    </div>
+  </div>
+
+
+
+
+<!-- INICIO MODAL FILTRO -->
+
+<div id="modal_filtro_compromisos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog"
+  aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
+          style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+        <div class="col-md-6">
+
+          <label>Supervisor </label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:filtro_acta_compromisoVO.supervisor_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in participantes_internos %}
+                <option value="{{ item.usuario__id }}">{{ item.usuario__persona__nombres }} {{ item.usuario__persona__apellidos }}</option>
+                {% endfor %}
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <label class="option option-primary">
+            <input id="check2" type="checkbox" data-bind='checked:$root.compromisoVO.responsable_interno'
+              name="check_val">
+            <span class="checkbox"></span> Responsable interno
+          </label>
+          <br><br>
+          <label>Responsable</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <!--ko if: compromisoVO.responsable_interno-->
+              <select class="form-control" data-bind="value:filtro_acta_compromisoVO.responsable_id"
+                id="responsable_id">
+                <option value=''>[Seleccione...]</option>
+                {% for item in participantes_internos %}
+                <option value="{{ item.usuario__id }}">{{ item.usuario__persona__nombres }} {{item.usuario__persona__apellidos }}</option>
+                {% endfor %}
+              </select><i class="arrow"></i>
+              <!--/ko-->
+
+              <!--ko ifnot: compromisoVO.responsable_interno -->
+              <select class="form-control" data-bind="value:filtro_acta_compromisoVO.responsable_id"
+                id="responsable_id">
+                <option value=''>[Seleccione...]</option>
+                {% for item in participantes_externos %}
+                <option value="{{ item.id }}">{{ item.persona__nombres }} {{ item.persona__apellidos }}</option>
+                {% endfor %}
+              </select><i class="arrow"></i>
+              <!--/ko-->
+
+            </label>
+          </div>
+          <!--/ko-->
+
+          <div class="form-group">
+            <label>Desde</label>
+            <div class="input-group date">
+
+              <input class="form-control" id="desde_filtro" name="desde_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:filtro_acta_compromisoVO.desde,datePicker:filtro_acta_compromisoVO.desde" onkeypress="return false">
+              <label for="fecha_desde" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+              </label>
+
+            </div>   
+          </div>
+
+
+          <div class="form-group">
+            <label>Hata</label>
+            <div class="input-group date">
+
+              <input class="form-control" id="hasta_filtro" name="hasta_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:filtro_acta_compromisoVO.hasta,datePicker:filtro_acta_compromisoVO.hasta" onkeypress="return false">
+              <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+              </label>
+
+            </div>   
+          </div>
+          <div class="form-group">
+            <label class="option option-primary">
+              <input id="check" type="checkbox" data-bind='value:filtro_acta_compromisoVO.prorroga' name="check_val">
+              <span class="checkbox"></span>Tiene prorrogas
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="col-lg-12">
+            <label>Descripción</label>
+            <div class="form-group col-lg-13">
+              <textarea class="form-control" style="width: 100%" type="text"
+                data-bind="value:filtro_acta_compromisoVO.descripcion"></textarea>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:function(){consultar_compromisos(1);}">
+          <i class="fa fa-search"></i> Filtrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<div id="modal_cancelar_compromiso" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+  class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+      </div>
+
+      <div class="modal-body">
+        <div class="col-lg-12">
+          <p><b>Descripción: </b><span id="cancelar_descripcion"></span></p>
+          <p><b>Supervisor: </b><span id="cancelar_supervisor"></span></p>
+          <p><b>Responsable: </b><span id="cancelar_responsable"></span></p>
+          <p><b>Fecha compromiso: </b><span id="cancelar_fecha_compromiso"></span></p>
+        </div>
+
+
+        <div class="col-lg-12">
+          <br>
+          <b>(*) Ingrese el motivo de la cancelación:</b>
+          <div class="form-group col-lg-13">
+            <textarea class="form-control" style="width: 100%" type="text"
+              data-bind="value:cancelarCompromiso.motivo"></textarea>
+          </div>
+          <!--cierra tap 3-->
+
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:cancelar_compromiso">Cancelar compromiso</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+  $(document).ready(function () {
+    acta.cargar_compromisos(1);
+  });
+
+</script>

@@ -1,0 +1,197 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Cesión económica{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'contrato.contrato' %}">Contrato</a></li>
+  <li class="active">Cesión económica</li>
+{% endblock mapa %}
+{% block encabezado %}<!-- Cesión de derechos económicos -->{% endblock encabezado %}
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+    {% if app|add:'.delete_'|add:model in perms%}
+      <li>
+        <a href="#">
+          <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"><div><div><div></div></div></div></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+<div class="alert alert-default light alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-cog pr10 hidden"></i>
+  <span data-bind="html:tituloPanel"></span>
+</div>
+
+<div class=" row">
+  
+  <div class="col-lg-12">
+
+        <div data-bind="html: mensaje"></div>
+
+        <div class="panel panel-sky" data-bind="visible:(lista_sub_contratista2()!=null && lista_sub_contratista2().length > 0)">
+          <div class="panel-heading">
+            <span class="panel-title">
+              Listado de Cesiones de derechos económicos
+            </span>
+            <!-- <div class="pull-right">
+              <button type="button" class="btn btn-primary btn-gradient btn-alt btn-block item-active" data-bind="click:eliminar_sub_contratista">Eliminar</button>
+            </div> -->
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive" data-bind="dropdown">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary" >
+                          <input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </th>
+                    <th>Nit</th>
+                    <th>Nombre</th>
+                    <th>Fecha</th>
+                    <th>Soporte</th>
+                    <th>Opciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!--ko foreach:{ data:lista_sub_contratista2, as:'item'} -->
+                    <tr>
+                      <td>
+                        <div class="option-group field admin-form" >
+                          <label class=" mt10 option option-primary"  >
+                            <input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:id" />
+
+                            <span class="checkbox"></span>
+                            <span data-bind="text: item.nombre"></span>
+                          </label>
+                        </div><!-- end .option-group section -->
+                      </td>
+                      <td data-bind="text: item.empresa.nit"></td>
+                      <td data-bind="text: item.empresa.nombre"></td>
+                      <td data-bind="text: item.fecha"></td>
+                      <td >
+                        <!-- <a data-toggle="tooltip" id="" href="" target="_blank" title="Ver soporte"><i class="fa fa-paperclip fa-2x"></i></a> -->
+                        <!--ko if: item.soporte!='' && item.soporte!=null-->
+                          <a data-bind="attr: {href: item.soporte}" target="_blank" style="cursor:pointer;">
+                            <i class="fa fa-file kv-caption-icon"></i> Documento
+                          </a>
+                        <!--/ko-->
+                      </td>
+                      {% if 'contrato.change_cesion_economica' in perms %}
+                        <td>
+                          <i data-bind="click:$root.consultar_por_id" style="cursor: pointer; color:#4a89dc" class="fa fa-edit fa-2x"></i>
+                        </td>
+                      {% endif %}
+                     <!--  <td>
+                        <i data-bind="click:$root.eliminar" style="cursor: pointer; color:#4a89dc" class="fa fa-trash-o fa-2x"></i>
+                      </td> -->
+                    </tr>
+                  <!--/ko-->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+
+<!--Inicio Modal - Guardar Contrato -->
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-ls">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+        <div class="row">
+          <div class="col-md-12">
+            <label>(*) Contratista</label>
+            <div class="form-group admin-form">
+              <label class=" select">
+                <select class="form-control" data-bind="value:cesionEconomica.empresa_id, options:listado_empresa_contratista, optionsText:'contrato__contratista__nombre', optionsValue:'contrato__contratista__id', optionsCaption:'[Seleccione...]'"></select><i class="arrow"></i>
+              </label>
+            </div>
+
+            <div class="form-group">          
+              <label>(*) Fecha:</label>
+              <input class="form-control" data-bind='datePicker:cesionEconomica.fecha,value:cesionEconomica.fecha' type="text">
+            </div>
+
+            <div class="form-group">          
+            <label>Soporte</label>
+              <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:cesionEconomica.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+              <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>           
+            
+
+              <!--ko if: cesionEconomica.id()>0 && soporte()!='' && soporte()!=null -->
+                <a data-bind="attr:{href: soporte}" target="_blank">
+                  <i class="fa fa-file"></i>
+                  Ver soporte
+                </a>
+                <br>
+              <!-- /ko -->
+            </div>
+          </div>
+        </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Fin Modal - Guardar Contrato -->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/cesionEconomica.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    //contratoVigencia.consultar({{id_contrato}});//iniciamos la primera funcion
+    contratoVigencia.contrato_id({{id_contrato}});
+    contratoVigencia.list_sub_contratista2();
+    contratoVigencia.contrato({{id_contrato}});
+    //contratoVigencia.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script>
+{% endblock imports %}

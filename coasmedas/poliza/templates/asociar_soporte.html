@@ -1,0 +1,163 @@
+{% extends 'page.html' %}
+{% load static %}
+{% load humanize %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %} Asociar Soporte{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">Poliza</a></li>
+  <li><a href="{% url 'poliza.poliza' contrato_id %}">Polizas</a></li>  
+	<li><a href="../../vigencias-poliza/{{vigencia.poliza.id}}">Vigencias</a></li>
+  <li class="active"> Asociar Soporte</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+{% block opciones_listado %}{% endblock opciones_listado %}
+{% block contenido %}
+<!-- http://52.26.19.129/sinin/contrato/poliza.php?codigo=302 -->
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		   <div data-bind="html: mensaje"></div> 
+
+		    <div class="panel panel-sky" data-bind="visible:(listado_polizas()!=null && listado_polizas().length > 0)">
+		    		    
+		    <div class="panel-heading">
+          <span>
+            <a href="../../vigencias-poliza/{{vigencia.poliza.id}}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>           
+                <span>Administar Soporte Poliza</span>
+          	</div>
+
+          	 <div class="panel-body">
+          	 	
+              <div class="panel panel-info">
+                <div class="panel-heading">
+                  Información del contrato
+                </div>
+                <div class="panel-body">
+                  <div class="col-lg-6">
+                      <div class="form-group">
+                        <label>Numero de Contrato:</label>
+                        <span>{{ vigencia.poliza.contrato.numero }}</span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Nombre de Contrato:</label>
+                        <span>{{ vigencia.poliza.contrato.nombre }}</span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Contratante:</label>
+                        <span>{{ vigencia.poliza.contrato.contratante.nombre }}</span>
+                      </div>
+
+                      <div class="form-group">
+                        <label>Contratista:</label>
+                        <span>{{ vigencia.poliza.contrato.contratista.nombre }}</span>
+                      </div>
+                     
+                      <div class="form-group">
+                        <label>Estado:</label>
+                        <span>{{ vigencia.poliza.contrato.estado.nombre }}</span>
+                      </div>
+                  </div>
+               
+                </div>
+              </div>
+
+              <a href="#" data-bind="click: function() { ver_soporte({id: {{ vigencia.id }} }) }"><i class="fa fa-paperclip fa-2x"></i> Soporte a asociar</a>
+              <br>
+              <br>              
+              <button type="button" class="btn btn-primary" data-bind="click:guardar_asociacion">Guardar</button>
+              <br>
+              <br>
+          	 	 <div class="table-responsive">
+          	 	 	 <table class="table table-bordered table-hover">
+          	 	 	 	  <thead>
+				            <tr>
+                      <th>
+                      
+                       <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input name="mobileos" data-bind="checked:seleccionar_todos" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                       </div> 
+                      </th>
+				              <th>Numero</th>    
+				              <th>Fecha Inicio</th>				              
+				              <th>Fecha Fin</th> 
+                      <th>Asegurado</th>
+				              <th style="text-align: center;">Soporte</th>
+				            </tr>
+				           </thead>
+				           <tbody data-bind="foreach:{data:listado_polizas, as:'item'}">
+                   <tr class="danger">
+                     <td data-bind="text:item.tipo.nombre" colspan="6"></td>
+                   </tr>
+                   <!-- ko foreach:{data:item.vigencias, as:'vig'} -->
+	          	 	 	 	<tr>
+                    <td>
+                    <!-- <input type="checkbox" data-bind="checked:vig.procesar"> -->
+
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input name="mobileos" data-bind="checked:vig.procesar" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </td>
+	          	 	 	 	<td data-bind=text:vig.numero></td>	          	 	 	 	
+	          	 	 	 	<td data-bind="text: vig.fecha_inicio"></td>
+	          	 	 	 	<td data-bind="text: vig.fecha_final"></td>                   
+                    <td data-bind="text:formatMoney(vig.valor())"></td>                   
+	          	 	 	 	<td style="text-align: center;">
+                    <!-- ko if: vig.soporte()!=null && vig.soporte()!='' -->
+	          	 	 	 		 <a data-bind="attr:{href:vig.soporte}" target="_blank" title="Ver soporte"><i class="fa fa-paperclip fa-2x"></i></a>
+                    <!-- /ko -->   
+	          	 	 	 	</td>          	 	 	 	
+	          	 	 	 	</tr>
+                    <!-- /ko -->
+	          	 	 	 </tbody> 
+          	 	 	 </table>
+          	 	 	
+                   
+
+          	 	 </div>
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+<input type="hidden" id="hd_contrato_id" value="{{ vigencia.poliza.contrato.id }}">
+<input type="hidden" id="hd_vigencia_asoaiar" value="{{ vigencia.id }}">
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+     <script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>   
+  	<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>  	
+  	<script type="text/javascript" src='{% static "js/ViewModels/poliza/Vigencia.js" %}?v=3.3'></script>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        vigencia.consultar_por_contrato();
+      });
+    </script>
+{% endblock imports %}

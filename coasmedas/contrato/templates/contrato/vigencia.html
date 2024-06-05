@@ -1,0 +1,305 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> -->
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Vigencia Contrato{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'contrato.contrato' %}">Contrato</a></li>
+  <li class="active">Vigencia Contrato</li>
+{% endblock mapa %}
+<!-- % block encabezado %}Vigencia Contrato{% endblock encabezado % -->
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%} 
+    <!--ko if: !soloLectura()-->
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+      <!--/ko-->
+      <li>
+        <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+            <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+        </a>
+      </li>
+
+    {% endif %}
+  {% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+<!--Inicio Table-->
+<div data-bind="html: mensaje"></div>
+<div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+  <div class="panel-heading">
+    <span class="panel-title">
+      <span>
+        <a href="{% url 'contrato.contrato' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"        aria-hidden="true"></i></a>
+      </span>      
+      Listado de Vigencia Contrato - N° del Contrato: <span data-bind="text: numero_c"></span>
+      <span data-bind="html:num_registro"></span>
+    </span>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive" data-bind="dropdown">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre Doc.</th>
+            <th>Fecha Inicio</th>
+            <th>Fecha Fin</th>
+            <th>Valor</th>
+            <th>Soporte</th>
+            <!--ko if: contratoVigencia.tipo_c() == contratoVigencia.tipo.interventoria() -->
+              <th>Soporte Compras</th>
+            <!-- /ko-->
+            <th>Opciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--ko foreach:{ data:listado, as:'item'} -->
+            <tr>
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.fecha_inicio"></td>
+              <td data-bind="text: item.fecha_fin"></td>
+              <td data-bind="text: formatMoney(item.valor)"></td>
+              <td >
+                <!-- <a data-toggle="tooltip" id="" href="" target="_blank" title="Ver soporte"><i class="fa fa-paperclip fa-2x"></i></a> -->
+                <!--ko if: item.soporte!='' && item.soporte!=null-->
+                  <a href="#" data-bind="click: $root.ver_soporte" target="_blank" style="cursor:pointer;">
+                    <i class="fa fa-file kv-caption-icon"></i> Documento
+                  </a>
+                <!--/ko-->
+                 <!--ko if: item.soporte=='' || item.soporte==null-->
+                  <span>Por subir</span>
+                <!--/ko-->
+              </td>
+              <!--ko if: contratoVigencia.tipo_c() == contratoVigencia.tipo.interventoria() -->
+                <td >
+                  <!--ko if: item.acta_compra!='' && item.acta_compra!=null-->
+                    <a href="#" data-bind="click: $root.ver_soporte_acta" style="cursor:pointer;">
+                      <i class="fa fa-file kv-caption-icon"></i> Documento
+                    </a>
+                  <!--/ko-->
+                  <!--ko if: item.acta_compra=='' || item.acta_compra==null-->
+                    <span>Por subir</span>
+                  <!--/ko-->
+                </td>
+              <!--/ko-->
+              <td>
+                <div class="btn-group text-right">
+                  <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                  <ul class="dropdown-menu" role="menu">
+                    {% if 'contrato.change_vigenciacontrato' in perms %}
+                      <!--<i data-bind="click:$root.consultar_por_id">Editar</i>-->
+                      <!--ko if: !item.soloLectura -->
+                      <li>
+                        <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                      </li>
+                      <!--/ko-->
+                    {% endif %}
+                    <li>
+                      <a href="#" data-bind="click:$root.consultarPoliza">Polizas Asociadas</a>
+                    </li>
+                  </ul>
+								</div>
+              </td>
+            </tr>
+          <!--/ko-->
+            
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div><!-- /.panel panel-sky -->
+<!--Fin Table-->
+
+<!--Inicio Modal-->
+<div id="modal_acciones" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-ls">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+
+      <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-12">
+
+              <label>(*) Tipo</label>
+              <div class="form-group admin-form" data-bind="event:{ change: changedTipoVigencia}">
+                <label class=" select">
+                  <select class="form-control" data-bind="value:vigenciaVO.tipo_id">
+                    <option value="">[Seleccione...]</option>
+                    <!--ko foreach:{ data:lista_tipos, as:'item'} -->
+                      <!-- if: contratoVigencia.tipoV.otrosi() == item.id || contratoVigencia.tipoV.replanteo() == item.id || contratoVigencia.tipoV.liquidacion() == item.id || contratoVigencia.tipoV.actaCesion() == item.id-->
+                        <option data-bind="value:item.id,text:item.nombre"></option>
+                      <!-- / -->
+                    <!--/ko-->
+                  </select><i class="arrow"></i>
+              </label>
+              </div>
+              <!-- <label class="option option-primary" data-bind="visible:habilitar_alcance">
+                <input name="mobileos" value="1" type="checkbox">
+                <span class="checkbox"></span>Modifica el alcance
+              </label> -->
+              <div class="option-group field admin-form" data-bind="visible:habilitar_alcance">
+                <label class="option option-primary">
+                  <input name="mobileos" value="1" type="checkbox" data-bind="checked:alcance">
+                  <span class="checkbox"></span>Modifica el alcance
+                </label>
+              </div>&ensp;
+              <div class="form-group">
+                <label>Fecha Inicio:</label>
+                <input class="form-control" data-bind='datePicker:vigenciaVO.fecha_inicio,value:vigenciaVO.fecha_inicio, enable:dis_f_inicio'  type="text">
+              </div>
+              <div class="form-group">
+                <label>Fecha Fin:</label>
+                <input class="form-control" data-bind='datePicker:vigenciaVO.fecha_fin,value:vigenciaVO.fecha_fin, enable:dis_f_fin' id="datetimepicker1" type="text">
+              </div>
+              <div class="form-group">
+                <label>Valor</label>
+                <input type="text" class="form-control" data-bind='value:vigenciaVO.valor.formatted, onlyNumber:vigenciaVO.valor'>
+              </div>
+              <div class="form-group">
+                <label>(*) Soporte</label>
+                <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:vigenciaVO.soporte, allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                <inpu type="hidden" data-bind="value:vigenciaVO.soporte"/>
+                <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>
+                <!--ko if: vigenciaVO.id()>0 && soporte()!='' && soporte()!=null -->
+                  <a data-bind="attr:{href: '/contrato/ver-soporte/?id='+vigenciaVO.id()}" target="_blank">
+                    <i class="fa fa-file"></i>
+                    Ver soporte
+                  </a>
+                  <br>
+                <!-- /ko -->                                         
+              </div>
+              <!--ko if: contratoVigencia.tipo_c() == contratoVigencia.tipo.interventoria() -->
+                <div class="form-group">
+                  <label>(*) Soporte Compras</label>
+                  <input type="file" class="note-image-input" id="acta_compra" name="acta_compra" data-bind="fileData:{value:vigenciaVO.acta_compra, allowedFileExtensions: ['pdf','msg','zip'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                  <input type="hidden" data-bind="value:vigenciaVO.acta_compra"/>
+                  <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf, msg y zip.<br></small>   
+                  <!--ko if: vigenciaVO.id()>0 && soporte_acta_compra()!='' && soporte_acta_compra()!=null -->
+                    <a data-bind="attr:{href: soporte_acta_compra}" target="_blank">
+                      <i class="fa fa-file"></i>
+                      Ver soporte
+                    </a>
+                    <br>
+                  <!-- /ko -->              
+                </div>
+              <!-- /ko --> 
+                                                         
+            </div> <!-- /.col-md-12 -->
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:list_otrosi_contrato">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Fin Modal-->
+
+<!--Inicio Modal - Buscar Polizas -->
+<div id="modal_polizas" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg" style="width: 80%;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Polizas Asociadas</h4>
+			</div>
+			<div class="modal-body">
+
+        <b>Nombre de la Vigencia:</b>&nbsp;<small data-bind="html:$root.nombre_vigencia"></small>
+				<br/><br/>
+				<div data-bind="html: mensajePoliza"></div>
+
+				<div class="panel panel-sky" data-bind="visible:(listadoPoliza()!=null && listadoPoliza().length > 0)">
+					<div class="panel-heading">
+						<span class="panel-title">
+							Listado
+						</span>
+					</div>
+					<div class="panel-body">
+						<div class="table-responsive" data-bind="dropdown">
+							<table class="table">
+								<thead>
+									<tr>
+                    <th>Tipo</th>
+										<th>Número</th>
+                    <th>Fecha inicio</th>
+                    <th>Fecha final</th>                    
+										<th>Valor</th>
+										<th>Soporte</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!--ko foreach:{ data:listadoPoliza, as:'item'} -->
+										<tr>
+                      <td style="width: 25%;" data-bind="cutWord:{num:25,text:item.poliza.tipo.nombre, verMax:'...', verMin:'...'}"></td>
+											<td style="width: 15%;" data-bind="text: item.numero"></td>
+                      <td style="width: 15%;" data-bind="text: item.fecha_inicio"></td>
+                      <td style="width: 15%;" data-bind="text: item.fecha_final"></td>
+											<td style="width: 15%;" data-bind="text: formatMoney(item.valor)"></td>
+											<td style="width: 15%;">
+												<!--ko if: item.soporte!='' && item.soporte!=null-->
+                          <a data-bind="attr: {href: '/poliza/ver-soporte/?id=' + item.id}">
+                            <i class="fa fa-file kv-caption-icon"></i> Documento
+                          </a>
+                        <!--/ko-->
+											</td>
+										</tr>
+									<!--/ko-->
+								</tbody>
+							</table>
+						</div>
+
+					</div>
+				</div><!-- /.panel panel-sky -->
+
+			</div><!-- /.modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Buscar Contrato -->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+<!-- <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script> -->
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/vigencia.js" %}?v=4&cache=2'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/control.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    contratoVigencia.tipoV.actaAmpliacion({{tipo_acta_ampliacion}});
+    contratoVigencia.consultar({{id_contrato}});//iniciamos la primera funcion
+    contratoVigencia.vigenciaVO.contrato_id({{id_contrato}});
+    contratoVigencia.consultarContratoSoloLectura({{id_contrato}});
+    //contratoVigencia.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script>
+{% endblock imports %}

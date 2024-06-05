@@ -1,0 +1,397 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Detalle de la Tarea{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'administrador_tarea.administrador_tarea' %}">Administrador de Tarea</a></li>
+  <li class="active">Detalle de la Tarea</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'administrador_tarea.administrador_tarea'%}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al listado de tareas">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a> 
+  Detalle de la Tarea
+{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+   
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                     <span class="panel-title">Detalle de la Tarea</span>
+          </div>
+          <div class="panel-body">
+
+             <div class="row">
+                  <div class="col-lg-6">
+                      <h5>Numero:</h5><span>{{tarea.numero}}</span>
+                  </div>  
+
+                  <div class="col-lg-6">
+                      <h5>Fecha de Plazo:</h5><span>{{tarea.fecha_fin}}</span>
+                  </div>               
+             </div> 
+             <div class="row">
+                 {% if not tarea.colaborador_actual.equipo.nombre == None %}
+                  <div class="col-lg-6">
+                      <h5>Equipo de Trabajo:</h5><span>{{tarea.colaborador_actual.equipo.nombre}}</span>
+                  </div>  
+                  {% endif %}
+                  <div class="col-lg-6">
+                      <h5>Estado:</h5><span>{{tarea.estado.estado__nombre}}</span>
+                  </div>             
+             </div> 
+             <div class="row">
+                  <div class="col-lg-6">
+                      <h5>Asunto:</h5><span>{{tarea.asunto}}</span>
+                  </div>               
+             </div> 
+             <div class="row">
+                  <div class="col-lg-12">
+                      <h5>Descripcion:</h5><span>{{tarea.descripcion}}</span>
+                  </div>               
+             </div> 
+        </div>
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+                     <span class="panel-title">Linea de Tiempo de la Tarea</span>
+          </div>
+          <div class="panel-body">
+
+          <div class="row">
+              
+              <div class="col-lg-6">
+                  <div class="btn-group text-right">
+                   <a href="#" data-bind="click:abrir_nuevo_punto"><i class="fa fa-plus fa-2x">
+                      </i>Nuevo Punto</a>
+                  </div>
+              </div>
+
+          </div>
+
+          <div class="row">
+        <section id="content" class="animated fadeIn">
+
+        <!-- Timeline Wrapper -->
+        <div id="timeline" class="mt30">
+
+          <!-- Timeline Divider -->
+          <div class="timeline-divider mtn">
+            <div class="divider-label">Estado de la Tarea</div>
+          </div>
+
+          <div class="row">
+             <!--ko foreach:{data:listado, as:'item'}--> 
+                  <!-- Timeline - Left Column -->
+                  <!--ko if: $index() % 2 == 0--> 
+                  <div class="col-sm-6 left-column">
+                    
+
+                    <div class="timeline-item">
+                      <div class="timeline-icon">
+                        <span class="glyphicon glyphicon-user text-primary"></span>
+                      </div>
+                      <div class="panel">
+                        <div class="panel-heading">
+                          <span class="panel-title">
+                            <span class="glyphicon glyphicon-comment"></span> Transaccion </span>
+                          <div class="panel-header-menu pull-right mr10 text-muted fs12"> 
+                          <i class="fa fa-clock-o"></i><span data-bind="text:item.fecha"></span></div>
+                        </div>
+                        <div class="panel">
+                        <div class="panel-body p10">
+                         <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Asunto: </strong><span data-bind="text:item.tarea.asunto"></span></p>
+                                </div>               
+                           </div> 
+                           <div class="timeline-body">
+                           <!--ko if: item.tarea.colaborador_actual_id!=null --> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Solicitante: </strong><span data-bind="text:item.tarea.colaborador_actual.usuario.persona.nombres+' '+item.tarea.colaborador_actual.usuario.persona.apellidos"></span></p>
+                                </div>               
+                           </div> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Estado: </strong>
+                                    <span class="media-heading" data-bind="text:item.estado.nombre"></span></p>
+                                </div>               
+                           </div> 
+                           <!--/ko-->
+                           <!--ko if: item.tarea.colaborador_actual_id==null --> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Solicitante: </strong><span data-bind="text:item.tarea.usuario_responsable.persona.nombres+' '+item.tarea.usuario_responsable.persona.apellidos"></span></p>
+                                </div>               
+                           </div> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Estado: </strong>
+                                    <span class="media-heading" data-bind="text:item.estado.nombre"></span></p>
+                                </div>               
+                           </div> 
+                           <!--/ko-->
+                           </div>
+
+                           <!--ko if: item.totalSoporte==0 --> 
+                              <i class="fa fa-folder-o fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal_soporte"></i>
+                            <!--/ko-->
+
+                            <!--ko if: item.totalSoporte>0 --> 
+                              <i class="fa fa-folder fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal_soporte"></i>
+                            <!--/ko-->
+                            
+                           <!--ko if: item.comentario==null || item.comentario=='' --> 
+                           <i class="fa fa-comment-o fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal"></i>
+                           <!--/ko-->
+                            <!--ko if: item.comentario!=null && item.comentario!='' --> 
+                              <i class="fa fa-comment fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal"></i>
+                           <!--/ko-->
+                        </div>
+                      </div>
+
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!--/ko-->
+
+                    <!-- Timeline - Right Column -->
+                   <!--ko if: $index() % 2 > 0 --> 
+                    <div class="col-sm-6 right-column">
+                     
+                     <div class="timeline-item">
+                        <div class="timeline-icon">
+                          <span class="glyphicon glyphicon-user text-primary"></span>
+                        </div>
+                        <div class="panel">
+                          <div class="panel-heading">
+                            <span class="panel-title">
+                              <span class="glyphicon glyphicon-comment"></span>Transaccion </span>
+                            <div class="panel-header-menu pull-right mr10 text-muted fs12"><i class="fa fa-clock-o"></i><span data-bind="text:item.fecha"></span></div>
+                          </div>
+                          <div class="panel">
+                          <div class="panel-body p10">
+                         <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Asunto: </strong><span data-bind="text:item.tarea.asunto"></span></p>
+                                </div>               
+                           </div> 
+                           <div class="timeline-body">
+                           <!--ko if: item.tarea.colaborador_actual_id!=null --> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Solicitante: </strong><span data-bind="text:item.tarea.colaborador_actual.usuario.persona.nombres+' '+item.tarea.colaborador_actual.usuario.persona.apellidos"></span></p>
+                                </div>               
+                           </div> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Estado: </strong>
+                                    <span class="media-heading" data-bind="text:item.estado.nombre"></span></p>
+                                </div>               
+                           </div> 
+                           <!--/ko-->
+                           <!--ko if: item.tarea.colaborador_actual_id==null --> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Solicitante: </strong><span data-bind="text:item.tarea.usuario_responsable.persona.nombres+' '+item.tarea.usuario_responsable.persona.apellidos"></span></p>
+                                </div>               
+                           </div> 
+                           <div class="row">
+                                <div class="col-lg-12">
+                                    <p><strong>Estado: </strong>
+                                    <span class="media-heading" data-bind="text:item.estado.nombre"></span></p>
+                                </div>               
+                           </div> 
+                           <!--/ko-->
+                           </div>
+                           <!--ko if: item.totalSoporte==0 --> 
+                              <i class="fa fa-folder-o fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal_soporte"></i>
+                            <!--/ko-->
+
+                            <!--ko if: item.totalSoporte>0 --> 
+                              <i class="fa fa-folder fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal_soporte"></i>
+                            <!--/ko-->
+
+                           <!--ko if: item.comentario==null || item.comentario=='' --> 
+                           <i class="fa fa-comment-o fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal"></i>
+                           <!--/ko-->
+                            <!--ko if: item.comentario!=null && item.comentario!='' --> 
+                              <i class="fa fa-comment fa-2x" style="cursor:pointer;" data-bind="click:$parent.abrir_modal"></i>
+                           <!--/ko-->
+                        </div>
+                        </div>
+
+                        </div>
+                      </div>
+                      
+                    </div>
+                 <!--/ko-->
+            <!--/ko-->
+
+          </div>
+
+
+        </div>
+
+      </section>
+      </div>
+     
+    </div>
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+  </div>
+
+  <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >            
+   <input type="hidden" id="id_tarea" value="{{id_tarea}}" class="form-control" > 
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_comentario" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        
+             <div class="col-lg-12">
+                <div class="panel panel-widget chat-widget">
+                   <div class="panel-body" >
+                    <div class="panel-heading">
+                    <span class="panel-icon">
+                      <i class="fa fa-pencil"></i>
+                    </span>
+                    <span class="panel-title">Comentario</span>
+                  </div>                    
+                    <div class="media">
+                            <!--ko if: comentario()!=null && comentario()!='' --> 
+                              <h5 class="media-heading" ><textarea class="form-control" rows="5" data-bind="text:comentario" disabled="true"></textarea>
+                        </h5>
+                           <!--/ko-->
+                       
+                      <!--ko if: comentario()==null || comentario()=='' --> 
+                             <br>
+                        <div class="alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>No se encontraron comentarios registrado</div>
+                      <!--/ko-->  
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!--Modal-->
+
+<div id="modal_soportes" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+            
+             <div class="form-group">
+                <label>Soporte(s)</label>  
+            </div>
+
+            <div class="form-group">
+              <div class="input-group">
+                      <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporteVO.ruta,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                   elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                      <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>  
+              </div>             
+            </div>
+            <div>
+                <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+              </div>
+
+          <div class="form-group">
+          <div data-bind="html: mensaje_soporte"></div>
+          <div data-bind="visible:(listado_soporte()!=null && listado_soporte().length > 0)">
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr> 
+              <th>Nombre</th>
+              <th>Soporte</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_soporte, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nombre"></td>
+                <td><a data-bind="attr:{href: item.ruta}"
+                  target="_blank"><i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a>
+                  <a href="#" data-bind="click:$parent.eliminar_soporte"><i class="fa fa-trash fa-2x" aria-hidden="true"></i></a>
+                  </td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        </div>
+        </div>
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/administrador_tarea/detalle.js" %}'></script>
+{% endblock imports %}

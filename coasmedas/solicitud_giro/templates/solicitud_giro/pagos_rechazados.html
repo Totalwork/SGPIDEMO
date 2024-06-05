@@ -1,0 +1,62 @@
+    {% extends 'page.html' %}
+    {% load static %}
+
+    {%block imports_css %}
+     <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+      <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+     
+    {% endblock imports_css %}
+
+    {% block opciones_listado %}
+
+    {% endblock opciones_listado %} 
+
+    {% block busqueda %}
+
+    {% endblock busqueda %}    
+    
+
+    {% block title %}Pagos rechazados{% endblock title%}
+    {% block mapa %}
+      <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+      <li class="active">Financiero</li>
+      <li><a href="{% url 'solicitud.inicio' %}">Sol. Giros</a></li>
+      <li class="active">Pagos rechazados</li>
+    {% endblock mapa %}
+    {% block encabezado %}{% endblock encabezado %}
+
+    {% block contenido %}
+
+      <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+      {% include 'solicitud_giro/_tabla_rechazo.html' %}
+      
+    {% endblock contenido %}
+
+    {% load static %}
+
+    {%block imports %}
+
+      <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+      <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+      <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+      </script>
+      <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+      <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+
+      <script type="text/javascript" src='{% static "js/ViewModels/solicitud_giro/rechazo.js" %}'></script>
+  
+
+  <script type="text/javascript">
+      $(document).ready(function () {
+        detalle_giro.consultar(1);//iniciamos la primera funcion//iniciamos la primera funcion
+        // detalle_giro.filtros('','','','');
+      });
+
+  </script>
+    
+
+  </script>      
+      
+
+
+    {% endblock imports %}

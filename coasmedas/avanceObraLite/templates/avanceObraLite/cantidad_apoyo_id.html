@@ -1,0 +1,172 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+
+{% block title %}Distribuccion de Poste{% endblock title%}
+ {% block busqueda %}
+ {% endblock busqueda %}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avanceObraLite.presupuesto' cronograma_id %}">Presupuesto</a></li>
+  <li><a href="{% url 'avanceObraLite.cantidad_apoyo' presupuesto_id %}">Cantidad de Apoyo</a></li>
+  <li class="active">Distribuccion de Poste</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %} 
+           <!--  <li>
+              <a href="#">
+                  <i class="fa fa-cloud-download"  style="font-size: 20px;"></i>
+              </a>
+            </li> -->
+
+             <li>
+              <a href="#" data-bind="click:confirmar">
+                 <i class="fa fa-save" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ <!--Modal-->
+
+<div id="modal_validacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">          
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body"> 
+          <div class="form-group">
+            <label><h4>¿Está seguro que desea registrar la información ingresada?</h4></label>    
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Si</button>
+          <button type="button" class="btn btn-danger" data-dismiss="modal">No</button>
+          
+        </div>
+    </form>
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->  
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+     
+  
+  <div class="panel panel-sky">
+          <div class="panel-heading">
+                <span class="panel-title">
+                  <a href="{% url 'avanceObraLite.cantidad_apoyo' presupuesto_id   %}" data-placement="right"    
+                    data-toggle="tooltip" data-original-title="Regresar a las cantidades de apoyo">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  Distribuccion de Cantidades poste a poste 
+                </span>
+          </div>
+          
+          <div class="panel-body" >
+              <div class="row">
+                    <div class="col-lg-6">
+                         <Strong>Presupuesto:  {{presupuesto.nombre}}</Strong>
+                    </div>
+
+                     <div class="col-lg-6">
+                         <Strong>Codigo UUCC:  
+                          {% if not detalle_presupuesto.codigoUC%}
+                              
+                          {% else %}
+                              {{ detalle_presupuesto.codigoUC }}
+                          {% endif %}
+                         </Strong>
+                    </div>
+              </div>
+              <br>
+
+              <div class="row">
+                    <div class="col-lg-6">
+                         <Strong>Proyecto:  {{presupuesto.cronograma.proyecto.nombre}}</Strong>
+                    </div>
+
+                     <div class="col-lg-6">
+                         <Strong>Descripcion UUCC:  {{detalle_presupuesto.descripcionUC}}</Strong>
+                    </div>
+              </div>
+              <br>
+
+              <div class="row">
+                    <div class="col-lg-6">
+                         <Strong>Esquema:  {{presupuesto.cronograma.esquema.nombre}}</Strong>
+                    </div>
+
+                     <div class="col-lg-6">
+                         <Strong>Total:  <span data-bind="text:cantidad_total"></span></Strong>
+                    </div>
+              </div>
+              <br>
+          
+           <div data-bind="html: mensaje"></div> 
+          <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Apoyo</th>
+              <th>Cantidad</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nodo.nombre"></td>
+
+                <td> 
+                <input style="width: 65px" type="text" data-bind="value:item.cantidad" class="form-control" > 
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+      </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="id_proyecto" value="{{proyecto_id}}" class="form-control" >
+<input type="hidden" id="id_detalle_presupuesto" value="{{detalle_presupuesto.id}}" class="form-control" >
+<input type="hidden" id="id_presupuesto" value="{{presupuesto_id}}" class="form-control" >
+
+
+  <!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/cantidad_apoyo_id.js" %}'></script>
+{% endblock imports %}

@@ -1,0 +1,214 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %} 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+ <style type="text/css">
+ 	
+
+.page_bitacora{
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 50%;
+    display: block; border:solid #000 1px
+}
+.content_bitacora{
+    padding:0;
+    overflow: scroll; overflow-x:hidden;
+    height:100%
+    /*-webkit-overflow-scrolling: touch;*/    
+}
+
+
+ </style>
+{% endblock imports_css %}
+
+{% block title %}Bitácora{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'proyecto.proyecto' %}">Proyecto</a></li>  	
+	<li class="active">Bitácora</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#" data-bind="click:abrir_modal" data-placement="right" data-toggle="tooltip" data-original-title="Crear">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+       
+{% endblock opciones_listado %}      
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  		   
+		    <div class="panel panel-sky">
+		    		    
+		    <div class="panel-heading">
+          <a href="{% url 'proyecto.proyecto'%}" data-placement="right"  
+            data-toggle="tooltip" data-original-title="Regresar a proyectos">
+            <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+          </a> 
+          Bitácora             
+            <span class="panel-controls">
+              <a data-placement="top"  data-toggle="tooltip" data-original-title="Filtros" data-bind="click:abrir_filtros" title="" style="cursor:pointer;">
+                <i class="fa fa-filter fa-2x"></i>
+              </a>
+            </span> 
+      	</div>
+            
+        <div class="panel-body">
+          	
+            <div data-bind="html: mensaje" data-bind="visible:listado()==null && listado().length == 0"></div>   
+
+            <div class="row" data-bind="visible:listado()!=null && listado().length > 0">
+               
+                 	<!-- ko foreach:{ data:listado, 'as': 'item' } -->		               
+      					<div class="alert alert-info alert-dismissable" style="border-radius:13px;background-color: #fcffeb;color: black;margin: 15px;">
+                  <!-- ko if: item.usuario.id == {{user.usuario.id}} && item.minutos <= 10 -->
+      					  <button style="color: black;" type="button" class="close" data-bind="click:$parent.eliminar">&times;</button>
+                  <!--/ko-->
+      					  <i class="fa fa-user pr10 text-success" aria-hidden="true"></i>					  
+      					  <strong data-bind="text:(item.usuario.persona.nombres + ' ' + item.usuario.persona.apellidos)"></strong><br>
+      					  <i class="fa fa-calendar pr10 text-danger" aria-hidden="true"></i>
+      					  <strong data-bind="text:moment(item.fecha).format('DD-MMMM-YYYY hh:mm:ss a')"></strong>
+
+      					  <p><i class="fa fa-commenting pr10 text-warning"></i>
+      					  	<span data-bind="text:item.comentario"></span>
+      					  </p>
+
+      					</div>
+      					<!--/ko-->
+
+                <div class="col-lg-12 text-center" data-bind="visible:listado()!=null && listado().length > 0">
+                  <a id="vermas" href="#" data-bind="click:verMas">Ver Mas</a>
+                </div>
+					
+				    </div>
+
+        </div>
+
+  	 	 </div>   <!-- fin row --> 
+	</div>
+
+</div>   
+
+<input type="hidden" id="hdProyecto" value="{{ proyecto.id }}">
+<input type="hidden" id="hdUsuario" value="{{ user.usuario.id }}">
+
+<div id="modal_acciones" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Crear bitácora</h4>
+      </div>
+       <div class="modal-body">
+             
+       		<div class="form-group">          
+                <label>Usuario:</label>
+                <span>{{ user.usuario.persona.nombres }} {{ user.usuario.persona.apellidos }}</span>
+            </div>
+
+            <div class="form-group">          
+                <label>Proyecto:</label>
+                <span>{{ proyecto.nombre }}</span>
+            </div>
+
+             <div class="form-group">          
+                <label>Fecha:</label>
+                <span data-bind="text:(new Date().getDate()+'-'+(new Date().getMonth()+1)+'-'+new Date().getFullYear())"></span>
+            </div>
+
+            <div class="form-group">          
+                <label>Comentario:</label>
+                <textarea class="form-control" rows="4" cols="55" data-bind="value:modelVO.comentario"></textarea>      
+            </div>
+        
+          
+       </div>
+     
+        <div class="modal-footer">
+
+         <button type="button" class="btn btn-primary" data-bind="click:guardar">Crear</button>
+
+        </div>      
+    </div>
+  </div>
+</div>
+
+
+<div id="modal_filtros" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Filtros</h4>
+      </div>
+       <div class="modal-body">
+            
+            {% if 'bitacora.see_all_bitacora' in perms %}        
+            <div class="form-group">          
+               <label>Usuario:</label>
+               <select class="form-control" data-bind="value:filtros.usuario_id">
+                 <option value="">Todos</option>
+                 <!-- ko foreach:{data:listado_usuarios, 'as': 'item'}-->
+                   <option data-bind="value:item.usuario__id, text:item.usuario__persona__nombres + ' ' + item.usuario__persona__apellidos"></option>
+                 <!--/ko-->
+               </select>           
+             </div>
+             <input type="hidden" id="hdBuscarUsuario" value="true">
+             {% endif %}  
+
+            <div class="form-group">
+              <label>Fecha inicio</label>           
+              <div class="input-group date">
+              <input type="text" class="form-control" id="fecha_inicio" data-bind="datePicker:filtros.fecha_inicio,value:filtros.fecha_inicio">
+                <label for="fecha_inicio" class="input-group-addon cursor">
+                  <i class="fa fa-calendar"></i>
+                </label>
+              </div> 
+            </div>
+
+            <div class="form-group">
+              <label>Fecha final</label>           
+              <div class="input-group date">
+                <input type="text" class="form-control" id="fecha_final" data-bind="datePicker:filtros.fecha_final,value:filtros.fecha_final">
+                  <label for="fecha_final" class="input-group-addon cursor">
+                    <i class="fa fa-calendar"></i>
+                  </label>
+              </div> 
+            </div>          
+            
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:function(){ consultar_por_filtros();}">Consultar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+{%block imports %} 	
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>    
+  	<script type="text/javascript" src='{% static "js/ViewModels/bitacora/Bitacora.js" %}'></script>   
+{% endblock imports %}

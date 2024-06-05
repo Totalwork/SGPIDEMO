@@ -1,0 +1,327 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+
+{% block title %}Avance de Obra sin GPS{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avanceObraLite.presupuesto' cronograma_id %}">presupuesto</a></li>
+  <li><a href="{% url 'avanceObraLite.reporte_trabajo' presupuesto_id %}">Reporte de Trabajo</a></li>
+  <li class="active">Avance de Obra sin GPS</li>
+{% endblock mapa %}
+
+{% block encabezado %}
+  <a href="{% url 'avanceObraLite.reporte_trabajo' presupuesto_id   %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al reporte de trabajo">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Detalle del Trabajo del dia: {{reporte.fechaTrabajo}}
+{% endblock encabezado %}
+
+
+{% block opciones_listado %}
+          
+            <!--ko if: habilitar_reporte()==false --> 
+             <li>
+              <a href="#" data-bind="click:guardar_reporte">
+                  <i class="fa fa-save" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+            <!--/ko-->
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+
+<div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div> 
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <div class="panel-heading">
+                <h4>Listado de Apoyos  <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></h4>
+             
+          </div>
+          <div class="panel-body">
+
+            <!--ko if: habilitar_cambio()==true -->
+        <div class="col-lg-6">
+          <button type="button" class="btn btn-primary" data-bind="click:abrir_modal">Agregar Apoyo</button>
+        </div>
+        <!--/ko-->
+        
+         <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <!-- <th>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>  -->   
+              <th >Nombre</th>
+              <th >Porcentaje</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <!-- <td>                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td>  -->
+              <td data-bind="text: item.nombre"></td>
+
+                <!--ko if: $root.sin_poste()==false --> 
+                <td>
+                  
+                <div class="progress-bar progress-bar-primary" data-bind="style: { width: item.porcentajeAcumulado+'%' },attr: {'aria-valuenow' : item.porcentajeAcumulado}" role="progressbar2" aria-valuemin="0" aria-valuemax="100"><span data-bind="text:item.porcentajeAcumulado+'%'" style="color: #000000"></span></div>
+                </td>
+
+                <!--/ko--> 
+
+
+                 <!--ko if: $root.sin_poste()==true --> 
+                <td>No Aplica
+                </td>
+
+                <!--/ko--> 
+
+               <td>
+                 <div class="btn-group text-right">
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu">
+                         <!--ko if: $root.habilitar_reporte()==false --> 
+                       <li>
+                          <a href="#" data-bind="click:$root.abrir_modal_carga">Ingresar Cantidades Ejecutadas</a>
+                       </li>
+                         <!--/ko-->   
+
+                       <li>
+                          <a href="#" data-bind="click:$root.abrir_modal_detalle_cambio">Detalles del Trabajo</a>
+                       </li>
+                      
+                    </ul>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+         <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+        
+          
+          
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+  </div>
+
+<input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >  
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="id_presupuesto" value="{{presupuesto_id}}" class="form-control" > 
+<input type="hidden" id="id_cronograma" value="{{id_cronograma}}" class="form-control" > 
+<input type="hidden" id="id_proyecto" value="{{id_proyecto}}" class="form-control" > 
+<input type="hidden" id="reporte_cerrado" value="{{reporte.reporteCerrado}}" class="form-control" >
+<input type="hidden" id="capa_id" value="{{capa_id}}" class="form-control" > 
+<input type="hidden" id="reporte_id" value="{{reporte_id}}" class="form-control" >
+
+<input type="hidden" id="sin_poste" value="{{reporte.presupuesto.sin_poste}}" class="form-control" > 
+
+
+
+
+ <!--Modal-->
+<div id="modal_listado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+
+          <div class="row">
+              <div class="col-lg-6">
+                <label>Nombre del Apoyo:</label>
+                <span data-bind="text:nombre_apoyo"></span>
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+
+           <!--ko if: sin_poste()==false --> 
+                  <div class="progress mt10">
+                  <div class="progress-bar progress-bar-primary" data-bind="style: { width: porcentaje_total()+'%' },
+                        attr: {'aria-valuenow' : porcentaje_total}" role="progressbar2" aria-valuemin="0" aria-valuemax="100"><span data-bind="text:porcentaje_total()+'%'" style="color: #000000"></span></div>
+                      </div>
+                <!--/ko--> 
+        
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Cantidad a Ejecutar</th>
+              <th>Cantidad ejecutada sumada</th>
+              <th>Cantidad ejecutada</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_detalles, as:'item'}">
+            <tr>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+              <td data-bind="text: item.cantidad"></td>
+              <td data-bind="text: item.cantidad_ejecutada"></td>
+             
+              <td>
+                    <input type="text" data-bind="value:item.cantidad_registrar" class="form-control" style="width: 45px">  
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_cambio_cantidades">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+ <!--Modal-->
+
+<div id="modal_detalle_cambio" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+         <div class="row">
+              <div class="col-lg-6">
+                <label>Nombre del Apoyo:</label>
+                <span data-bind="text:nombre_apoyo"></span>
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr>
+              <th>Hito</th> 
+              <th>Actividad</th> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Fecha</th>
+              <th>Cantidad Reportada</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_cambios, as:'item'}">
+            <tr>
+              <td data-bind="text: item.detallepresupuesto.nombre_padre"></td>
+              <td data-bind="text: item.detallepresupuesto.actividad.nombre"></td>
+              <td data-bind="text: item.detallepresupuesto.codigoUC"></td>
+              <td data-bind="text: item.detallepresupuesto.descripcionUC"></td>
+              <td>{{reporte.fechaTrabajo}}</td>
+             
+              <td>
+                    <input type="text" data-bind="value:item.cantidadEjecutada" class="form-control" >  
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+         <!--ko if: habilitar_reporte()==false --> 
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_detalle_cambio">Guardar</button>
+        </div>     
+            <!--/ko-->    
+ 
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/avance_sin_gps.js" %}'></script>
+{% endblock imports %}

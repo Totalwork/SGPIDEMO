@@ -1,0 +1,333 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Multa{% endblock title%}
+
+{% block opciones_listado %}{% endblock opciones_listado %}  
+
+
+{% block mapa %}
+
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="../index/">Multa</a></li>
+  <li class="active">Historial de la solicitud</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+{% block busqueda %}{% endblock busqueda %}
+{% block contenido %}
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>  
+
+<div class="row" >
+  <div class="col-lg-12">        
+    <div class="panel panel-sky" >
+      <div class="panel-heading">
+        Resumen Multa
+      </div>
+      <div class="panel-body">
+
+          <div class="col-lg-5"  >  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Datos de la multa</span>
+              </div>
+              <div class="panel-body" > 
+                  
+                  <ul class="icon-list">
+                    {% if solicitud.consecutivo %}
+                    <li>
+                      <b> Consecutivo Numero :</b>  <span >{{ solicitud.consecutivo }}</span>
+                    </li>
+                    {% endif %}
+                    <li>
+                      <b> Numero del contrato :</b> <span >{{ solicitud.contrato.numero }}</span>
+                    </li>
+                    <li>
+                      <b> Nombre:</b>   <span >{{ solicitud.contrato.nombre }}</span>
+                    </li>
+                     <li>
+                      <b> Estado del contrato:</b> <span >{{ solicitud.contrato.estado.nombre }}</span>
+                    </li>
+                     <li>
+                      <b> Contratista:</b> <span >{{ solicitud.contrato.contratista.nombre }}</span>
+                    </li>
+                     <li>
+                      <b> Estado de la solicitud:</b> <span >{{ estado }}</span>
+                    </li>
+                    <li>
+                      <b> Valor solicitado:</b> <span >{{ solicitud.valorSolicitado }}</span>
+                    </li>
+                    <li>
+                      <b> Valor para imposición:</b> <span >{{ solicitud.valorImpuesto }}</span>
+                    </li>
+                    {% if solicitud.codigoOF %}
+                    <li>
+                      <b> Codigo OF :</b>  <span >{{ solicitud.codigoOF }}</span>
+                    </li>
+                    {% endif %}
+                    {% if solicitud.codigoReferencia %}
+                    <li>
+                      <b> Codigo de referencia Sap :</b>  <span >{{ solicitud.codigoReferencia }}</span>
+                    </li>
+                    {% endif %}
+                  </ul>
+              </div>  
+            </div>
+          </div> 
+
+          <div class="col-lg-7"  >  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Historial</span>
+              </div>
+              <div class="panel-body" > 
+                  
+                <!-- INICIA  -->
+              <table class="table">
+              <thead>
+                <tr>
+                  <th width="15%" >Fecha</th>
+                  <th width="5%" >Estado</th>
+                  <th width="45%" >Usuario</th>
+                  <th width="45%" >Comentarios</th>
+                  <th width="10%" >Opciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in solicitud_historial %}
+                  <tr>
+                  <td >{{ item.fecha|date:'Y-m-d'}} </td>
+                  <td >{{ item.estado.nombre }}</td> 
+                  <td >{{ item.usuario.persona.nombres }} {{ item.usuario.persona.apellidos }}</td>
+                  <td data-bind="cutWord:{num:40,text: '{{item.comentarios}}', verMax:'...', verMin:'...'}"></td>
+                  <td >
+                  
+                  <!-- solicitada -->
+                  {% ifequal item.estado.id 74 %}
+                    <a href="../createWordSolicitud?correspondencia_id={{ item.solicitud.correspondenciasolicita.id }}" data-toggle="tooltip" data-original-title="generar documento">
+                      <i class="fa fa-file-word-o fa-2x"></i>
+                    </a>
+
+                    <a data-bind="click: function(){ $root.consultar_soportes_solicitadas({{item.solicitud.correspondenciasolicita.id}}); } " data-toggle="tooltip" data-original-title="descargar soporte">
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a> 
+                                  
+                  {% endifequal %}
+
+                  <!-- generada -->
+                  {% ifequal item.estado.id 75 %}
+                    <!-- <a href="../generate-format-solicitud?solicitud_id={{ item.solicitud_id }}" data-toggle="tooltip" data-original-title="generar documento">
+                      <i class="fa fa-file-word-o fa-2x"></i>
+                    </a> -->
+                    <a href="http://caribemar.sinin.co:8080/exportar/imposicion-multas?solicitud_id={{ item.solicitud_id }}"
+                    data-toggle="tooltip" target="_blank" data-original-title="generar documento">
+                      <i class="fa fa-file-word-o fa-2x"></i>
+                    </a>
+                  {% endifequal  %}
+                  
+                  <!-- Notificada Contratista -->
+                  {% ifequal item.estado.id 76 %}
+                   <!--  <a data-bind="click: function(){ $root.descargar_soporte_historial_por_id({{item.id}}); } "  data-toggle="tooltip" data-original-title="descargar soporte">
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a> -->
+                     <a data-bind="attr: {href: '/multa/ver-soporte/?id=' + {{item.id}} } "  data-toggle="tooltip" target="_blank" data-original-title="descargar soporte">
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a>
+                  {% endifequal  %}
+
+
+                  <!-- Notificada Anulada -->
+                  {% ifequal item.estado.id 81 %}
+                    <!-- <a data-bind="click: function(){ $root.descargar_soporte_historial_por_id({{item.id}}); } "  data-toggle="tooltip" data-original-title="descargar soporte">
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a> -->
+
+                    <a data-bind="attr: {href: '/multa/ver-soporte/?id=' + {{item.id}} } "  data-toggle="tooltip" target="_blank" data-original-title="descargar soporte">
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a>
+
+                  {% endifequal  %}
+
+
+                  {% ifequal item.estado.id 78 %}
+                    {% if item.solicitud.correspondenciadescargo %}
+                      <a href="../generate-format-respuestaDescargo?solicitud_id={{ item.solicitud_id }}" data-toggle="tooltip" data-original-title="generar documento">
+                        <i class="fa fa-file-word-o fa-2x"></i>
+                      </a>
+                      <a 
+                    data-bind="click: function(){ $root.abrir_modal_soporte_ver_correspondencia({{item.solicitud.correspondenciadescargo.id}},{{item.solicitud.correspondenciadescargo.consecutivo}}); } "  target="_blank"
+                    data-toggle="tooltip" data-original-title="descargar soporte">
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a> 
+                    {% endif %}
+                    
+                  {% endifequal  %}
+
+                  <!-- contabiliada -->
+                  {% ifequal item.estado.id 83 %}
+                   <!--  <a data-bind="click: function(){ $root.descargar_soporte_historial_por_id({{item.id}}); } "  data-toggle="tooltip" data-original-title="descargar soporte" >
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a> -->
+                     <a data-bind="attr: {href: '/multa/ver-soporte/?id=' + {{item.id}} } "  data-toggle="tooltip" target="_blank" data-original-title="descargar soporte">
+                      <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                    </a>
+                  {% endifequal  %}
+
+                  </td>    
+                </tr>
+                {% endfor %}
+                
+              </tbody>
+            </table>
+                <!-- FINALIZA -->
+              </div>  
+            </div>
+          </div> 
+
+
+          <div class="col-lg-12"  >  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Descargo</span>
+              </div>
+              <div class="panel-body" > 
+
+                <div data-bind="html: mensaje"></div>
+                <div data-bind="visible:(listado()!=null && listado().length > 0)">
+                  <div class="table-responsive" data-bind="dropdown">
+                  
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th width="20%" >Fecha</th>
+                          <th width="30%" >Descripción</th>
+                          <th width="20%" >Soporte</th>
+                          <th width="20%" >Fecha transación</th>
+                          <th width="10%" >Pronunciamiento</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado, as:'item'}">
+                        <tr>
+                          <td data-bind="text: moment(item.fecha).format('LL')"> </td> 
+                          <td data-bind="text: item.comentarios"> </td>
+                          <td >                            
+                            <a data-bind="attr: {href: item.soporte}" target="_blank" style="cursor:pointer;" >
+                              <i class="fa fa-file kv-caption-icon" ></i> Documento
+                            </a>
+                          </td> 
+                          <td data-bind="text: moment(item.fecha_transacion).format('LL')"></td>
+                          <td >
+
+                            <a href="#" data-bind="click:$root.abrir_modal_ver_pronunciamiento">
+                              <i class="fa fa-eye "></i>Ver
+                            </a>
+                          </td>     
+                        </tr>
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>  
+            </div>
+          </div> 
+
+      
+      </div>
+    </div>
+  </div>
+</div>
+<!--Modal-->
+
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+          <div class="form-group">  
+              <textarea type="text" class="form-control" data-bind='value:solicitudPronunciamientoVO.comentarios' placeholder="Digite los comentarios" rows="15" > </textarea> 
+          </div> 
+       </div>
+       <div class="modal-footer">
+
+       </div>    
+    </div>
+  </div>
+</div>
+
+<!--Modal form ver soporte-->
+<div id="modal_acciones_soporte_ver" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+       
+          <div class="col-md-12"> 
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Soportes de la carta</span>
+              </div>
+              <div class="panel-body" > 
+
+                <div data-bind="html: mensajePorAsignar"></div>  
+
+                <div class="col-lg-12" data-bind="visible:(listado_correspondencia_soportes()!=null && listado_correspondencia_soportes().length > 0)">                     
+
+                    <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>                 
+                          <th width="20%">Soporte</th>
+                          <th width="80%">Nombre</th>          
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_correspondencia_soportes, as:'item'}">
+                        <tr>
+                          <td>
+                              <a data-bind="attr: {href: '/correspondencia/ver-soporte/?id=' + item.id}" target="_blank" style="cursor:pointer;">
+                                <i class="fa fa-file kv-caption-icon"></i> Documento
+                              </a>
+                          </td>
+                          <td data-bind="text: item.nombre"></td>         
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div> 
+                </div>
+              </div>
+            </div>
+          </div>  
+
+       </div>
+       
+    </div>
+  </div>
+</div>
+<!--Modal form ver soporte-->
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src="//cdn.tinymce.com/4/tinymce.min.js"></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/multa/descargo.js" %}?v=2'></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+
+        descargo.solicitudApelacionVO.solicitud_id({{ solicitud.id }});
+        descargo.consultar_apelacion();
+    });  
+  </script>
+{% endblock imports %}

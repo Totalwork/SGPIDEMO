@@ -1,0 +1,334 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Listado de pagos{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'seguimiento_factura.index' %}">Seguimiento factura</a></li>
+  <li><a href="{% url 'seguimiento_factura.gestion-op-recursos-propios' %}">Facturas a pagar con recursos propios</a></li>
+  <li class="active">Listado de ordenes de pagos</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+
+{% block contenido %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Listado de pagos</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Consulta de compenssacion" data-bind="click:function(){ filtrar_facturas_pagadas_sin_recursos();}" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+                <span class="panel-controls" data-bind="visible:(listado_pago_factura()!=null && listado_pago_factura().length > 0)">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Generar informe" data-bind="click:exportar_excel_gestion" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-print fa-2x"></i>
+                  </a>
+                </span>
+
+            </div>
+            
+            <div class="panel-body">
+
+              <div data-bind="html: mensaje"></div>
+
+              <div data-bind="visible:(listado_pago_factura()!=null && listado_pago_factura().length > 0)">
+
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                      <tr>
+                        <th style="width:9%"></th>
+                        <th style="width:15%">Codigo de compensacion</th>
+                        <th style="width:15%">Fecha de compensación</th>
+                        <th style="width:15%">Valor a pagar</th>
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado_pago_factura, as:'item'}">
+
+                    <tr>
+                      <td>
+                        <!--ko if: item.soporte_pago!=null -->
+                          <a data-bind="attr: {href: item.soporte_pago}" target="_blank" style="cursor:pointer;">
+                            <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                          </a>
+                        <!--/ko -->
+                      </td>
+                      <td data-bind="text: item.codigo"></td>
+                      <td data-bind="text: item.fecha_pago"></td>                  
+                      <td data-bind="text: formatMoney(item.valor)"></td>
+                      <td>
+
+                        <div class="btn-group text-right">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+
+                          <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+
+                            <li>
+                              <a style="cursor:pointer" data-bind="click:$parent.consultar_factura_pagada" title="Listado de facturas"> 
+                                 Listado de facturas pagadas
+                              </a>
+                            </li>
+
+                            <li>
+                              <a style="cursor:pointer" data-bind="click:$parent.consultar_por_id" title="Actualizar fecha de pago"> 
+                               Actualizar fecha de pago
+                              </a>
+                            </li>
+                            <li>
+                              <a style="cursor:pointer" data-bind="click:$parent.anular_compensacion" title="Anular pago"> 
+                               Anular pago
+                              </a>
+                            </li>
+                           
+                          </ul>
+                        </div>
+
+                      </td>
+
+                    </tr>
+                     
+                  </tbody>
+                </table>               
+              </div>
+
+              <div id="paginacion" >
+                <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+  <!--Modal para mostrar las facturas pagadas-->
+  <div id="modalFactura" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+          
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+        <div class="modal-body">
+
+          <div data-bind="html: mensajeModal"></div>
+
+          <div data-bind="visible:(listado_factura_pagada()!=null && listado_factura_pagada().length > 0)">
+
+            <!--   <div class="row col-lg-12" > -->
+            <span class="panel-controls">
+              <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Generar informe" data-bind="click:exportar_facturas_pagadas" data-toggle="modal" style="cursor:pointer;">
+                <i class="fa fa-print fa-2x"></i>
+              </a>
+            </span>
+            <br/>
+         <!--  </div> -->
+         
+            <div class="table-responsive">
+
+              <table id="tabla" class="table">
+                <thead>
+                    <tr>
+                      <th style="width:15%">Doc. SAP</th>
+                      <th style="width:15%">Fecha reporte</th>
+                      <th style="width:15%">No. factura</th>
+                      <th style="width:15%">Cod. acreedor</th>
+                      <th style="width:25%">Nombre acreedor</th>
+                      <th style="width:15%">Valor a pagar</th>    
+                      </tr>
+                </thead>
+
+                <tbody data-bind="foreach:{data:listado_factura_pagada, as:'item'}">
+              
+                  <tr>
+                    <td data-bind='text:item.referencia'></td>
+
+                    <!--ko if:(item.fecha_reporte != '' && item.fecha_reporte != '1900-01-01' && item.fecha_reporte != '0000-00-00') -->
+                    <td data-bind='text:item.fecha_reporte'></td>
+                    <!--/ko-->
+
+                    <!--ko if:(item.fecha_reporte == '1900-01-01') -->
+                      <td></td>
+                    <!--/ko-->
+                    <td data-bind='text:item.numero'></td>
+                    <td data-bind='text:item.contrato.contratista.codigo_acreedor'></td>
+                    <td data-bind='text:item.contrato.contratista.nombre'></td>
+                    <td data-bind='text:formatMoney(item.valor_contable)'></td>
+                  </tr>
+
+                </tbody>
+
+              </table>
+
+            </div><!--table-responsive-->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+  <!--Fin del modal de factura pagadas-->
+
+
+  <!--Modal para guardar la fecha de pago-->
+  <div id="modalfecha" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+          
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+        <div class="modal-body">
+
+          <label>Fecha de pago :</label>
+
+           <input class="form-control" type="text" placeholder="Seleccione la fecha" 
+                data-bind="datePicker:test_opVO.fecha_pago,value:test_opVO.fecha_pago, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+            <p class="help-block">Seleccione la fecha desde.</p>
+
+          <div class="form-group">          
+          <label>Documento</label>
+           <input type="file" note-image-input id="archivo2" name="archivo2"  data-bind="fileData:{value:test_opVO.soporte_pago,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                   elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                                   <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>                                   
+          </div>
+
+            <button type="button" class="btn btn-primary" id="actualizarFecha" name="actualizarFecha" data-bind="click:guardar">Guardar</button>
+         
+        </div>
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+  <!--Fin del modal para guardar la fecha de pago-->
+
+
+  <!--Modal para filtrar facturas vencidas-->
+  <div id="modal_factura_pagadas" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+          
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+        <div class="modal-body">
+
+          <label>Desde :</label>
+           <input class="form-control" type="text" placeholder="Seleccione la fecha" 
+                data-bind="datePicker:desde,value:desde, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+            <p class="help-block">Seleccione la fecha desde.</p>
+
+          <label>Hasta :</label>
+           <input class="form-control" type="text" placeholder="Seleccione la fecha" 
+                data-bind="datePicker:hasta,value:hasta, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+            <p class="help-block">Seleccione la fecha hasta.</p>
+
+
+          <div class="form-group">
+            <label>Macrocontrato</label>
+            <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro">
+              <option value="0">[Seleccione...]</option>
+                <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.contrato.id,text:item.contrato.nombre"></option>
+                <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Contratista</label>
+            <select class="form-control" id="contratista_filtro" name="contratista_filtro">
+              <option value="0">[Seleccione...]</option>
+                <!--ko foreach:{ data:lista_contratista, as:'item'} -->
+                  <option data-bind="value:item.beneficiario.id,text:item.beneficiario.nombre"></option>
+                <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cuenta origen</label>
+            <select class="form-control" id="cuenta_filtro" name="cuenta_filtro">
+              <option value="0">[Seleccione...]</option>
+                <!--ko foreach:{ data:lista_cuenta, as:'item'} -->
+                  <!--ko if: item.financiero_cuenta != null-->
+                    <option data-bind="value:item.contrato.id,text:item.financiero_cuenta.nombre"></option>
+                  <!--/ko-->
+                <!--/ko-->
+            </select>
+          </div>
+
+          <button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:function(){ consultar_pago_factura_recursos_propios(1);}">Filtrar</button>
+                  
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+  <!--Fin del modal de factura vencidas-->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/consulta_factura_pagada_recursos_propios.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      consultar_pago_factura_recursos_propios.consultar_pago_factura_recursos_propios(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

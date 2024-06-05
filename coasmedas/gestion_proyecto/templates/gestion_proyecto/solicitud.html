@@ -1,0 +1,369 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Solicitudes{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>
+  <li class="active">Solicitudes</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}
+            
+            {% if 'gestion_proyecto.add_csolicitud' in perms %}
+            <li>
+              <a href="#" data-placement="right" data-bind="click:abrir_modal" data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+             {% endif %}
+
+             {% if 'gestion_proyecto.delete_csolicitud' in perms %}
+            <li>
+              <a href="#" data-placement="right" data-bind="click:eliminar" data-toggle="tooltip" data-original-title="Eliminar registro">
+                  <i class="fa fa-trash" style="font-size: 20px;"></i>
+              </a>
+            </li>
+             {% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div> 
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <div class="panel-heading">
+                <h4>
+                  <a href="{% url 'gestion_proyecto.gestion_proyecto' %}" data-placement="right"    
+                    data-toggle="tooltip" data-original-title="Regresar a la gestion de proyectos">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  Listado de Solicitudes  <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></h4>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>              
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th>    
+              <th >Fecha Solicitud</th>
+              <th >Nombre Solicitante</th>
+              <th >Entidad</th>
+              <th >Visita</th>
+              <th >Fecha Visita</th>
+              <th >Fecha Respuesta</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td>               
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.fecha"></td>
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.entidad"></td>
+               <!--ko if: item.visita == true -->
+                      <td>Si</td>
+                <!-- /ko -->
+
+               <!--ko if: item.visita == false -->
+                      <td>No</td>
+                <!-- /ko -->
+              <td data-bind="text: item.fecha_visita"></td>
+              <td data-bind="text: item.fecha_respuesta"></td>
+               <td>
+                 <div class="btn-group text-right">
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu">
+                   {% if 'gestion_proyecto.change_csolicitud' in perms %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                       </li>
+                        {% endif %}
+                       <li>
+                          <a href="#" data-bind="click:$root.abrir_modal_soporte">Ver Archivos</a>
+                       </li>
+
+                       <li>
+                          <a href="#" data-bind="click:$root.abrir_modal_diseno">Listado de Diseños</a>
+                       </li>
+
+                        <li>
+                          <a href="#" data-bind="click:$root.solicitud_diseno">Diseños</a>
+                       </li>
+                    </ul>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+         <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+        
+          
+          
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+  </div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >      
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row">
+            <div class="col-lg-6">
+
+             <div class="form-group">
+                <label>Nombre del Solicitante(*)</label>
+                <input type="text" class="form-control" data-bind="value:solicitudVO.nombre">           
+              </div>
+
+
+              <div class="form-group">
+                <label>Entidad(*)</label>
+                <input type="text" class="form-control" data-bind="value:solicitudVO.entidad">           
+              </div>
+
+              <div class="form-group">
+                <label>Fecha(*)</label>
+                  <div class="input-group date" id='datetimepicker2'>
+                      <input  type="text" class="form-control" 
+                      data-bind="datePicker:solicitudVO.fecha,value:solicitudVO.fecha" 
+                      onkeypress="return false">
+                      <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                      </label>
+                    </div>         
+              </div>
+
+              <div class="form-group">
+                <label>Archivo</label>
+                <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:solicitudVO.soporte,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                         elErrorContainer: '#errorBlock', removeLabel:''}"  multiple/>
+                                         <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>
+              </div>
+
+              <!--ko if: listado_soporte_edicion().length > 0 -->
+                        
+                  <!-- ko foreach: listado_soporte_edicion -->  
+                     <div class="row">
+                       <span  title="Quitar">
+                            <button class="btn btn-default" type="button" data-bind="click:$parent.eliminar_soporte">
+                                      <i style="color:#31708F; cursor:pointer;" class="fa fa-close fa-1x" title="Quitar"></i></button>
+                        </span>   
+                        <a data-bind="attr:{href: ruta}" target="_blank"> 
+                          <span data-bind='text:nombre'></span></a>
+                      </div>    
+                     <!-- /ko -->             
+               <!--/ko--> 
+              
+            </div>
+
+             <div class="col-lg-6">           
+
+              <div class="form-group">
+                <label>Fecha de Respuesta(*)</label>
+                <div class="input-group date" id='datepicker2'>
+                      <input  type="text" class="form-control" data-bind="datePicker:solicitudVO.fecha_respuesta,value:solicitudVO.fecha_respuesta" 
+                      onkeypress="return false">
+                      <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                      </label>
+                    </div>        
+              </div>
+
+                <div class="form-group">
+                <label>¿Se necesita una visita?(*)</label>
+                    <select class="form-control" data-bind="value:solicitudVO.visita">
+                      <option value="">[Seleccione..]</option>
+                      <option value="1">Si</option>
+                      <option value="0">No</option>
+                    </select>             
+              </div>
+
+              <div data-bind="visible:habilitar">
+
+                 <div class="form-group">
+                    <label>Fecha de Visita</label>  
+                    <div class="input-group date" id='datepicker2'>
+                      <input  type="text" class="form-control" data-bind="datePicker:solicitudVO.fecha_visita,value:solicitudVO.fecha_visita" 
+                      onkeypress="return false">
+                      <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                      </label>
+                    </div>  
+                  </div>
+
+                  <div class="form-group">
+                    <label>Descripcion breve de la visita</label>
+                    <textarea class="form-control" data-bind="value:solicitudVO.descripcion_visita"></textarea>            
+                  </div>
+                
+              </div>
+
+            </div>
+        </div>
+        
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+
+<!--Modal-->
+
+<div id="modal_diseno" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+          <div data-bind="html: mensaje_diseno"></div> 
+          <div class="table-responsive" data-bind="dropdown,visible:(listado_diseno()!=null && listado_diseno().length > 0)">
+                
+                  <table class="table">
+                <thead>
+              <tr>  
+                <th >Nombre del Diseño</th>
+                <th >Departamento</th>
+                <th>Municipio</th>
+              </tr>
+            </thead>
+            <tbody data-bind="foreach:{data:listado_diseno, as:'item'}">
+              <tr>
+                <td data-bind="text: item.nombre"></td>
+                <td data-bind="text: item.municipio.departamento.nombre"></td>    
+                <td data-bind="text: item.municipio.nombre"></td>  
+              </tr>
+            </tbody>
+          </table>
+          </div>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" class="close" data-dismiss="modal">Cancelar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+
+<!--Modal-->
+
+<div id="modal_soporte" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+          <div data-bind="html: mensaje_soporte"></div> 
+          <div class="table-responsive" data-bind="dropdown,visible:(listado_soporte()!=null && listado_soporte().length > 0)">
+                
+          <table class="table">
+                <thead>
+              <tr>  
+                <th>Nombre</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody data-bind="foreach:{data:listado_soporte, as:'item'}">
+              <tr>
+                <td data-bind="text: item.nombre"></td>
+                <td><a data-bind="click:$root.verSoporte"
+                  target="_blank"><i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i></a></td> 
+              </tr>
+            </tbody>
+          </table>
+          </div>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" class="close" data-dismiss="modal">Cancelar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/solicitud.js" %}'></script>
+{% endblock imports %}

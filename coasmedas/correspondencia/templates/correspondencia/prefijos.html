@@ -1,0 +1,148 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Prefijo{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrización</a></li>  
+  <li><a href="{% url  'empresa.empresa' %}">Mi Empresa</a></li>  
+	<li class="active">Prefijo</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}       
+           
+        <li>
+          <a href="#" data-bind="click:abrir_modal" data-placement="right" data-toggle="tooltip" data-original-title="Crear prefijo">
+            <i class="fa fa-plus" style="font-size: 20px;"></i>
+          </a>
+        </li>
+       
+{% endblock opciones_listado %}    
+
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+<!-- http://52.26.19.129/sinin/contrato/poliza.php?codigo=302 -->
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		   <div data-bind="html: mensaje"></div> 
+
+		    <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+		    		    
+		        <div class="panel-heading">
+              <span>      
+                <a href="{% url 'empresa.empresa' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>              
+               Listado de prefijos - N° de Registos : </span> <span data-bind="text:paginacion.total"></span>
+          	</div>
+
+          	 <div class="panel-body">
+          	 	  
+               <div class="row" data-bind="html:mensaje"></div>  
+
+          	 	 <div class="table-responsive" data-bind="visible:listado()!=null && listado().length > 0">
+
+
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>        
+                      <th>Nombre</th> 
+                      
+                      <th></th>                                        
+                    </tr>
+                   </thead>
+                   <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr> 
+                      <td data-bind="text:item.nombre"></td>  
+                      
+                      <td style="width: 10%">                   
+                       <div class="btn-group text-right">
+                               <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                                  </i></a>
+
+                               <ul class="dropdown-menu" role="menu">                                
+                                   <li>
+                                      <a href="#" data-bind="click:function(obj){$root.consultar_por_id(obj.id);}">Editar</a>
+                                   </li>
+                                 
+                                   <li>
+                                      <a href="#" data-bind="click:function(){ $root.eliminar(item.id); }">Eliminar</a>
+                                    </li>                                 
+                                </ul>
+                        </div>
+                      </td>  
+                    </tr>
+                   </tbody> 
+                 </table>
+          	 	 	
+          	 	 </div>
+
+               <!-- paginacion -->
+                    <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                     currentPage: paginacion.pagina_actual,
+                                     totalCount: paginacion.total,
+                                     pageSize:paginacion.cantidad_por_paginas,
+                                     maxPages: paginacion.maxPaginas,
+                                     directions: paginacion.direcciones,
+                                     boundary: paginacion.limite,
+                                     text: paginacion.text }">
+
+                      </div>
+                  </div>   
+               <!-- fin paginacion -->
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+       	                      
+           <div class="form-group">
+                  <label>Nombre</label>                   
+                  <input class="form-control" data-bind="value:prefijoVO.nombre">
+           </div>
+         
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<input type="hidden" id="empresa_id" value="{{ user.usuario.empresa.id }}">
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}  
+  	<script type="text/javascript" src='{% static "js/ViewModels/correspondencia/Prefijos.js" %}'></script>   
+{% endblock imports %}

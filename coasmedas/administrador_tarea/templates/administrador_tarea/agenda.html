@@ -1,0 +1,335 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "vendor/plugins/fullcalendar/fullcalendar.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Agenda{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'administrador_tarea.administrador_tarea' %}">Administrador de Tarea</a></li>
+  <li class="active">Agenda</li>
+{% endblock mapa %}
+{% block encabezado %}Agenda{% endblock encabezado %}
+
+{% block opciones_listado %}
+
+            <li>
+              <a href="#" data-placement="right" data-bind="click:abrir_modal" data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+   
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+              <span class="panel-title">
+                <a href="{% url 'administrador_tarea.administrador_tarea'%}" data-placement="right"    
+                  data-toggle="tooltip" data-original-title="Regresar al listado de tareas">
+                  <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                </a> 
+                Agenda
+              </span>
+          </div>
+          <div class="panel-body">
+
+         <section id="content" class="table-layout animated fadeIn">
+
+                <!-- begin: .tray-left -->
+                <aside class="tray tray-left tray290" data-tray-mobile="#content > .tray-center">
+                 
+
+                  <div class="fc-title-clone" align="center"></div>
+
+                  <!-- Demo HTML - Via JS we insert a sync minicalendar -->
+                  <div class="section admin-form theme-primary">
+                    <div class="inline-mp minimal-mp center-block"></div>
+                  </div>
+
+                </aside>
+                <!-- end: .tray-left -->
+
+                <!-- begin: .tray-center -->
+                <div class="tray tray-center">
+
+                  <!-- Calendar -->
+                  <div id='calendar' class="admin-theme"></div>
+
+                </div>
+                <!-- end: .tray-center -->
+
+              </section>
+        </div>
+        <!-- end: .tray-center -->
+
+<input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >            
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa_id}}" class="form-control" >    
+      <!-- End: Content -->
+  </div>
+
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+          <div class="row">
+            <div class="col-lg-6">
+                 <div class="form-group">
+                      <label>Tipo</label>
+                       <select class="form-control" data-bind="value:actividadVO.tipo_id">
+                            <option value="0">[Seleccione..]</option>
+                            {% for item in Tipos %}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                            {% endfor %} 
+                       </select>            
+                  </div>
+
+                  <div class="form-group">
+                    <label>Fecha</label>
+                    <div class="input-group date" id='datetimepicker2'>
+                      <input  type="text" class="form-control" data-bind="datetimePicker:actividadVO.fecha,value:actividadVO.fecha,dateTimePickerOptions:{minDate:new Date()}" 
+                      onkeypress="return false">
+                      <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                      </label>
+                    </div>   
+                </div>
+
+                   <div class="form-group">
+                      <label>Asunto</label>
+                      <textarea class="form-control" rows="5" placeholder="Escribir el asunto" data-bind="value:actividadVO.asunto"></textarea>
+                  </div>
+                  
+                  <div class="form-group">
+                      <label>Lugar de la actividad</label>
+                      <input type="text"  class="form-control" data-bind="value:actividadVO.lugar">           
+                  </div>          
+
+                  <div class="form-group"> 
+                    <a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:agregar_soporte" data-original-title="Agregar nuevo soporte">
+                         <i class="fa fa-plus-circle fa-2x"></i>
+                      </a>
+                      <label>Soporte(s)</label>                           
+                       <!--ko foreach:{data:actividadVO.listado_archivo, as:'item_soporte'}--> 
+                            <!--ko if: $index()==0 --> 
+                            <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporte,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                         elErrorContainer: '#errorBlock', removeLabel:''}" />
+                           <!--/ko-->
+                             <!--ko if: $index()>0 --> 
+                              <div class="input-group">
+                            <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:soporte,allowedFileExtensions: ['png','jpg','jpge','pdf'],
+                                         elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                            <label for="fecha_nacimiento" class="input-group-addon cursor" data-bind="click:$parent.eliminar_soporte">
+                           <i class="fa fa-trash"></i>
+                           </label></div>
+                           <!--/ko-->                     
+                      <!--/ko-->  
+                      <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge y pdf.<br></small>                                                             
+                    </div>
+            </div>  
+
+            <div class="col-lg-6">
+
+            <div class="panel">
+                <div class="panel-heading">
+                  <span class="panel-icon">
+                    <i class="fa fa-users"></i>
+                  </span>
+                  <span class="panel-title"> Usuarios Invitados </span>
+                </div>
+                <div class="panel-body pn">
+
+                <div class="row">
+                <div class="col-lg-12">
+                    <div class="btn-group text-right">
+                   <a href="#" data-bind="click:abrir_modal_usuario"><i class="fa fa-plus fa-2x">
+                      </i>Nuevo Invitado</a>
+                  </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                <div class="col-lg-12">
+                 <div data-bind="html: mensaje"></div> 
+                <div data-bind="visible:(actividadVO.listado_usuarios()!=null && actividadVO.listado_usuarios().length > 0)"> 
+
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                      <tr> 
+                        <th>Nombre Completo</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                     <tbody data-bind="foreach:{data:actividadVO.listado_usuarios, as:'item'}">
+                        <tr>
+                            <td data-bind="text: item.persona.nombres+' '+item.persona.apellidos"></td>
+                            <td ><a href="#" data-placement="right" data-toggle="tooltip" data-bind="click:$parent.eliminar_usuario" data-original-title="Eliminar usuario">
+                             <i class="fa fa-trash fa-2x"></i>
+                           </a></td>    
+                      </tr>
+                    </tbody>
+                  </table>
+                  </div>
+                 
+                </div>
+                </div>
+              </div>
+              </div>
+
+                     
+
+            
+              </div>
+
+            </div>            
+          </div>
+        
+            
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+            </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_usuario" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Registrar/Consultar Usuarios</h4>
+        </div>
+
+       <div class="modal-body">
+        
+            <div class="panel">
+            <div class="panel-heading">
+                <span class="panel-title">Usuarios</span>
+              </div>
+
+              <br>
+              <div class="row">
+                    <div class="col-md-6">
+                      <select class="form-control" data-bind="value:id_empresa">
+                        <option value="0">[Seleccione la empresa..]</option>
+                         {% for item in Empresas %}
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                        {% endfor %} 
+                      </select>
+                    </div> 
+
+                    <div class="col-md-6">
+                      <div class="input-group">
+                          <input class="form-control" id="txtBuscar2" name="txtBuscar2" type="text" placeholder="Buscar" data-bind="event:{keypress:consulta_enter_usuario}">
+                          <span class="input-group-addon" style="cursor:pointer;" data-bind="click:function(){consultar_usuario(1)}"><i class="fa fa-search"></i></span>
+                        </div>
+                    </div> 
+                </div>  
+              <br>
+
+              <div class="panel-body pn">
+                <div data-bind="html: mensaje_usuario"></div>
+               
+                <div data-bind="visible:(listado_usuarios()!=null && listado_usuarios().length > 0)">
+                <div class="table-responsive">
+                      <table class="table">
+                    <thead>
+                  <tr> 
+                    <th><input type="checkbox" data-bind="checked:checkall2"></th>
+                    <th>Nombre</th>
+                    <th>Telefono</th>
+                    <th>Email</th>
+                  </tr>
+                </thead>
+
+                     <tbody data-bind="foreach:{data:listado_usuarios, as:'item'}">
+                      <tr>
+                       <td><input type="checkbox" data-bind="checked:eliminado"></td>
+                        <td data-bind="text: item.persona.nombres+' '+item.persona.apellidos"></td>
+                         <td data-bind="text: item.persona.telefono"></td>
+                         <td data-bind="text: item.persona.correo"></td>
+                      </tr>
+                    </tbody>
+               
+              </table>
+              </div>          
+            
+          
+             <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion_usuario.pagina_actual,
+                                     totalCount: paginacion_usuario.total,
+                                     pageSize:paginacion_usuario.cantidad_por_paginas,
+                                     maxPages: paginacion_usuario.maxPaginas,
+                                     directions: paginacion_usuario.direcciones,
+                                     boundary: paginacion_usuario.limite,
+                                     text: paginacion_usuario.text }">
+
+                        </div>
+                    </div>
+                    </div>
+                    <div data-bind="html: mensaje_guardando_usuario"></div> 
+                      <div class="modal-footer">
+                      <button type="button" class="btn btn-primary" data-bind="click:guardar_usuario">Guardar</button>
+                    </div>
+                  </div>
+              </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script src='{% static "vendor/plugins/fullcalendar/fullcalendar.min.js" %}'></script>
+    <script src='{% static "vendor/plugins/fullcalendar/lang-all.js" %}'></script>
+    <script src='{% static "assets/admin-tools/admin-forms/js/jquery-ui-monthpicker.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/administrador_tarea/agenda.js" %}'></script>
+  <!-- END: PAGE SCRIPTS -->
+{% endblock imports %}

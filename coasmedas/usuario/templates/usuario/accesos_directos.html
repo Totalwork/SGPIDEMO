@@ -1,0 +1,202 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %} 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Accesos directos{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  	<li class="active">Accesos Directos</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  		   
+		    <div class="panel panel-sky">
+		    		    
+		    <div class="panel-heading">
+                Accesos directos
+                
+          	</div>
+            
+          	 <div class="panel-body">
+          	 	
+          	 	 <div class="row">
+                 
+               <div class="col-lg-6">
+         
+            <!---->
+                  <div class="panel">
+                    <div class="panel-heading">
+                      <span class="panel-title">Buscar Modulos</span>
+                    </div>
+                    <div class="panel-body">
+                      <div class="form-group input-group">
+                      <input type="text" class="form-control" placeholder="Buscar por el nombre del modulo" id="txtBuscarE" data-bind="event:{keydown:function(d,e){if (e.keyCode === 13)consultar_opciones();else return true;}}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btnConsultarTodos" data-bind="click:consultar_opciones">
+                              <i class="fa fa-search"></i></button>
+                        </span>
+                      </div>
+
+                       <button type="button" data-bind="click : guardar_opciones_usuario, visible:listado_opciones()!=null && listado_opciones().length > 0" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4>Agregar -
+                          <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                        </h4>
+                      </button>
+
+                       <div class="row" data-bind="html:mensaje_opciones"></div> 
+
+                       <table class="table" data-bind="visible:listado_opciones()!=null && listado_opciones().length > 0">
+                         <thead>
+                          <tr>                      
+                            <th>
+                              <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input name="mobileos" data-bind="checked:seleccionar_opcion" type="checkbox">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>   
+                            </th>
+                            <th>Nombre</th> 
+                          </tr>
+                         </thead>
+                          <tbody data-bind="foreach:{data:listado_opciones, as:'item'}">
+                              <tr>                   
+                                <td>
+                                    <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                        <input name="mobileos" data-bind="checked:item.procesar" type="checkbox">
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div>
+                                </td>
+                                <td data-bind="text:item.nombre"></td>
+                              </tr>  
+                          </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div>       
+            <!---->                    
+
+
+            </div>    
+
+
+            
+
+                <div class="col-lg-6">
+         
+            <!---->
+                  <div class="panel">
+                    <div class="panel-heading">
+                    <span class="panel-title">Accesos Directos</span>
+                    </div>
+                    <div class="panel-body">
+                      <div class="form-group input-group">
+                      <input type="text" class="form-control" placeholder="Buscar por el nombre del modulo" id="txtBuscarEE" data-bind="event:{keydown:function(d,e){if (e.keyCode === 13)consultar_opciones_usuario();else return true;}}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btnConsultarTodos" data-bind="click:consultar_opciones_usuario">
+                              <i class="fa fa-search"></i></button>
+                        </span>
+                      </div>
+
+
+                      <button type="button" data-bind="click : eliminar_opciones_usuario, visible:listado_opciones_usuario()!=null && listado_opciones_usuario().length > 0" class="btn btn-sm btn-primary btn-block"  >
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar                      
+                        </h4>
+                      </button>
+                      
+
+                       <div data-bind="html:mensaje_opciones_usuario"></div> 
+
+                       <table class="table" data-bind="visible:listado_opciones_usuario()!=null && listado_opciones_usuario().length > 0">
+                         <thead>
+                          <tr>                      
+                            <th>
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input name="mobileos" data-bind="checked:seleccionar_opcion_usuario" type="checkbox">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>                             
+                            </th>
+                            <th>Nombre</th> 
+                          </tr>
+                         </thead>
+                          <tbody data-bind="foreach:{data:listado_opciones_usuario, as:'item'}">
+                              <tr>                   
+                                <td>
+                                    <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                        <input name="mobileos" data-bind="checked:item.procesar" type="checkbox">
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div>
+                                </td>
+                                <td data-bind="text:item.nombre"></td>
+                              </tr>  
+                          </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div>       
+            <!---->                    
+
+
+            </div>   
+
+
+
+          	 	 </div>
+
+               
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+
+  <!--Modal-->
+
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}     	
+  	<script type="text/javascript" src='{% static "js/ViewModels/usuario/Usuario.js" %}'></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        usuario.consultar_opciones();
+        usuario.consultar_opciones_usuario();        
+      });
+    </script>
+{% endblock imports %}

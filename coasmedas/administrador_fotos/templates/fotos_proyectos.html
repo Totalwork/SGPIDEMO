@@ -1,0 +1,489 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <link rel="stylesheet"  href='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1//css/blueimp-gallery.min.css" %}'> 
+ <link rel="stylesheet"  href='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1//css/bootstrap-image-gallery.css" %}'> 
+ 
+ 
+{% endblock imports_css %}
+
+{% block title %}Fotos proyecto{% endblock title%}
+
+
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'administrador_fotos.administrador_fotos' %}">Administrador de fotos</a></li>
+  <li class="active">Fotos proyecto</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'administrador_fotos.administrador_fotos'%}" data-placement="right"  
+    data-toggle="tooltip" data-original-title="Regresar al listado de proyectos">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a> 
+  Fotos del proyecto
+
+{% endblock encabezado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+          <i class="fa fa-plus" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+  
+  {% if app in perms %}
+    {% if app|add:'.delete_'|add:model in perms%}   
+      <li>
+        <a href="#" data-bind="click:eliminar" data-placement="right" data-toggle="tooltip" data-original-title="Eliminar registro(s)">
+          <i class="fa fa-trash" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+{% endblock opciones_listado %}    
+
+
+{% block contenido %}
+
+
+  <div class="row">
+    <div class="col-lg-12">
+
+      <strong>Macro contrato : </strong>
+        <span  data-bind="cutWord:{num:35,text:'{{proyecto.mcontrato.nombre}}', verMax:'...', verMin:'...'}" ></span><br> 
+      <strong>Contratista : </strong><span>{{nombre_contratista}}</span><br>
+      <strong>Departamento : </strong><span>{{proyecto.municipio.departamento.nombre}}</span><br>
+      <strong>Municipio : </strong><span>{{proyecto.municipio.nombre}}</span><br>
+      <strong>Proyecto : </strong>
+        <span  data-bind="cutWord:{num:50,text:'{{proyecto.nombre}}', verMax:'...', verMin:'...'}" ></span><br>
+
+    </div>
+  </div><br><br>
+
+  <button class="btn btn-default" type="button" data-placement="top" data-bind="click:actualizaFecha" data-toggle="tooltip" title="" data-original-title="Actualizar fecha">
+      <i class="fa fa-calendar fa-2x"></i>
+  </button>
+
+  <button class="btn btn-default" type="button" data-placement="top" data-bind="click:asociar_fotos_reporte" data-toggle="tooltip" title="" data-original-title="Asociar fotos">
+      <i class="fa fa-check-circle fa-2x"></i>
+  </button>
+
+    <button class="btn btn-default" type="button" data-placement="top" data-bind="click:filtrar_fotos" data-toggle="tooltip" title="" data-original-title="Filtrar fotos">
+      <i class="fa fa-filter fa-2x"></i>
+  </button><br><br>
+
+  <div class="col-lg-12">
+
+    <div class="row">
+      <!--ko foreach:{data:lista_carpeta_foto, as:'item'}-->
+      <div class="col-lg-3">
+        <a data-bind="click:function(){$('#tipo_fot').val(item.id_tipo); $parent.consultar(1);}" style="cursor:pointer;">
+          <!--ko if:($root.listado().length > 0 && $root.listado()[0].tipo.id==item.id_tipo) -->
+              <i class="fa fa-folder-open fa-4x"></i>
+          <!--/ko-->
+          
+          <!--ko if:($root.listado()==null || $root.listado().length == 0 || $root.listado()[0].tipo.id!=item.id_tipo) -->
+            <i class="fa fa-folder fa-4x"></i>
+          <!--/ko-->
+        </a><br>
+        <span data-bind="text:(item.tipo + '('+item.cantidad+')')"></span>
+              
+      </div>
+          <!--/ko-->
+    </div>
+    <input type="hidden" id="tipo_fot" name="tipo_fot">
+  </div><!--cierra col leg-12--> 
+
+  <div class="row">
+    <div class="col-lg-12"><br>
+      <div data-bind="html: mensaje"></div>
+    </div>
+  </div>
+
+  <div data-bind="visible:(listado()!=null && listado().length>0)">
+
+  <div class="row">
+    <div class="col-lg-12">
+
+      <div class="option-group field admin-form">
+        <label class="option option-primary"  style="">
+          <input id="id_todos" name="id_todos" type="checkbox" data-bind="checked:checkall"/>
+          <span class="checkbox"></span>Marcar/Desmarcar
+        </label>
+      </div>
+
+        <div class="row" data-bind="foreach:{data:listado, as:'item'}">
+          
+          <div class="col-lg-3 text-center">
+            <div class="panel-body">
+              <div class="panel panel-default">
+                    
+                <a data-gallery="" data-bind="attr: {href: item.ruta_publica}" target="_blank" style="cursor:pointer;">
+                    <img data-bind='attr:{src:item.ruta_publica}' height="150" width="150">
+                </a><br>
+ 
+                <span data-bind="text:item.fecha"></span><br>
+              
+                <span>
+                  <!--ko if:item.asociado_reporte==1-->
+                    <i style="color:green" class="fa fa-check fa-1x"></i>Asociada
+                  <!--/ko-->
+
+                  <!--ko if:item.asociado_reporte!=1-->No Asociada<!--/ko-->
+                </span><br />
+
+                  <div class="option-group field admin-form">
+                    <label class="option option-primary"  style="">
+                      <input id="id_foto" name="id_foto" type="checkbox" data-bind="checked:eliminado,value:id"/>
+                      <span class="checkbox"></span>
+                    </label>
+                  </div><br>
+
+                  <a href="#" style="cursor:pointer;" data-bind="click:$root.ver_comentario">Ver comentario</a>
+
+              </div><!--cierra panel default-->
+            </div><!--cierra panel body-->
+          </div><!--cierra col-lg-3-->
+        </div><!--cierra row-->
+      </div>
+
+      <div id="paginacion" >
+        <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+        </div>
+      </div> 
+
+    </div>
+  </div><!--cierra div row-->
+
+ 
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+            <div class="form-group">
+              <label>Fecha (*)</label>
+              <div class="input-group date">
+
+                <input class="form-control" type="text" placeholder="Seleccione la fecha"
+                data-bind="datePicker:fotosProyectoVO.fecha,value:fotosProyectoVO.fecha, 
+                dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+
+                <label for="fecha" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div>
+
+            <div class="form-group">
+              <label>Comentario</label>
+              <textarea rows="3" data-bind="value:fotosProyectoVO.comentarios" class="form-control" placeholder="Dígite el comentario"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Tipo (*)</label>
+                <select class="form-control" data-bind="value:fotosProyectoVO.tipo_id">
+                  <option value="">[Seleccione...]</option>
+                    <!--ko foreach:{ data:lista_tipo_select, as:'item'} -->
+                      <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+                </select>
+           </div> 
+
+
+            <div class="form-group">          
+            <label>Foto (*)</label>
+             <input type="file" class="note-image-input" id="archivo" name="archivo"  multiple data-bind="fileData:{value:fotosProyectoVO.ruta,allowedFileExtensions: ['png','jpg','jpge'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+             <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg y jpge.<br></small>
+             <input type="hidden" data-bind="value:fotosProyectoVO.ruta">
+            </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<!--Modal para actualizar las fechas de las fotos-->
+
+
+<div id="modalActualizarFecha" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+          <form id="actualizarFotos" method="post">
+            {% csrf_token %}
+                
+              <div class="form-group">
+                <label>Fecha</label>
+                <div class="input-group date">
+
+                  <input class="form-control" type="text" placeholder="Seleccione la fecha" data-bind="datePicker:fotosProyectoVO.fecha,value:fotosProyectoVO.fecha, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+                  
+                  <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                  </label>
+
+                </div>   
+              </div>
+
+          </form><br>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:actualizar_fecha">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--modal-asociar fotos-->
+
+<div id="modalGuardarSeleccion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+          <form id="asociar" method="post">
+            {% csrf_token %}
+                
+              <div class="form-group">
+                <div class="col-md-9 radio-custom radio-primary mb5">
+                    
+                  <input type="radio" id="si" value="1" data-bind='checked:asociar' name="bdi">
+                  <label for="si">Asociar</label>
+                              
+                  <input type="radio" id="no" value="0" data-bind='checked:asociar' name="bdi">
+                  <label for="no">Desasociar</label>
+
+                </div>
+              </div><br>
+
+          </form><br>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_seleccion">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--modal- asociar foto-->
+
+
+
+<!--Modal filtrar las fotos-->
+
+  <div id="modal_filtro_fotos" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                <div class="form-group">
+                  <label>Desde</label>
+                  <div class="input-group date">
+
+                    <input class="form-control" id="desde_filtro" name="desde_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:desde_filtro,datePicker:desde_filtro" onkeypress="return false">
+                    <label for="fecha_desde" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                    </label>
+
+                  </div>   
+                </div>
+
+
+                <div class="form-group">
+                  <label>Hasta</label>
+                  <div class="input-group date">
+
+                    <input class="form-control" id="hasta_filtro" name="hasta_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:hasta_filtro,datePicker:hasta_filtro" onkeypress="return false">
+                    <label for="fecha_desde" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                    </label>
+
+                  </div>   
+                </div>
+
+
+                <div class="form-group">
+                  <label>Tipo</label>
+                  <select class="form-control" data-bind="value:tipo_foto">
+                    <option value="0">[Seleccione...]</option>
+                      <!--ko foreach:{ data:lista_tipo_select, as:'item'} -->
+                      <option data-bind="value:item.id,text:item.nombre"></option>
+                      <!--/ko-->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Asociado reporte</label>
+                  <select class="form-control" data-bind="value:asociado">
+                    <option value="2">[Seleccione...]</option>
+                    <option value="0">No asociadas</option>
+                    <option value="1">Asociadas</option>
+
+                  </select>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1,1);}">
+                  <i class="fa fa-search"></i> Filtrar
+                </button>
+            </div>
+
+          </div>
+        </div>
+      </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal-->
+
+ <!--modal de ver comentario-->
+  <div id="vercomentario" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+            
+            <span data-bind="text:comentario"></span> 
+
+          </div>
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->  
+
+<!--Fin del modal-->
+
+
+  <div id="blueimp-gallery" class="blueimp-gallery">
+    <!-- The container for the modal slides -->
+    <div class="slides"></div>
+      <!-- Controls for the borderless lightbox -->
+      <h3 class="title"></h3>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
+        <!-- The modal dialog, which will be used to wrap the lightbox content -->
+        <div class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header"><h4 class="modal-title"></h4></div>
+                <div class="modal-body next"></div>
+                  <div class="modal-footer">
+                    
+                    <button type="button" class="btn btn-default pull-left prev">
+                      <i class="fa fa-chevron-left"></i>
+                      Atras
+                    </button>
+                    <button type="button" class="btn btn-primary next">
+                      Siguiente
+                      <i class="fa fa-chevron-right"></i>
+                    </button>
+
+                  </div>
+              </div>
+            </div>
+        </div>
+  </div><!-- cierra blueimp-gallery-->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+
+  <script src='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1/js/jquery.blueimp-gallery.min.js" %}'></script>
+  <script src='{% static "js/plugins/Bootstrap-Image-Gallery-3.1.1/js/bootstrap-image-gallery.js" %}'></script>
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/administrador_fotos/fotos_proyecto.js" %}?cache=2'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+     
+       fotosProyecto.fotosProyectoVO.proyecto_id({{id_proyecto}});
+       fotosProyecto.consultar_lista_tipo();//trae la lista de lo tipo para el select
+       fotosProyecto.carpeta_foto();
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

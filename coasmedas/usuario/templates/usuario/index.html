@@ -1,0 +1,812 @@
+{% extends 'page.html' %}
+{% load static %}
+{% block title %}Inicio{% endblock title%}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block encabezado %}Inicio{% endblock encabezado %}
+  {%block imports_css %}
+    <!-- Plugin CSS -->
+	<link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+	<style>
+		/* .scroll {
+			height:557px;
+			overflow-y: scroll;
+		} */
+		.panel-heading{
+			height: 70px!important;
+		}
+	</style>
+  {% endblock imports_css %}
+
+{% block contenido %}
+
+	<div class="row">
+        <div class="col-lg-12">
+          <div class="panel">
+            <!-- <div class="panel-heading">
+              <h4>Opciones de configuración del cliente</h4>                
+            </div> -->
+            <div class="panel-body">
+
+            <div class="alert alert-success alert-dismissable col-lg-12">
+			  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+			  <i class="fa fa-home pr10"></i>
+			  <strong>Bienvenido a SININ señor(a) {{ user.usuario.persona.nombres }} {{ user.usuario.persona.apellidos }}</strong>, el sistema habilitará las opciones disponibles de acuerdo al perfil de usuario y el nivel de acceso establecido por el administrador del sistema.	<br><br>
+			  <span>Su usuario {{ user.username }} esta asignado a la empresa <strong>{{ user.usuario.empresa.nombre }}</strong>. </span>			 
+			</div>
+
+			<div class="alert alert-info alert-dismissable col-lg-12">
+			  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+			  <i class="fa fa-download pr10"></i>
+			  <strong>Ya se encuentra disponible la aplicación mi nube</strong> Para descargarla haga
+			  <a href="{% url 'usuario.descargarAplicaion' %}" target="_blank" class="alert-link">clic aquí</a>.
+			</div>
+
+            	{% if accesosDirectos.count == 0 %}
+            	
+            		<div class="alert alert-warning alert-dismissable col-lg-12">
+					  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+					  <i class="fa fa-warning pr10"></i>
+					  <strong>No se encontraron accesos directos configurados para su usuario!</strong> Para agregarlos haga
+					  <a href="{% url 'usuario.accesos_directos' %}" class="alert-link">clic aquí</a>.
+					</div>
+
+            	{% endif %}
+            	{% if accesosDirectos.count > 0 %}
+            	<div class="col-lg-12">
+	                   <div class="row mb10" id="spy3">
+
+		                 {% for item in accesosDirectos %}
+		                  	{% if forloop.counter %}    				
+		                      <div class="col-sm-10 col-md-3">
+		                      	<a href="{% url item.opcion.destino %}" style="color:#f5f8fd">
+		                          <div class="panel panel-tile bg-primary light">
+		                            <div class="panel-body pn pl20 p5">                            
+		                              <div class="col-md-2">
+		                                  <i class="{{ item.opcion.icono }} fa fa-2x"></i>
+		                              </div>
+		                              <div class="col-md-10">  
+		                                                    
+		                                <h4 class="mt15 lh15">{{ item.opcion.texto }}</h4>                                  
+		                                                  
+		                              </div>
+		                         	</div>
+		                          		<div class="row">
+				                           <div class="text-center">
+				                            <h4>
+				                            {% if item.opcion.padre %}  
+				                                ({{ item.opcion.padre.texto }})
+				                            {% endif %} 
+
+				                            {% if item.opcion.padre == None %}  
+				                                <br>
+				                            {% endif %}  
+				                            </h4>
+				                            </div>
+			                            </div>
+								   </div>
+		                   
+		                        </a>
+		                      </div>
+		                    {% endif %} 
+		                 {% endfor %}                                         
+	                    </div>
+	            </div>
+				{% endif %}		
+            	<div class="row">
+			{% if 'indicadorCalidad.can_see_aindicador' in perms %}
+
+				{% for item in indicador %}
+					{% if item.cantidad_seguimiento != 0 %}
+					
+						<div class="col-lg-4" id="div_normal_indicador_{{item.id}}" >
+
+							<div class="panel panel-sky">
+								<div class="panel-heading">
+									
+									<span class="panel-controls">
+										<a data-placement="top"  data-toggle="tooltip" data-toggle="modal" data-original-title="Expandir" title="" style="cursor:pointer;">
+					                         <i class="fa fa-expand" onclick="javascript:click_boton_expandir({{item.id}},true,{{item.objetivoAnual}});"></i>				                       
+					                    </a>
+									</span>
+									<span>Indicador de Calidad gerencia de Normalización de redes</span>
+								</div>
+								<div class="panel-body">
+									<p><b>Nombre del indicador: </b>
+										 <span  data-bind="cutWord:{num:35,text:'{{item.nombre}}', verMax:'...', verMin:'...'}" ></span>
+									 </p>
+
+									{% if item.cantidad_seguimiento < 2 %}
+
+										<p><b>Corte: </b>
+	 									<span  data-bind="text:'{{item.fin_periodo}}'" ></span></p>
+										<p><b>Objetivo anual: </b>
+	 									<span  data-bind="text:'{{item.objetivoAnual}}'" ></span></p>
+										<!-- <p><b>Gestionado al corte: </b>
+										{% if item.id == 2 %}	
+	 										<span  data-bind="text:'$ 86.504.763.194'" ></span></p>
+	 									{% else %}
+	 										<span  data-bind="text:'$ 8.200.709.367'" ></span></p>
+										{% endif %} -->	 									
+
+ 									{% else %}
+
+ 									 	<br><br>
+
+									{% endif %}
+
+
+									<div id="divTorta{{item.id}}"></div>
+									<div id="divlinea{{item.id}}"></div>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-lg-6" id="div_expandido_indicador_{{item.id}}" style="display: none;">
+							<div class="panel panel-sky">
+								<div class="panel-heading">
+									
+									<span class="panel-controls">
+										<a data-placement="top"  data-toggle="tooltip" data-toggle="modal" data-original-title="Minimizar" title="" style="cursor:pointer;">
+					                         <i class="fa fa-compress" onclick="javascript:click_boton_expandir({{item.id}},false,{{item.objetivoAnual}});"></i>				                       
+					                    </a>
+									</span>
+									<span>Indicador de Calidad gerencia de Normalización de redes</span>
+								</div>
+								<div class="panel-body">
+									<p><b>Nombre del indicador: </b>
+										 <span  data-bind="cutWord:{num:35,text:'{{item.nombre}}', verMax:'...', verMin:'...'}" ></span>
+									 </p>
+
+									{% if item.cantidad_seguimiento < 2 %}
+
+										<p><b>Corte: </b>
+	 									<span  data-bind="text:'{{item.fin_periodo}}'" ></span></p>
+										<p><b>Objetivo anual: </b>
+	 									<span  data-bind="text:'{{item.objetivoAnual}}'" ></span></p>
+										<!-- <p><b>Gestionado al corte: </b>
+										{% if item.id == 2 %}	
+	 										<span  data-bind="text:'$ 86.504.763.194'" ></span></p>
+	 									{% else %}
+	 										<span  data-bind="text:'$ 8.200.709.367'" ></span></p>
+										{% endif %} -->	 									
+
+ 									{% else %}
+
+ 									 	<br><br>
+
+									{% endif %}
+
+
+									<div id="divTorta2{{item.id}}" ></div>
+									<div id="divlinea2{{item.id}}" ></div>
+								</div>
+							</div>
+						</div>
+					{% endif %}
+
+				{% endfor %}
+			
+			{% endif %}
+			<div class="col-lg-4">
+				<div class="panel scroll graficaBarras graficaBarrasContraida" id="pchart14">
+                    <div class="panel-heading">
+                      <span class="panel-icon">
+                        <i class="fa fa-bar-chart"></i>
+                      </span>
+                      <span class="panel-title">Avance de obra promedio</span>
+                    </div>
+                    <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" > 
+                    <div class="panel-body bg-light dark">
+	                      <div class="panel" data-bind="visible:(avance_de_obra()!=null && avance_de_obra().length > 0)">
+	                        <div class="table-responsive" style="background-color: white;border: 1px solid #e5e5e5">
+	                           <table class="table">
+	                              <thead>
+	                                <tr>
+	                                  <th width="40%"></th>
+	                                  <th width="60%"></th>
+	                                  <!-- <th width="10%"></th> -->
+	                                </tr>
+	                              </thead>
+	                              <tbody data-bind="foreach:{data:avance_de_obra, as:'item'}">
+	                                <td data-bind="text:item.mcontrato.nombre"></td>
+	                                <td align="center" valign="center">
+	                                  <div class="progress">
+	                                    <div class="progress-bar progress-bar-success"
+	                                    role="progressbar" aria-valuemin="0"
+	                                    data-bind="style:{width:item.porcentajeAvance.avance+'%'}, text:item.porcentajeAvance.avance+'%'"
+	                                    aria-valuemax="100" style="color: black">
+	                                    </div>
+	                                  </div>
+	                                </td>
+	                                <td>
+	                                	<div class="btn-group text-right">
+	                                        <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+	                                          <i  class="fa fa-ellipsis-h fa-2x" ></i>
+	                                        </a>
+	                                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+	                                          <li>
+	                                            <!-- <a href="#" data-bind="click: $root.examinarCronogramas">
+	                                                Examinar cronogramas
+	                                            </a> -->
+	                                            <a href="#" data-bind="click: $root.verTablero"> 
+	                                            	Ver tablero
+	                                            </a>
+	                                          </li>
+	                                        </ul>  
+                                      	</div>
+	                                </td>
+	                              </tbody>
+	                           </table>
+
+	                           <div id="paginacion" >	                           		
+									<div data-bind="pagination: {
+												   currentPage: paginacion.pagina_actual,
+												   totalCount: paginacion.total,
+												   pageSize:paginacion.cantidad_por_paginas,
+												   maxPages: paginacion.maxPaginas,
+												   directions: paginacion.direcciones,
+												   boundary: paginacion.limite,
+												   text: paginacion.text }">
+									</div>
+								</div>								
+	                        </div>
+	                      </div>	                   
+                    </div>
+
+				</div>
+			</div>
+
+			<div class="col-lg-4">					
+	            	
+	            		<div class="panel scroll graficaBarras graficaBarrasContraida" id="pchart13" style="background-color: #F2F2F2;">
+							<div class="panel-heading">
+	                          <span class="panel-icon">
+	                            <i class="fa fa-bar-chart"></i>
+	                          </span>
+	                          <span class="panel-title">Girado a contratistas v.s. legalizado por Macrocontrato</span>
+	                        </div>
+	                        <div class="panel-body bg-light dark">
+	                        	<div class="row" style="margin-bottom: 10px;">
+		                  			Contratos: <select id="cmbano" class="form-control" onchange="javascript:homepage.consultar();">
+		                        		<option value="2019">Contratos del año 2019</option>
+		                      		</select>
+		                  		</div>
+	                        	<div id="high-bars" style="width: 100%; height: 300px; margin: 0 auto"></div>
+	                        </div>
+	            		</div>
+					
+				</div>
+
+				<!-- <div class="row"> -->
+				
+				<div class="col-lg-4">
+					<div class="panel grafica graficaContraida" id="pchart12">
+	                    <div class="panel-heading">
+	                      <span class="panel-icon">
+	                        <i class="fa fa-pie-chart"></i>
+	                      </span>
+	                      <span class="panel-title">Contratos por estado</span>
+	                    </div>
+	                    <div class="panel-body bg-light dark">
+	                      <div id="pie-chartContratos" style="height: 50%; width: 100%;"></div>
+	                    </div>
+					</div>
+				</div>
+				
+
+				<!-- </div> -->
+				
+		</div>
+			
+            		
+
+
+             </div>
+            </div>
+          </div>
+        </div>
+      </div>
+{% if indicador %}
+<script type="text/javascript">
+
+$(document).ready(function () {
+
+	{% for item in indicador %} 
+		mostrar_grafica_torta({{item.id}}, {{item.objetivoAnual}});
+		//mostrar_grafica_torta_expandida({{item.id}}, {{item.objetivoAnual}});
+	{% endfor %}   
+	
+});
+
+function click_boton_expandir(val,opcion,objetivoAnual){
+
+	
+	var div_expandido = document.getElementById('div_expandido_indicador_'+val);
+	var div_normal = document.getElementById('div_normal_indicador_'+val);
+
+	if(opcion){		
+		
+			//mostrar_grafica_torta({{item.id}}, {{item.objetivoAnual}});
+		mostrar_grafica_torta_expandida(val, objetivoAnual);
+		 
+		 
+		div_expandido.style.display = 'block';	
+		div_normal.style.display = 'none';
+
+	}else{	
+		
+		mostrar_grafica_torta(val, objetivoAnual);
+			//mostrar_grafica_torta_expandida({{item.id}}, {{item.objetivoAnual}});
+		
+		div_normal.style.display = 'block';		
+		div_expandido.style.display = 'none';
+		
+
+	}
+	
+	
+}
+
+var highColors = ['#228BF5','#B522F5','#0EC11D'];
+
+function mostrar_grafica_torta(indicador,objetivoAnual){
+
+        path = path_principal+'/api/SeguimientoIndicador/';
+        parameter =  {indicador: indicador};;
+        RequestGet(function (datos, estado, mensaje) {
+                 
+            // var fecha=[];
+            // self.por_base(self.array_porcentaje(data.base,datos.periodicidad.numero_dias,datos.fecha_inicio_cronograma));
+            // self.por_programada(self.array_porcentaje(data.programada,datos.periodicidad.numero_dias,datos.fecha_inicio_cronograma))
+            // self.por_avance(self.array_porcentaje(data.avance,datos.periodicidad.numero_dias,datos.fecha_inicio_cronograma))
+                   
+                    if (datos.data.length==1){
+                   		var div = '#divTorta'.concat(indicador);
+                   		//var div2 = '#divTorta2'.concat(indicador);
+                   		var porObtener= 100 - parseInt(datos.data[0].valor)
+                   		if (porObtener < 0){
+                   			porObtener = 0;
+                   		}
+	                    $(div).highcharts({	                    	 
+						    chart: {
+						        plotBackgroundColor: null,
+						        plotBorderWidth: null,
+						        plotShadow: false,
+						        type: 'pie',
+						        height: 300,					        
+								// spacingTop: 50,
+								// spacingLeft: 45,
+								// spacingRight: 45,
+								// spacingBottom: 50,						
+						    },
+						    title: {
+						        text: ''
+						    },	
+						    tooltip: {
+						        pointFormat: '{series.name}: <b>{point.y}%</b>'
+						    },	
+						    plotOptions: {
+						        pie: {
+						            allowPointSelect: true,
+						            cursor: 'pointer',
+						            dataLabels: {
+						                enabled: true,
+						                format: '<b>{point.name}</b>: {point.y} %',
+						                style: {
+						                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+						                }
+						            }
+						        }
+						    },	
+							series:[{
+								name:'Recursos',
+								colorByPoint: true,
+								data:[{
+									name:'Culminados',
+									y: parseInt(datos.data[0].valor),
+									sliced: true,
+									selected: true
+								},
+								{
+									name: 'Por culminar',
+									y:porObtener,
+									sliced: true
+								}
+								]
+							}]					    						    				    
+	                    });
+
+	      
+
+
+	                }else{
+	                	var max = [];
+
+                   		self.listado_fecha=ko.observableArray([]);
+                   		self.lista_porcentaje=ko.observableArray([]);
+
+ 						ko.utils.arrayForEach(datos.data, function(d) {
+
+							var meses = [
+							  "Ene", "Feb", "Mar",
+							  "Abr", "May", "Jun", "Jul",
+							  "Ago", "Sep", "Oct",
+							  "Nov", "Dic"
+							]
+
+							var fecha = d['inicioPeriodo']; 
+							var elem = fecha.split('-'); 
+							dia = elem[0]; 
+							mes = elem[1]; 
+							ano = elem[2];
+
+							var fecha2 = d['finPeriodo']; 
+							var elem = fecha2.split('-'); 
+							dia2 = elem[0]; 
+							mes2 = elem[1]; 
+							ano2 = elem[2];						
+
+							var fechaInicio_formateada = dia + '/' + meses[parseInt(mes-1)] + '/' + ano;
+							var fechaFin_formateada = dia2 + '/' + meses[parseInt(mes2-1)] + '/' + ano2;
+
+                   			self.listado_fecha.push(fechaInicio_formateada.concat(' - ').concat(fechaFin_formateada));
+                   		     
+				            var valor=(d['valor']*100)/objetivoAnual
+				            if(valor>100){
+				                valor=100;
+				            }
+
+				            self.lista_porcentaje.push(Math.round(d['valor'],2));
+				            max.push(100);
+				        });
+
+
+                   		var div = '#divlinea'.concat(indicador);
+                   		//var div2 = '#divlinea2'.concat(indicador);
+					    $(div).highcharts({
+	                        credits: false,
+	                        colors: highColors,
+	                        chart: {
+	                            backgroundColor: '#f9f9f9',
+	                            className: 'br-r',
+	                            type: 'line',
+	                            zoomType: 'x',
+	                            panning: true,
+	                            panKey: 'shift',
+	                            marginTop: 25,
+	                            marginRight: 1
+	                        },
+	                        title: {
+	                            text: null
+	                        },
+	                        xAxis: {
+	                        	labels: {
+				                    rotation: -90,
+				                    style: {
+				                        fontSize: '10px',
+				                        fontFamily: 'Verdana, sans-serif'
+				                    }
+				                },
+
+					  			categories: self.listado_fecha(),
+									// Pongo el título para el eje de las 'X'
+									title: {
+										text: 'Meses'
+									}
+	                        },
+	                        yAxis: {
+	                            min: 0,
+	                            gridLineColor: '#EEE',
+	                            tickInterval:20,
+	                            offset: 1,
+	                            categories: ['0','10','20','30','40','50','60','70','80','90','100'],
+	                            title: {
+	                                text: 'Porcentajes %'
+	                            },
+	                        },
+	                        plotOptions: {
+	                            spline: {
+	                                lineWidth: 3,
+	                            },
+	                            area: {
+	                                fillOpacity: 0.2
+	                            }
+	                        },                      
+	                        tooltip: {
+	                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+	                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+	                                '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+	                            footerFormat: '</table>',
+	                            shared: true,
+	                            useHTML: true
+	                        },
+	                        plotOptions: {
+	                            column: {
+	                                colorByPoint: true,
+	                                colors: [bgPrimary, bgPrimary,
+	                                    bgInfo, bgInfo
+	                                ],
+	                                groupPadding: 0,
+	                                pointPadding: 0.24,
+	                                borderWidth: 0
+	                            },
+	                        },
+	                        legend: {
+	                            enabled: true,
+	                        },
+
+
+	                        series: [{
+	                            name: 'Indicador',
+	                            data: self.lista_porcentaje()
+	                        }, {
+							    name: 'Max.',
+							    data: max //[100, 100, 100]
+							  }
+
+	                        ]
+	                    });
+
+	        
+
+	                    
+                   	}
+
+        }, path, parameter);
+       
+    }
+
+ function mostrar_grafica_torta_expandida(indicador,objetivoAnual){
+
+        path = path_principal+'/api/SeguimientoIndicador/';
+        parameter =  {indicador: indicador};;
+        RequestGet(function (datos, estado, mensaje) {
+                 
+            // var fecha=[];
+            // self.por_base(self.array_porcentaje(data.base,datos.periodicidad.numero_dias,datos.fecha_inicio_cronograma));
+            // self.por_programada(self.array_porcentaje(data.programada,datos.periodicidad.numero_dias,datos.fecha_inicio_cronograma))
+            // self.por_avance(self.array_porcentaje(data.avance,datos.periodicidad.numero_dias,datos.fecha_inicio_cronograma))
+                   
+                    if (datos.data.length==1){
+                   		var div = '#divTorta2'.concat(indicador);
+                   		var porObtener= 100 - parseInt(datos.data[0].valor)
+                   		if (porObtener < 0){
+                   			porObtener = 0;
+                   		}
+	                    $(div).highcharts({                   	 
+						    chart: {
+						        plotBackgroundColor: null,
+						        plotBorderWidth: null,
+						        plotShadow: false,
+						        type: 'pie',				        
+								// spacingTop: 50,
+								//spacingLeft: 0,
+								//spacingRight: 0,
+								// spacingBottom: 50,						
+						    },
+						    title: {
+						        text: ''
+						    },	
+						    tooltip: {
+						        pointFormat: '{series.name}: <b>{point.y}%</b>'
+						    },	
+						    plotOptions: {
+						        pie: {
+						            allowPointSelect: true,
+						            cursor: 'pointer',
+						            dataLabels: {
+						                enabled: true,
+						                format: '<b>{point.name}</b>: {point.y} %',
+						                style: {
+						                    color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+						                }
+						            }
+						        }
+						    },	
+							series:[{
+								name:'Recursos',
+								colorByPoint: true,
+								data:[{
+									name:'Culminados',
+									y: parseInt(datos.data[0].valor),
+									sliced: true,
+									selected: true
+								},
+								{
+									name: 'Por culminar',
+									y:porObtener,
+									sliced: true
+								}
+								]
+							}]					    						    				    
+	                    });
+
+
+	                }else{
+	                	var max = [];
+
+                   		self.listado_fecha=ko.observableArray([]);
+                   		self.lista_porcentaje=ko.observableArray([]);
+
+ 						ko.utils.arrayForEach(datos.data, function(d) {
+
+							var meses = [
+							  "Ene", "Feb", "Mar",
+							  "Abr", "May", "Jun", "Jul",
+							  "Ago", "Sep", "Oct",
+							  "Nov", "Dic"
+							]
+
+							var fecha = d['inicioPeriodo']; 
+							var elem = fecha.split('-'); 
+							dia = elem[0]; 
+							mes = elem[1]; 
+							ano = elem[2];
+
+							var fecha2 = d['finPeriodo']; 
+							var elem = fecha2.split('-'); 
+							dia2 = elem[0]; 
+							mes2 = elem[1]; 
+							ano2 = elem[2];						
+
+							var fechaInicio_formateada = dia + '/' + meses[parseInt(mes-1)] + '/' + ano;
+							var fechaFin_formateada = dia2 + '/' + meses[parseInt(mes2-1)] + '/' + ano2;
+
+                   			self.listado_fecha.push(fechaInicio_formateada.concat(' - ').concat(fechaFin_formateada));
+                   		     
+				            var valor=(d['valor']*100)/objetivoAnual
+				            if(valor>100){
+				                valor=100;
+				            }
+
+				            self.lista_porcentaje.push(Math.round(d['valor'],2));
+				            max.push(100);
+				        });
+
+
+                   		var div = '#divlinea2'.concat(indicador);
+					    $(div).highcharts({
+	                        credits: false,
+	                        colors: highColors,
+	                        chart: {
+	                            backgroundColor: '#f9f9f9',
+	                            className: 'br-r',
+	                            type: 'line',
+	                            zoomType: 'x',
+	                            panning: true,
+	                            panKey: 'shift',
+	                            marginTop: 25,
+	                            marginRight: 1,
+	                            height: 420,
+	                        },
+	                        title: {
+	                            text: null
+	                        },
+	                        xAxis: {
+	                        	labels: {
+				                    rotation: -90,
+				                    style: {
+				                        fontSize: '10px',
+				                        fontFamily: 'Verdana, sans-serif'
+				                    }
+				                },
+
+					  			categories: self.listado_fecha(),
+									// Pongo el título para el eje de las 'X'
+									title: {
+										text: 'Meses'
+									}
+	                        },
+	                        yAxis: {
+	                            min: 0,
+	                            gridLineColor: '#EEE',
+	                            tickInterval:20,
+	                            offset: 1,
+	                            categories: ['0','10','20','30','40','50','60','70','80','90','100'],
+	                            title: {
+	                                text: 'Porcentajes %'
+	                            },
+	                        },
+	                        plotOptions: {
+	                            spline: {
+	                                lineWidth: 3,
+	                            },
+	                            area: {
+	                                fillOpacity: 0.2
+	                            }
+	                        },                      
+	                        tooltip: {
+	                            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+	                            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+	                                '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+	                            footerFormat: '</table>',
+	                            shared: true,
+	                            useHTML: true
+	                        },
+	                        plotOptions: {
+	                            column: {
+	                                colorByPoint: true,
+	                                colors: [bgPrimary, bgPrimary,
+	                                    bgInfo, bgInfo
+	                                ],
+	                                groupPadding: 0,
+	                                pointPadding: 0.24,
+	                                borderWidth: 0
+	                            },
+	                        },
+	                        legend: {
+	                            enabled: true,
+	                        },
+
+
+	                        series: [{
+	                            name: 'Indicador',
+	                            data: self.lista_porcentaje()
+	                        }, {
+							    name: 'Max.',
+							    data: max //[100, 100, 100]
+							  }
+
+	                        ]
+	                    });
+                   	}
+
+        }, path, parameter);
+       
+    }
+</script>
+{% endif %}
+{% endblock contenido %}
+
+{% block imports %}
+
+    <style>
+    /*chart demo styles*/
+    .c3 {}
+    /* tick color */
+    .c3 .tick {
+      fill: #AAA;
+    }
+    /* axis color */
+    .c3 line,
+    .c3 path {
+      stroke: #BBB;
+    }
+    /*axis label color*/
+    .c3 .c3-axis-x-label,
+    .c3 .c3-axis-y-label {
+      fill: #AAA;
+    }
+    /*legend label text color*/
+    .c3-legend-item {
+      fill: #888;
+      font-size: 14px;
+    }
+    </style>
+
+
+    <script src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+    <script src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script> 
+  <script src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+  <script src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+    <!-- Sparkline Local -->
+    <script src="{% static 'vendor/plugins/sparkline/jquery.sparkline.min.js' %}"></script>
+
+   <script src="{% static 'assets/js/main.js' %}"></script>
+
+  <script type="text/javascript" src='{% static "js/ViewModels/usuario/homepage.js" %}'></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+       homepage.consultar();
+  });
+
+    </script>
+
+
+{% endblock%}

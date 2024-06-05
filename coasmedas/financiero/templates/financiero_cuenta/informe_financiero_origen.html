@@ -1,0 +1,142 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Informe Financiero con Origen de Recursos{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'financiero_movimiento.index_informe' %}">Opciones</a></li>
+  <li class="active">Informe Financiero por Macrocontrato con Origen</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+
+ {% block opciones_listado %}
+{% endblock opciones_listado %} 
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+{% block contenido %}
+
+
+  <div class="row" >
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span>
+              <span>      
+                <a href="{% url 'financiero_movimiento.index_informe' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>              
+              <span>Informe Financiero por Macrocontrato con Origen de Recursos</span>
+
+           </div>
+
+            <div class="panel-body">
+
+                  <div class="row">
+                      <div class="col-lg-4">
+
+                             <div class="form-group">
+                                <label>Macrocontrato</label>
+                                  <select class="form-control" data-bind="value:macrocontrato_select">
+                                    <option value="0">[Seleccione...]</option>
+                                      <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                                      <option data-bind="value:item.id,text:item.nombre+' -- '+item.numero"></option>
+                                      <!--/ko-->
+                                </select>
+                              </div>
+                                    
+                      </div>
+                    
+                  </div>
+
+                      <div class="row">
+                      <div class="col-lg-4">
+
+                             <div class="form-group">
+                                <label>Contrato</label>
+                                  <select class="form-control" data-bind="value:contrato_select">
+                                    <option value="0">[Seleccione...]</option>
+                                      <!--ko foreach:{ data:listado_contrato, as:'item'} -->
+                                      <option data-bind="value:item.id,text:item.nombre"></option>
+                                      <!--/ko-->
+                                </select>
+                              </div>
+                                    
+                      </div>
+                    
+                  </div>
+
+
+                     <div class="row">
+                      <div class="col-lg-4">
+
+                               <div class="form-group">
+                                  <label>Fecha de Corte</label>
+                                  <div class="input-group date" id='datetimepicker6'>
+                                   <input  type="text" class="form-control" data-bind="datePicker:fecha,value:fecha" onkeypress="return false">
+                                    <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                                    </label>
+
+                                  </div>   
+                              </div>
+                                    
+                      </div>
+                    
+                  </div>
+
+                 
+
+                  <button type="button" class="btn btn-primary" data-bind="click:exportar_informe">
+                    <i class="fa fa-print"></i> Exportar
+                  </button>
+
+             
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/financiero/informe_financiero_origen.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      //cuenta.consultar(1);//iniciamos la primera funcion
+      //$('#txtBuscar').val(sessionStorage.getItem("dato_financiero"));
+     // cuenta.cargar(1);//iniciamos la primera funcion
+      cuenta.consultar_macrocontrato();
+    
+    });  
+
+  </script>
+
+{% endblock imports %}
+

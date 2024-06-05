@@ -1,0 +1,280 @@
+<div class="row">
+	<div class="col-lg-4">
+		<div class="panel panel-primary" >
+		   <div class="panel-heading" style="padding:0;">
+		     &nbsp;&nbsp;<span>Estado del descargo</span>
+		   </div><!--cierra panel-heading-->
+		   <div class="panel-body ">
+		   	<div class="form-group">
+		       	<label >Estado</label>
+		           <select class="form-control" data-bind="value:descargoVO.estado_id">
+		           	<option value="0">[Seleccione...]</option>
+		               {% for item in estados %}
+		               <option value="{{ item.id }}">{{ item.nombre }}</option>
+		               {% endfor %}
+		           </select>
+		    </div>
+	
+			<div class="form-group">
+				<label>Observaciones Interventoria:</label>
+					<textarea  class="form-control" rows="3" data-bind="value:descargoVO.observacion_interventor, text: descargoVO.observacion_interventor"></textarea>
+			</div>
+		   </div>
+		   <div class="panel-footer">
+		   	<button class="btn btn-primary" data-bind="click:function(){Cambioestadocompletar(1);}">Actualizar</button>
+		   </div>
+		</div><!--cierra row-->	
+	</div>
+	
+	
+	<div class="col-lg-4">
+		<div class="panel panel-primary" >
+		   <div class="panel-heading" style="padding:0;">
+		     &nbsp;&nbsp;<span>Numero de requerimiento</span>
+		   </div><!--cierra panel-heading-->
+		   <div class="panel-body ">
+	          <div class="form-group">
+	             <label>Numero:</label>         
+	             <div class="input-group date col-lg-12">
+	              <input type="text" class="form-control" data-bind="value:descargoVO.numero_requerimiento, text:descargoVO.numero_requerimiento">
+	             </div>  
+	          </div>
+		   </div>
+		   <div class="panel-footer">
+		   	<button class="btn btn-primary" data-bind="click:function(){Cambioestadocompletar(2);}">Actualizar</button>
+		   </div>
+		</div><!--cierra row-->	
+	</div>
+	
+	
+	<div class="col-lg-4">
+		<div class="panel panel-primary" >
+		   <div class="panel-heading" style="padding:0;">
+		     &nbsp;&nbsp;<span>Soporte del supervisor</span>
+		   </div><!--cierra panel-heading-->
+		   <div class="panel-body ">
+
+		    <form action="." method="post" enctype="multipart/form-data">
+		    	{% csrf_token %}
+	            <div class="form-group">          
+	              <label>Formato IPDC</label>
+	              <input type="file" class="note-image-input" id="archivo2" name="archivo2"  data-bind="  	fileData:{value:descargoVO.soporte_ops,allowedFileExtensions: ['doc','docx','pdf'],
+	                                     elErrorContainer: '#errorBlock', removeLabel:''}"/>
+	              <p style="display:inline-block;" class="help-block">Tipos de archivos aceptados doc,docx y pdf.<br></p> 
+	            </div>
+	
+	            <div class="form-group">          
+	              <label>Lista de verificacion:</label>
+	              <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="  	fileData:{value:descargoVO.lista_chequeo,allowedFileExtensions: ['doc','docx','pdf'],
+	                                     elErrorContainer: '#errorBlock', removeLabel:''}"/>
+	              <p style="display:inline-block;" class="help-block">Tipos de archivos aceptados doc,docx y pdf.<br></p> 
+	            </div>
+
+	            </form>
+
+		   </div>
+		   <div class="panel-footer">
+		   	<button class="btn btn-primary" data-bind="click:guardar" >Actualizar</button>
+		   </div>
+		</div><!--cierra row-->	
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-primary" >
+		   <div class="panel-heading" style="padding:0;">
+		     &nbsp;&nbsp;<span>Registro fotografico</span>
+		   </div><!--cierra panel-heading-->
+		   <div class="panel-body ">
+	          <div class="row">
+				<form action="." method="post" enctype="multipart/form-data">
+				{% csrf_token %}
+	          	<div class="col-lg-6">
+	          		<span><label><b>Regla 1:</b></label> Corte visible o efectivo.</span><br>
+					<span><label><b>Regla 2:</b></label> Enaclavamiento o bloqueo si es posible y señalización.<span><br>
+					<span><label><b>Regla 3:</b></label> Verificación de ausencia de tensión.</span><br>
+					<span><label><b>Regla 4:</b></label> Puesta a tierra y en cortocircuito.</span><br>
+					<span><label><b>Regla 5:</b></label> Señalización y delimitación.</span><br>
+	          	</div>
+	          	<div class="col-lg-6">
+		   			<div class="form-group">
+		   			   	<label >Regla</label>
+		   			       <select class="form-control" data-bind="value:fotodescargoVO.regla">
+		   			       	<option value="0">[Seleccione...]</option>
+		   			           <option value="1">Regla 1</option>
+		   			           <option value="2">Regla 2</option>
+		   			           <option value="3">Regla 3</option>
+		   			           <option value="4">Regla 4</option>
+		   			           <option value="5">Regla 5</option>
+		   			       </select>
+		   			</div>
+		   			<div class="form-group">         
+	              		<label>Foto:</label>
+	              		<input type="file" class="note-image-input" id="archivo3" name="archivo3"  data-bind="  	fileData:{value:fotodescargoVO.ruta,allowedFileExtensions: ['jpg','png','jpge'],
+	                                     elErrorContainer: '#errorBlock', removeLabel:''}"/>
+	              		<p style="display:inline-block;" class="help-block">Tipos de archivos aceptados jpg,png,jpge.<br></p> 
+	            	</div>
+	          		<button class="btn btn-primary" data-bind="click:guardarfoto">Actualizar</button>
+	          	</div>
+	          	</form>
+	          </div>
+	          <div class="row">
+   				<div class="col-lg-12">
+
+   				    <!-- create new order panel -->
+   				      <div class="panel mb25 mt5">
+   				        <div class="panel-heading">
+   				          <ul class="nav panel-tabs-border panel-tabs">
+   				            <li class="active"><a href="#tab1_6" data-toggle="tab">Regla 1</a></li>
+   				            <li> <a href="#tab1_7" data-toggle="tab">Regla 2</a></li>
+   				            <li> <a href="#tab1_8" data-toggle="tab">Regla 3</a></li>
+   				            <li> <a href="#tab1_9" data-toggle="tab">Regla 4</a></li>
+   				            <li> <a href="#tab1_10" data-toggle="tab">Regla 5</a></li>
+   				          </ul>
+   				        </div>
+
+   				        <div class="panel-body p20 pb10">
+   				          <div class="tab-content pn br-n admin-form">
+
+   				            <div id="tab1_6" class="tab-pane active">
+      							<div class="row" data-bind="foreach:{data:listadofotos, as:'item'}">
+      							  <!--ko if: item.regla()==1 -->
+      							  <div class="col-lg-3 text-center">
+      							    <div class="panel-body">
+      							      <div class="panel panel-default">
+      							        
+      							        <a data-gallery="" data-bind="attr: {href: item.ruta}" target="_blank" style="cursor:pointer;">
+      							            <img data-bind='attr:{src:item.ruta}' height="150" width="150">
+      							        </a><br>
+   							 
+      							      </div><!--cierra panel default-->
+      							    </div><!--cierra panel body-->
+      							  </div><!--cierra col-lg-3-->
+      							  <!-- /ko -->
+      							</div><!--cierra row-->
+   				            </div><!--cierra tap 1-->
+
+   				            <div id="tab1_7" class="tab-pane">
+      							<div class="row" data-bind="foreach:{data:listadofotos, as:'item'}">
+      							  <!--ko if: item.regla()==2 -->
+      							  <div class="col-lg-3 text-center">
+      							    <div class="panel-body">
+      							      <div class="panel panel-default">
+      							            
+      							        <a data-gallery="" data-bind="attr: {href: item.ruta}" target="_blank" style="cursor:pointer;">
+      							            <img data-bind='attr:{src:item.ruta}' height="150" width="150">
+      							        </a><br>
+   							 
+      							      </div><!--cierra panel default-->
+      							    </div><!--cierra panel body-->
+      							  </div><!--cierra col-lg-3-->
+								<!-- /ko -->
+      							</div><!--cierra row-->   				            
+ 
+
+   				            </div><!--cierra tap 2-->
+
+   				            <div id="tab1_8" class="tab-pane">
+      							<div class="row" data-bind="foreach:{data:listadofotos, as:'item'}">
+      							  <!--ko if: item.regla()==3 -->
+      							  <div class="col-lg-3 text-center">
+      							    <div class="panel-body">
+      							      <div class="panel panel-default">
+      							            
+      							        <a data-gallery="" data-bind="attr: {href: item.ruta}" target="_blank" style="cursor:pointer;">
+      							            <img data-bind='attr:{src:item.ruta}' height="150" width="150">
+      							        </a><br>
+   							 
+      							      </div><!--cierra panel default-->
+      							    </div><!--cierra panel body-->
+      							  </div><!--cierra col-lg-3-->
+								<!-- /ko -->
+      							</div><!--cierra row-->   				            
+ 
+
+   				            </div><!--cierra tap 2-->
+
+   				            <div id="tab1_9" class="tab-pane">
+      							<div class="row" data-bind="foreach:{data:listadofotos, as:'item'}">
+      							  <!--ko if: item.regla()==4 -->
+      							  <div class="col-lg-3 text-center">
+      							    <div class="panel-body">
+      							      <div class="panel panel-default">
+      							            
+      							        <a data-gallery="" data-bind="attr: {href: item.ruta}" target="_blank" style="cursor:pointer;">
+      							            <img data-bind='attr:{src:item.ruta}' height="150" width="150">
+      							        </a><br>
+   							 
+      							      </div><!--cierra panel default-->
+      							    </div><!--cierra panel body-->
+      							  </div><!--cierra col-lg-3-->
+      							  <!-- /ko -->
+      							</div><!--cierra row-->   				            
+ 
+
+   				            </div><!--cierra tap 2-->
+
+   				            <div id="tab1_10" class="tab-pane">
+      							<div class="row" data-bind="foreach:{data:listadofotos, as:'item'}">
+      							  <!--ko if: item.regla()==5 -->
+      							  <div class="col-lg-3 text-center">
+      							    <div class="panel-body">
+      							      <div class="panel panel-default">
+      							            
+      							        <a data-gallery="" data-bind="attr: {href: item.ruta}" target="_blank" style="cursor:pointer;">
+      							            <img data-bind='attr:{src:item.ruta}' height="150" width="150">
+      							        </a><br>
+   							 
+      							      </div><!--cierra panel default-->
+      							    </div><!--cierra panel body-->
+      							  </div><!--cierra col-lg-3-->
+      							  <!-- /ko -->
+      							</div><!--cierra row-->   				            
+ 
+
+   				            </div><!--cierra tap 2-->            
+
+   				          </div>
+   				        </div>
+   				      </div><!--cierra panel mb25 mt5 -->
+
+   				</div><!--col-lg-12" -->
+	          </div>
+		   </div>
+		</div><!--cierra row-->	
+	</div>	
+</div>
+
+
+<div id="blueimp-gallery" class="blueimp-gallery">
+    <!-- The container for the modal slides -->
+    <div class="slides"></div>
+      <!-- Controls for the borderless lightbox -->
+      <h3 class="title"></h3>
+        <a class="prev">‹</a>
+        <a class="next">›</a>
+        <a class="close">×</a>
+        <a class="play-pause"></a>
+        <ol class="indicator"></ol>
+        <!-- The modal dialog, which will be used to wrap the lightbox content -->
+        <div class="modal fade">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header"><h4 class="modal-title"></h4></div>
+                <div class="modal-body next"></div>
+                  <div class="modal-footer">
+                    
+                    <button type="button" class="btn btn-default pull-left prev">
+                      <i class="fa fa-chevron-left"></i>
+                      Atras
+                    </button>
+                    <button type="button" class="btn btn-primary next">
+                      Siguiente
+                      <i class="fa fa-chevron-right"></i>
+                    </button>
+
+                  </div>
+              </div>
+            </div>
+        </div>
+  </div><!-- cierra blueimp-gallery-->

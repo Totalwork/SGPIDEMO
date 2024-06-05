@@ -1,0 +1,691 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'> 
+{% endblock imports_css %}
+
+{% block title %}Linea de Avance{% endblock title%}
+
+
+ {% block opciones_listado %}
+    {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %} 
+{% endblock opciones_listado %} 
+
+{% block busqueda %}  
+    <!--Buscador-->
+      <div class="navbar-form navbar-left navbar-search" role="search">
+        <div class="form-group">
+          <input type="text" id="txtBuscar" name="txtBuscar" class="form-control" placeholder="Buscar Semana" data-bind='event:{keypress: $root.consulta_enter},onlyNumber:filtro'>
+        </div>
+      </div><!--fin buscador-->
+{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra.avance_de_obra' %}">Avance de Obra</a></li>
+  <li><a href="{% url 'avance_de_obra.cronograma' id_proyecto %}">Cronograma</a></li>
+  <li class="active">Linea de Avance</li>
+{% endblock mapa %}
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(metaVO()!=null && metaVO().length > 0)">
+          <div class="panel-heading cursor">
+                      <span class="panel-title">Linea de Avance</span>
+          </div>
+          <div class="panel-body">
+            <p><span><strong>Proyecto:</strong></span>
+            {{nombre_proyecto}}</p>
+            <p><span><strong>Cronograma:</strong></span>
+            {{nombre_cronograma}}</p>
+            <p>
+              <a href="#" data-bind="click:function(){mostrar(1)}">
+                <i class="fa fa-line-chart fa-4x" title="" data-toggle="tooltip" data-placement="left" data-original-title="Ver grafica de Linea"></i>
+              </a>
+              &nbsp;&nbsp;
+              <a href="#" data-bind="click:function(){mostrar(0)}">
+                <i class="fa fa-bar-chart fa-4x" title="" data-toggle="tooltip" data-placement="bottom" data-original-title="Ver grafica de Barra"></i>
+              </a>
+            </p>
+             <input type="hidden" id="id_cronograma" value="{{id_cronograma}}" class="form-control" >
+             <input type="hidden" id="id_proyecto" value="{{id_proyecto}}" class="form-control" >
+             <input type="hidden" id="numeros_dias" value="{{numeros_dias}}" class="form-control" >
+             <input type="hidden" id="fecha_cronograma" value="{{fecha_cronograma|date:'Y-m-d'}}" class="form-control" >
+          </div>
+
+          <div class="panel-body" data-bind="visible:linea">
+            <!-- Stats Top Graph Bot -->
+            <div class="panel" id="pchart8">
+              <div class="panel-heading">
+                <span class="panel-title text-info fw600">
+                  <i class="fa fa-pencil hidden"></i> Grafica de Linea</span>
+              </div>
+              <div class="panel-body">
+                <div id="high-line3" style="width: 70%;"></div>
+              </div>
+              <div class="panel-footer" style="text-align: center;">
+                 <button type="button" class="btn btn-primary"  data-bind="click:function(){mostrar(2)}">Ocultar</button>
+               </div> 
+            </div>
+          </div>
+
+
+           <div class="panel-body" data-bind="visible:barra">
+            <!-- Stats Top Graph Bot -->
+             <div class="panel" id="pchart9">
+            <div class="panel-heading">
+              <span class="panel-title text-info fw600">
+                <i class="fa fa-pencil hidden"></i>Grafica de Barra</span>
+            </div>
+            <div class="panel-body">
+              <div id="high-column3" style="width: 70%;"></div>
+            </div>
+            <div class="panel-footer" style="text-align: center;">
+                 <button type="button" class="btn btn-primary"  data-bind="click:function(){mostrar(2)}">Ocultar</button>
+               </div> 
+          </div>
+
+          </div>
+
+
+          <div class="panel-body">
+          <div data-bind="html: mensaje_guardando"></div> 
+          <div class="table-responsive" data-bind="dropdown">
+            <table class="table">
+
+              <thead>
+               <tr>
+                     <th colspan="4">Porcentaje Linea Base</th>
+                      <!--ko foreach:{data:porcentaje_base, as:'item_base'}--> 
+                      <th style="text-align: center;">
+                       <span data-bind="text:item_base.porcentaje"></span>%</th>
+                     <!--/ko-->
+                     <th>
+                      <a href=#>
+                        <i class="fa fa-plus-circle" style="font-size:24px;" data-bind="click:abrir_modal_agregacion"></i>
+                        </a>
+                        <a href=#>
+                        <i class="fa fa-minus-circle" style="font-size:24px;" data-bind="click:abrir_modal_eliminar"></i>
+                        </a><br>
+                      <!--ko if: inicio()==true --> 
+                      <a href=#>
+                        <i class=" fa fa-chevron-circle-left" style="font-size:24px;" data-bind="click:paginacion_anterior"></i>
+                        </a>
+                     <!--/ko-->
+                     <!--ko if: inicio()==false --> 
+                        <i class=" fa fa-chevron-circle-left" style="font-size:24px;"></i>
+                     <!--/ko-->
+
+                     <!--ko if: limite()==true --> 
+                      <a href=#>
+                        <i class=" fa fa-chevron-circle-right" style="font-size:24px;" data-bind="click:paginacion_siguiente"></i></a><br>
+                     <!--/ko-->
+                     <!--ko if: limite()==false --> 
+                        <i class=" fa fa-chevron-circle-right" style="font-size:24px;"></i><br>
+                     <!--/ko-->
+
+                     <!--ko if: inicio()==true --> 
+                      <a href=#>
+                     <i class="fa fa-fast-backward" style="font-size:20px;" data-bind="click:paginacion_inicio"></i>
+                      </a>&nbsp;
+                     <!--/ko-->
+                     <!--ko if: inicio()==false --> 
+                        <i class="fa fa-fast-backward" style="font-size:20px;"></i>&nbsp;
+                     <!--/ko-->
+
+                     
+                      <!--ko if: limite()==true --> 
+                      <a href=#>
+                     <i class="fa fa-fast-forward" style="font-size:20px;" data-bind="click:paginacion_final"></i></a>
+                     <!--/ko-->
+                     <!--ko if: limite()==false --> 
+                        <i class="fa fa-fast-forward" style="font-size:20px;"></i><br>
+                     <!--/ko-->
+                     </th>
+               </tr>
+              </thead>
+
+
+              <thead>
+               <tr>
+                     <th colspan="4">Porcentaje Linea Programada</th>
+                      <!--ko foreach:{data:porcentaje_programada, as:'item_programada'}--> 
+                      <th style="text-align: center;">
+                       <span data-bind="text:item_programada.porcentaje"></span>%</th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+              <thead>
+               <tr>
+                     <th colspan="4">Porcentaje Linea de Avance</th>
+                      <!--ko foreach:{data:porcentaje, as:'item3'}--> 
+                      <th style="text-align: center;">
+                       <span data-bind="text:item3.porcentaje"></span>%</th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+              <thead>
+               <tr>
+                     <th colspan="4">Desviación (LB) y (LP)</th>
+                      <!--ko foreach:{data:listado_retraso_bp, as:'item_retraso1'}--> 
+                      <th style="text-align: center;">
+                       <span data-bind="style:{'color': item_retraso1.estilo},text:item_retraso1.valor"></span></th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+              <thead>
+               <tr>
+                     <th colspan="4">Desviación (LP) y (A)</th>
+                      <!--ko foreach:{data:listado_retraso_pa, as:'item_retraso2'}--> 
+                      <th style="text-align: center;">
+                       <span data-bind="style:{'color': item_retraso2.estilo},text:item_retraso2.valor"></span></th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+              <thead>
+               <tr>
+                     <th colspan="4">Edicion de Soporte</th>
+                      <!--ko foreach:{data:listado_soporte, as:'item3'}--> 
+                      <th style="text-align: center;"><a href="#" data-bind="click:$parent.abrir_modal_soporte">
+                       <i class="fa fa-pencil" style="font-size:22px;cursor:pointer;" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edicion de soporte"></i></a></th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+               <thead>
+               <tr>
+                     <th colspan="4">Soporte</th>
+                      <!--ko foreach:{data:listado_soporte, as:'item_soporte'}--> 
+                      <th style="text-align: center;">
+                      <!--ko if: item_soporte.soporte_id == 0 -->                      
+                       <i class="fa fa-paperclip" style="font-size:21px;" data-toggle="tooltip" data-placement="top" title="" data-original-title="Soporte de materiales"></i>
+                      <!--/ko-->
+                       <!--ko if: item_soporte.soporte_id > 0 -->
+                       <a data-bind="attr: {href: '{{url_s3}}' + item_soporte.ruta}"" target="_blank"><i class="fa fa-paperclip" style="font-size:21px;" data-toggle="tooltip" data-placement="top" title="" data-original-title="Soporte de materiales"></i></a>
+                       <!--/ko-->
+                       </th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+               <thead>
+               <tr>
+                     <th colspan="4">Edicion de Fecha de Corte</th>
+                      <!--ko foreach:{data:listado_soporte, as:'item3'}--> 
+                      <th style="text-align: center;"><a href="#" data-bind="click:$parent.abrir_modal_fecha_corte">
+                       <i class="fa fa-pencil" style="font-size:22px;cursor:pointer;" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edicion de soporte"></i></a></th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+              <thead>
+               <tr>
+                      <th colspan="4">Fecha de Corte</th>
+                      <!--ko foreach:{data:listado_fechas_corte, as:'item_fecha_corte'}--> 
+                       <!--ko if: item_fecha_corte.fecha_corte==null || item_fecha_corte.fecha_corte=='' -->
+                          <th><span></span></th>
+                        <!--/ko-->
+                        <!--ko if: item_fecha_corte.fecha_corte!=null && item_fecha_corte.fecha_corte!='' -->
+                          <th style="height:80px;width: 100px;vertical-align: inherit;" class="rotar" style="text-align: center;" data-bind="tooltip:{dataPlacement:'top'},attr:{title: item_fecha_corte.fecha_corte},text:item_fecha_corte.fecha_corte"></th>
+                        <!--/ko-->    
+                     <!--/ko-->    
+               </tr>
+              </thead>
+
+
+              <thead>
+               <tr>
+                     <th colspan="4">Comentarios</th>
+                      <!--ko foreach:{data:porcentaje, as:'item3'}--> 
+                       <th style="text-align: center;">
+                       <!--ko if: comentarios==0 -->
+                       <a href=#><i id="globo_comentario_1" class="fa fa-comment-o" style="font-size:20px" title="Comentarios" data-bind="click:$parent.abrir_modal_comentarios"></i></a><br>
+                        <!--/ko-->
+
+                        <!--ko if: comentarios>0 -->
+                       <a href=#><i id="globo_comentario_1" class="fa fa-comment" style="font-size:20px" title="Comentarios" data-bind="click:$parent.abrir_modal_comentarios"></i></a><br>
+                        <!--/ko--></th>
+                     <!--/ko-->
+               </tr>
+              </thead>
+
+               <thead>
+               <tr>
+                     <th style="height:80px;width: 100px;vertical-align: inherit;" colspan="4">Fecha de Avance</th>
+                      <!--ko foreach:{data:listado_fechas, as:'item_fecha'}--> 
+                       <th style="height:80px;width: 100px;vertical-align: inherit;" class="rotar" style="text-align: center;" data-bind="tooltip:{dataPlacement:'top'},attr:{title: item_fecha.fecha_completa},text:item_fecha.fecha_completa" ></th>
+                     <!--/ko-->                     
+               </tr>
+              </thead>
+
+
+              <thead>
+               <tr>
+                     <th style="height:80px;width: 100px;vertical-align: inherit;" colspan="4">Motivo por Sin Avance</th>
+                      <!--ko foreach:{data:listado_fechas_corte, as:'item_motivo'}--> 
+                       <th style="text-align: center;">
+                       <a href=#><i id="globo_motivo" class="fa fa-envelope-o" style="font-size:20px" title="Motivo" data-bind="click:$parent.abrir_modal_motivo"></i></a><br></th>
+                     <!--/ko-->                    
+               </tr>
+              </thead>
+
+              <thead>
+               <tr>
+                     <th style="height:80px;width: 100px;vertical-align: inherit;" colspan="4">Sin Avance</th>
+                      <!--ko foreach:{data:listado_fechas_corte, as:'item_avance'}--> 
+                       <th style="text-align: center;"><input type="checkbox" data-bind="checked:item_avance.sinAvance,click:$parent.cambio_sin_avance"></th>
+                     <!--/ko-->                     
+               </tr>
+              </thead>
+
+
+            <thead>
+            <tr data-bind="foreach:{data:header, as:'item'}">
+              <!--ko if: $index()!=0 && $index()!=1 && $index()!=5 && $index()!=6  && $index()!=8--> 
+                  <!--ko if: $index()==7 --> 
+                      <th> <i class="fa sigma"></i></th>
+                   <!--/ko-->
+                   <!--ko if: $index()==4 --> 
+                      <th><i class="fa fa-plus" aria-hidden="true"></i></th>
+                   <!--/ko--> 
+                   <!--ko if: $index()!=7 && $index()!=3 && $index()<8--> 
+                      <th data-bind="text:ucwords(item)"></th>
+                   <!--/ko-->
+                    <!--ko if: $index()>8--> 
+                    <th style="text-align: center;" title={{periodo}}><a href="#" data-bind="click:$root.activacion_intervalo"><span class="badge badge-primary" data-bind="text:item"></span></a></th>
+                    <!--/ko--> 
+              <!--/ko--> 
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:metaVO, as:'item2'}">         
+         
+            <tr data-bind="css:{'info': item2.nivel()==1},foreach:{data:$root.header, as:'col'}">
+                <!--ko if: $index()!=0 && $index()!=1 && $index()!=5 && $index()!=6 && $index()!=8--> 
+                   <!--ko if: $index()<8--> 
+                       <!--ko if: $index()==3 --> 
+                       <td><span data-bind="text:item2[col]"></span>%</td>
+                     <!--/ko--> 
+                      <!--ko if: $index()!=3 --> 
+                       <td data-bind="text:item2[col]"></td>
+                     <!--/ko--> 
+                   <!--/ko-->                   
+                   <!--ko if: $index()>8--> 
+                    <td style="width: 60px" align="center">
+                       <!--ko if: $root.activacion() == col--> 
+                         <!--ko if: (item2.nivel()==2 && item2.procesar()==0) || item2.nivel()==3 -->
+                            <input type="text" class="form-control" data-bind="value:item2[col]" style="border: 2px solid #9B9999;border-radius: 4px;"> 
+                          <!--/ko--> 
+                         <!--/ko--> 
+                         <!--ko if: $root.activacion() != col--> 
+                          <!--ko if: (item2.nivel()==2 && item2.procesar()==0) || item2.nivel()==3 -->
+                            <span data-bind="text:item2[col]"></span>
+                           <!--/ko--> 
+                        <!--/ko--> 
+                    </td>
+                  <!--/ko-->                  
+                <!--/ko--> 
+            </tr> 
+          </tbody>
+        </table>
+        </div>
+ </div>
+  </div>
+
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+           <div class="form-group">
+              <label>Actividad(*)</label>
+             <div class="input-group">
+                     <select class="form-control" data-bind="value:cantidadVO.id_actividad">
+                      <option value="">[Seleccione..]</option> 
+                      <!--ko foreach:{data:actividadesVO, as:'actividad'}--> 
+                        <option data-bind="value:actividad.id,text:actividad.nombre"></option> 
+                     <!--/ko-->                     
+                    </select>      
+             </div>
+            </div>
+
+         <div class="form-group">
+            <label>Cantidad(*)</label>
+            <input type="text" class="form-control" data-bind="value:cantidadVO.cantidad,onlyNumber:cantidadVO.cantidad">
+        </div>
+
+        <div class="form-group">
+            <label>Intervalo(*)</label>
+            <div class="row">
+              <div class="col-md-3"><input type="text" class="form-control" data-bind="value:cantidadVO.desde,onlyNumber:cantidadVO.desde"></div>           
+              <div class="col-md-1" align="center"> A </div> 
+              <div class="col-md-3"><input type="text" class="form-control" data-bind="value:cantidadVO.hasta,onlyNumber:cantidadVO.hasta"></div>
+            </div>  
+        </div>
+
+    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<!--Modal-->
+
+<div id="modal_comentarios" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+             <!-- Chat Widget -->
+              <div class="col-md-12">
+                <div class="panel panel-widget chat-widget">
+                <div class="panel-footer">
+                  <br>
+                      <textarea class="form-control" rows="5" placeholder="Escribir el comentario" data-bind="value:comentarioVO.comentario"></textarea><br>
+                      <div class="text-left">
+                      <button class="btn btn-primary btn-sm ph15" type="button" 
+                      data-bind="click:guardar_comentario">Guardar</button>
+                    </div>
+                    <!-- /input-group -->
+                  </div>
+                   <div class="panel-body bg-light dark panel-scroller scroller-lg pn" style="height: 230px">
+                    <div class="panel-heading">
+                    <span class="panel-icon">
+                      <i class="fa fa-pencil"></i>
+                    </span>
+                    <span class="panel-title"> Comentarios Anteriores</span>
+                  </div>
+                  <!--ko if: listado_comentarios().length>0 -->
+                   <!--ko foreach:{data:listado_comentarios, as:'comentarios'}-->                      
+                    <div class="media">
+                      <div class="media-body">
+                        <span class="media-status"></span>
+                        <h5 class="media-heading" ><span data-bind='text:comentarios.usuario.persona.nombres+" "+comentarios.usuario.persona.apellidos'></span>
+                          <small><span data-bind='text:comentarios.fecha'></span></small>
+                        </h5> <span data-bind='text:comentarios.comentario'></span>
+                      </div>
+                    </div>
+                   <!--/ko-->
+                    <!--/ko-->
+
+                     <!--ko if: listado_comentarios().length==0 --> 
+                        <br>
+                        <div class="alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>No se encontraron comentarios registrados en este intervalo</div>
+                   <!--/ko-->
+
+                  </div>
+                </div>
+              </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_agregar" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+     
+
+         <div class="form-group">
+            <label>(*)Digite la cantidad de intervalo(s) que agregará:</label>
+            <input type="text" class="form-control" data-bind="value:cantidad_agregar,onlyNumber:cantidad_agregar">
+        </div>
+
+    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:agregacion_intervalo">Guardar</button>
+        </div> 
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_quitar" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+     
+
+         <div class="form-group">
+            <label>(*)Digite la cantidad de intervalo(s) que quitara:</label>
+            <input type="text" class="form-control" data-bind="value:cantidad_eliminar,onlyNumber:cantidad_eliminar">
+        </div>
+
+    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:quitar_intervalo">Quitar</button>
+        </div> 
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<!--Modal-->
+
+<div id="modal_archivo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">          
+          <label>(*)Soporte</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  
+           data-bind="fileData:{value:soporteVO.ruta,allowedFileExtensions: ['png','jpg','jpge','pdf','doc','docx','xls'],
+           elErrorContainer: '#errorBlock', removeLabel:''}"/>
+           <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, doc, docx y xls.<br></small>            
+        </div>
+
+
+         <div class="form-group">
+            <label>{{periodo}}:<span data-bind="text:valor_intervalo"></span></label>
+        </div>
+
+        <div class="form-group">
+            <label>Fecha:<span data-bind="text:valor_fecha"></span></label>
+        </div>
+
+    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_soporte">Guardar</button>
+        </div> 
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<!--Modal-->
+
+<div id="modal_fecha_corte" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+     
+
+        <div class="form-group">
+              <label>(*)Digite la fecha de corte:</label>
+              <div class="input-group date" id='datetimepicker7'>
+               <input  type="text" class="form-control" data-bind="datePicker:fechaCorteVO.fecha_corte,value:fechaCorteVO.fecha_corte" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+          </div>
+
+    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:agregacion_fecha_corte">Guardar</button>
+        </div> 
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<!--Modal-->
+
+<div id="abrir_modal_motivo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+     
+
+        <div class="form-group">
+              <label>Motivo:</label>
+              <!--ko if: estado_sinAvance()==true--> 
+                     
+                  <textarea class="form-control" data-bind="value:comentario_sinAvance"></textarea> 
+              <!--/ko--> 
+
+               <!--ko if: estado_sinAvance()==false--> 
+                     
+                  <textarea class="form-control" data-bind="value:comentario_sinAvance" disabled></textarea> 
+              <!--/ko--> 
+              
+          </div>
+
+    
+        <div class="modal-footer">
+          <!--ko if: estado_sinAvance()==true--> 
+                     
+                   <button type="button" class="btn btn-primary" data-bind="click:guardar_cambios_sin_avance">Guardar</button>
+              <!--/ko--> 
+
+
+              <!--ko if: estado_sinAvance()==false--> 
+                     
+                   <button type="button" class="btn btn-primary" disabled data-bind="click:guardar_cambios_sin_avance">Guardar</button>
+              <!--/ko--> 
+
+         
+        </div> 
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  <!--Loading-->
+  
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+    <script src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avance_de_obra/linea_avance.js" %}'></script>
+    <script type="text/javascript">
+        
+</script> 
+
+{% endblock imports %}

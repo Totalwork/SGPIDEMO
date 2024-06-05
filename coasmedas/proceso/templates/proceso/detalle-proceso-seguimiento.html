@@ -1,0 +1,155 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Resumen estado de procesos{% endblock title%}
+
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+
+
+{% block mapa %}
+
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="{% url 'proceso.procesoSeguimiento' %}">Procesos</a></li>
+	<li class="active">Resumen</li>
+{% endblock mapa %}
+{% block encabezado %}Resumen de estado de procesos{% endblock encabezado %}
+
+{% block contenido %} 
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-sky" >
+				<div class="panel-heading">
+					<p>
+						<a href="{% url 'proceso.procesoSeguimiento'%}" data-placement="right"    
+			            	data-toggle="tooltip" data-original-title="Regresar al listado de procesos">
+			            	<i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+			          	</a> 
+      					Nombre del proceso: {{proceso.nombre}}
+      				</p>
+      			</div>
+				<div data-bind="html: mensaje"></div>
+				<input type="hidden" id='txtIdProceso' value="{{proceso.id}}" />
+				<input type="hidden" id='txtIdApuntador' value="{{proceso.apuntador}}" />
+				<div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+					<div class="table-responsive">
+						<table class="table">
+							<thead>
+								<tr>
+									{% if proceso.apuntador == '1' %}
+										<th width="15%">Macro-contrato</th>
+										<th width="15%">Departamento</th>
+										<th width="15%">Municipio</th>
+										<th width="15%">Nombre</th>
+										{% if proceso.tablaForanea %}
+											<th width="15%">Elemento analizado</th>
+										{% endif %}
+											<th width="20%">Avance del proceso</th>
+											<th width="5%">Opciones</th>
+									{% else %}
+										<th width="20%">Numero</th>
+										<th width="35%">Nombre</th>
+										{% if proceso.tablaForanea %}
+											<th width="15%">Elemento analizado</th>
+										{% endif %}
+											<th width="20%">Avance del proceso</th>
+											<th width="5%">Opciones</th>
+									{% endif%}									
+								</tr>
+							</thead>
+							<tbody data-bind="foreach:{data:listado, as:'item'}">
+								<tr>
+									{% if proceso.apuntador == '1' %}
+										<td data-bind="text:item.proyecto[0].proyecto__mcontrato__nombre"></td>
+										<td data-bind="text:item.proyecto[0].proyecto__municipio__departamento__nombre"></td>
+										<td data-bind="text:item.proyecto[0].proyecto__municipio__nombre"></td>																	
+										<td data-bind="text:item.proyecto[0].proyecto__nombre"></td>
+										{%if proceso.tablaForanea %}
+											<td data-bind="text: item.elemento"></td>
+										{% endif %}
+										<td align="center" valign="center">
+										<div class="progress">											
+      										<div class="progress-bar progress-bar-success"
+      										role="progressbar" aria-valuemin="0"
+      										data-bind="style:{width:item.porcentaje+'%'}, text:item.porcentaje+'%'"
+      										aria-valuemax="100" >
+      										</div>
+      									</div>
+      									</td>
+      									<td>
+							                <a href="#" data-bind="attr:{href:'../../detalleSeguimientoProcesoDatos/'+item.id}"
+							                data-toggle="tooltip" data-original-title="Detalle especifico">
+							                <i class="fa fa-list-ul fa-2x"></i>
+							                </a>      										
+      									</td>
+									{% else %}
+										<td data-bind="text:item.contrato[0].contrato__numero"></td>
+										<td data-bind="text:item.contrato[0].contrato__nombre"></td>
+										{% if proceso.tablaForanea %}
+											<td data-bind="text: item.elemento"></td>
+										{% endif %}
+										<td align="center" valign="center">
+										<div class="progress">											
+      										<div class="progress-bar progress-bar-success"
+      										role="progressbar" aria-valuemin="0"
+      										data-bind="style:{width:item.porcentaje+'%'}, text:item.porcentaje+'%'"
+      										aria-valuemax="100" >
+      										</div>
+      									</div>
+      									</td>
+      									<td>
+							                <a href="#" data-bind="attr:{href:'../../detalleSeguimientoProcesoDatos/'+item.id}"
+							                data-toggle="tooltip" data-original-title="Detalle especifico">
+							                <i class="fa fa-list-ul fa-2x"></i>
+							                </a>      										
+      									</td>
+
+
+									{% endif %}
+
+								</tr>
+							</tbody>
+						</table>
+					</div>
+                  <div id="paginacion" >
+                    <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                    </div>
+                  </div>
+				</div>
+			</div>
+			
+		</div>
+	</div>
+
+{% endblock contenido %}
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+     	<!--<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>  	
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>   -->
+  	<script type="text/javascript" src='{% static "js/ViewModels/procesos/DetalleProcesoSeguimiento.js" %}'></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+        detalleProcesoSeguimiento.consultar(1,{{proceso.id}},{{proceso.apuntador}});
+      });
+    </script>
+{% endblock imports %}

@@ -1,0 +1,58 @@
+    {% extends 'page.html' %}
+    {% load static %}
+
+    {%block imports_css %}
+     <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+      <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+     
+    {% endblock imports_css %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %} 
+
+    {% block title %}Detalle de transacciones{% endblock title%}
+    {% block mapa %}
+      <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+      <li class="active">Financiero</li>
+      <li><a href="{% url 'solicitud.inicio' %}">Sol. Giros</a></li>
+      <li><a href="{% url 'solicitud.referencia' %}">Referencia</a></li>
+      <li class="active">Detalle de transacciones </li>
+    {% endblock mapa %}
+    {% block encabezado %}<!--Giros-->{% endblock encabezado %}
+
+    {% block contenido %}     
+      <div class="row" >
+        <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+        {% include 'solicitud_giro/_tabla_detalle_giro.html' %}      
+      </div><!--cierra row -->
+    <!--Loading-->     
+    {% endblock contenido %}
+
+    {% load static %}
+
+    {%block imports %}
+      <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+      <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+      <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+      </script>
+      <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+      <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+
+      <script type="text/javascript" src='{% static "js/ViewModels/solicitud_giro/detalle_referencia.js" %}'></script>
+  
+      <script type="text/javascript">
+
+        $(document).ready(function () {
+          detalle_giro.detalle_giroVO.encabezado_id({{id_encabezado}});
+          detalle_giro.encabezado_detalle({{id_encabezado}});//trae el encabezado
+          detalle_giro.id_contrato({{contrato}}); //contrato de la obra del proyecto
+          detalle_giro.consultar(1);//iniciamos la primera funcion
+          detalle_giro.mcontrato({{mcontrato}}); //macrocontrato del proyecto
+        });    
+
+      </script>
+
+    {% endblock imports %}

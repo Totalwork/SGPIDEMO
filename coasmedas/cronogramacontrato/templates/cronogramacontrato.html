@@ -1,0 +1,301 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Cronograma contratos{% endblock title%}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+{% endblock imports_css %}
+
+{% block mapa %}
+ <!-- Start: Topbar -->
+ <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+ <li class="active">Cronograma contratos</li>
+  <!-- End: Topbar -->
+{% endblock mapa %}
+
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+
+{% block encabezado %}{% endblock encabezado %}
+
+
+{% block busqueda %}{% endblock busqueda %}
+
+
+{% block contenido %}
+
+
+<!-- filtro informacion -->
+
+<div class="row">
+  <!-- Barra izquierda -->
+  <div class="col-lg-8">
+    <div class="panel">
+      <div class="panel-heading">
+        <span class="panel-title">
+            Filtro de información <!-- <span data-bind="html:num_registro"></span> -->
+        </span>     
+      </div>
+      <div class="panel-body">
+        <div class="col-lg-5">
+          <select id="cmbAno" class="form-control" data-bind="options: listado_anos,
+            optionsText: 'texto', 
+            optionsValue: 'valor', 
+            optionsCaption: 'Todos los años de adjudicación...',
+            value: filtroVO.ano">
+          </select>           
+        </div>
+        <div class="col-lg-5">
+          <select id="cmbFondo" class="form-control" data-bind="options: listado_fondos,
+            optionsText: 'nombre', 
+            optionsValue: 'id', 
+            optionsCaption: 'Todos los fondos...',
+            value: filtroVO.fondo_id">
+          </select>   
+          
+        </div>
+        <div class="col-lg-2">
+          <button type="button" 
+          class="btn btn-primary btn-block" 
+          data-bind="click:LoadData">
+            Filtrar datos
+          </button>
+        </div>
+      </div>
+
+  </div>
+</div>
+
+<div class="col-lg-4">
+<!-- Barra derecha -->
+
+    <form class="form-horizontal">
+      <div class="form-group"><button type="button" class="btn btn-rounded btn-primary btn-block" data-bind="click: function(){$root.goesquemacronograma()}">Administrar esquemas de cronogramas</button></div>
+      <div class="form-group"><button type="button" class="btn btn-rounded btn-primary btn-block" data-bind="click: function(){$root.asociarcronogramas_modal()}">Administrar cronogramas a contratos</button></div>
+    </form>
+
+</div>
+
+</div>
+
+
+
+
+
+
+<!-- filtro informacion -->
+
+
+<!-- CHAR -->
+
+  
+<div class="row">
+ 
+  <!-- Bar Chart -->
+  <div class="col-lg-4">
+    <div class="panel" id="spy1">
+      <div class="panel-heading">
+        <span class="panel-title">
+            Avance de contratos por año de adjudicación <!-- <span data-bind="html:num_registro"></span> -->
+        </span>
+    </div>
+      <div class="panel-body">
+        <div data-bind="html: mensajeAvanceContrato"></div>
+        <div id="high-line" style="width: 100%; height: 200px; margin: 0 auto" 
+          data-bind="visible:(categoriasAvanceContrato()!=null && categoriasAvanceContrato().length > 0)">
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Bar Chart -->
+
+
+  <!-- Pie Chart -->
+  <div class="col-lg-4">
+   <div class="panel" id="spy7">
+    <div class="panel-heading">
+      <span class="panel-title">
+          Estado de inicio de actividades <!-- <span data-bind="html:num_registro"></span> -->
+      </span>
+    </div>
+      <div class="panel-body">
+        <div id="estadosInicio" style="height: 200px; width: 100%;"></div>
+      </div>
+    </div>
+  </div>
+  <!-- End Pie Chart -->
+
+  
+
+<!-- Pie Chart -->
+<div class="col-lg-4">
+  <div class="panel" id="spy7">
+   <div class="panel-heading">
+     <span class="panel-title">
+         Estado de fin de actividades <!-- <span data-bind="html:num_registro"></span> -->
+     </span>
+   </div>
+     <div class="panel-body">
+       <div id="estadosFin" style="height: 200px; width: 100%;"></div>
+     </div>
+   </div>
+ </div>
+ <!-- End Pie Chart -->
+
+
+</div>
+
+<!-- CHAR -->
+
+
+<!-- Relacion contratos de administracion de recursos -->
+<div class="panel">
+
+
+  <div class="panel-heading">
+    <span class="panel-title">
+        Relación de contratos de administración de recursos <!-- <span data-bind="html:num_registro"></span> -->
+    </span>
+  </div>
+  <div class="panel-body">
+    <div data-bind="html: mensaje"></div>
+    <div data-bind="visible:(listado_contratos()!=null && listado_contratos().length > 0)">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Año de adjudicación</th>
+              <th>Fondo</th>
+              <th>Nombre contrato</th>
+              <th>Avance cronograma</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_contratos, as:'item'}">
+            <tr>
+              <td data-bind="text: item.ano"></td>
+              <td data-bind="text: item.fondo.nombre"></td>
+              <td data-bind="text: item.nombre"></td>
+              <td>
+                <div class="progress">                      
+                  <div class="progress-bar progress-bar-success"
+                  role="progressbar" aria-valuemin="0"
+                  data-bind="style:{width:item.avance+'%'}, text:item.avance+'%'"
+                  aria-valuemax="100" >
+                  </div>
+                </div>
+              </td>
+              <td>
+                <button type="button" 
+                class="btn btn-primary btn-block" 
+                data-bind="click: function(){$root.verDetalleCronograma(item.id)}" href="#">
+                  Ver detalle...
+                </button>
+                <!-- <a href="#" data-bind="attr:{href:'../seguimientodelcontrato/' + item.id }">Ver detalle...</a> -->
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+
+      </div>
+
+      <div id="paginacion" >
+        <div data-bind="pagination: {
+          currentPage: paginacion.pagina_actual,
+          totalCount: paginacion.total,
+          pageSize:paginacion.cantidad_por_paginas,
+          maxPages: paginacion.maxPaginas,
+          directions: paginacion.direcciones,
+          boundary: paginacion.limite,
+          text: paginacion.text }">
+        </div>
+      </div>
+      
+    </div>   
+  </div>
+
+    <!-- modal -->
+
+    <div id="modal_cronograma" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+
+          <form action="." method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+
+              {% csrf_token %}
+              <!-- inputs -->
+              <div class="form-group">
+                <label>Lista de contratos:</label>
+                <select class="form-control" data-bind="value: actividadContratoVO.contrato_id">
+                  <option>
+                    Seleccione un contrato...
+                  </option>
+                  <!--ko foreach:{ data:listado_contratos_asociar, as:'item'} -->
+                  <option data-bind="value: item.id, text: item.nombre">
+                  </option>
+                  <!--/ko-->
+                </select>
+
+                <label>Lista de cronogramas:</label>
+                <select class="form-control" data-bind="value: actividadContratoVO.cronograma_id">
+                  <option>
+                    Seleccione un cronograma...
+                  </option>
+                  <!--ko foreach:{ data:listado_cronogramas_asociar, as:'item'} -->
+                  <option data-bind="value: item.id, text: item.nombre">
+                  </option>
+                  <!--/ko-->
+
+                </select>
+
+              </div>
+
+
+          </form>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:asociarcronogramas">Asociar</button>
+      </div>
+    </div>
+  </div>
+
+
+
+</div>
+<!-- Relacion contratos de administracion de recursos -->
+
+
+{% endblock %}
+
+{%block imports %}
+
+  <script type="text/javascript" src="{% static 'assets/js/main.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script> 
+  <script type="text/javascript" src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+  <script type="text/javascript" src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    
+  </script>
+
+  <script type="text/javascript" src='{% static "js/ViewModels/cronogramacontrato/cronogramacontrato.js" %}'></script>
+
+{% endblock imports %}
+
+

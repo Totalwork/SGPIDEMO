@@ -1,0 +1,252 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Esquemas de cronogramas{% endblock title%}
+
+{% block mapa %}
+<!-- Start: Topbar -->
+<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+<li><a href="{% url 'cronogramacontrato.home' %}">Cronograma contratos</a></li>
+<li>Esquemas cronogramas</li>
+
+<!-- End: Topbar -->
+{% endblock mapa %}
+
+{% block opciones_listado %}
+
+
+
+<ul class="nav navbar-nav navbar-left">
+  {% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+  <li>
+    <a href="#" data-bind="click: crear" data-placement="right" data-toggle="tooltip"
+      data-original-title="Agregar nuevo registro">
+      <i class="fa fa-plus" style="font-size: 20px;"></i>
+    </a>
+  </li>
+  {% endif %}
+</ul>
+
+
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}  
+
+<div class="navbar-form navbar-left navbar-search" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" id="txtBuscar" placeholder="Buscar..." data-bind="event:{keypress: $root.consulta_enter}">
+  </div>
+</div>
+
+{% endblock busqueda %}
+
+
+{% block encabezado %}{% endblock encabezado %}
+
+
+
+
+{% block contenido %}
+<div class="panel">
+
+  <div class="panel-heading">
+    <span class="panel-title">
+      Listado de esquemas de cronogramas - N de registros: <span data-bind="html:nregistros"></span>
+    </span>
+    <!-- <div class="pull-left">
+      
+    </div> -->
+  </div>
+
+
+  <div data-bind="html: mensaje"></div>
+  <div class="table-responsive">
+    <div style="padding-left: 10px;">
+      <li data-bind="css: 'fa fa-bell'+' ' ,style:{color:'#008000'}"> Activo</li>
+      <li style="padding-left: 12px;" data-bind="css: 'fa fa-bell'+' ' ,style:{color:'#FF0000'}"> Inactivo</li>
+    </div>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Estado</th>
+          <th>Nombre</th>
+          <th>Cantidad capitulos</th>
+          <th>Cantidad actividades</th>
+          <th>Opciones</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach:{data:listado_cronogramas, as:'item'}">
+        <tr>
+          <td>
+            <!-- ko if: item.activo==true -->
+            <li data-bind="css: 'fa fa-bell'+' ' ,style:{color:'#008000'}"></li>
+            <!-- /ko -->
+            <!-- ko if: item.activo==false -->
+            <li data-bind="css: 'fa fa-bell'+' ' ,style:{color:'#FF0000'}"></li>
+            <!-- /ko -->
+
+          </td>
+          <td data-bind="cutWord:{num: 30,text: item.nombre, verMax:'...', verMin:'...'}"></td>
+          <td data-bind="text: item.cantidad_capitulos"></td>
+          <td data-bind="text: item.cantidad_actividades"></td>
+          <td>
+            <div class="btn-group text-right">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                  class="fa fa-ellipsis-h fa-2x"></i>
+              </a>
+              {% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+              <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                <li>
+                  <a href="#" data-bind="click: function(){$root.editar(item)}" target="_blank"
+                    style="cursor:pointer;">Editar nombre</a>
+                </li>
+                <li>
+                  <!-- ko if: item.activo==true -->
+                  <a href="#" data-bind="click: function(){$root.changestate(item.id, 1)}">[Desactivar]</a>
+                  <!-- /ko -->
+                  <!-- ko if: item.activo==false -->
+                  <a href="#" data-bind="click: function(){$root.changestate(item.id, 0)}">[Activar]</a>
+                  <!-- /ko -->
+
+                </li>
+                {% endif %}
+                {% if 'cronogramacontrato.can_see_ccactividadcontrato' in perms %}
+                <li>
+                  <a href="#" data-bind="attr:{href:'/cronogramacontrato/capitulosesquema/' + item.id  }"
+                    target="_blank" style="cursor:pointer;">Administrar capitulos y actividades</a>
+                </li>
+                {% endif %}
+                {% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+                <li>
+                  <a href="#" data-bind="click: function(){$root.asociarcronogramas_modal(item)}">Asociar contratos</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <div id="paginacion">
+    <div data-bind="pagination: {
+      currentPage: paginacion.pagina_actual,
+      totalCount: paginacion.total,
+      pageSize:paginacion.cantidad_por_paginas,
+      maxPages: paginacion.maxPaginas,
+      directions: paginacion.direcciones,
+      boundary: paginacion.limite,
+      text: paginacion.text }">
+    </div>
+  </div>
+
+  <!-- modal -->
+
+  <div id="modal_cronograma" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+
+          <form action="." method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+
+              {% csrf_token %}
+              <!-- inputs -->
+              <div class="form-group">
+                <label>Nombre: </label>
+                <input id="nombre" type="text" class="form-control" data-bind="value:cronogramaVO.nombre">
+
+              </div>
+
+
+          </form>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+</div>
+
+<!-- modal asociar-->
+
+<div id="modal_asociar" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+  class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+            aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+      </div>
+      <div class="modal-body">
+
+        <form action="." method="post" enctype="multipart/form-data">
+          <div class="modal-body">
+
+            {% csrf_token %}
+            <!-- inputs -->
+            <div class="form-group">
+              <label>Lista de contratos:</label>
+              <select class="form-control" data-bind="value: actividadContratoVO.contrato_id">
+                <option>
+                  Seleccione un contrato...
+                </option>
+                <!--ko foreach:{ data:listado_contratos_asociar, as:'item'} -->
+                <option data-bind="value: item.id, text: item.nombre">
+                </option>
+                <!--/ko-->
+              </select>
+
+
+
+            </div>
+
+
+        </form>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" data-bind="click:asociarcronogramas">Asociar</button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{%block imports %}
+
+<script type="text/javascript" src="{% static 'assets/js/main.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script>
+<script type="text/javascript" src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+<script type="text/javascript" src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+
+<script type="text/javascript"
+  src='{% static "js/ViewModels/cronogramacontrato/esquemacronograma.js" %}?cache=2.2'></script>
+
+{% endblock imports %}

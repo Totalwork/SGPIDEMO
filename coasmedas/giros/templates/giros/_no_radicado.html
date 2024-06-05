@@ -1,0 +1,217 @@
+
+<div class="table-responsive"> 
+
+  <div class="row">
+    <div class="panel-heading" style="padding:0;">
+       <span class="panel-title"></span><span>No. Radicado</span>
+       <span data-bind="text:'- N° de Registros: ' + paginacion_radicado.totalRegistrosBuscados2() + ' de ' + paginacion_radicado.total()"></span>
+
+      <span class="panel-controls">
+        <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar No. radicado" data-bind="click:filtrar_no_radicado_modal" data-toggle="modal" style="cursor:pointer;">
+          <i class="fa fa-filter fa-2x"></i>
+        </a>
+      </span>
+   
+
+    </div><!--cierra panel-heading-->
+  </div><!--cierra row-->
+
+  <div class="panel-body">
+
+    <div data-bind="html: mensaje"></div>
+
+    <div class="row" data-bind="visible:(listado_no_radicado()!=null && listado_no_radicado().length > 0)">
+      <table class="table">
+                            
+        <thead>
+              <tr> 
+                  <!--<th style="width:12%">Documento</th>-->
+                  <th style="width:22%">Contrato</th>
+                  <th style="width:22%">Nombre del giro</th>
+                  <th style="width:22%">Numero del radicado</th>
+                  <th style="width:22%">Fecha del radicado</th>
+              </tr>
+        </thead>
+        <tbody data-bind="foreach:{data:listado_no_radicado, as:'item'}">
+                <tr>
+<!--                     <td>
+                      <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Ver soportes" data-bind="click:function(){ $parent.documento_no_radicado(item) }" data-toggle="modal" style="cursor:pointer;">
+                        <i class="fa fa-folder fa-2x"></i>
+                      </a>
+                    </td> -->
+                    <td data-bind="cutWord:{num:25,text:item.contrato.nombre(), verMax:'...', verMin:'...'}"></td>
+                    <td data-bind="text: item.nombre.nombre"></td>
+                    <td>
+
+                      <input class="form-control" type="text" data-bind='attr:{id:item.id()+"-radicado"},value:item.numero_radicado,onlyNumber:item.numero_radicado,
+                      event:{keypress: function(d,e){if (e.which == 13)
+                      {item.numero_radicado($("#"+item.id()+"-radicado").val());  
+                      $root.guardar_no_radicado(item);}return true;}}'>
+
+                    </td>
+
+                    <td>
+                      <input class="form-control" type="text" data-bind='attr:{id:item.id()+"-radicado2"},value:item.fecha_conta,datePicker:item.fecha_conta,
+                      event:{keypress: function(d,e){if (e.which == 13)
+                      {item.fecha_conta($("#"+item.id()+"-radicado2").val());  
+                      $root.guardar_no_radicado(item);}return true;}}' onkeypress="return false">
+
+                    </td>
+
+                </tr>
+        </tbody>
+      </table>
+
+      <div id="paginacion" >
+        <div data-bind="pagination: {
+                      currentPage: paginacion_radicado.pagina_actual,
+                      totalCount: paginacion_radicado.total,
+                      pageSize:paginacion_radicado.cantidad_por_paginas,
+                      maxPages: paginacion_radicado.maxPaginas,
+                      directions: paginacion_radicado.direcciones,
+                      boundary: paginacion_radicado.limite,
+                      text: paginacion_radicado.text }">
+
+        </div>
+      </div>
+
+    </div><!--cierra row-->
+
+  </div><!--cierra panel body-->
+
+ 
+</div><!--cierra class responsive-->
+
+ <!--Modal filtrar tabla no radicado-->
+
+  <div id="modal_no_radicado" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                <div class="form-group">
+                  <label>Macrocontrato</label>
+                    <select class="form-control" id="mcontrato_filtro_radicado" name="mcontrato_filtro_radicado" data-bind="value:macontrato_filtro_select_radicado">
+                      <option value="0">[Seleccione...]</option>
+                        <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                        <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                  </select>
+                </div>
+
+
+                <div class="form-group">
+                  <label>Contratista</label>
+                    <select class="form-control" id="contratista_filtro_radicado" name="contratista_filtro_radicado" data-bind="value:contratista_filtro_select_radicado">
+                      <option value="0">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_contratista_filtro_radicado, as:'item'} -->
+                          <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                    </select>
+                </div>
+
+
+                <div class="form-group">
+                  <label>Contrato</label>
+                    <select class="form-control" id="contrato_filtro_radicado" name="contrato_filtro_radicado">
+                      <option value="0">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_contrato_filtro_radicado, as:'item'} -->
+                          <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                  <input type="text" id="txtBuscar2" name="txtBuscar2" class="form-control" placeholder="Buscar...">
+                </div>  
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:function(){consultar_no_radicado(1);}">
+                  <i class="fa fa-search"></i> Filtrar
+                </button>
+            </div>
+
+          </div>
+        </div>
+      </div><!--cierra modal_filtro-->
+
+      <!--Fin del modal-->
+
+
+<!--Modal para subir el soporte de la solicitud-->
+
+  <div id="soporte_solicitud" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+      <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+              <form>
+
+                <div class="form-group">
+                  <label>Nombre documento</label>
+                  <input type="text" data-bind="value:nombre_documento" class="form-control" placeholder="Dígite el nombre del documento"/>
+                </div>
+
+                <div class="form-group">          
+                  <label>Documento</label>
+                  <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo1,elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                </div>
+
+              </form>
+
+              <div class="table-responsive"> 
+                <div class="row">
+                  <div data-bind="html: mensaje_listado_soportes"></div>
+
+                  <div class="col-lg-12" class="table-responsive" data-bind="visible:(listado_soportes()!=null && listado_soportes().length > 0)">
+                    <table class="table"> 
+
+                      <thead>
+                        <tr> 
+                          <th></th>
+                          <th>Nombre</th>
+                        </tr>
+                      </thead>
+
+                      <tbody data-bind="foreach:{data:listado_soportes, as:'item'}">
+                        <tr>
+                          <td>
+                            <a data-bind="attr: {href: item.documento}" target="_blank" style="cursor:pointer;">
+                              <i class="fa fa-paperclip fa-2x"></i>
+                            </a>
+                          </td>
+                           <td data-bind="text: item.nombre"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+
+                  </div><!--cierra col-->
+                </div><!--cierra row-->
+              </div><!--cierra class responsive-->
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:guardar_soporte">
+                  <i class="fa fa-floppy-o"></i> Guardar
+                </button>
+            </div>
+
+          </div>
+        </div>
+      </div><!--cierra modal_filtro-->
+
+      <!--Fin del modal-->      
+                  

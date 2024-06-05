@@ -1,0 +1,194 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Detalle de Reporte de Trabajo{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.aprobacion' %}">Opciones</a></li>
+  <li><a href="{% url 'avanceObraLite.registrado' %}">Registrados/Aprobados</a></li>
+  <li><a href="{% url 'avanceObraLite.reporte_trabajo_registrado' proyecto_id %}">Reporte de Trabajo</a></li>
+  <li class="active">Detalle de Reporte de Trabajo</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}  
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading">
+                <span class="panel-title">Detalle Reporte de Trabajo<span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+               
+          </div>
+          <div class="panel-body">
+           <Strong>Proyecto:  {{reporte.presupuesto.cronograma.proyecto.nombre}}</Strong><br><br>
+           <Strong>Cronograma:  {{reporte.presupuesto.cronograma.nombre}}</Strong><br><br>
+           <Strong>Presupuesto:  {{reporte.presupuesto.nombre}}</Strong><br><br>
+           <Strong>Fecha de Trabajo:  {{reporte.fechaTrabajo}}</Strong><br><br>
+           <Strong>Estado del Trabajo:  {{reporte.estado.nombre}}</Strong><br><br>
+
+             <div class="row">
+
+              <div class="col-lg-6">
+
+                    {% if reporte.estado.id != 127 and reporte.estado.id != 2127 %}
+
+                      {% if reporte.usuario_aprueba.id == user.usuario.id %}
+                  
+                           <button type="button" class="btn btn-primary" data-bind="click:abrir_modal">Aprobada</button>
+                
+
+                          <button type="button" class="btn btn-danger" data-bind="click:abrir_modal_correcion">Rechazado</button>
+                      {% endif %}
+                    {% endif %}
+                </div>
+              
+            </div>
+            <br><br>
+
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Hito</th>
+              <th>Actividad</th>
+              <th>Fecha</th>
+              <th>Cantidad Ejecutada</th>
+              <th>Cantidad Total</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.detallepresupuesto.nombre_padre"></td>
+              <td data-bind="text: item.detallepresupuesto.actividad.nombre"></td>
+              <td data-bind="text: item.reporte_trabajo.fechaTrabajo"></td>
+              <td data-bind="text: item.cantidadEjecutada"></td>
+              <td data-bind="text: item.detallepresupuesto.cantidad"></td>
+
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="proyecto_id" value="{{proyecto_id}}" class="form-control" >  
+<input type="hidden" id="reporte_id" value="{{id_reporte}}" class="form-control" >  
+
+<input type="hidden" id="usuario_id" value="{{user.usuario.id}}" class="form-control" >    
+
+  <!--Loading-->
+
+
+ 
+
+
+ <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+      
+            
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+        </div>
+
+          
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_aprobacion">Guardar</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+ <!--Modal-->
+
+<div id="modal_rechazo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+      
+              <label>Motivo:</label>
+               <div class="form-group">
+            <textarea class="form-control" rows="5" data-bind="value:motivo_rechazo"></textarea>
+          </div>
+
+          
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_rechazo">Guardar</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/detalle_registrado.js" %}'></script>
+{% endblock imports %}

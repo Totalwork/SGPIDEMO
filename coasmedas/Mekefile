@@ -1,0 +1,2 @@
+run:
+  nohup python3.7 > nohup.log 2>&1 &;

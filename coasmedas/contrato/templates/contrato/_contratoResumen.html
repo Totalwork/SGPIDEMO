@@ -1,0 +1,39 @@
+<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+  <h4> Información del contrato </h4>
+  <ul class="icon-list">
+    <li>
+      <b> Contratante:</b>&nbsp;<small data-bind="html:detalle.contratante"></small>
+    </li>
+    <li>
+      <b> Contratista:</b>&nbsp;<small data-bind="html:detalle.contratista"></small>
+    </li>
+    <li>
+      <b> No. Contrato:</b>&nbsp;<small data-bind="html:detalle.numero"></small>
+    </li>
+    <li>
+      <b> Nombre:</b>&nbsp;<small data-bind="html:detalle.nombre"></small>
+    </li>
+    <li>
+      <b> Estado:</b>&nbsp;<small data-bind="html:detalle.estado_c"></small>
+    </li>
+    <li>
+      <b> Descripción:</b>&nbsp;<small data-bind="html:detalle.descripcion"></small>
+    </li>
+    <li>
+      <b> Macro Contrato:</b>&nbsp;<small data-bind="html:detalle.m_contrato"></small>
+    </li>
+    <li>
+      <b> Fecha Inicio:</b>&nbsp;<small data-bind="html:detalle.f_inicio"></small>
+    </li>
+    <li>
+      <b> Fecha Fin:</b>&nbsp;<small data-bind="html:detalle.f_fin"></small>
+    </li>
+    <li>
+      <b> Valor Contrato:</b>&nbsp;<small data-bind="text: formatMoney(detalle.valor())"></small>
+    </li>
+    <li>
+      <b> Valor Liquidación:</b>&nbsp;<small data-bind="html:formatMoney(detalle.liquidacion())"></small>
+    </li>
+  </ul>
+</div>

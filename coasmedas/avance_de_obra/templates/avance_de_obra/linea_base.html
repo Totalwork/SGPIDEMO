@@ -1,0 +1,247 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+
+{% block title %}Linea Base{% endblock title%}
+
+
+ {% block opciones_listado %}
+  {% if linea_base == False %}
+    {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %} 
+    {% endif %} 
+{% endblock opciones_listado %} 
+
+{% block busqueda %}  
+    <!--Buscador-->
+      <div class="navbar-form navbar-left navbar-search" role="search">
+        <div class="form-group">
+          <input type="text" id="txtBuscar" name="txtBuscar" class="form-control" placeholder="Buscar Semana" data-bind='event:{keypress: $root.consulta_enter},onlyNumber:filtro'>
+        </div>
+      </div><!--fin buscador-->
+{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra.avance_de_obra' %}">Avance de Obra</a></li>
+  <li><a href="{% url 'avance_de_obra.cronograma' id_proyecto %}">Cronograma</a></li>
+  <li class="active">Linea Base</li>
+{% endblock mapa %}
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(metaVO()!=null && metaVO().length > 0)">
+          <div class="panel-heading cursor">
+                      <span class="panel-title"> Linea Base</span>
+          </div>
+          <div class="panel-body">
+            <p><span><strong>Proyecto:</strong></span>
+            {{nombre_proyecto}}</p>
+            <p><span><strong>Cronograma:</strong></span>
+            {{nombre_cronograma}}</p>
+             <input type="hidden" id="id_cronograma" value="{{id_cronograma}}" class="form-control" >
+             <input type="hidden" id="linea_base" value="{{linea_base}}" class="form-control" >
+             <input type="hidden" id="id_proyecto" value="{{id_proyecto}}" class="form-control" >
+          </div>
+
+           
+
+          <div class="panel-body">
+          <div data-bind="html: mensaje_guardando"></div> 
+          <div class="table-responsive" data-bind="dropdown">
+            <table class="table">
+              <thead>
+               <tr>
+                     <th colspan="4">Porcentaje por Intervalo</th>
+                      <!--ko foreach:{data:porcentaje, as:'item3'}--> 
+                       <th style="text-align: center;"><span data-bind="text:item3.porcentaje"></span>%</th>
+                     <!--/ko-->
+                     <th>
+
+                      <!--ko if: inicio()==true --> 
+                      <a href=#>
+                        <i class=" fa fa-chevron-circle-left" style="font-size:24px;" data-bind="click:paginacion_anterior"></i>
+                        </a>
+                     <!--/ko-->
+                     <!--ko if: inicio()==false --> 
+                        <i class=" fa fa-chevron-circle-left" style="font-size:24px;"></i>
+                     <!--/ko-->
+
+                     <!--ko if: limite()==true --> 
+                      <a href=#>
+                        <i class=" fa fa-chevron-circle-right" style="font-size:24px;" data-bind="click:paginacion_siguiente"></i></a><br>
+                     <!--/ko-->
+                     <!--ko if: limite()==false --> 
+                        <i class=" fa fa-chevron-circle-right" style="font-size:24px;"></i><br>
+                     <!--/ko-->
+
+                     <!--ko if: inicio()==true --> 
+                      <a href=#>
+                     <i class="fa fa-fast-backward" style="font-size:20px;" data-bind="click:paginacion_inicio"></i>
+                      </a>&nbsp;
+                     <!--/ko-->
+                     <!--ko if: inicio()==false --> 
+                        <i class="fa fa-fast-backward" style="font-size:20px;"></i>&nbsp;
+                     <!--/ko-->
+
+                     
+                      <!--ko if: limite()==true --> 
+                      <a href=#>
+                     <i class="fa fa-fast-forward" style="font-size:20px;" data-bind="click:paginacion_final"></i></a>
+                     <!--/ko-->
+                     <!--ko if: limite()==false --> 
+                        <i class="fa fa-fast-forward" style="font-size:20px;"></i><br>
+                     <!--/ko-->
+                     </th>
+               </tr>
+              </thead>
+            <thead>
+            <tr data-bind="foreach:{data:header, as:'item'}">
+              <!--ko if: $index()!=0 && $index()!=1 && $index()!=5 && $index()!=6  && $index()!=8--> 
+                  <!--ko if: $index()==7 --> 
+                      <th> <i class="fa sigma"></i></th>
+                   <!--/ko-->
+                   <!--ko if: $index()==4 --> 
+                      <th><i class="fa fa-plus" aria-hidden="true"></i></th>
+                   <!--/ko--> 
+                   <!--ko if: $index()!=7 && $index()!=3 && $index()<8--> 
+                      <th data-bind="text:ucwords(item)"></th>
+                   <!--/ko-->
+                    <!--ko if: $index()>8--> 
+                    <th style="text-align: center;" title={{periodo}}><a href="#" data-bind="click:$root.activacion_intervalo"><span class="badge badge-primary" data-bind="text:item"></span></a></th>
+                    <!--/ko--> 
+              <!--/ko--> 
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:metaVO, as:'item2'}">         
+         
+            <tr data-bind="css:{'info': item2.nivel()==1},foreach:{data:$root.header, as:'col'}">
+                <!--ko if: $index()!=0 && $index()!=1 && $index()!=5 && $index()!=6 && $index()!=8--> 
+                   <!--ko if: $index()<8--> 
+                      <!--ko if: $index()==3 --> 
+                       <td><span data-bind="text:item2[col]"></span>%</td>
+                     <!--/ko--> 
+                      <!--ko if: $index()!=3 --> 
+                       <td data-bind="text:item2[col]"></td>
+                     <!--/ko--> 
+                   <!--/ko-->                   
+                   <!--ko if: $index()>8--> 
+                    <td style="width: 60px" align="center">
+                       <!--ko if: $root.activacion() == col--> 
+                         <!--ko if: (item2.nivel()==2 && item2.procesar()==0) || item2.nivel()==3 -->
+                            <input type="text" class="form-control" data-bind="value:item2[col]" style="border: 2px solid #9B9999;border-radius: 4px;"> 
+                          <!--/ko--> 
+                         <!--/ko--> 
+                         <!--ko if: $root.activacion() != col--> 
+                          <!--ko if: (item2.nivel()==2 && item2.procesar()==0) || item2.nivel()==3 -->
+                            <span data-bind="text:item2[col]"></span>
+                           <!--/ko--> 
+                        <!--/ko--> 
+                    </td>
+                  <!--/ko-->                  
+                <!--/ko--> 
+            </tr> 
+          </tbody>
+        </table>
+        </div>
+        {% if linea_base == False %}
+         <div align="left">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_linea">Guardar</button>
+        </div> 
+        {% endif %} 
+ </div>
+  </div>
+
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+           <div class="form-group">
+              <label>Actividad(*)</label>
+             <div class="input-group">
+                     <select class="form-control" data-bind="value:cantidadVO.id_actividad">
+                      <option value="">[Seleccione..]</option> 
+                      <!--ko foreach:{data:actividadesVO, as:'actividad'}--> 
+                        <option data-bind="value:actividad.id,text:actividad.nombre"></option> 
+                     <!--/ko-->                     
+                    </select>      
+             </div>
+            </div>
+
+         <div class="form-group">
+            <label>Cantidad(*)</label>
+            <input type="text" class="form-control" data-bind="value:cantidadVO.cantidad,onlyNumber:cantidadVO.cantidad">
+        </div>
+
+        <div class="form-group">
+            <label>Intervalo(*)</label>
+            <div class="row">
+              <div class="col-md-3"><input type="text" class="form-control" data-bind="value:cantidadVO.desde,onlyNumber:cantidadVO.desde"></div>           
+              <div class="col-md-1" align="center"> A </div> 
+              <div class="col-md-3"><input type="text" class="form-control" data-bind="value:cantidadVO.hasta,onlyNumber:cantidadVO.hasta"></div>
+            </div>  
+        </div>
+
+    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+  <!--Loading-->
+  
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avance_de_obra/linea_base.js" %}'></script>
+    <script type="text/javascript">
+    
+</script>
+
+{% endblock imports %}

@@ -1,0 +1,204 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Predios{% endblock title %}
+
+{% block opciones_listado %}
+        {% if estado == 159 %}
+          {% if app in perms %}
+            {% if app|add:'.add_'|add:model in perms%}        
+              <li>
+                <a href="{% url 'servidumbre.nuevo_predio' id=expediente.id %}"  data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo predio">
+                   <i class="fa fa-plus" style="font-size: 20px;"></i>
+                </a>
+              </li>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+        
+        {% if estado == 159 %}
+          {% if app in perms %}
+            {% if app|add:'.delete_'|add:model in perms%}        
+              <li>
+                <a href="#" data-bind="click:eliminar" data-placement="right" data-toggle="tooltip" data-original-title="Eliminar registro(s)">
+                    <i class="fa fa-trash" style="font-size: 20px;"></i>
+                </a>
+              </li>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+
+{% endblock opciones_listado %}
+
+
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li><a href="/servidumbre/home">Gestion de servidumbres</a></li>
+  <li>Predios</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+<div class="panel panel-sky">
+  <div class="row" >
+
+    <div class="col-lg-12">
+    	
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">
+              <a href="{% url 'servidumbre.expediente'%}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar a Gestion de expedientes">
+                 <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              </a>            
+              <span class="panel-title hidden-xs">Listado de predios del expediente No.{{expediente.id}}
+				</span>                                        
+            </div>
+   </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+  	<div class="panel-body">
+  		<span class="panel-title hidden-xs">
+  			Proyecto : {{expediente.proyecto.nombre}} | Departamento :
+  						{{expediente.proyecto.municipio.departamento.nombre}} | Municipio : 
+  						{{expediente.proyecto.municipio.nombre}} | Contrato/Convenio :
+              {{expediente.proyecto.mcontrato.nombre}} 
+  						
+				</span>
+    	<div data-bind="html: mensaje"></div> 
+    	<input type="hidden" id="idExpediente" value="{{expediente.id}}"></input> 
+    		<div class="row" data-bind="visible:(listado()!=null && listado().length > 0)">
+    			<div class="table-responsive">
+    				<table class="table">
+                              
+         				<thead>
+                			<tr>
+                    		<th>
+                        		<div class="option-group field admin-form">
+                          		<label class="option option-primary"  style="">
+                            	   <input type="checkbox" data-bind="checked:checkall">
+                                 <span class="checkbox"></span>
+                              </label>
+                            </div>
+                    		</th>
+                    		
+                   			<th>Dirección / nombre del predio</th>
+                    		<th>Tipo predio</th>
+                  			<th>Grupo documentos</th>
+                   			<th>% documentos</th>                    
+                   			<th></th>
+               				</tr>
+
+
+          				</thead>
+
+          				<tbody data-bind="foreach:{data:listado, as:'item'}">
+                  <tr>
+                      <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:eliminado,value:id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div> 
+                      </td> 
+                      <td data-bind="text: item.nombre_direccion"></td>
+                      <td data-bind="text: item.tipo.nombre"></td>
+                      <td data-bind="text: item.grupo_documento.nombre"></td>
+                      <td data-bind="text: item.porcentajedocumentos+'%'"></td>
+                      
+                      <td>
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+
+                              
+                              <li>
+                                <a href="#"  data-bind="click:$root.redireccion" >
+                                  Ver detalle
+                                </a>
+                              </li>
+                              
+                              {% if estado == 159 %}
+                                {% if app in perms %}
+                                  {% if app|add:'.change_'|add:model in perms%} 
+                                    <li>
+                                      <a href="#" data-bind="click:$root.redireccion2">
+                                        Editar
+                                      </a>
+                                    </li>
+                                  {% endif %}
+                                {% endif %}
+                              {% endif %}
+
+                              <li>
+                                <a href="#" data-bind="click:$root.redireccion3">
+                                  Documentos
+                                </a>
+                              </li>
+
+                              <li>
+                                <a href="#" data-bind="attr:{href:'../../../servidumbre/predio-georeferencias/'+{{expediente.id}}+'/'+item.id}">
+                                  Georreferencias
+                                </a>
+                              </li>
+
+                                <!-- /ko -->
+                                                          
+
+                            </ul>
+                          </div>
+                      </td>          
+                  </tr>
+          </tbody>
+          			</table>
+                
+          			<div id="paginacion" >
+          <div data-bind="pagination: {
+                      currentPage: paginacion.pagina_actual,
+                      totalCount: paginacion.total,
+                      pageSize:paginacion.cantidad_por_paginas,
+                      maxPages: paginacion.maxPaginas,
+                      directions: paginacion.direcciones,
+                      boundary: paginacion.limite,
+                      text: paginacion.text }">
+
+          </div>
+        </div>
+          
+    			</div><!--cierra table-responsive -->
+    		</div><!--cierra row -->
+    	</div><!--cierra panel-body -->
+ </div><!--cierra panel panel-sky -->
+{% endblock contenido %} 
+
+{% block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/predio.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      
+      	predio.consultar(1,$("#idExpediente").val());
+      
+    });  
+
+  </script>
+
+{% endblock imports %}   

@@ -1,0 +1,231 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}Responsabilidades{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li>
+  <li><a href="{% url 'parametrizacion.inicioResponsabilidades' %}">Inicio Responsabilidades</a></li>
+  <li class="active">Responsabilidades</li>
+{% endblock mapa %}
+<!-- % block encabezado %}Responsabilidades{% endblock encabezado % -->
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+    {% if app|add:'.add_'|add:model in perms%}
+      <li>
+        <a href="#">
+          <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"><div><div><div></div></div></div></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+<!--Inicio de la table -->
+<div class=" row">
+  
+  <div class="col-lg-12">
+
+		<div data-bind="html: mensaje"></div>
+
+		<div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0), dropdown">
+			<div class="panel-heading">
+				<span class="panel-title">
+					<span>      
+						<a href="{% url 'parametrizacion.inicioResponsabilidades' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"						aria-hidden="true"></i></a>
+					  </span> 					
+					Listado Responsabilidades <span data-bind="html:num_registro"></span>
+				</span>
+				<!-- <div class="pull-right">
+					<a href="#" data-bind="attr:{href:'../asignar_responsabilidades/' }" title="Filtrar"><i class="fa fa-address-card-o fa-3x" style="color:#4a89dc; cursor:pointer;"></i></a>
+				</div> -->
+      </div>
+			<div class="panel-body">
+				<div class="table-responsive" >
+					<table class="table">
+						<thead>
+							<tr>
+								<th>
+									<div class="option-group field admin-form">
+										<label class="option option-primary" >
+											<input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+											<span class="checkbox"></span>
+										</label>
+									</div>
+								</th>
+								<th>Empresa</th>
+								<th>Nombre</th>
+								<!-- <th>Descripción</th> -->
+								<th>Opciones</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!--ko foreach:{ data:listado, as:'item'} -->
+								<tr>
+									<td>
+										<div class="option-group field admin-form" >
+											<label class=" mt10 option option-primary"  >
+												<input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:id" />
+												<span class="checkbox"></span>
+												<!-- <span data-bind="text: item.nombre"></span> -->
+											</label>
+										</div><!-- end .option-group section -->
+									</td>
+									<td data-bind="text: item.empresa.nombre"></td>
+									<td data-bind="text: item.nombre"></td>
+									<!-- <td data-bind="text: item.descripcion"></td> -->
+									<td>
+										<div class="btn-group text-right">
+											<i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+											<ul class="dropdown-menu" role="menu">
+												<li>
+													<a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+												</li>
+												<li>
+													<a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+												</li>
+											</ul>
+										</div>
+									</td>
+								</tr>
+							<!--/ko-->
+						</tbody>
+					</table>
+					<div id="paginacion" >
+						<div data-bind="pagination: {
+									   currentPage: paginacion.pagina_actual,
+									   totalCount: paginacion.total,
+									   pageSize:paginacion.cantidad_por_paginas,
+									   maxPages: paginacion.maxPaginas,
+									   directions: paginacion.direcciones,
+									   boundary: paginacion.limite,
+									   text: paginacion.text }">
+						</div>
+					</div>
+				</div>
+
+			</div>
+		</div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+<!--Fin de la table -->
+
+<!--Inicio Modal - Guardar Responsabilidades -->
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-ls">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+        <!-- <form action="." method="post" enctype="multipart/form-data"> mb5 -->
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-12">
+          	<label>(*) Empresa:</label>
+            <div class="form-group admin-form ">  <!-- <span>Nombre:</span> --> <!-- <label><b>Nombre:</b></label> -->
+              <label class=" select"> 
+	              <select  data-bind="value:responsabilidadesVO.empresa_id" disabled="">
+	                {% for item in empresas %}
+	                  <option value="{{ item.id }}">{{ item.nombre }}</option>
+	                {% endfor %}
+	              </select>
+	              <i class="arrow"></i>
+              </label>
+            </div>
+
+            <div class="form-group">
+              <label>(*) Nombre:</label>
+              <input class="form-control" data-bind='value:responsabilidadesVO.nombre' type="text">
+            </div>
+
+            <div class="form-group">          
+              <label>Descripción:</label>
+              <textarea class="form-control textarea-grow" data-bind='value:responsabilidadesVO.descripcion' rows="4"></textarea>
+            </div>
+
+          </div>
+        </div>
+        <!-- </form> -->
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Fin Modal - Guardar Responsabilidades -->
+
+<!--Inicio Modal - Detalle Responsabilidades -->
+<div id="detalle_responsabilidades" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Detalle Responsabilidades</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <h4> Información Responsabilidad </h4>
+          <ul class="icon-list">
+            <li>
+              <b> Empresa:</b>&nbsp;<small data-bind="html:detalle.empresa"></small>
+            </li>
+            <li>
+              <b> Nombre:</b>&nbsp;<small data-bind="html:detalle.nombre"></small>
+            </li>
+            <li>
+              <b> Descripción:</b>&nbsp;<small data-bind="html:detalle.descripcion"></small>
+            </li>
+          </ul>
+        </div>
+			</div> <!-- ./modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle Responsabilidades-->
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<!-- <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/parametrizacion/responsabilidades.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    //responsabilidades.consultar({{id_contrato}});//iniciamos la primera funcion
+
+    // responsabilidades.contrato_id({{id_contrato}});
+    // responsabilidades.list_sub_contratista2();
+    // responsabilidades.contrato({{id_contrato}});
+
+    //responsabilidades.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script>
+{% endblock imports %}

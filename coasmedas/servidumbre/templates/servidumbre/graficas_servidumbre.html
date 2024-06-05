@@ -1,0 +1,143 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+    <!-- Plugin CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+  <style>
+    /* .scroll {
+      height:557px;
+      overflow-y: scroll;
+    } */
+    /*.panel-heading{
+      height: 70px!important;
+    }*/
+  </style>
+  {% endblock imports_css %}
+
+{% block title %}Graficas servidumbre{% endblock title %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li>Graficas servidumbre</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+<div class="panel panel-sky">
+    <div class="row" >
+
+    	<div class="col-lg-12">
+
+            <div class="panel-heading">                          
+              <span class="panel-title hidden-xs">
+                <a href="{% url 'usuario.index' %}" data-placement="right"    
+                  data-toggle="tooltip" data-original-title="Regresar al inicio">
+                  <i class="fa fa-arrow-left"></i>
+                </a>
+                Dashboard
+              </span>                                        
+            </div>
+    	</div>
+  	</div>
+
+    <div class="panel-body">
+    	<div data-bind="html: mensaje"></div>  
+		
+      <div class="col-lg-6">
+        <div class="panel grafica graficaContraida" id="pchart11">
+            <div class="panel-heading">
+              <span class="panel-icon">
+                <i class="fa fa-pie-chart"></i>
+              </span>
+              <span class="panel-title">Expedientes abiertos vs Expedientes cerrados</span>
+            </div>
+            <div class="panel-body bg-light dark">
+              <div id="pie-chartExpedientes" style="height: 50%; width: 100%;"></div>
+            </div>
+        </div>
+      </div>
+
+
+      <div class="col-lg-6">
+        <div class="panel grafica graficaContraida" id="pchart12">
+            <div class="panel-heading">
+              <span class="panel-icon">
+                <i class="fa fa-pie-chart"></i>
+              </span>
+              <span class="panel-title">Predios con documentacion completa vs Predios con documentacion incompleta</span>
+            </div>
+            <div class="panel-body bg-light dark">
+              <div id="pie-chartPredios" style="height: 50%; width: 100%;"></div>
+            </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-12">
+        <div class="form-group">
+          <center>  
+            <a type="button" class="btn btn-primary" href="/servidumbre/home">
+              Ver expedientes
+            </a>      
+        </center>
+      </div>
+      </div>           
+                     
+
+
+    </div><!--cierra panel-body -->
+
+
+</div><!--cierra panel panel-sky -->
+
+
+
+{% endblock contenido %} 
+
+{% load static %}
+
+{% block imports %}
+  <style>
+    /*chart demo styles*/
+    .c3 {}
+    /* tick color */
+    .c3 .tick {
+      fill: #AAA;
+    }
+    /* axis color */
+    .c3 line,
+    .c3 path {
+      stroke: #BBB;
+    }
+    /*axis label color*/
+    .c3 .c3-axis-x-label,
+    .c3 .c3-axis-y-label {
+      fill: #AAA;
+    }
+    /*legend label text color*/
+    .c3-legend-item {
+      fill: #888;
+      font-size: 14px;
+    }
+    </style>
+ <script src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+    <script src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script> 
+  <script src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+  <script src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+    <!-- Sparkline Local -->
+    <script src="{% static 'vendor/plugins/sparkline/jquery.sparkline.min.js' %}"></script>
+
+   <script src="{% static 'assets/js/main.js' %}"></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/graficas_servidumbre.js" %}?cache=2'></script>
+
+
+
+{% endblock imports %}   
+

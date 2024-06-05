@@ -1,0 +1,54 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+<style type="text/css">
+.error-title {
+    font-size: 140px;
+    font-weight: 800;
+    color: #f50f44;
+    text-align: center;
+    padding-top: 60px;
+    margin-bottom: 20px;
+    line-height: 120px;
+}
+
+.error-subtitle {
+    font-weight: 400;
+    text-align: center;
+    font-size: 40px;
+    color: #AAA;
+    margin-bottom: 80px;
+}
+
+</style>
+{% endblock imports_css %}
+
+
+{% block title %}Error 500{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">404</a></li>	
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}      
+
+
+{% block contenido %}
+
+  
+    <div class="center-block mt50 mw800">
+      <h1 class="error-title"> 500! </h1>
+      <h2 class="error-subtitle">Internal Server Error.</h2>
+    </div>
+    <div class="mid-section"></div>
+ 
+{% endblock contenido %}
+
+
+{%block imports %}
+    
+{% endblock imports %}

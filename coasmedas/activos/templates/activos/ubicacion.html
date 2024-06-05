@@ -1,0 +1,495 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBJIu6W6VBANXP1Tq6mCKhjvupUARUNIuI'></script>
+ <script type='text/javascript' src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+ <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+{% endblock imports_css %}
+
+{% block title %}Ubicacion Activos{% endblock title %}
+
+{% block opciones_listado %}
+ 
+ <!--  {% if estado == 159 %}
+
+    {% if app in perms %}
+      {% if app|add:'.add_'|add:model in perms%}        
+        <li>
+          <a href="#" data-bind="click:abrir_registro" data-placement="right"  data-toggle="tooltip" data-original-title="Lista de Georeferencias">
+             <i class="fa fa-map-marker" style="font-size: 20px;"></i>
+          </a>
+        </li>
+
+
+      {% endif %}
+    {% endif %} -->
+
+   <!--  {% if app in perms %}
+      {% if app|add:'.add_'|add:model in perms%} 
+        <li>
+          <a href="#" data-bind="click:abrir_carga_masiva">
+             <i class="fa fa-upload" style="font-size: 20px;"></i>
+          </a>
+        </li>
+      {% endif %}
+    {% endif %} -->
+<!-- 
+    {% if app in perms %}
+      {% if app|add:'.change_'|add:model in perms%} 
+        <li>
+          <a href="#" data-bind="click:cambiar_orden">
+             <i class="fa fa-exchange" style="font-size: 20px;"></i>
+             
+          </a>
+        </li>
+      {% endif %}
+    {% endif %} -->
+
+    <!-- {% if app in perms %}
+      {% if app|add:'.change_'|add:model in perms%} 
+        <li>
+          <a >
+            <div class="switch switch-info round switch-inline switch-dark">
+              <input id="toogledash" type="checkbox"  onchange="javascript:toogleDash();">
+              <label for="toogledash" style="color:black;">&nbsp;Editar&nbsp;mapa</label>
+
+            </div>
+          </a>
+        </li> 
+      {% endif %}
+    {% endif %}
+
+  {% endif %}  -->
+  
+{% endblock opciones_listado %}
+
+
+
+{% block mapa %}
+  <li><a href="/usuario/home/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/home/">Inicio</a></li>
+  <li><a href="/activos/activo">Activo</a></li>  
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+<!-- <script type="text/javascript">
+    function toogleDash(){      
+      var checkDash = document.getElementById("toogledash");
+
+      if (checkDash.checked) {
+        $(document).ready(function () {
+          
+          $.confirm({
+            title:'Informativo',
+            content: '<h4><i class="text-info fa fa-info-circle fa-2x"></i> El mapa ya se puede editar<h4>',
+            cancelButton: 'Cerrar',
+            confirmButton: false
+          });
+          georeferencias.editar_mapa(true);
+          georeferencias.initMap();
+          
+  
+
+        });   
+      }else{
+        $(document).ready(function () {
+          
+          $.confirm({
+            title:'Informativo',
+            content: '<h4><i class="text-info fa fa-info-circle fa-2x"></i> El mapa no se puede editar<h4>',
+            cancelButton: 'Cerrar',
+            confirmButton: false
+          });
+          
+          georeferencias.editar_mapa(false);
+          georeferencias.initMap_noeditable();
+
+        });  
+      }
+    
+    
+    }
+  </script> -->
+
+
+<div class="panel panel-sky">
+    <div class="row" >
+
+      <div class="col-lg-12">
+      
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">             
+              <span>      
+                <a href="/activos/activo"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+                </span> 
+              <span class="panel-title hidden-xs">Ubicación de activos             
+              </span> 
+
+              <div class="pull-right">
+                <span class="panel-controls">
+                  <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros"  title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda" >
+                    <i id='iconoFiltro' class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+              </div>                                     
+            </div>
+
+
+            
+      </div><!--col-lg-12" -->
+    </div><!--cierra row -->
+
+    <!-- <div class="panel-body">
+      <div class="panel" >         
+          <div class="form-group col-lg-12">
+              <span class="panel-title hidden-xs">
+                  Proyecto: {{expediente.proyecto.nombre}} 
+                  | Departamento: {{expediente.proyecto.municipio.departamento.nombre}} 
+                  | Municipio: {{expediente.proyecto.municipio.nombre}} 
+                  | Contrato/Convenio: {{expediente.proyecto.mcontrato}}       
+              </span>
+          </div>
+        </div>
+    </div> -->
+    <div data-bind="html: mensaje"></div>
+    <div class="row" id="content_map" style="display: none;">
+      <div class="col-lg-12"> 
+        <div id="map" class="col-lg-12"  style="border-color:black;border-style: solid;height: 600px;">
+        </div>
+      </div>
+    </div>
+
+    <input type="hidden" id="editar_mapa" value="false" class="form-control" >
+ </div>
+
+
+ <!-- <div id="modal_acciones_carga_masiva" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <form action="." method="post" enctype="multipart/form-data">
+       <div class="modal-body">
+        
+        {% csrf_token %}
+        
+        <Strong>Contrato/convenio: </Strong> {{expediente.proyecto.mcontrato}}  <br>
+        <Strong>Departamento: </Strong> {{expediente.proyecto.municipio.departamento.nombre}}<br>
+        <Strong>Municipio: </Strong> {{expediente.proyecto.municipio.nombre}}<br>
+        <Strong>Proyecto: </Strong> {{expediente.proyecto.nombre}} <br>
+        <Strong>Expediente: </Strong> {{expediente.id}}  <br>
+        <Strong>Predio: </Strong>  {{predio.nombre_direccion}}<br><br>
+        
+         <div class="form-group">
+            <a href="#" data-bind="click:descargar_plantilla"><label style="cursor: pointer;">Plantilla para diligenciar <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i></label></a>       
+        </div>
+        <input type="hidden" id="id_expediente" value=" {{expediente.id}}" class="form-control" >
+        <input type="hidden" id="id_predio" value="{{predio.id}}" class="form-control" >
+       
+
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+        </div>       
+
+        
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_carga_masiva">Iniciar Carga</button>
+        </div>    
+      </form>
+  </div>
+</div>
+</div> -->
+
+
+<div id="modal_registro_gps" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      
+      <div class="modal-body">        
+          <form id="panel_registro" action="." method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+              {% csrf_token %}
+              <label>(*)Activo:</label>
+              <div class="form-group admin-form">
+                <label class=" select">
+                  <select class="form-control" data-bind="value:$root.puntosGPSVO.activo_id">
+                    <option value=''>[Seleccione...]</option>
+                    <!--ko foreach:{data:listado_activos, as:'item'}--> 
+                      <option data-bind="text:item.descripcion,value:item.id"></option>
+                    <!--/ko-->
+                  </select><i class="arrow"></i>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label>(*) Nombre: </label>
+                <input type="text" class="form-control" data-bind='value:puntosGPSVO.nombre'>
+              </div>
+
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:guardar_punto">Guardar</button>
+            </div>
+          </form>
+ 
+      </div>         
+    </div>
+  </div>
+</div>
+
+
+<div id="detalle_activo" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+
+      <div class="modal-body">         
+          <ul class="icon-list">
+            <li>
+              <b> Categoria:</b>&nbsp;<small data-bind="html:detalle.categoria"></small>
+            </li>
+
+
+            <li>
+              <b> Tipo:</b>&nbsp;<small data-bind="html:detalle.tipo"></small>
+            </li>
+
+            <li>
+              <b> Descripcion:</b>&nbsp;<small data-bind="html:detalle.descripcion"></small>
+            </li>
+
+            <li>
+              <b> Identificación:</b>&nbsp;<small data-bind="html:detalle.identificacion"></small>
+            </li>
+
+            <li>
+              <b> Serial ó placa:</b>&nbsp;<small data-bind="html:detalle.serial_placa"></small>
+            </li>   
+
+            <li>
+              <b> Numero contrato de adquisición:</b>&nbsp;<small data-bind="html:detalle.contrato"></small>
+              <a href="#" data-bind="click: function(){$root.ver_soporte_contrato(detalle.id)}" target="_blank"  style="cursor:pointer;">
+          <i class="fa fa-paperclip fa-2x"></i>
+        </a>
+
+            </li>
+
+            <li>
+              <b> Valor de la compra:</b>&nbsp;$<small data-bind="html: detalle.valor_compra"></small>
+            </li> 
+
+            <li>
+              <b> Responsable :</b>&nbsp;<small data-bind="html:detalle.responsable"></small>
+            </li>
+
+
+           <hr style="margin-top: 25px; 
+                  margin-bottom: 25px;
+                  margin-right: 10px; 
+                  margin-left: 10px; 
+                  border-top: 1px 
+                  solid #bbb; 
+                  border-radius: 5px;">
+
+            <li>
+              <b> Estado:</b>&nbsp;<small data-bind="css: 'fa fa-bell'+' ' ,style:{color:detalle.debaja_color}"></small>
+              <small data-bind="html:detalle.debaja_estado"></small>
+            </li>
+
+        <!-- ko if: detalle.debaja -->          
+
+              <li>
+                <b> Motivo de baja:</b>&nbsp;<small data-bind="html:detalle.motivo_debaja"></small>
+              </li>
+
+              <li>
+                <b> Soporte de baja:</b>&nbsp;
+                    <a href="#" data-bind="click: function(){$root.ver_soporte(detalle.id)}" target="_blank"  style="cursor:pointer;">
+              <i class="fa fa-paperclip fa-2x"></i>
+            </a>
+            <a href="#" data-bind="click: function(){$root.archivoFisico()}" target="_blank"  style="cursor:pointer;">
+              <i class="fa fa-archive fa-2x"></i>
+            </a>
+
+              </li>        
+    
+          <!-- /ko -->
+
+          </ul>
+          
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<div id="modal_busqueda" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+              <h4 class="modal-title" id="gridModalLabel">Filtrar puntos GPS</h4>
+          </div>
+            <div class="modal-body bg-light">
+              <div class="col-lg-12">              
+                  <div class="row">
+                    
+                <div class="form-group admin-form">
+                    <label>Categoría del activo: </label>
+                      <label class=" select">
+                        <select class="form-control" id="categoria_filtrado" name="categoria_filtrado" 
+                        data-bind="value:filtrado.categoria">
+                           <option value="">[Seleccione..]</option>
+                           {% for item in categorias %}
+                                <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %}
+                      </select><i class="arrow"></i>
+              </label>
+                  </div>
+
+                  <div class="form-group admin-form">
+                    <label>Tipo del activo: </label>
+                      <label class=" select">
+                        <select class="form-control" id="tipo_filtrado" name="tipo_filtrado" 
+                        data-bind="value:filtrado.tipo">
+                           <option value="">[Seleccione..]</option>                 
+                                 <!--ko foreach:{data:listado_tipo, as:'item'}--> 
+                                  <option data-bind="text:item.nombre,value:item.id"></option>
+                                 <!--/ko-->
+                      </select><i class="arrow"></i>
+              </label>
+                  </div>
+
+
+                   <div class="form-group admin-form">
+                    <label>Estado: </label>
+                      <label class=" select">
+                        <select class="form-control" id="estado_filtrado" name="estado_filtrado" 
+                        data-bind="value:filtrado.estado">
+                          <option value="2">[Seleccione..]</option>                             
+                                <option value="0">De alta</option>
+                                <option value="1">De baja</option>
+                    
+                      </select><i class="arrow"></i>
+              </label>
+                  </div>
+
+                  <div class="form-group admin-form">
+                    <label> Funcionario: </label>
+                      <label class=" select">
+                        <select class="form-control" id="funcionario_filtrado" name="funcionario_filtrado" 
+                        data-bind="value:filtrado.funcionario">
+                           <option value="">[Seleccione..]</option>
+                           {% for item in funcionarios %}
+                                <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }} </option>
+                              {% endfor %}                              
+                      </select><i class="arrow"></i>
+              </label>
+                  </div>
+                
+                    
+                  </div>              
+              </div>        
+            </div>
+            <div class="modal-footer">            
+        <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}"> Filtrar </button>            
+      </div>
+
+        </div>
+    </div>
+</div>
+<!-- <div id="modal_change" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      
+      <div data-bind="html: mensaje"></div>
+      <div class="table-responsive" style="padding-left: 20px;padding-right: 20px;">
+          <table class="table"data-bind="visible:(listado()!=null && listado().length > 0)">
+            <thead>
+              <tr>
+                <th>Vertices</th>
+                <th>Longitud</th>
+                <th>Latitud</th>           
+              </tr>
+            </thead>
+            <tbody data-bind="foreach:{data:listado, as:'item'}">
+              <tr>
+                <td>
+                  <input type="text" data-bind="value:item.orden" class="form-control" style="width: 45px">
+                </td>
+                <td data-bind="text: item.longitud"></td>
+                <td data-bind="text: item.latitud"></td>
+                
+              </tr>
+            </tbody>
+          </table>
+       
+        
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_cambios">Guardar cambios</button>
+        </div>
+      
+  </div>
+</div>
+</div> -->
+{% endblock contenido %}
+
+{% load static %}
+
+{% block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+
+  <script type="text/javascript" src='{% static "js/ViewModels/activos/ubicacion.js" %}?cache=2.1'></script>
+
+  <script type="text/javascript">
+
+    // $(document).ready(function () {
+      // if (georeferencias.listado()!=null && georeferencias.listado().length != 0){
+        // $.confirm({
+          // title:'Informativo',
+          // content: '<h4><i class="text-info fa fa-info-circle fa-2x"></i> El mapa no se puede editar<h4>',
+          // cancelButton: 'Cerrar',
+          // confirmButton: false
+        // });
+      // }
+      
+    // });  
+
+  </script>
+
+{% endblock imports %}   

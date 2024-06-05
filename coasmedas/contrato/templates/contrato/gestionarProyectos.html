@@ -1,0 +1,316 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}Gestionar Proyectos{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'contrato.contrato' %}">Contrato</a></li>
+  <li class="active">Gestionar Proyectos</li>
+{% endblock mapa %}
+<!-- % block encabezado %}Gestionar Proyectos{% endblock encabezado % -->
+
+{% block opciones_listado %}{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+<div class="alert alert-default light alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-cog pr10 hidden"></i>
+  <span>
+    <a href="{% url 'contrato.contrato' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"    aria-hidden="true"></i></a>
+  </span>  
+  <span data-bind="html:tituloPanel"></span>
+</div>
+
+<div class=" row">
+  <div class="col-md-6">
+    <form action="." method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="panel user-group-widget">
+        <div class="panel-heading">
+
+          <span class="panel-title">Buscar Proyecto</span>                  
+        </div>
+
+        <div class="panel-menu">
+
+          <label>Macrocontrato</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:macrocontrato_select" >
+                <option value="0">[Selecciones...]</option>
+                <!--ko if: validacion_mcontrato()==true-->
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre">1</option>
+                  <!--/ko-->
+                <!--/ko-->
+
+                 <!--ko if: validacion_mcontrato()==false-->
+                    {% for item in mcontratos %}
+                    <option value="{{ item.id }}">{{ item.nombre }}</option>
+                    {% endfor %}                   
+                  
+                <!--/ko-->
+
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <label>Departamento</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:departamento">
+                <option value="0">[Selecciones...]</option>
+                <!--ko foreach:{ data:departamento_select, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                <!--/ko-->
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <label>Municipio</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:municipio">
+                <option value="0">[Selecciones...]</option>
+                <!--ko foreach:{ data:listado_municipio, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                <!--/ko-->
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <button type="button" class="btn btn-primary" data-bind="click:list_proyecto">Consultar</button><br/><br/>
+          <div data-bind="html: mensaje"></div>
+
+          <div class="panel panel-sky" data-bind="visible:(lista_proyecto()!=null && lista_proyecto().length > 0)">
+            <!-- <div class="panel-heading"> -->
+              <!-- <span class="panel-title">
+                Listado Proyecto
+              </span>
+              <div class="pull-right">
+                <code class="mr20">data-page-navigation=".pagination"</code>
+                <button type="button" class="btn btn-primary btn-gradient btn-alt btn-block item-active" data-bind="click:guardar_proyecto">Guardar</button>
+              </div> -->
+            {% if 'contrato.change_contrato' in perms %}
+              <button class="btn btn-sm btn-primary btn-block" type="button" data-bind="click : guardar_proyecto">
+                <h4>Asignar Proyectos - <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i></h4>
+              </button>
+            {% endif %}
+
+            <!-- </div> -->
+            <div class="panel-body">
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary" >
+                            <input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </th>
+                      <th>Municipio</th>
+                      <th>Departamento</th>
+                      <th>Nombre</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!--ko foreach:{ data:lista_proyecto, as:'item'} -->
+                      <tr>
+                        <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary">
+                              <input name="mobileos" value="" type="checkbox" data-bind="checked: eliminado, value: item.id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div>
+                        </td>
+                        <td data-bind="text: item.municipio.nombre"></td>
+                        <td data-bind="text: item.municipio.departamento.nombre"></td>
+                        <td data-bind="text: item.nombre"></td>
+                      </tr>
+                    <!--/ko-->
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div><!-- /.panel panel-sky -->
+
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="col-md-6">
+    <form action="." method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="panel user-group-widget">
+        <div class="panel-heading">
+
+          <span class="panel-title">Buscar Proyecto</span>
+        </div>
+
+        <div class="panel-menu">
+
+          <label>Macrocontrato</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:macrocontrato_select2" >
+                <option value="0">[Selecciones...]</option>
+                <!--ko if: validacion_mcontrato()==true-->
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre">1</option>
+                  <!--/ko-->
+                <!--/ko-->
+
+                 <!--ko if: validacion_mcontrato()==false-->
+                    {% for item in mcontratos %}
+                    <option value="{{ item.id }}">{{ item.nombre }}</option>
+                    {% endfor %}                   
+                  
+                <!--/ko-->
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <label>Contratista</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:contratista2">
+                <option value="0">[Selecciones...]</option>
+                <!--ko foreach:{ data:listado_contratista2, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                <!--/ko-->
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <label>Departamento</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:departamento2">
+                <option value="0">[Selecciones...]</option>
+                <!--ko foreach:{ data:departamento_select2, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                <!--/ko-->
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <label>Municipio</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select class="form-control" data-bind="value:municipio2">
+                <option value="0">[Selecciones...]</option>
+                <!--ko foreach:{ data:listado_municipio2, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                <!--/ko-->
+              </select><i class="arrow"></i>
+            </label>
+          </div>
+
+          <button type="button" class="btn btn-primary" data-bind="click:function(){list_proyecto2(0);}">Consultar</button><br/><br/>
+          <div data-bind="html: mensaje2"></div>
+
+          <div class="panel panel-sky" data-bind="visible:(lista_proyecto2()!=null && lista_proyecto2().length > 0)">
+            <!-- <div class="panel-heading">
+              <span class="panel-title">
+                Listado Proyecto
+              </span>
+              <div class="pull-right">
+                <button type="button" class="btn btn-primary btn-gradient btn-alt btn-block item-active" data-bind="click:eliminar_proyecto">Eliminar</button>
+              </div>
+            </div> -->
+            {% if 'contrato.change_contrato' in perms %}
+              <button class="btn btn-sm btn-primary btn-block" type="button" data-bind="click : eliminar_proyecto">
+                <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i> - Quitar Proyectos</h4>
+              </button>
+            {% endif %}
+
+            <div class="panel-body">
+              <div class="table-responsive">
+              
+                <table class="table">
+                  <thead>
+                    <tr>  
+                      <th>
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary" >
+                            <input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall2">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </th>
+                      <th>Municipio</th>
+                      <th>Departamento</th>
+                      <th>Nombre</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!--ko foreach:{ data:lista_proyecto2, as:'item'} -->
+                      <tr>
+                        <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary">
+                              <input name="mobileos" value="" type="checkbox" data-bind="checked: eliminado, value: item.id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div>
+                        </td>
+                        <td data-bind="text: item.municipio.nombre"></td>
+                        <td data-bind="text: item.municipio.departamento.nombre"></td>
+                        <td data-bind="text: item.nombre"></td>
+                      </tr>
+                    <!--/ko-->
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div><!-- /.panel panel-sky -->
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div><!-- end section -->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<!-- <script src='{% static "js/plugins/moment/moment.min.js" %}'></script> -->
+<!-- <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> -->
+<!-- <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/gestionarProyectos.js" %}?cache=3'></script>
+
+<script type="text/javascript">
+
+  $(document).ready(function () {
+    //contratoVigencia.consultar({{id_contrato}});//iniciamos la primera funcion
+    contratoVigencia.contrato_id({{id_contrato}});
+    contratoVigencia.list_proyecto2(0);
+    contratoVigencia.contrato({{id_contrato}});
+
+    //contratoVigencia.tipos(agregarOpcionesObservable({{ tipos }}));
+    //ko.applyBindings(detalle_giro);
+  });
+</script>
+{% endblock imports %}

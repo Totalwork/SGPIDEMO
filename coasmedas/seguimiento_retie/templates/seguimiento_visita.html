@@ -1,0 +1,489 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <style type="text/css">
+
+    .subrayar_palabra{
+      text-decoration: line-through;
+      font-style: italic;
+    }
+
+</style>
+
+{% endblock imports_css %}
+
+{% block title %}Seguimiento Retie{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">Seguimiento Retie</a></li>  
+	<li><a href="{% url 'seguimiento_retie.consultar_visitas_retie' %}">Consultar Visitas</a></li>
+  <li class="active">Programar Visita</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}    
+{% block busqueda %}
+{% endblock busqueda %} 
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		   <div data-bind="html: mensaje"></div> 
+
+		    <div class="panel panel-sky">
+		    		    
+		    <div class="panel-heading">
+            Seguimiento de visita            
+        </div>
+
+          	 <div class="panel-body">
+          	 	
+              <div class="col-lg-6">
+                
+                <div class="form-group">
+                  <label>Macro Contrato:</label>
+                  <span>{{ retie.proyecto.mcontrato.nombre }}</span>
+                </div>
+
+                 <div class="form-group">
+                  <label>Proyecto:</label>
+                  <span>{{ retie.proyecto.nombre }}</span>
+                </div>
+
+                 <div class="form-group">
+                  <label>Fecha de programación:</label>
+                  <span>{{ retie.fecha_programada }}</span>
+                </div>
+
+                <div class="form-group">
+                  <label>Hora:</label>
+                  <span>{{ retie.hora }}</span>
+                </div>
+
+                <div class="form-group">
+                  <label>Estado:</label>
+                  <span>{{ retie.estado.nombre }}</span>
+                </div>
+
+                <div class="form-group">
+                  <label>*Fecha de ejecución</label>           
+                  <div class="input-group date">
+                  <input type="text" class="form-control" id="fecha_ejecucion" data-bind="datePicker:retieVO.fecha_ejecutada,value:retieVO.fecha_ejecutada,dateTimePickerOptions:{maxDate: new Date()}">
+                    <label for="fecha_ejecucion" class="input-group-addon cursor">
+                      <i class="fa fa-calendar"></i>
+                    </label>
+                  </div> 
+                </div>
+                
+                <div class="form-group">
+                <label>Comentario:</label>
+                 <textarea cols="55" rows="5" class="form-control" data-bind="value:retieVO.observacion"></textarea>                   
+                </div>
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Agregar asistentes</h3>
+                    </div>
+
+                    <div class="panel-body">
+                     <div class="form-group">
+                       <label>Persona</label>   
+                        <div class="input-group">
+                          <span class="form-control" data-bind="text:(asistenteVO.nombre_persona() + ' ' + asistenteVO.apellido_persona())" ></span>
+                          <span class="input-group-addon" title="Crear persona" data-bind="click:abrir_crear_persona" style="cursor: pointer;">
+                            <i class="fa fa-plus"></i>
+                          </span>
+                           <span class="input-group-addon" title="Buscar persona" data-bind="click:abrir_buscar_persona" style="cursor: pointer;">
+                            <i class="fa fa-search"></i>
+                          </span>
+                        </div>
+                        <input type="hidden" data-bind="value:asistenteVO.nombre_persona">
+                    </div>
+
+                      <div class="form-group">
+                        <label>Rol</label>
+                        <select id="ddlrol" class="form-control" data-bind="value:asistenteVO.rol_id">
+                          <option value="">[Seleccionar..]</option>
+                            {% for item in roles %}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>       
+                            {% endfor %}          
+                          </select>
+                      </div>
+
+                       <div class="row" id="resultado_asistentes"></div> 
+
+                        <button class="btn btn-primary" style="margin-bottom:10px;" data-bind="click:function(){agregar_persona()}">Agregar</button>
+
+                        
+                        <table class="table table-bordered table-hover table-striped tablesorter">
+                          <thead>
+                            <tr>
+                              <th>
+                                No asistio
+                              </th>
+                              <th>
+                                Nombre
+                              </th>
+                              <th>
+                                Rol
+                              </th>
+                              <th data-bind="visible:retieVO.estado_id()==46 || retieVO.estado_id()==47"></th>
+                            </tr>
+                          </thead>
+                          <tbody data-bind="foreach: {data:retieVO.asistentes, as:'item'}">
+                            <tr data-bind="visible:!item.eliminado(),css:{subrayar_palabra:item.no_asistio}">
+                              <td>
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input data-bind="checked:item.no_asistio" type="checkbox">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div>                               
+                              </td>                             
+                              <td data-bind="text: (item.persona.nombres() + ' ' + item.persona.apellidos())"></td>
+                               <td data-bind="text: item.rol.nombre"></td>
+                              <td style="text-align: center;" data-bind="visible:($parent.retieVO.estado_id()==46 || $parent.retieVO.estado_id()==47)">
+                                 <a href="#" style="cursor: pointer;" title="Eliminar" data-bind="click:function(obj){$parent.remover_asistente(obj);}" data-toggle="tooltip">
+                                  <i class="fa fa-trash fa-2x"></i>
+                                  </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>                     
+
+                    </div>
+                  </div>
+
+
+                 <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Agregar correos para notificar</h3>
+                    </div>
+
+                    <div class="panel-body">
+                     <div class="form-group">
+                       <label>Correo</label>  
+                       <input type="text" class="form-control" data-bind="value:notificar_correoVO.correo" list="browsers">
+                        <datalist id="browsers">
+                          {% for item in correos %}
+                            <option value="{{ item.correo }}">
+                          {% endfor %}
+                        </datalist>
+                    </div>
+
+                      <div class="form-group">
+                        <label>Nombre</label>
+                        <input type="text" class="form-control" data-bind="value:notificar_correoVO.nombre" list="browsers_nombres">
+                        <datalist id="browsers_nombres">
+                          {% for item in nombres %}
+                            <option value="{{ item.nombre }}">
+                          {% endfor %}
+                        </datalist>
+                      </div>
+
+                      <div class="row" id="resultado_notificar_correo"></div> 
+
+                        <button class="btn btn-primary" style="margin-bottom:10px;" data-bind="click:function(){agregar_notificar_correo()}">Agregar</button>
+
+                        
+                        <table class="table table-bordered table-hover table-striped tablesorter">
+                          <thead>
+                            <tr>
+                              <th>
+                                Correo
+                              </th>
+                              <th>
+                                Nombre
+                              </th>                             
+                              <th data-bind="visible:retieVO.estado_id()==46 || retieVO.estado_id()==47"></th>
+                            </tr>
+                          </thead>
+                          <tbody data-bind="foreach: {data:retieVO.notificar_correos, as:'item'}">
+                            <tr>
+                              
+                              <td data-bind="text: item.correo"></td>
+                              <td data-bind="text: item.nombre"></td>
+                              <td style="text-align: center;" data-bind="visible:($parent.retieVO.estado_id()==46 || $parent.retieVO.estado_id()==47)">
+                                 <a href="#" style="cursor: pointer;" title="Eliminar" data-bind="click:function(obj){$parent.remover_notificar_correo(obj);}" data-toggle="tooltip">
+                                  <i class="fa fa-trash fa-2x"></i>
+                                  </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>                     
+
+                    </div>
+                  </div>
+             
+
+              </div>
+
+              <div class="col-lg-6">
+                
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">No conformidades</h3>
+                    </div>
+
+                    <div class="panel-body">
+                     <div class="form-group">
+                       <label>No conformidad</label>   
+                       <input class="form-control" type="text" data-bind="value:no_conformidadesVO.descripcion">
+                    </div>
+
+                       <div class="row" id="resultado_no_conformidad"></div> 
+
+                        <button class="btn btn-primary" style="margin-bottom:10px;" data-bind="click:agregar_no_conformidades">Agregar</button>
+
+                        <table class="table table-bordered table-hover table-striped tablesorter">
+                          <thead>
+                            <tr>
+                              <th>
+                                Corregida
+                              </th>
+                              <th>
+                                Nombre
+                              </th>                              
+                              <th>
+                                
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody data-bind="foreach: {data:retieVO.no_conformidades, as:'item'}">
+                            <tr data-bind="css:{subrayar_palabra:item.corregida}">
+                              <td>
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                 <input type="checkbox" data-bind="checked:item.corregida">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div>  
+                              </td>
+                              <td data-bind="text:item.descripcion"></td>
+                              <td>
+                                <a href="#" data-bind="click: $parent.remover_no_conformidades">
+                                  <i class="fa fa-trash fa-2x"></i>
+                                </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>                     
+
+                    </div>
+                  </div>
+
+
+
+                  <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Soportes</h3>
+                    </div>
+
+                    <div class="panel-body">
+                     <div class="form-group">                       
+                        <input type="file" id="soporte" data-bind="fileData:{value:soportesVO.soporte,allowedFileExtensions: ['pdf'],elErrorContainer: '#errorBlock', removeLabel:''}">
+                        <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado pdf.<br></small>
+                        <div id="errorBlock" class="help-block alert alert-block alert-danger file-error-message" style="display: none;"></div>
+                        <input type="hidden" data-bind="value:soportesVO.soporte">
+                    </div>
+
+                      <div class="form-group">
+                        <label>Nombre del soporte</label>
+                        <input type="text" class="form-control" data-bind="value:soportesVO.nombre">
+                      </div>
+
+                       <div class="row" id="resultado_soporte"></div> 
+
+                        <button class="btn btn-primary" style="margin-bottom:10px;" data-bind="click:agregar_soportes">Agregar</button>
+                       
+
+                        <table class="table table-bordered table-hover table-striped tablesorter">
+                          <thead>
+                            <tr>
+                             
+                              <th>
+                                Soporte
+                              </th>
+                              <th>
+                                Nombre
+                              </th>
+                              <th></th>
+                            </tr>
+                          </thead>
+                          <tbody data-bind="foreach: {data:retieVO.soportes, as:'item'}">
+                            <tr data-bind="visible:!item.eliminado()">
+                              <td>
+                                <a href="#" target="_blank" data-bind="visible:item.id()>0,attr:{href: '/retie/ver-soporte/?id=' + item.id()}">
+                                  <i class="fa fa-paperclip fa-2x"></i>
+                                </a>
+                              </td>
+                              <td data-bind="text:item.nombre"></td>
+                              <td>
+                                <a href="#" data-bind="click: $parent.remover_soportes">
+                                  <i class="fa fa-trash fa-2x"></i>
+                                </a>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>                     
+
+                    </div>
+                  </div>
+
+              </div>
+
+             <div class="col-lg-12">
+              {% if retie.estado.id != 50 %}
+               <input type="button" class="btn btn-primary" data-bind="click:guardar" value="Guardar Cambios">
+              {% endif %}
+               <a class="btn btn-primary" href="{% url 'seguimiento_retie.consultar_visitas_retie' %}">Consultar visitas</a>
+
+            </div>
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+<input type="hidden" id="retie_id" value="{{ retie.id }}">
+  <!--Modal-->
+
+<div id="modal_buscar_persona" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Buscar Persona</h4>
+      </div>
+       <div class="modal-body">
+        
+            <div class="form-group">
+                        
+            <div class="input-group">
+              <input id="txt_buscar_persona" type="text" class="form-control" placeholder="Buscar Persona" data-bind="value:filtro_persona, event:{keypress:consulta_enter_persona}">
+                <span class="input-group-addon" title="Buscar persona" data-bind="click:consultar_persona">
+                <i class="fa fa-search"></i>
+              </span>
+            </div>                      
+                
+                <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Personas</span>
+                  </div>
+                  <div class="panel-body panel-scroller scroller-xs scroller-pn pn">
+                    <table class="table mbn tc-med-1 tc-bold-last">
+                      <thead>
+                        <tr>   
+                          <th></th>                      
+                          <th>Cédula</th>
+                          <th>Nombre</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_persona, as:'item'}">
+                        <tr data-bind="attr:{for:'radio_persona-'+$index()}">
+                          <td>
+                            <label style="width: 100%;">
+                            <input data-bind="attr:{id:'radio_persona-'+$index(), value:item.id},checked:$parent.asistenteVO.persona_id" type="radio" name="radio_persona"> 
+                            </label>
+                          </td>
+                         <td style="text-align: left;">
+                            <label style="width: 100%;" data-bind="attr:{for:'radio_persona-'+$index()},text:item.cedula"></label>
+                          </td>
+                            <td style="text-align: left;">
+                            <label style="width: 100%;" data-bind="attr:{for:'radio_persona-'+$index()},text:(item.nombres + ' ' + item.apellidos)"></label>
+                          </td>                         
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+
+          </div>
+
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:seleccionar_persona">Listo</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<div id="modal_crear_persona" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Crear Persona</h4>
+      </div>
+       <div class="modal-body">
+        
+             {% csrf_token %}
+             <div class="form-group">
+               <label>Cedula(*)</label>
+               <input type="text" class="form-control" data-bind="value:personaVO.cedula">           
+             </div>
+             <div class="form-group">          
+               <label>Nombres(*)</label>
+               <input type="text" class="form-control" data-bind="value:personaVO.nombres">
+             </div>
+
+             <div class="form-group">          
+               <label>Apellidos(*)</label>
+               <input type="text" class="form-control" data-bind="value:personaVO.apellidos">
+             </div>
+
+              <div class="form-group">          
+               <label>Dirección</label>
+               <input type="text" class="form-control" data-bind="value:personaVO.direccion">
+             </div>
+
+              <div class="form-group">          
+               <label>Correo(*)</label>
+               <input type="text" class="form-control" data-bind="value:personaVO.correo">
+             </div>
+            
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_persona">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>     	
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>  
+  	<script type="text/javascript" src='{% static "js/ViewModels/seguimiento_retie/Retie.js" %}'></script>   
+    <script type="text/javascript">
+      $(document).ready(function() {         
+         retie.consultar_por_id({{ retie.id }});   
+         retie.es_ejecucion(true);         
+      });
+    </script>
+{% endblock imports %}

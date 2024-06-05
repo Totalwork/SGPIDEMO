@@ -1,0 +1,287 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Admin. Catalogo{% endblock title%}
+{% block encabezado %}
+  <a href="{% url 'usuario.index' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al inicio">
+    <i class="fa fa-arrow-left"></i>
+  </a>
+  Administrador de Catalogos
+{% endblock encabezado %}
+
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Admin. Catalogo</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}
+{% if app in perms %}
+  {% if 'avance_de_obra_grafico2.add_catalogounidadconstructiva' in perms%}        
+    <li>
+      <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+         <i class="fa fa-plus" style="font-size: 20px;"></i>
+      </a>
+    </li>
+  {% endif %}
+{% endif %}
+<li>
+  <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+      <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+  </a>
+</li>
+
+{% endblock opciones_listado %}      
+
+{% block contenido %}
+<div class="row" >
+  <div class="col-lg-12">    
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <span class="panel-title">
+          Listado de catalogos - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+        </span>
+      </div>
+      <div class="panel-body">
+          <div data-bind="html: mensaje"></div>
+          <div data-bind="visible:(listado()!=null && listado().length > 0)">
+              <div class="table-responsive">
+                <i class="text-success fa fa-bell" style="font-size:16px"></i>
+                &nbsp;:&nbsp;[Acativo];
+                &nbsp;&nbsp;&nbsp;&nbsp;
+      
+                <i class="text-warning fa fa-bell" style="font-size:16px"></i>
+                &nbsp;:&nbsp;[Inactivo];
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                 
+                <table class="table">
+                  <thead>
+                    <tr>   
+                      <th width="3%"></th>
+                      <th width="20%">Contrato</th>
+                      <th width="30%">Nombre</th>
+                      <th width="17%">Año</th>
+                      <th width="5%">Opciones</th>
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>                      
+                      <td>
+                        <!-- ko if: item.activo == true -->
+                          <i class="text-success fa fa-bell" style="font-size:16px"></i>
+                        <!-- /ko -->
+                        <!-- ko if: item.activo == false -->                        
+                          <i class="text-warning fa fa-bell" style="font-size:16px"></i>
+                        <!-- /ko -->                      
+                      </td>   
+                      <!-- ko if: item.mcontrato-->                   
+                      <td data-bind="text:item.mcontrato.nombre, visible:item.mcontrato"></td>                                            
+                      <!-- /ko -->            
+                      <!-- ko ifnot: item.mcontrato-->                   
+                      <td data-bind="ifnot:item.mcontrato">No registra</td>                                            
+                      <!-- /ko --> 
+                      <td data-bind="text: item.nombre"></td>
+                      <td data-bind="text: item.ano"></td>                                            
+                      <td>
+                          <div class="btn-group text-right">
+                              <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                <i  class="fa fa-ellipsis-h fa-2x" ></i>
+                              </a>
+                              <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                {% if 'avance_de_obra_grafico2.change_catalogounidadconstructiva' in perms%}
+                                <li>
+                                  <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                                </li>
+                                {% endif %}
+                                <li>
+                                  <a href="#" data-bind="click:$root.consultar_uucc">UUCC</a>
+                               </li>                               
+                                <li>
+                                  <a href="#" data-bind="click:$root.consultar_materiales">Materiales</a>
+                               </li>                               
+                                <li>
+                                  <a href="#" data-bind="click:$root.consultar_manoObra">Mano de Obra</a>
+                               </li>
+                               {% if 'avance_de_obra_grafico2.change_catalogounidadconstructiva' in perms%}                                                         
+                                <li>
+                                  <!-- ko if: item.activo == true -->
+                                    <a href="#" data-bind="click:$root.inactivar1">Desactivar</a>
+                                  <!-- /ko -->
+                                  <!-- ko if: item.activo == false -->                        
+                                    <a href="#" data-bind="click:$root.activar1">Activar</a>
+                                  <!-- /ko -->                                                                     
+                               </li>                                                        
+                               {% endif %}  
+                               {% if 'avance_de_obra_grafico2.add_catalogounidadconstructiva' in perms%} 
+                              <li>
+                                <a href="#" data-bind="click:$root.abrir_carga_masiva">Carga Masiva</a>
+                              </li>                                                                                                                                                           
+                              {% endif %}
+                              </ul>
+                          </div>
+                      </td>       
+                    </tr>
+                  </tbody>
+                </table>
+              </div>              
+              <div id="paginacion" >
+                <div data-bind="pagination: {
+                               currentPage: paginacion.pagina_actual,
+                               totalCount: paginacion.total,
+                               pageSize:paginacion.cantidad_por_paginas,
+                               maxPages: paginacion.maxPaginas,
+                               directions: paginacion.direcciones,
+                               boundary: paginacion.limite,
+                               text: paginacion.text }">
+
+                </div>
+              </div>           
+          </div>          
+      </div>
+    </div>	
+  </div>
+</div>
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Contrato</label>
+            <select class="form-control" id="mcontrato_id" name="mcontrato_id" data-bind="value:catalogo.mcontrato_id">
+              <option value="">[Seleccione...]</option>
+              {% for item in macrocontrato %}
+              <option value="{{ item.contrato.id }}">{{ item.contrato.nombre }}</option>
+              {% endfor %} 
+            </select>            
+        </div>
+        <div class="form-group">
+            <label>Nombre</label>
+            <input  type="text" class="form-control" data-bind="text:catalogo.nombre, value:catalogo.nombre">
+        </div>
+        <div class="form-group">
+          <label>Año</label>
+          <input  type="text" class="form-control" data-bind="onlyNumber:catalogo.ano, value:catalogo.ano" maxlength="4"> 
+        </div>        
+        <input type="hidden" id="id_catalogo" value="{{id_catalogo}}" class="form-control" >
+         <!--ko if: habilitar_campos()==true -->    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+        <!--/ko-->       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="modal_estado1" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+             <div class="form-group">
+                <label><h4>¿Esta seguro que desea actualizar el estado del catalogo?<h4></label>    
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+              <button type="button" class="btn btn-primary" data-bind="click:$root.inactivar2">Si</button>
+            </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="modal_estado2" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+             <div class="form-group">
+                <label><h4>¿Esta seguro que desea actualizar el estado del catalogo?<h4></label>    
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+              <button type="button" class="btn btn-primary" data-bind="click:$root.activar2">Si</button>
+            </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="modal_carga_masiva" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+        
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+      </div>
+      <div class="modal-body">
+
+        <div class="form-group">                 
+          <b>Catalogo: </b><p data-bind="text:catalogo2.descripcion"><p>
+          <input type="hidden" id="id_catalogo_masivo" data-bind="value:catalogo2.id" class="form-control" >
+        </div>
+
+        <div class="form-group">                 
+          <a style="cursor:pointer;" href="{% url 'avance_de_obra_grafico2.descargar_plantilla_masiva' %}" target="_blank">
+            <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+            <label style="cursor:pointer;">Plantilla para cargar masiva (xls)</label>
+          </a>
+        </div>
+
+        <div class="form-group">          
+          <label>Documento</label>          
+          <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+          <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados xls y xlsx.<br></small>      
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:carga_excel">
+          <i class="fa fa-floppy-o"></i> Cargar
+        </button> 
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/catalogos.js" %}?v=1'></script>
+{% endblock imports %}

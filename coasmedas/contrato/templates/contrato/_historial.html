@@ -1,0 +1,40 @@
+<div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+	<div class="panel-heading">
+		<h4>Listado Vigencias </h4>
+	</div>
+	<div class="panel-body">
+		<div class="table-responsive" data-bind="dropdown">
+			<table class="table">
+				<thead>
+					<tr>  
+						<th>OtroSi</th>
+						<th>Fecha Inicio</th>
+						<th>Fecha Fin</th>
+						<th>Valor</th>
+						<th>Soporte</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--ko foreach:{ data:listado, as:'item'} -->
+						<tr>
+							<td data-bind="text: item.nombre"></td>
+							<td data-bind="text: item.fecha_inicio"></td>
+							<td data-bind="text: item.fecha_fin"></td>
+							<td data-bind="text: formatMoney(item.valor)"></td>
+							<td >
+								<!-- <a data-toggle="tooltip" id="" href="" target="_blank" title="Ver soporte"><i class="fa fa-paperclip fa-2x"></i></a> -->
+								<!--ko if: item.soporte!='' && item.soporte!=null-->
+                  <a href="#" data-bind="click: $root.ver_soporte" target="_blank" style="cursor:pointer;">
+                    <i class="fa fa-file kv-caption-icon fa-2x"></i>
+                  </a>
+                <!--/ko-->
+							</td>
+						</tr>
+					<!--/ko-->
+						
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+</div><!-- /.panel panel-sky -->

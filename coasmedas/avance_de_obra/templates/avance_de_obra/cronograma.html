@@ -1,0 +1,373 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+ {% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}  
+            {% if soloLectura == False %}      
+            <li>
+              <a href="#" data-bind="click:abrir_modal" data-placement="right" data-toggle="tooltip" data-original-title="Crear nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+            {% endif %}
+          {% endif %}
+        {% endif %}
+        {% if soloLectura == False %}     
+        <li>
+            <a href="#" data-bind="click:eliminar" data-placement="right" data-toggle="tooltip" data-original-title="Eliminar registro(s)">
+                <i class="fa fa-trash" style="font-size: 20px;"></i>
+            </a>
+        </li>
+        {% endif %}
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right" data-toggle="tooltip" data-original-title="Exportar a excel">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+
+{% endblock opciones_listado %}  
+
+
+{% block title %}Cronograma{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra.avance_de_obra' %}">Avance de Obra</a></li>
+  <li class="active">Cronograma</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading cursor">
+                      <span class="panel-title"> Listado de Cronograma <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+          </div>
+          <div class="panel-body">
+            <p><span><strong>Proyecto:</strong></span>
+            {{nombre_proyecto}}</p>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>            
+              <th>                
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> 
+              </th>    
+              <th>Cronograma</th>
+              <th>Fecha Inicio</th>
+              <th>Estado</th>
+              <th>Porcentaje de Avance</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td>                                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </td> 
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.fecha_inicio_cronograma"></td>
+              <!--ko if: item.estado==null --> 
+              <td></td>
+              <!--/ko-->
+              <!--ko if: item.estado!=null --> 
+              <td data-bind="text: item.estado.estado"></td>
+              <!--/ko-->
+              <td data-bind="text: item.porcentaje_avance + '%' "></td>
+               <td>
+                 <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                        {% if 'avance_de_obra.change_bcronograma' in perms %}
+                        {% if soloLectura == False %}  
+                           <li>
+                              <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                           </li>
+                       {% endif %}
+                       {% endif %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+                        </li>
+                         {% if 'avance_de_obra.can_see_dactividad' in perms %}
+                        <li>
+                          <a href="#" data-bind="click:$parent.actividad">Capitulos</a>
+                        </li>
+                        {% endif %}
+                        {% if 'avance_de_obra.can_see_meta' in perms %}
+                        <li>
+                          <a href="#" data-bind="click:$parent.metas">Cantidad a Ejecutar</a>
+                        </li>
+                        {% endif %}
+                        {% if 'avance_de_obra.can_see_linea' in perms %}
+                        {% if soloLectura == False %}  
+                        <li>
+                          <a href="#" target="_blank" data-bind="click:$parent.linea_base">Linea Base</a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                        {% if 'avance_de_obra.can_see_linea' in perms %}
+                        {% if soloLectura == False %}  
+                        <li>
+                          <a href="#" target="_blank" data-bind="click:$parent.linea_programada">Linea Programada</a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                        {% if 'avance_de_obra.can_see_linea' in perms %}
+                        {% if soloLectura == False %}  
+                        <li>
+                          <a href="#" target="_blank" data-bind="click:$parent.linea_avance">Linea de Avance</a>
+                        </li>
+                        {% endif %}
+                        {% endif %}
+                    </ul>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+          <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+        
+       
+          
+         
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Nombre(*)</label>
+            <input type="text" data-bind="value:cronogramaVO.nombre,enable:habilitar_campos" class="form-control" >           
+        </div>
+
+        <!--ko if: habilitar_campos()==false -->  
+         <div class="form-group">
+            <label>Estado</label>
+            <input type="text" data-bind="value:cronogramaVO.estado_id,enable:habilitar_campos" class="form-control" >           
+        </div>
+        <!-- /ko --> 
+
+         <!--ko if: validacion_intervalo()==0 -->  
+         <div class="form-group">
+            <label>Intervalo(*)</label>
+            <input type="text" data-bind="value:cronogramaVO.intervalos,onlyNumber:cronogramaVO.intervalos,enable:habilitar_campos" class="form-control" >
+        </div>
+         <!-- /ko -->  
+
+         <div class="form-group">
+              <label>Fecha de Inicio(*)</label>
+              <div class="input-group date" id='datetimepicker2'>
+               <input  type="text" class="form-control" data-bind="datePicker:cronogramaVO.fecha_inicio_cronograma,value:cronogramaVO.fecha_inicio_cronograma,enable:habilitar_campos" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+          </div>
+
+           <div class="form-group">
+              <label>Periodicidad(*)</label>
+             <div class="input-group">
+                     <select class="form-control" data-bind="value:cronogramaVO.periodicidad_id,enable:habilitar_campos">
+                      <option value="0">[Seleccione..]</option>
+                      <!-- ko foreach: listado_periodicidad -->
+                        <option data-bind="value:id,text:nombre"></option>
+                      <!-- /ko -->  
+                    </select>  
+                      <!--ko if: habilitar_campos()==true -->  
+                     <label for="fecha_nacimiento" class="input-group-addon cursor" data-bind="click:agregar_periodicidad,">Nuevo
+                     </label>
+                     <!--/ko-->       
+             </div>
+             </div>
+
+          <div class="form-group">
+            <label>Esquema(*)</label>
+            <select class="form-control" data-bind="value:cronogramaVO.esquema_id,enable:habilitar_campos">
+                      <option value="0">[Seleccione..]</option>
+                       {% for item2 in esquema %}
+                        <option value="{{ item2.id }}">{{ item2.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+         </div>
+
+
+            <input type="hidden" id="id_proyecto" value="{{id_proyecto}}" class="form-control" >
+         <!--ko if: habilitar_campos()==true -->    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+        <!--/ko-->       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<!--Modal-->
+
+<div id="modal_agregar" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Registro Periodicidad</h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Nombre(*)</label>
+            <input type="text" data-bind="value:periodicidadVO.nombre" class="form-control" >           
+        </div>
+
+         <div class="form-group">
+            <label>Numero de dias(*)</label>
+            <input type="text" data-bind="value:periodicidadVO.numero_dias,onlyNumber:periodicidadVO.numero_dias" class="form-control" >
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_periodicidad">Guardar</button>
+        </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_informe" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Generar Informe</h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Esquema</label>
+            <select class="form-control" data-bind="value:busqueda.id_esquema">
+                      <option value="0">[Seleccione..]</option>
+                       {% for item in esquema %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+        <div class="form-group">
+            <label>Tipo</label>
+            <select class="form-control" data-bind="value:busqueda.id_opcion">
+                      <option value="0">[Seleccione..]</option>
+                      <option value="1">Cantidades ejecutadas por capitulo</option>
+                      <option value="2">Resumen de Avance</option>
+             </select>          
+        </div>
+
+         <div data-bind="visible:habilitar_fecha">
+        <div class="form-group">
+              <label>Desde</label>
+              <div class="input-group date" id='datetimepicker6'>
+               <input  type="text" class="form-control" data-bind="datePicker:busqueda.desde,value:busqueda.desde" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+          </div>
+
+          <div class="form-group">
+              <label>Hasta</label>
+              <div class="input-group date" id='datetimepicker7'>
+               <input  type="text" class="form-control" data-bind="datePicker:busqueda.hasta,value:busqueda.hasta" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+          </div>
+        </div>
+         
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:descargar_excel">Generar</button>
+        </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avance_de_obra/cronograma.js" %}'></script>
+
+
+{% endblock imports %}

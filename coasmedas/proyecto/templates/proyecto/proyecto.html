@@ -1,0 +1,1036 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Proyecto{% endblock title%}
+
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+	<li class="active">Proyecto</li>
+  <li class="active">administrar</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}   
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>   
+
+<div class="row" >
+  <div class="col-lg-12">    
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <span class="panel-title">
+          <a href="{% url 'usuario.index' %}" data-placement="right"    
+            data-toggle="tooltip" data-original-title="Regresar al inicio">
+            <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+          </a>
+          Listado de proyectos - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+        </span>
+        <div class="pull-right">
+          <span class="panel-controls">
+            <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros"  title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda" >
+              <i id='iconoFiltro' class="fa fa-filter fa-2x"></i>
+            </a>
+          </span>
+        </div>
+      </div>
+      <div class="panel-body">
+          <div data-bind="html: mensaje"></div>   
+
+          <div data-bind="visible:(listado()!=null && listado().length > 0)">
+              <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>
+                  <div class="option-group field admin-form">
+                    <label class="option option-primary"  style="">
+                      <input type="checkbox" data-bind="checked:checkall">
+                      <span class="checkbox"></span>
+                    </label>
+                  </div>
+              </th>    
+              <th width="30%">Macro Contrato</th>
+              <th width="17%">Departamento</th>
+              <th width="18%">Municipio</th>
+              <th width="30%">Proyecto - Servicio</th>
+              <th width="5%">Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td> 
+                  <div class="option-group field admin-form">
+                    <label class="option option-primary"  style="">
+                      <input type="checkbox" data-bind="checked:eliminado,value:id">
+                      <span class="checkbox"></span>
+                    </label>
+                  </div>  
+              </td>
+              <td data-bind="text: item.proyecto.mcontrato.nombre"></td>
+              <td data-bind="text: item.proyecto.municipio.departamento.nombre"></td>
+              <td data-bind="text: item.proyecto.municipio.nombre"></td>
+              <td data-bind="cutWord:{num:65,text:item.proyecto.nombre, verMax:'...', verMin:'...'}"></td>
+              <td>
+                  <div class="btn-group text-right">
+                      <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                        <i  class="fa fa-ellipsis-h fa-2x" ></i>
+                      </a>
+                      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                        
+
+                        {% if 'proyecto.can_see_Proyecto' in perms %}
+
+                        <li>
+                          <a href="#" data-bind="click: function(){ $root.ver_detalles_proyecto(item.proyecto.id , 1) }">Ver Detalle</a>
+                        </li>
+                        {% endif %}
+                        {% if 'proyecto.change_proyecto' in perms %}
+                              <li data-bind="if: !item.soloLectura">
+                                <a href="#" data-bind="click: function(){ $root.modificar_proyecto(item.proyecto.id , 2) }">Editar</a>
+                              </li>
+                        {% endif %}
+                        {% if 'proyecto.can_see_Proyecto' in perms %}
+                        <li>
+                          <a href="#" data-bind="click: function(){ $root.consultar_contratistas_opcion(item.proyecto.id); }">Contratistas</a>
+                        </li>
+                        {% endif %}
+                        {% if 'proyecto.can_see_ProyectoEmpresa' in perms %}
+                        <li data-bind="if: !item.soloLectura">
+                          <a href="#" data-bind="click: function(){ $root.consultar_empresas_opcion(item.proyecto.id); }">Empresas</a>
+                        </li>
+                        {% endif %}
+                        {% if 'proyecto.can_see_Proyecto' in perms %}
+                        <li data-bind="if: !item.soloLectura">
+                          <a href="#" data-bind="click: $root.consultar_responsables_proyecto_opcion ">Responsables</a>
+                        </li>
+                        {% endif %}
+                        {% if 'proyecto.can_see_Proyecto' in perms %}
+                        <li data-bind="if: !item.soloLectura">
+                          <a href="#" data-bind="click: function(){ $root.consultar_contratos_opcion(item.proyecto.id); }">Contratos</a>
+                        </li>
+                        {% endif %}
+                        {% if 'proyecto.can_see_ProyectoInfoTecnica' in perms%}
+                        <li data-bind="if: !item.soloLectura">
+                          <a href="#" data-bind="click:$root.consultar_campos_info_tecnica_opcion">Datos Tecnicos</a>
+                        </li>
+                        {% endif %}
+
+                        {% if 'proyecto.Can_add_proyecto_actividad' in perms %}
+                        <li>
+                          <a href="#" data-bind="attr:{href:'../proyecto_actividades/' + item.proyecto.id }">Actividades</a>
+                        </li>
+                        {% endif %}
+
+                         {% if 'bitacora.can_see_bitacora' in perms %}
+                        <li>
+                          <a href="#" data-bind="attr:{href:'../../bitacora/bitacora/' + item.proyecto.id }">Bitacora</a>
+                        </li>
+                        {% endif %}
+                      </ul>
+                  </div>
+              </td>       
+            </tr>
+          </tbody>
+        </table>
+        </div>              
+                  <div id="paginacion" >
+                    <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                    </div>
+                  </div>          
+  
+
+          </div>
+          
+      </div>
+    </div>	
+  </div>
+</div>
+
+<!--Modal Proyecto-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body bg-light">
+          
+            <form action="." method="post" enctype="multipart/form-data" id="form-wizard">
+            {% csrf_token %}       
+                      
+                      <div class="form-group col-lg-4">
+                        <label>(*) Estado del proyecto - servicio</label>
+                        <select class="form-control" data-bind="options: listado_estados_proyecto,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el estado del proyecto - servicio...',
+                                           value: proyectoVO.estado_proyecto_id">
+                        </select>                           
+                      </div>
+                      
+                      <div class="form-group col-lg-4">
+                      <label>(*) Tipo de proyecto</label>
+                        <select class="form-control" data-bind="options: listado_tipos_proyecto,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el tipo de proyecto...',
+                                           value: proyectoVO.tipo_proyecto_id ">
+                        </select>               
+                      </div>                     
+
+                      <div class="form-group col-lg-4">
+                        <label>Macro contrato</label>
+                        <select class="form-control form-group" data-bind="value:proyectoVO.mcontrato_id">
+                            <option value="">Seleccione el contrato...</option>        
+                            <!--ko foreach: { data:listado_macro_contrato , as:'item'}--> 
+                              <!--ko if: !item.soloLectura -->       
+                              <option data-bind="value:id, text:nombre"></option>
+                              <!-- /ko -->
+                            <!-- /ko -->
+                        </select>             
+                      </div>
+
+                      <div class="form-group col-lg-4">          
+                        <label>(*) Departamento</label>
+
+                        <select class="form-control form-group" data-bind="value: proyectoVO.departamento_id"  >
+                            <option value="">Seleccione el departamento de ubicación...</option>        
+                            <!--ko foreach: { data:listado_departamentos , as:'item'}-->        
+                              <option data-bind="value:id, text:nombre"></option>
+                            <!-- /ko -->
+                        </select>     
+
+                      </div>
+
+                      <div class="form-group col-lg-4">          
+                        <label>(*) Municipio</label>
+
+                        <select class="form-control form-group" data-bind="value: proyectoVO.municipio_id"  >
+                            <option value="">Seleccione el municipio de ubicación ...</option>        
+                            <!--ko foreach: { data:listado_municipios , as:'item'}-->        
+                              <option data-bind="value:id, text:nombre"></option>
+                            <!-- /ko -->
+                        </select>    
+                      </div>                      
+
+                      <div class="form-group col-lg-4 ">
+                        <label>(*) Valor adjudicado</label>
+                        <input type="text" class="form-control" data-bind='onlyNumber: proyectoVO.valor_adjudicado , value:proyectoVO.valor_adjudicado.formatted'>           
+                      </div>
+
+                      <div class="form-group col-lg-12 ">
+                        <label>(*) Nombre</label>
+                        <textarea type="text" class="form-control" data-bind='value:proyectoVO.nombre'></textarea>           
+                      </div>                    
+
+                      <div class="form-group col-lg-4 ">
+                        <label>Entidad bancaria</label>
+                        <select class="form-control form-group" data-bind="value: proyectoVO.entidad_bancaria_id" >
+                          <option value="">Seleccione la entidad bancaria ...</option>  
+                          <!--ko foreach: { data:listado_bancos , as:'item'}-->        
+                            <option data-bind="value:id, text:nombre"></option>
+                          <!-- /ko -->
+                        </select>                    
+                      </div>
+
+                      <div class="form-group col-lg-4 ">
+                        <label>Tipo de cuenta</label>
+                        <select class="form-control form-group" data-bind="value: proyectoVO.tipo_cuenta_id" >
+                          <option value="">Seleccione tipo cuenta bancaria ...</option>  
+                          <!--ko foreach: { data:listado_tipos_cuenta , as:'item'}-->        
+                            <option data-bind="value:id, text:nombre"></option>
+                          <!-- /ko -->
+                        </select>             
+                      </div>
+
+                      <div class="form-group col-lg-4 ">
+                        <label>Numero de cuenta</label>
+                        <input type="text" class="form-control" data-bind='onlyNumber: proyectoVO.No_cuenta ,value:proyectoVO.No_cuenta'>           
+                      </div>
+
+
+                      <div class="form-group col-lg-12" >
+                        <div class="form-group col-lg-4 ">            
+                          <label>Fecha de inicio del proyecto - servicio</label>                        
+                            <input type="text" class="form-control"  data-bind='datePicker:proyectoVO.fecha_inicio,value:proyectoVO.fecha_inicio'>  
+                        </div>
+
+                        <div class="form-group col-lg-4 ">
+                          <label>Fecha fin del proyecto - servicio</label>
+                          <input type="text" class="form-control"  data-bind='datePicker:proyectoVO.fecha_fin,value:proyectoVO.fecha_fin'>                 
+                        </div>
+                      </div>              
+            </form>
+            <!-- End Account2 Form -->                    
+         
+       </div>     
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+<!--Modal Proyecto-->
+
+<div id="modal_acciones_detalle" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body bg-light">
+          
+            <form action="." method="post" enctype="multipart/form-data" id="form-wizard">
+            {% csrf_token %}       
+                      
+                      <div class="form-group col-lg-4">
+                        <label>(*) Estado del proyecto - servicio</label>
+                        <select class="form-control" data-bind="options: listado_estados_proyecto,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el estado del proyecto - servicio...',
+                                           value: proyectoVO.estado_proyecto_id" disabled>
+                        </select>                           
+                      </div>
+                      
+                      <div class="form-group col-lg-4">
+                      <label>(*) Tipo de proyecto</label>
+                        <select class="form-control" data-bind="options: listado_tipos_proyecto,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el tipo de proyecto...',
+                                           value: proyectoVO.tipo_proyecto_id " disabled>
+                        </select>               
+                      </div>                     
+
+                      <div class="form-group col-lg-4">
+                        <label>(*) Macro contrato</label>
+                        <select class="form-control" data-bind="options: listado_macro_contrato,
+                                           optionsText: 'nombre', 
+                                           optionsValue: 'id', 
+                                           optionsCaption: 'Seleccione el contrato...',
+                                           value: proyectoVO.mcontrato_id  " disabled>
+                        </select>             
+                      </div>
+
+                      <div class="form-group col-lg-4">          
+                        <label>(*) Departamento</label>
+                        <select class="form-control form-group" data-bind="value: proyectoVO.departamento_id"  disabled >
+                            <option value="">Seleccione el departamento de ubicación...</option>        
+                            <!--ko foreach: { data:listado_departamentos , as:'item'}-->        
+                              <option data-bind="value:id, text:nombre"></option>
+                            <!-- /ko -->
+                        </select>     
+                      </div>
+
+                      <div class="form-group col-lg-4">          
+                        <label>(*) Municipio</label>
+                        <select class="form-control form-group" data-bind="value: proyectoVO.municipio_id"  disabled >
+                            <option value="">Seleccione el municipio de ubicación ...</option>        
+                            <!--ko foreach: { data:listado_municipios , as:'item'}-->        
+                              <option data-bind="value:id, text:nombre"></option>
+                            <!-- /ko -->
+                        </select>    
+                      </div>                      
+
+                      <div class="form-group col-lg-4 ">
+                        <label>(*) Valor adjudicado</label>
+                        <input type="text" class="form-control" data-bind='onlyNumber: proyectoVO.valor_adjudicado , value: formatMoney(proyectoVO.valor_adjudicado())' disabled>           
+                      </div>
+
+                      <div class="form-group col-lg-12 ">
+                        <label>(*) Nombre</label>
+                        <textarea type="text" class="form-control" data-bind='value:proyectoVO.nombre' disabled></textarea>           
+                      </div>                    
+
+                      <div class="form-group col-lg-4 ">
+                        <label>Entidad bancaria</label>
+                        <select class="form-control form-group" data-bind="value: proyectoVO.entidad_bancaria_id" disabled >
+                          <option value="">Seleccione la entidad bancaria ...</option>  
+                          <!--ko foreach: { data:listado_bancos , as:'item'}-->        
+                            <option data-bind="value:id, text:nombre"></option>
+                          <!-- /ko -->
+                        </select>                    
+                      </div>
+
+                      <div class="form-group col-lg-4 ">
+                        <label>Tipo de cuenta</label>
+                        <select class="form-control form-group" data-bind="value: proyectoVO.tipo_cuenta_id" disabled >
+                          <option value="">Seleccione tipo cuenta bancaria ...</option>  
+                          <!--ko foreach: { data:listado_tipos_cuenta , as:'item'}-->        
+                            <option data-bind="value:id, text:nombre"></option>
+                          <!-- /ko -->
+                        </select>             
+                      </div>
+
+                      <div class="form-group col-lg-4 ">
+                        <label>Numero de cuenta</label>
+                        <input type="text" class="form-control" data-bind='onlyNumber: proyectoVO.No_cuenta ,value:proyectoVO.No_cuenta' disabled>           
+                      </div>
+
+                      <div class="form-group col-lg-12" >
+                        <div class="form-group col-lg-4 ">            
+                          <label>Fecha de inicio del proyecto - servicio</label>                        
+                            <input type="text" class="form-control"  data-bind='datePicker:proyectoVO.fecha_inicio,value:proyectoVO.fecha_inicio' disabled>  
+                        </div>
+
+                        <div class="form-group col-lg-4 ">
+                          <label>Fecha fin del proyecto - servicio</label>
+                          <input type="text" class="form-control"  data-bind='datePicker:proyectoVO.fecha_fin,value:proyectoVO.fecha_fin' disabled>                 
+                        </div>
+                      </div>              
+            </form>
+            <!-- End Account2 Form -->                    
+         
+       </div>     
+
+    </div>
+  </div>
+</div>
+<!--Modal Proyecto-->
+
+<!--Modal Proyecto-->
+<div id="modal_acciones_contratista" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Contratistas del proyecto</h4>
+      </div>
+
+       <div class="modal-body bg-light">                     
+                  
+            <div data-bind="html: mensajeAsignados"></div>      
+            <div data-bind="visible:(listado_proyecto_contratistas()!=null && listado_proyecto_contratistas().length > 0)">    
+              <div class="col-lg-12" >
+                <div class="table-responsive" >
+                <table class="table">
+                      <thead>
+                    <tr> 
+                      <th>Nit Contratista</th> 
+                      <th>Nombre Contratista</th>
+                      <th>Tipo Contrato</th> 
+                      <th>Numero Contrato</th>   
+                      <th>Nombre Contrato</th>                                     
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado_proyecto_contratistas, as:'item'}">
+                    <tr>
+                      <td data-bind="text: item.contratista.nit"></td>  
+                      <td data-bind="text: item.contratista.nombre"></td>  
+                      <td data-bind="text: item.tipo_contrato.nombre"></td> 
+                      <td data-bind="text: item.numero"></td>  
+                      <td data-bind="text: item.nombre"></td>                
+                    </tr>
+                  </tbody>
+                </table>
+                </div>              
+              </div> 
+            </div>                               
+       </div>     
+    </div>
+  </div>
+</div>
+<!--Modal Proyecto-->
+
+
+<!--Modal empresas-->
+<div id="modal_acciones_empresa" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="gridModalLabel" >Empresas</h4>
+      </div>
+       <div class="modal-body bg-light">
+          
+             
+            <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Empresas por Asignar </span>
+              </div>
+              <div class="panel-body" >
+                <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombre o nit de  la empresa" type="text" id="txtBuscarEmpresa" 
+                  data-bind="event:{keypress: consultar_empresas_enter }" >
+                  <span class="input-group-addon"  data-bind="click:consultar_empresas_btn" style="cursor:pointer" >Consultar</span>
+                </div>  
+                <div data-bind="html: mensajePorAsignar"></div>                 
+
+                <div class="table-responsive"  data-bind="visible:(listado_empresas_tabla()!=null && listado_empresas_tabla().length > 0)">
+                                  
+                  <button type="button" data-bind="click : guardar_empresas_proyecto" class="btn btn-sm btn-primary btn-block"  >
+                    <h4>Asignar Empresas -
+                      <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                    </h4>
+                  </button>
+
+                  <table class="table">
+                    <thead>
+                  <tr>
+                    <th width="5%" ><input type="checkbox" data-bind="checked:checkallEmpresas"></th>                   
+                    <th width="20%">Nit</th>
+                    <th width="20%">Nombre</th>                  
+                  </tr>
+                </thead>
+                <tbody data-bind="foreach:{data:listado_empresas_tabla, as:'item'}">
+                  <tr>
+                    <td><input type="checkbox" data-bind="checked:item.procesar"></td> 
+                    <td data-bind="text: item.nit"></td>
+                    <td data-bind="text: item.nombre"></td>              
+                  </tr>
+                </tbody>
+              </table>
+              </div> 
+
+            </div> 
+           </div>
+         </div>
+            <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Empresas Asignadas </span>
+              </div>
+              <div class="panel-body" >
+                
+                <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombre o nit de  la empresa" type="text" id="txtBuscarEmpresaProyecto"
+                  data-bind="event:{keypress: consultar_empresas_proyecto_enter }">
+                  <span class="input-group-addon" data-bind="click : consultar_empresas_proyecto_filtro" style="cursor:pointer" >Consultar</span>
+                </div> 
+                <div data-bind="html: mensajeAsignados"></div> 
+              <div data-bind="visible:(listado_proyecto_empresas()!=null && listado_proyecto_empresas().length > 0)"> 
+                
+               <button type="button" data-bind="click : eliminar_empresas_proyecto" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar Empresas                          
+                        </h4>
+                      </button>
+
+                <div class="col-lg-12">
+                      <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="5%" ><input type="checkbox" data-bind="checked:checkallProyectoEmpresas"></th>  
+                          <th width="45%">Nit</th>
+                          <th width="50%">Nombre</th>                  
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_proyecto_empresas, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.eliminado"></td>
+                          <td data-bind="text: item.empresa__nit"></td>
+                          <td data-bind="text: item.empresa__nombre"></td>                  
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>                        
+               </div>
+               </div>     
+            </div>
+     </div>
+   </div>
+ </div>
+        
+
+    </div>
+  </div>
+</div>
+<!--Modal Proyecto-->
+
+
+<!--Modal Responsables-->
+<div id="modal_acciones_responsable" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:88%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Responsables</h4>
+      </div>
+       <div class="modal-body bg-light">            
+
+            <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Responsables Por Asignar </span>
+              </div>
+              <div class="panel-body" >             
+                
+                <select class="form-control form-group" data-bind="value: empresa_id , event:{ change: cambio_empresa}"  >
+                        <option value="">Seleccione la empresa ...</option>        
+                        <!--ko foreach: { data:listado_proyecto_empresas_select , as:'item'}-->        
+                          <option data-bind="value:item.empresa__id, text:item.empresa__nombre"></option>
+                        <!-- /ko -->
+                </select> 
+
+
+                <select class="form-control form-group" data-bind="value: cargo_id , event:{ change: consultar_responsables_btn} "  >
+                    <option value="">Seleccione el cargo ...</option>        
+                    <!--ko foreach: { data:listado_cargos_select , as:'item'}-->        
+                      <option data-bind="value:id, text:nombre"></option>
+                    <!-- /ko -->
+                </select>  
+
+                <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombres o apellidos" type="text" id="txtBuscarFuncionario" 
+                  data-bind="event:{keypress: consultar_responsables_enter }" >
+                  <span class="input-group-addon"  data-bind="click:consultar_responsables_btn" style="cursor:pointer">Consultar</span>
+                </div>  
+
+                <div data-bind="html: mensajePorAsignar"></div>   
+                  <div data-bind="visible:(listado_responsables_tabla()!=null && listado_responsables_tabla().length > 0)">
+                      
+                      <button type="button" data-bind="click : guardar_responsables_proyecto" class="btn btn-sm btn-primary btn-block"  >
+                    <h4>Asignar Responsables -
+                      <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                    </h4>
+                  </button>
+
+                      <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="5%"><input type="checkbox" data-bind="checked:checkallResponsables"></th>    
+                          <th width="25%">Empresa</th>
+                          <th width="20%">Cargo</th>
+                          <th width="25%">Nombres</th>
+                          <th width="25%">Apellidos</th>                          
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_responsables_tabla, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.procesar"></td> 
+                          <td data-bind="text: empresa__nombre"></td>
+                          <td data-bind="text: cargo__nombre"></td>
+                          <td data-bind="text: persona__nombres"></td>
+                          <td data-bind="text: persona__apellidos"></td>                              
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>              
+
+                </div>
+              </div>
+            </div>
+            </div>  
+            
+           <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Responsables Asignados </span>
+              </div>
+              <div class="panel-body" > 
+
+                  <select class="form-control form-group" data-bind=" value: empresaAsignada_id , event:{ change: cambio_empresa_asignada}">
+                            <option value="">Seleccione la empresa ...</option>        
+                            <!--ko foreach: { data:listado_proyecto_empresas_select , as:'item'}-->        
+                              <option data-bind="value: item.empresa__id, text: item.empresa__nombre"></option>
+                            <!-- /ko -->
+                    </select> 
+
+
+                    <select class="form-control form-group" data-bind="value: cargo_responsable_id , event:{ change: consultar_responsables_proyecto_btn}"  >
+                        <option value="">Seleccione el cargo ...</option>        
+                        <!--ko foreach: { data:listado_cargos , as:'item'}-->        
+                          <option data-bind="value:id, text:nombre"></option>
+                        <!-- /ko -->
+                    </select>   
+
+                    <div class="input-group form-group">
+                      <input class="form-control" placeholder="Nombres o apellidos" type="text" id="txtBuscarFuncionarioProyecto" 
+                      data-bind="event:{keypress: consultar_responsables_proyecto_enter }" >
+                      <span class="input-group-addon"  data-bind="click:consultar_responsables_proyecto_btn" style="cursor:pointer" >Consultar</span>
+                    </div> 
+                    <div data-bind="html: mensajeAsignados"></div> 
+
+                  <div data-bind="visible:(listado_proyecto_responsables()!=null && listado_proyecto_responsables().length > 0)">                   
+
+                    <button type="button" data-bind="click : eliminar_responsables_proyecto" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar Responsables                          
+                        </h4>
+                      </button>
+                  
+                      <div class="table-responsive">
+                            <table class="table table-fixed">
+                          <thead>
+                        <tr>
+                          <th width="5%" ><input type="checkbox" data-bind="checked:checkallProyectoResponsables"></th>    
+                          <th width="25%">Empresa</th>
+                          <th width="20%">Cargo</th>
+                          <th width="25%">Nombres</th>
+                          <th width="25%">Apellidos</th>  
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_proyecto_responsables, as:'item'}">
+                        <tr>
+                          <td> <input type="checkbox" data-bind="checked:eliminado,value:id"></td> 
+                          <td data-bind="text: item.empresa__nombre"></td>
+                          <td data-bind="text: item.cargo__nombre"></td>
+                          <td data-bind="text: item.persona__nombres"></td>
+                          <td data-bind="text: item.persona__apellidos"></td>     
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>              
+                </div>
+            </div>
+           </div>
+         </div>              
+         
+       </div>     
+
+    </div>
+  </div>
+</div>
+<!--Modal Responsables-->
+
+<!--Modal Contratos-->
+<div id="modal_acciones_contrato" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Contratos</h4>
+      </div>
+       <div class="modal-body bg-light">
+
+
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Contratos Por Asignar</span>
+              </div>
+              <div class="panel-body" >
+            
+                <select class="form-control form-group" data-bind="value: tipoContrato_id , event:{ change: consultar_contratos_btn }"  >
+                        <option value="">Seleccione el tipo de contrato ...</option>        
+                        <!--ko foreach: { data:listado_tipos_contrato , as:'item'}-->        
+                          <option data-bind="value:id, text:nombre"></option>
+                        <!-- /ko -->
+                </select>   
+
+                <div class="input-group form-group">
+                  <input class="form-control" placeholder="Numero o nombre del contrato" type="text" id="txtBuscarContrato" data-bind="event:{keypress: consultar_contratos_enter }" >
+                  <span class="input-group-addon" data-bind="click:consultar_contratos_btn" style="cursor:pointer" >Consultar</span>
+                </div> 
+                 <div data-bind="html: mensajePorAsignar"></div> 
+
+                <div class="col-lg-12" data-bind="visible:(listado_contratos_tabla()!=null && listado_contratos_tabla().length > 0)"> 
+
+                   <button type="button" data-bind="click : guardar_contratos_proyecto" class="btn btn-sm btn-primary btn-block"  >
+                    <h4>Asignar Contratos -
+                      <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                    </h4>
+                  </button>
+
+                <div class="table-responsive">
+                      <table class="table table-fixed">
+                    <thead>
+                  <tr>
+                    <th width="5%" ><input type="checkbox" data-bind="checked:checkallContratos"></th>                    
+                    <th width="25%">Numero</th>
+                    <th width="35%">Nombre</th>
+                    <th width="35%">Tipo</th>           
+                  </tr>
+                </thead>
+                <tbody data-bind="foreach:{data:listado_contratos_tabla, as:'item'}">
+                  <tr>
+                    <td><input type="checkbox" data-bind="checked:item.procesar"></td> 
+                    <td data-bind="text: item.numero"></td>
+                    <td data-bind="text: item.nombre"></td>  
+                    <td data-bind="text: item.tipo_contrato__nombre"></td>        
+                  </tr>
+                </tbody>
+              </table>
+              </div> 
+            </div> 
+          </div>
+         </div>
+        </div>
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Contratos Asignados</span>
+              </div>
+              <div class="panel-body" >
+                    <select class="form-control form-group" data-bind="value: tipoContratoAsignados_id , event:{ change: consultar_contratos_proyecto_filtro }"  >
+                            <option value="">Seleccione el tipo de contrato ...</option>        
+                            <!--ko foreach: { data:listado_tipos_contrato , as:'item'}-->        
+                              <option data-bind="value:id, text:nombre"></option>
+                            <!-- /ko -->
+                    </select>  
+
+                    <div class="input-group form-group">
+                      <input class="form-control" placeholder="Numero o nombre del contrato" type="text" id="txtBuscarContratoProyecto" data-bind="event:{keypress: consultar_contratos_proyecto_enter }" >
+                      <span class="input-group-addon" data-bind="click : consultar_contratos_proyecto_filtro" style="cursor:pointer">Consultar</span>
+                    </div> 
+                    <div data-bind="html: mensajeAsignados"></div> 
+                  <div  data-bind="visible:(listado_proyecto_contratos()!=null && listado_proyecto_contratos().length > 0)">
+                     
+                      <button type="button" data-bind="click : eliminar_contratos_proyecto" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar Contratos                          
+                        </h4>
+                      </button>
+
+                      <div class="table-responsive" > 
+                            <table class="table table-fixed">
+                          <thead>
+                        <tr>
+                          <th width="5%" ><input type="checkbox" data-bind="checked:checkallProyectoContratos"></th> 
+                          <th width="25%">Numero</th>
+                          <th width="35%">Nombre</th>
+                          <th width="35%">Tipo</th>                          
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_proyecto_contratos, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.eliminado"></td>
+                          <td data-bind="text: item.numero"></td>
+                          <td data-bind="text: item.nombre"></td>
+                          <td data-bind="text: item.tipo_contrato__nombre"></td>                           
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>              
+              </div> 
+            </div>    
+          </div>
+        </div>
+       </div>     
+
+    </div>
+  </div>
+</div>
+<!--Modal Contratos-->
+
+<!--Modal Datos Tecnicos-->
+<div id="modal_acciones_datos_tecnico" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+          <div class="row">
+            <div class="col-md-4">
+              <h4 class="modal-title" id="gridModalLabel">Datos Tecnicos</h4>
+            </div>
+            <div class="col-md-7 text-right">
+              <div id="admin-panel-filter">
+                <a data-filter=".panel-warning" class="btn btn-primary light mr5" data-bind="click:abrir_modal_datos_tecnico_form">Registrar</a>
+              </div>
+            </div>
+            <div class="col-md-1 text-right">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+          </div>
+      </div>
+       <div class="modal-body bg-light">
+            <div data-bind="html: mensajeAsignados"></div>  
+            <div class="col-lg-12 form-group" data-bind="visible:(listado_proyecto_info_tecnica()!=null && listado_proyecto_info_tecnica().length > 0)">
+                      <div class="table-responsive" > 
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          
+                          <th width="20%">Unidad Medida</th>
+                          <th width="25%">Nombre</th>
+                          <th width="15%">Valor Diseño</th>
+                          <th width="15%">Valor Replanteo</th>
+                          <th width="15%">Valor Ejecución</th>
+                          <th width="10%">Opciones</th>
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_proyecto_info_tecnica, as:'item'}">
+                        <tr>
+                          <td data-bind="text: item.campo.unidad_medida"></td>
+                          <td data-bind="text: item.campo.nombre"></td>
+                          <td data-bind="text: item.valor_diseno"></td>
+                          <td data-bind="text: item.valor_replanteo"></td>
+                          <td data-bind="text: item.valor_ejecucion"></td>
+                          <td>
+                              <div class="btn-group text-right">
+
+                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                  <i  class="fa fa-ellipsis-h fa-2x"></i>
+                                </a>
+                                  
+                                <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                  <li>
+                                    <a href="#" data-bind="click:$root.consultar_por_id_datos_tecnico_form">Editar</a>
+                                  </li>
+                                  <li>
+                                    <a href="#" data-bind="click:$root.eliminar_info_tecnica_proyecto">Eliminar</a>
+                                  </li>                          
+                                </ul>
+                              </div>
+                          </td>       
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>              
+              </div>       
+       </div>     
+    </div>
+  </div>
+</div>
+<!--Modal Datos Tecnicos-->
+
+<!--Modal form datos tecnico-->
+<div id="modal_acciones_datos_tecnico_form" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+              <div class="form-group" >     
+                <label>Campo</label>
+                <select class="form-control" data-bind="options: listado_campo_info_tecnica,
+                                   optionsText: 'nombre', 
+                                   optionsValue: 'id', 
+                                   optionsCaption: 'Seleccione el campo informacion tecnica...',
+                                   value : proyecto_info_tecnicaVO.campo_id
+                                   ">
+                </select>   
+              </div>
+              <div class="form-group" >
+                <label>Valor Diseño</label>
+                <input type="text" class="form-control" data-bind='onlyNumber: proyecto_info_tecnicaVO.valor_diseno ,value:proyecto_info_tecnicaVO.valor_diseno' placeholder="Digite la cantidad de diseño" >           
+              </div>
+              <div class="form-group" >
+                <label>Valor replanteo</label>
+                <input type="text" class="form-control" data-bind='onlyNumber: proyecto_info_tecnicaVO.valor_replanteo, value:proyecto_info_tecnicaVO.valor_replanteo' placeholder="Digite la cantidad de replanteo" >
+              </div>
+              <div class="form-group" >
+                <label>Valor ejecución</label>
+                <input type="text" class="form-control" data-bind='onlyNumber: proyecto_info_tecnicaVO.valor_ejecucion, value:proyecto_info_tecnicaVO.valor_ejecucion' placeholder="Digite la cantidad de ejecución" >                   
+              </div>      
+            <!-- End Account2 Form -->   
+       </div>
+
+       
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_info_tecnica">Guardar</button>
+        </div>
+       
+    </div>
+  </div>
+</div>
+<!--Modal-->
+
+
+<!--Modal Proyecto-->
+<div id="modal_acciones_busqueda" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Consulta de Proyectos</h4>
+      </div>
+       <div class="modal-body bg-light">                     
+                  
+                <div class="form-group col-lg-12">
+                  <label>Macro contrato</label>
+                  <select class="form-control" data-bind="value: mcontrato_id_filtro  " id="mcontrato_id_select">
+                    <option value="">Seleccione el macro contrato...</option>
+                    <!--ko foreach: { data:listado_macro_contrato_filtro , as:'item'}-->        
+                      <option data-bind="value:id, text:nombre"></option>
+                    <!-- /ko -->
+                  </select>             
+                </div>
+
+                <div class="form-group col-lg-12">
+                  <label>Contratista</label>
+                  <select class="form-control" data-bind="value: filtro_proyectoVO.contratista_id  " id="contratista_id_select">
+                    <option value="">Seleccione el contratista...</option>
+                    <!--ko foreach: { data:listado_contratista_filtro , as:'item'}-->        
+                      <option data-bind="value:id, text:nombre"></option>
+                    <!-- /ko -->
+                  </select>              
+                </div>
+
+                
+                <div class="form-group col-lg-12">
+                  <label>Departamento</label>
+                  <select class="form-control" data-bind="value: filtro_proyectoVO.departamento_id  " id="departamento_id_select">
+                    <option value="">Seleccione el departamento...</option>
+                    <!--ko foreach: { data:listado_departamentos_filtro , as:'item'}-->        
+                      <option data-bind="value:id, text:nombre"></option>
+                    <!-- /ko -->
+                  </select>              
+                </div>  
+                <div class="form-group col-lg-12">
+                  <label>Municipio</label>
+                  <select class="form-control" data-bind="value: filtro_proyectoVO.municipio_id  " id="municipio_id_select">
+                    <option value="">Seleccione el municipio...</option>
+                    <!--ko foreach: { data:listado_municipios_filtro , as:'item'}-->        
+                      <option data-bind="value:id, text:nombre"></option>
+                    <!-- /ko -->
+                  </select>              
+                </div>                                                          
+       </div>  
+       <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-bind="click: function(){ borrar(1); }">Limpiar</button>
+          <button type="button" class="btn btn-primary" data-bind="click: function(){ cargar(1); }">Consultar</button>          
+        </div>   
+    </div>
+  </div>
+</div>
+<!--Modal Proyecto-->
+
+
+	
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/ViewModels/proyecto/proyecto.js" %}?v=2.2'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+        proyecto.parametro_registro(1)
+        proyecto.consultar(1);//iniciamos la primera funcion
+        
+        
+        /*proyecto.consultar_mcontratos_filtro();*/
+    });  
+
+  </script>
+  
+
+  <!-- END: PAGE SCRIPTS -->
+{% endblock imports %}

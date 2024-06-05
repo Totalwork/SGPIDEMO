@@ -1,0 +1,191 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+    <!-- Plugin CSS -->
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+  <style>
+    /* .scroll {
+      height:557px;
+      overflow-y: scroll;
+    } */
+    /*.panel-heading{
+      height: 70px!important;
+    }*/
+  </style>
+  {% endblock imports_css %}
+
+{% block title %}Graficas no conformidad{% endblock title %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'usuario.index' %}">Inicio</a></li>
+  <li>Graficas no conformidad</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+<div class="panel panel-sky">
+    <div class="row" >
+
+    	<div class="col-lg-12">
+
+            <div class="panel-heading">                          
+              <span class="panel-title hidden-xs">
+                <a href="{% url 'usuario.index' %}" data-placement="right"    
+                  data-toggle="tooltip" data-original-title="Regresar al inicio">
+                  <i class="fa fa-arrow-left"></i>
+                </a>
+                Dashboard
+              </span>                                          
+            </div>
+    	</div>
+  	</div>
+
+    <div class="panel-body">
+    	<div data-bind="html: mensaje"></div>  
+		
+      <div class="col-lg-6">
+        <div class="panel grafica" id="pchart11">
+            <div class="panel-heading">
+              <span class="panel-icon">
+                <i class="fa fa-pie-chart"></i>
+              </span>
+              <span class="panel-title">No conformidades corregidas vs No conformidades sin corregir</span>
+            </div>
+            <div class="panel-body bg-light dark">
+              <div id="pie-chartNoConformidades" style="height: 50%; width: 100%;"></div>
+            </div>
+
+        </div>
+
+          <br>
+          <div class="form-group">
+            <center>  
+              <a type="button" class="btn btn-primary" href="/no_conformidad/no_conformidad">
+                Ver no conformidades
+              </a>      
+            </center>
+          </div>
+
+        
+      </div>
+
+      <div class="col-lg-6">
+        <div class="panel panel-primary" id="pchart12">
+          <div class="panel-heading">
+            <span class="panel-title">Tipos</span>
+          </div>
+          <div id="grafica" class="panel-body">
+            <div class="mb20 text-right">
+              <span class="fs11 text-muted ml10">
+                <i class="fa fa-circle text-primary fs12 pr5"></i> Tecnica</span>
+              <span class="fs11 text-muted ml10">
+                <i class="fa fa-circle text-info fs12 pr5"></i> Administrativa</span>
+              <span class="fs11 text-muted ml10">
+                <i class="fa fa-circle text-warning fs12 pr5"></i> Otros</span>
+            </div>          
+            <div data-bind="foreach:{data:porcentajes_tipos, as:'item'}">
+              <div >
+                <div class="col-md-3 text-center">
+                  <div class="info-circle2" style="width: 120%;" data-bind="attr:{'id':'cr'+item.id, 'title':item.cant , value:item.porcentaje, 'data-circle-color':item.color}">
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+                    
+      </div>
+
+      <div class="col-lg-6">
+        <div class="panel panel-primary" id="pchart13">
+          <div class="panel-heading">
+            <span class="panel-title">Valoración</span>
+          </div>
+          <div id="grafica2" class="panel-body">
+            <div class="mb20 text-right">
+              <span class="fs11 text-muted ml10">
+                <i class="fa fa-circle text-primary fs12 pr5"></i> Mayor</span>
+              <span class="fs11 text-muted ml10">
+                <i class="fa fa-circle text-info fs12 pr5"></i> Menor</span>
+              <span class="fs11 text-muted ml10">
+                <i class="fa fa-circle text-warning fs12 pr5"></i> Otros</span>
+            </div>
+            <div data-bind="foreach:{data:porcentajes_valoracion, as:'item'}">
+              <div >
+                <div class="col-md-3 text-center">
+                  <div class="info-circle" style="width: 120%;" data-bind="attr:{'id':'cr'+item.id ,'title':item.cant , value:item.porcentaje, 'data-circle-color':item.color}">
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+                    
+      </div>
+
+      
+      
+         
+
+
+    </div><!--cierra panel-body -->
+
+
+</div><!--cierra panel panel-sky -->
+
+
+
+{% endblock contenido %} 
+
+{% load static %}
+
+{% block imports %}
+  <style>
+    /*chart demo styles*/
+    .c3 {}
+    /* tick color */
+    .c3 .tick {
+      fill: #AAA;
+    }
+    /* axis color */
+    .c3 line,
+    .c3 path {
+      stroke: #BBB;
+    }
+    /*axis label color*/
+    .c3 .c3-axis-x-label,
+    .c3 .c3-axis-y-label {
+      fill: #AAA;
+    }
+    /*legend label text color*/
+    .c3-legend-item {
+      fill: #888;
+      font-size: 14px;
+    }
+    </style>
+  <script src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+  <script src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script> 
+  <script src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+  <script src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+  <script src='{% static "vendor/plugins/circles/circles.js" %}'></script>
+    <!-- Sparkline Local -->
+    <script src="{% static 'vendor/plugins/sparkline/jquery.sparkline.min.js' %}"></script>
+
+
+   <script src="{% static 'assets/js/main.js' %}"></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/no_conformidad/graficas.js" %}?cache=2'></script>
+
+
+
+{% endblock imports %}   
+

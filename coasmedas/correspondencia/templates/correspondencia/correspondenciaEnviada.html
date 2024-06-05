@@ -1,0 +1,728 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="../correspondenciaEnviadaCreate/" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+           <i class="fa fa-plus"  style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+ 
+  <li>
+    <a href="#" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar Listado" >
+        <i class="fa fa-cloud-download" data-bind="click:exportar_excel" style="font-size: 20px;"></i>
+    </a>
+  </li>
+
+  {% if 'correspondencia.change_correspondenciaenviada' in perms %}
+  <li>
+    <a href="#" data-placement="right"  data-toggle="tooltip" data-original-title="Establecer Carta">
+      <i class="fa fa-thumbs-o-up" aria-hidden="true" data-bind="click:establecer" style="font-size: 20px;"></i>
+    </a>
+  </li>
+  {% endif %}
+
+   {% if app in perms %}
+    {% if app|add:'.delete_'|add:model in perms%}   
+      <li>
+        <a href="#" data-placement="right"  data-toggle="tooltip" data-original-title="Anular carta(s)" >
+            <i class="fa fa-thumbs-o-down" data-bind="click:eliminar" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+{% endblock opciones_listado %}  
+
+{% block title %}Correspondencia Enviada{% endblock title%}
+{% block mapa %}
+
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+	<li class="active">Correspondencia</li>
+  <li class="active">Correspondencias Enviadas</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}   
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>     
+
+  <div class="row" >
+
+<div class="col-lg-12">
+        
+  <div class="panel panel-sky" >
+          <div class="panel-heading">
+                Listado de proyectos - N° de Registros : </span> <span data-bind="text:paginacion.total"></span>
+                <span class="panel-controls">
+                  <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros"  title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda" >
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+          </div>
+          <div class="panel-body">
+            <div data-bind="html: mensaje"></div>   
+            <div data-bind="visible:(listado_correspondencias()!=null && listado_correspondencias().length > 0)">
+                    <div class="col-lg-12">
+                       <i class="text-success fa fa-bell" style="font-size:16px"></i> 
+                       : [Establecida];&nbsp;&nbsp;&nbsp;&nbsp;
+                       <i class="text-warning fa fa-bell" style="font-size:16px"></i> 
+                       : [Anulada];  
+                    </div>
+                    <br><br>
+                    <div class="table-responsive">
+                          <table class="table">
+                        <thead>
+                      <tr>
+                        <th>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:checkall">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div>
+                        </th>    
+                        <th width="3%">Doc</th>
+                        <th width="9%">Consecutivo</th>
+                        <th width="9%">Fecha Envio</th>
+                        <th width="27%">Asunto</th>
+                        <th width="29%">Referencia</th>
+                        <th width="20%">Destinatario</th>
+                        <th width="3%"></th>
+                      </tr>
+                    </thead>
+                    <tbody data-bind="foreach:{data:listado_correspondencias, as:'item'}">
+                      <tr data-bind="css:{'warning': item.anulado == true,
+                                              'success': item.anulado == false
+                                              }" >
+                        <td>
+                          <!--ko if: item.usuarioSolicitante.id=={{ user.usuario.id }} -->  
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:eliminado,value: item.id">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>        
+                          <!-- /ko -->                 
+                        </td> 
+
+                        <!-- ko if: item.totalSoportes==0 -->
+                        <td><font color="#FF0000">Pendiente</font></td>
+                        <!-- /ko -->
+                       
+                        <!-- ko if: item.totalSoportes>0 -->
+                        <td>
+                            <a  target="_blank" style="cursor:pointer;" data-bind="click:$root.abrir_modal_soporte_ver">
+                                <i class="fa fa-file kv-caption-icon fa-2x"></i> 
+                            </a>
+                        </td>
+                        <!-- /ko -->
+                        <td data-bind="text: item.prefijo.nombre+' - '+item.consecutivo"></td>
+                        <td data-bind="text: item.fechaEnvio"></td>
+                        <td data-bind="cutWord:{num:65,text:item.asunto, verMax:'...', verMin:'...'}"></td>
+                        <td data-bind="cutWord:{num:65,text:item.referencia, verMax:'...', verMin:'...'}"></td>
+                        <td data-bind="text: item.persona_destino"></td>
+                        <td>
+                            <div class="btn-group text-right">
+                                <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                  <i  class="fa fa-ellipsis-h fa-2x"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-right" role="menu">                   
+                                  <!-- El numero 152 = al id del usuario de iris -->
+                                  <!--ko if:(item.usuarioSolicitante.id=={{ user.usuario.id }} || {{ user.usuario.id }}=='152')-->  
+                                    {% if 'correspondencia.change_correspondenciaenviada' in perms %}
+                                      <li>
+                                        <a 
+                                        data-bind="attr:{ href: '../correspondenciaEnviadaUpdate/'+item.id }">Editar</a>
+                                      </li>
+                                    {% endif %}
+                                    {% if 'correspondencia.change_correspondenciaenviada' in perms %}
+                                      <li>
+                                        <a href="#" data-bind="click:$root.abrir_modal_asociarContrato">Asociar Contratos</a>
+                                      </li>
+                                    {% endif %}
+                                    {% if 'correspondencia.change_correspondenciaenviada' in perms %}
+                                      <li>
+                                        <a href="#" data-bind="click:$root.abrir_modal_asociarProyecto">Asociar Proyectos</a>
+                                      </li>
+                                    {% endif %}
+                                    {% if 'correspondencia.can_see_CorrespondenciaSoporte' in perms %}
+                                      <li>
+                                        <a href="#" data-bind="click:$root.abrir_modal_soporte">Subir Soporte</a>
+                                      </li>
+                                    {% endif %}
+                                  <!-- /ko --> 
+                                  <li>
+                                    <a href="#" data-bind="click:$root.descargar_carta"> Descargar Carta</a>
+                                  </li>                                  
+                                  {% if 'correspondencia.add_correspondenciaenviada' in perms %}
+                                  <li>
+                                    <a data-bind="attr:{ href: '../correspondenciaEnviadaCopy/'+item.id }"> Copiar Carta</a>
+                                  </li> 
+                                  {% endif %}                       
+                                </ul>
+                            </div>
+                        </td>       
+                      </tr>
+                    </tbody>
+                  </table>
+                  </div>              
+                  <div id="paginacion" >
+                    <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                    </div>
+                  </div>
+            </div>
+        </div>
+  </div>	
+  </div>
+</div>
+
+<!--Modal Proyecto-->
+
+<div id="modal_busqueda" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" >
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="panel-body bg-light">
+          
+           <div class="col-lg-7"  >  
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Datos Generales</span>
+                    </div>
+                    <div class="panel-body" > 
+                      
+                      <div class="form-group" >
+                        <label>Firma</label>
+                        <select class="form-control form-group" data-bind='value:correspondenciaEnviadaVO_filtro.firma'>    
+                          <option value="">Seleccione el funcionario...</option>
+                          <!--ko foreach: { data:listado_funcionarios_firma , as:'item'}-->        
+                            <option data-bind="value:item.id, text: item.persona.nombres+' '+item.persona.apellidos"></option>
+                          <!-- /ko -->
+                        </select>         
+                      </div>
+                      <div class="form-group" >
+                        <label>Elaborado Por</label>
+                        <select class="form-control form-group" data-bind='value:correspondenciaEnviadaVO_filtro.usuarioElaboro'>    
+                            <option value="">Seleccione el funcionario...</option> 
+                            <!--ko foreach: { data:listado_funcionarios_elaboran , as:'item'}-->        
+                              <option data-bind="value:item.id, text: item.persona.nombres+' '+item.persona.apellidos"></option>
+                            <!-- /ko -->
+                        </select>  
+                      </div>
+                      <div class="form-group" >
+                        <label>Tiene Soporte</label>
+                        <div class="col-lg-12">
+                          <label class="checkbox-inline mr10">
+                            <input id="inlineCheckbox1" data-bind="checked : correspondenciaEnviadaVO_filtro.soporte_si"  type="checkbox">Si
+                          </label>
+
+                          <label class="checkbox-inline mr10">
+                            <input id="inlineCheckbox1" data-bind="checked : correspondenciaEnviadaVO_filtro.soporte_no"  type="checkbox">No
+                          </label>
+                        </div>          
+                      </div> 
+
+                      <div class="form-group" >     
+                        <label>Campos de busqueda</label>
+                        <div class="col-lg-12 form-group">
+                          <label class="checkbox-inline mr10">
+                            <input id="inlineCheckbox1" data-bind="checked : correspondenciaEnviadaVO_filtro.asunto"  type="checkbox">Asunto
+                          </label>
+                          <label class="checkbox-inline mr10">
+                            <input id="inlineCheckbox2" data-bind="checked : correspondenciaEnviadaVO_filtro.referencia" type="checkbox">Referencia
+                          </label>
+                          <label class="checkbox-inline mr10">
+                            <input id="inlineCheckbox3" data-bind="checked : correspondenciaEnviadaVO_filtro.consecutivo" type="checkbox">Consecutivo
+                          </label>
+                          <label class="checkbox-inline mr10">
+                            <input id="inlineCheckbox4" data-bind="checked : correspondenciaEnviadaVO_filtro.destinatario" type="checkbox">Destinatario
+                          </label>
+                        </div>
+                      </div> 
+                    </div>  
+                  </div>  
+                </div>  
+                <!-- datos generales --> 
+
+                <div class="col-lg-5"  >  
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Rango de Busqueda</span>
+                    </div>
+                    <div class="panel-body" >             
+                   
+                      <div class="form-group" >
+                        <label>Desde</label>
+                        <input type="text" class="form-control" data-bind='datePicker:correspondenciaEnviadaVO_filtro.fechaDesde ,value:correspondenciaEnviadaVO_filtro.fechaDesde' placeholder="AAAA-MM-DD" >
+                        <span id="valDesde" class="validationMessage" style="display:none;">(*) La fecha desde no puede ser mayor que la fecha hasta.</span>
+                      </div>
+                      <div class="form-group" >
+                        <label>Hasta</label>
+                        <input type="text" class="form-control" data-bind='datePicker:correspondenciaEnviadaVO_filtro.fechaHasta ,value:correspondenciaEnviadaVO_filtro.fechaHasta'  placeholder="AAAA-MM-DD" >
+                        <span id="valHasta" class="validationMessage" style="display:none;">(*) La fecha hasta no puede ser menor que la fecha desde.</span>
+                      </div>
+                      
+                    </div>  
+                  </div>  
+                </div> 
+                <!-- rango de fechas -->             
+       </div>     
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click: function(){ consultar(1) }">Consultar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+<!--Modal consulta de Correspondencia-->
+
+<!--Modal form subir soporte-->
+<div id="modal_acciones_soporte" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+          <div class="col-md-5"> 
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Subir soporte de la carta</span>
+              </div>
+              <div class="panel-body" > 
+
+                  <div class="form-group">  
+                    <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:correspondencia_soporteVO.soporte,allowedFileExtensions: ['pdf','zip','jpg'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                    <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados pdf, zip y jpg.<br></small>                  
+                  </div>
+
+                  <div class="form-group">
+                    <input type="checkbox"  data-bind="checked: correspondencia_soporteVO.validaNombre" > &nbsp;<label>Cambiar nombre </label>
+                  </div>
+                  <!-- ko if: correspondencia_soporteVO.validaNombre -->
+                  <div class="form-group ">
+                    <label>Nombre del Soporte </label>
+                    <input type="text" class="form-control"  placeholder="Digite el nombre del soporte" data-bind="value:correspondencia_soporteVO.nombre" >
+                  </div>
+                  <!-- /ko --> 
+
+                {% if 'correspondencia.add_correspondenciasoporte' in perms %}
+                <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:guardar_archivo" >Subir Soporte</button>
+                {% endif %}
+              </div>
+            </div>            
+          </div>
+          
+          <div class="col-md-7"> 
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Soportes de la carta</span>
+              </div>
+              <div class="panel-body" > 
+
+                <div data-bind="html: mensajePorAsignar"></div>  
+
+                <div class="col-lg-12" data-bind="visible:(listado_correspondencia_soportes()!=null && listado_correspondencia_soportes().length > 0)"> 
+                    {% if 'correspondencia.delete_correspondenciasoporte' in perms %}
+                    <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click : eliminar_soportes" >Eliminar Soportes</button>
+                    {% endif %}
+                    <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="5%" ><input type="checkbox" data-bind="checked:checkallSoportes"></th>                    
+                          <th width="20%">Soporte</th>
+                          <th width="75%">Nombre</th>          
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_correspondencia_soportes, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.eliminado"></td> 
+                          <td>
+                              <a data-bind="click: $root.ver_soporte" target="_blank" style="cursor:pointer;">
+                                <i class="fa fa-file kv-caption-icon"></i> Documento
+                              </a>
+                          </td>
+                          <td data-bind="text: item.nombre"></td>         
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div> 
+                </div>
+              </div>
+            </div>
+          </div>  
+
+       </div>
+       
+    </div>
+  </div>
+</div>
+<!--Modal form subir soporte-->
+
+
+
+<!--Modal Contratos-->
+<div id="modal_acciones_contrato" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:80%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body bg-light">
+
+
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Contratos Por Asignar</span>
+              </div>
+              <div class="panel-body" >
+            
+
+                <div class="form-group">
+                  <label>Macro contrato</label>
+                  <select class="form-control" data-bind="options: listado_macro_contrato_filtro,
+                                     optionsText: 'nombre', 
+                                     optionsValue: 'id', 
+                                     optionsCaption: 'Seleccione el macro contrato...',
+                                     value: mcontrato_id_filtroContrato  ">
+                  </select>             
+                </div>
+
+                <div class="form-group">
+                  <label>Estado</label>
+                  <select class="form-control" data-bind="options: listado_estados_contrato,
+                                     optionsText: 'nombre', 
+                                     optionsValue: 'id', 
+                                     optionsCaption: 'Seleccione el estado del contrato...',
+                                     value: estado_id_filtro  ">
+                  </select>             
+                </div>
+
+                <div class="input-group form-group">
+                  <input class="form-control" placeholder="Numero o nombre del contrato" type="text" id="txtBuscarContrato" data-bind="event:{keypress: consultar_contratos_enter }" >
+                  <span class="input-group-addon" data-bind="click:consultar_contratos_btn">Consultar</span>
+                </div> 
+                 <div data-bind="html: mensajePorAsignar"></div> 
+
+                <div class="col-lg-12" data-bind="visible:(listado_contratos_tabla()!=null && listado_contratos_tabla().length > 0)"> 
+
+                  <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:guardar_contratos_correspondencia" >
+                    <h4>Asignar Contratos -
+                          <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                    </h4> 
+                  </button>
+
+                <div class="table-responsive">
+                      <table class="table">
+                    <thead>
+                  <tr>
+                    <th width="5%" ><input type="checkbox" data-bind="checked:checkallContratos"></th>                    
+                    <th width="25%">Numero</th>
+                    <th width="35%">Nombre</th>
+                    <th width="35%">Tipo</th>           
+                  </tr>
+                </thead>
+                <tbody data-bind="foreach:{data:listado_contratos_tabla, as:'item'}">
+                  <tr>
+                    <td><input type="checkbox" data-bind="checked:item.procesar"></td> 
+                    <td data-bind="text: item.numero"></td>
+                    <td data-bind="text: item.nombre"></td>  
+                    <td data-bind="text: item.tipo_contrato__nombre"></td>        
+                  </tr>
+                </tbody>
+              </table>
+              </div> 
+            </div> 
+          </div>
+         </div>
+        </div>
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Contratos Asignados</span>
+              </div>
+              <div class="panel-body" >
+
+
+                    <div class="input-group form-group">
+                      <input class="form-control" placeholder="Numero o nombre del contrato" type="text" id="txtBuscarContratoCorrespondenciaEnviada" data-bind="event:{keypress: consultar_contratos_correspondenciaEnviada_enter }" >
+                      <span class="input-group-addon" data-bind="click : consultar_contratos_correspondenciaEnviada_filtro">Consultar</span>
+                    </div> 
+                    <div data-bind="html: mensajeAsignados"></div> 
+                  <div  data-bind="visible:(listado_correspondencia_contratos()!=null && listado_correspondencia_contratos().length > 0)">
+                      <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:eliminar_contratos_proyecto">
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar Contratos                           
+                        </h4>
+                      </button>
+                      <div class="table-responsive" > 
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="5%" ><input type="checkbox" data-bind="checked:checkallCorrespondenciaContratos"></th> 
+                          <th width="25%">Numero</th>
+                          <th width="35%">Nombre</th>
+                          <th width="35%">Tipo</th>                          
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_correspondencia_contratos, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.eliminado"></td>
+                          <td data-bind="text: item.numero"></td>
+                          <td data-bind="text: item.nombre"></td>
+                          <td data-bind="text: item.tipo_contrato__nombre"></td>                           
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>              
+
+              </div> 
+            </div>    
+          </div>
+        </div>
+      
+      </div>  
+    </div>
+  </div>
+</div>
+<!--Modal Contratos-->
+
+
+<!--Modal proyectos-->
+<div id="modal_acciones_proyecto" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:85%">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body bg-light">
+
+
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Proyectos Por Asignar</span>
+              </div>
+              <div class="panel-body" >
+            
+
+                <div class="form-group">
+                  <label>Macro contrato</label>
+                  <select class="form-control" data-bind="options: listado_macro_contrato_filtro,
+                                     optionsText: 'nombre', 
+                                     optionsValue: 'id', 
+                                     optionsCaption: 'Seleccione el macro contrato...',
+                                     value: mcontrato_id_filtro  ">
+                  </select>             
+                </div>
+
+                <div class="form-group">
+                  <label>Contratista</label>
+                  <select class="form-control" data-bind="options: listado_contratista_filtro,
+                                     optionsText: 'nombre', 
+                                     optionsValue: 'id', 
+                                     optionsCaption: 'Seleccione el contratista...',
+                                     value: contratista_id_filtro  ">
+                  </select>             
+                </div> 
+
+                <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombre del proyecto o Servicio" type="text" id="txtBuscarProyecto" data-bind="event:{keypress: consultar_proyectos_enter }" >
+                  <span class="input-group-addon" data-bind="click:consultar_proyectos_btn">Consultar</span>
+                </div> 
+
+                 <div data-bind="html: mensajePorAsignar"></div> 
+
+                <div class="col-lg-12" data-bind="visible:(listado_proyectos_tabla()!=null && listado_proyectos_tabla().length > 0)"> 
+
+                  <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:guardar_proyectos_correspondencia" >
+                    <h4>Asignar Proyectos -
+                          <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                    </h4> 
+                  </button>
+
+                <div class="table-responsive">
+                      <table class="table">
+                    <thead>
+                  <tr>
+                    <th width="5%" ><input type="checkbox" data-bind="checked:checkallProyectos"></th>                    
+                    <th width="25%">M - Contrato</th>
+                    <th width="35%">Nombre</th>
+                    <th width="35%">Tipo</th>           
+                  </tr>
+                </thead>
+                <tbody data-bind="foreach:{data:listado_proyectos_tabla, as:'item'}">
+                  <tr>
+                    <td><input type="checkbox" data-bind="checked:item.procesar"></td> 
+                    <td data-bind="text: item.mcontrato__nombre"></td>
+                    <td data-bind="text: item.nombre"></td>  
+                    <td data-bind="text: item.tipo_proyecto__nombre"></td>        
+                  </tr>
+                </tbody>
+              </table>
+              </div> 
+            </div> 
+          </div>
+         </div>
+        </div>
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Proyectos Asignados</span>
+              </div>
+              <div class="panel-body" >
+
+
+                    <div class="input-group form-group">
+                      <input class="form-control" placeholder="Nombre del proyecto o Servicio" type="text" id="txtBuscarProyectoCorrespondenciaEnviada" data-bind="event:{keypress: consultar_proyectos_correspondenciaEnviada_enter }" >
+                      <span class="input-group-addon" data-bind="click : consultar_proyectos_correspondenciaEnviada_btn">Consultar</span>
+                    </div> 
+
+                    <div data-bind="html: mensajeAsignados"></div> 
+                  <div  data-bind="visible:(listado_correspondencia_proyectos()!=null && listado_correspondencia_proyectos().length > 0)">
+                      <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:eliminar_proyectos_correspondencia">
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar Proyectos                           
+                        </h4>
+                      </button>
+                      <div class="table-responsive" > 
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="5%" ><input type="checkbox" data-bind="checked:checkallCorrespondenciaProyectos"></th> 
+                          <th width="25%">M - Contrato</th>
+                          <th width="35%">Nombre</th>
+                          <th width="35%">Tipo</th>                          
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_correspondencia_proyectos, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.eliminado"></td>
+                          <td data-bind="text: item.mcontrato__nombre"></td>
+                          <td data-bind="text: item.nombre"></td>
+                          <td data-bind="text: item.tipo_proyecto__nombre"></td>                           
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>              
+
+              </div> 
+            </div>    
+          </div>
+        </div>
+       </div>     
+
+    </div>
+  </div>
+</div>
+<!--Modal proyectos-->
+
+<!--Modal form ver soporte-->
+<div id="modal_acciones_soporte_ver" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+       
+          <div class="col-md-12"> 
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Soportes de la carta</span>
+              </div>
+              <div class="panel-body" > 
+
+                <div data-bind="html: mensajePorAsignar"></div>  
+
+                <div class="col-lg-12" data-bind="visible:(listado_correspondencia_soportes()!=null && listado_correspondencia_soportes().length > 0)">                     
+
+                    <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>                 
+                          <th width="20%">Soporte</th>
+                          <th width="80%">Nombre</th>          
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_correspondencia_soportes, as:'item'}">
+                        <tr>
+                          <td>
+                              <a href="#" data-bind="click: $root.ver_soporte" target="_blank" style="cursor:pointer;">
+                                <i class="fa fa-file kv-caption-icon"></i> Documento
+                              </a>
+                          </td>
+                          <td data-bind="text: item.nombre"></td>         
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div> 
+                </div>
+              </div>
+            </div>
+          </div>  
+
+       </div>
+       
+    </div>
+  </div>
+</div>
+<!--Modal form ver soporte-->
+
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/correspondencia/correspondenciaEnviada.js" %}?v=1'></script>
+  <!-- END: PAGE SCRIPTS -->
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+              
+        /* SE INICIAN LAS FUNCIONES */
+        correspondencia.consultar(1);      
+
+    });  
+
+  </script>
+
+{% endblock imports %}

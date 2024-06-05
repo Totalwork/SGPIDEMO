@@ -1,0 +1,376 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Cambios en uucc{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'control_cambios.index' %}">Control de cambios</a></li>
+  <li><a href="{% url 'control_cambios.cambio_obra' %}">UUCC Proyectos</a></li>
+  <li><a href="{% url 'control_cambios.administrar_uucc' id_proyecto %}">Administrar cambios</a></li>
+  <li class="active">Cambios en UUCC</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+          <i class="fa fa-plus" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+  {% if app in perms %}
+    {% if app|add:'.delete_'|add:model in perms%}   
+      <li>
+        <a href="#" data-bind="click:eliminar" data-placement="right" data-toggle="tooltip" data-original-title="Eliminar registro(s)">
+          <i class="fa fa-trash" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+{% endblock opciones_listado %}     
+
+{% block contenido %}
+
+  <div class="row">
+    <div class="col-lg-12">
+
+      <strong>Macro contrato : </strong><span>{{proyecto.proyecto.mcontrato.nombre}}</span><br> 
+      <strong>Departamento : </strong><span>{{proyecto.proyecto.municipio.departamento.nombre}}</span><br>
+      <strong>Municipio : </strong><span>{{proyecto.proyecto.municipio.nombre}}</span><br>
+      <strong>Proyecto : </strong><span  data-bind="cutWord:{num:50,text:'{{proyecto.proyecto.nombre}}', verMax:'...', verMin:'...'}" ></span><br>
+      <strong>Motivo : </strong><span>{{proyecto.motivo}}</span><br>
+      <strong>Solicita : </strong><span>{{proyecto.solicita.nombre}}</span><br>
+      <strong>Usuario aprueba : </strong><span>{{proyecto.usuario_revisa.persona.nombres}} {{proyecto.usuario_revisa.persona.apellidos}}</span><br>
+    </div>
+  </div><br><br>
+
+
+  <div class="row" >
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Listado de control de cambios de unidades constructivas</span>
+
+               <span data-bind="text:'- N° de Registos: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+              <span class="panel-controls">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Guardar cambios" data-bind="click:abrir_guarda_todo" data-toggle="modal" style="cursor:pointer;">
+                  <i class="fa fa-floppy-o fa-2x" aria-hidden="true"></i>
+                </a>
+              </span>
+
+              <span class="panel-controls">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Carga masiva" data-bind="click:carga_masiva" data-toggle="modal" style="cursor:pointer;">
+                  <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+                </a>
+              </span>
+
+            </div>
+
+            <div class="panel-body" >
+
+              <div class="col-sm-6">
+                <div data-bind="html: mensaje"></div>
+                <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                  <table class="table" >
+                    <thead>
+                        <tr>
+                          <th style="width:10%">
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input type="checkbox" data-bind="checked:checkall">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div> 
+                          </th>
+                          <th style="width:30%">Codigo UUCC</th>
+                          <th style="width:30%">Descripcion</th>
+                          <th style="width:30%">Cantidad</th>
+                        </tr>
+                    </thead>
+
+                    <tbody data-bind="foreach:{data:listado, as:'item'}">
+                      <tr>
+                        <td>
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>  
+                        </td> 
+                        <td data-bind="text: item.uucc.codigo"></td>
+                        <td data-bind="text: item.uucc.descripcion"></td>
+                        <td>                
+                            <input class="form-control" type="text" data-bind='attr:{id:item.id()+"-cantidad"},value:item.cantidad,onlyNumber:item.cantidad,
+                            event:{keypress: function(d,e){if (e.which == 13)
+                            {item.cantidad($("#"+item.id()+"-cantidad").val());  
+                            $root.guardar_cantidad(item);}return true;}}'>
+                        </td>
+
+                      </tr>
+                       
+                    </tbody>
+                  </table>
+
+                  <div id="paginacion" >
+                    <div data-bind="pagination: {
+                                  currentPage: paginacion.pagina_actual,
+                                  totalCount: paginacion.total,
+                                  pageSize:paginacion.cantidad_por_paginas,
+                                  maxPages: paginacion.maxPaginas,
+                                  directions: paginacion.direcciones,
+                                  boundary: paginacion.limite,
+                                  text: paginacion.text }">
+
+                    </div>
+                  </div>
+
+                  
+                </div><!--cierra la tabla-->
+              </div><!--cierra div col-sm 6-->
+
+              <div class="col-sm-6">
+
+                <div class="panel-heading"><span class="panel-title"></span><span>Archivos del cambio</span>
+
+                  <span class="panel-controls">
+                    <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Eliminar soportes" data-bind="click:eliminar_soporte" data-toggle="modal" style="cursor:pointer;">
+                      <i class="fa fa-trash fa-2x"></i>
+                    </a>
+                  </span>
+
+                </div>
+                <div class="panel-body" >
+
+                  <form>
+                    <div class="form-group">          
+                      <label>Documento</label>
+                      <input type="file" class="note-image-input" id="archivo2" name="archivo2"  data-bind="fileData:{value:SoporteVO.ruta,allowedFileExtensions: ['png','jpg','jpge','pdf','Doc','xlsx'],
+                      elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                      <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, Doc y xlsx.<br></small>                      
+                    </div>
+
+                    <div class="form-group">
+                      <label>Nombre archivo (*)</label>
+                      <input type="text" data-bind="value:SoporteVO.nombre" class="form-control" placeholder="Dígite la nombre del archivo"/>
+                    </div>
+                  </form>
+
+                  <button type="button" class="btn btn-primary" data-bind="click:guardar_soporte">
+                    <i class="fa fa-floppy-o"></i> Guardar
+                  </button><br><br>
+
+
+                  <div data-bind="html: mensaje2"></div>
+                    <div class="table-responsive" data-bind="visible:(listado_soporte()!=null && listado_soporte().length > 0)">
+
+                      <table class="table" >
+                        <thead>
+                          <tr>
+                            <th style="width:10%">
+                                <div class="option-group field admin-form">
+                                  <label class="option option-primary"  style="">
+                                    <input type="checkbox" data-bind="checked:checkall_soporte">
+                                    <span class="checkbox"></span>
+                                  </label>
+                                </div> 
+                            </th>
+                            <th style="width:40%">Documento</th>
+                            <th style="width:50%">Nombre</th>
+                          </tr>
+                        </thead>
+
+                        <tbody data-bind="foreach:{data:listado_soporte, as:'item'}">
+                          <tr>
+                            <td>
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div>  
+                            </td> 
+                            <td>
+                              <a data-bind="attr: {href: item.ruta}" target="_blank" style="cursor:pointer;">
+                              <i class="fa fa-paperclip fa-2x"></i>
+                              </a>
+                            </td>
+                            <td data-bind="text: item.nombre"></td>
+                           
+                          </tr>     
+                        </tbody>
+                      </table>
+                    </div><!--cierra la tabla-->
+
+                </div><!--cierra div panel body-->
+
+              </div><!--cierra div col-sm 6-->
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+  <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>UUCC</label>
+
+              <select class="form-control" data-bind="value:AgregarCambioUUCCVO.uucc_id">
+                <option value="">[Seleccione...]</option>
+                <!--ko foreach:{ data:lista_uucc, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.descripcion"></option>
+                <!--/ko-->
+              </select>
+          </div>
+
+          <div class="form-group">
+            <label>Cantidad</label>
+              <input type="text" data-bind="value:AgregarCambioUUCCVO.cantidad,onlyNumber:AgregarCambioUUCCVO.cantidad" class="form-control" placeholder="Dígite la cantidad"/>
+          </div>
+
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<div id="modal_guardar_todo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <div>      
+            <h4 style="text-align: justify;">Desea notificar al usuario que aprueba este cambio.</h4>
+        </div>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:function(){guardar_todo(1)}"> Si</button>
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_todo"> No</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Modal para carga masiva-->
+<div id="modal_carga_masiva" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+          
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+        <div class="modal-body">
+
+          <div class="form-group">                 
+            <a style="cursor:pointer;" href="{% url 'control_cambios.descargar_plantilla_uucc' %}" target="_blank">
+              <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+              <label style="cursor:pointer;">Plantilla para cargar masiva (xls)</label>
+            </a>
+          </div>
+
+          <div class="form-group">          
+            <label>Documento</label>
+            <input type="file" class="note-image-input" id="archivo" name="archivo"  
+            data-bind="fileData:{value:archivo,elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:carga_excel">
+            <i class="fa fa-floppy-o"></i> Cargar
+          </button> 
+        </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+  <!--Fin del modal de fcarga masiva-->
+  
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/control_cambios/agregar_cambio_ucc.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      agregar_cambio.AgregarCambioUUCCVO.cambio_id({{id_cambio}});
+      agregar_cambio.proyecto_id({{id_proyecto}});
+      agregar_cambio.mcontrato({{id_contrato}});
+      agregar_cambio.usuario_revisa_id({{proyecto.usuario_revisa.id}});
+      agregar_cambio.consultar(1);//iniciamos la primera funcion
+      agregar_cambio.consultar_soportes();
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

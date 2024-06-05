@@ -1,0 +1,204 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "css/datepicker/bootstrap-datetimepicker.css" %}'> -->
+  <!--  <link rel="stylesheet" type="text/css" href='{% static "assets/admin-tools/admin-forms/css/admin-forms.css" %}'> -->
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'> -->
+
+  <!-- Glyphicons Pro CSS(font) -->
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "assets/fonts/glyphicons-pro/glyphicons-pro.css" %}'> -->
+{% endblock imports_css %}
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+{% endblock opciones_listado %}
+
+{% block title %}Permiso Contrato{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+	<li><a href="{% url 'contrato.contrato' %}">Contrato</a></li>
+	<li class="active">Permiso Contrato</li>
+{% endblock mapa %}
+<!-- % block encabezado %}Permiso Contrato{% endblock encabezado % -->
+
+{% block contenido %}
+<div class="alert alert-default light alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-cog pr10 hidden"></i>
+  <span>
+    <a href="{% url 'contrato.contrato' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"    aria-hidden="true"></i></a>
+  </span>  
+  <span data-bind="html:tituloPanel"></span>
+</div>
+
+<div class="row" >
+  <div class="col-lg-12">
+  
+    <div data-bind="html: mensaje"></div>
+
+    <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+      <div class="panel-heading">
+        <h4>Listado Empresas</h4>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive" data-bind="dropdown">
+          <table class="table">
+            <thead>
+              <tr>  
+                <th>Empresa</th>
+                <th>Participa</th>
+                <th>Edita</th>
+                <th>Opciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!--ko foreach:{ data:listado, as:'item'} -->
+                <tr>
+                  <td data-bind="text: item.empresa.nombre"></td>
+                  <!-- data-bind="text: item.participa" -->
+                  <td >
+                    <!--ko if: item.participa == 1 -->
+                      <i style="color:#4a89dc" class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    <!--/ko-->
+                    <!--ko if: item.participa == 0 -->
+                      <i style="color:#e9573f" class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
+                    <!--/ko-->
+                  </td>
+                  <td >
+                    <!--ko if: item.edita == 1 -->
+                      <i style="color:#4a89dc" class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                    <!--/ko-->
+                    <!--ko if: item.edita == 0 -->
+                      <i style="color:#e9573f" class="fa fa-times-circle-o fa-2x" aria-hidden="true"></i>
+                    <!--/ko-->
+                  </td>
+                  <td>
+                    <!--ko if: $index()!=0 -->
+                      <div class="btn-group text-right">
+                        <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                        <ul class="dropdown-menu" role="menu">
+                          {% if 'contrato.change_empresacontrato' in perms %}
+                            <li>
+                              <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                            </li>
+                          {% endif %}
+                          {% if 'contrato.delete_empresacontrato' in perms %}
+                            <li>
+                              <a href="#" data-bind="click:$root.eliminar">Eliminar</a>
+                            </li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                    <!--/ko-->
+                  </td>
+                </tr>
+              <!--/ko-->
+                
+            </tbody>
+          </table>
+          <div id="paginacion" >
+            <div data-bind="pagination: {
+                     currentPage: paginacion.pagina_actual,
+                     totalCount: paginacion.total,
+                     pageSize:paginacion.cantidad_por_paginas,
+                     maxPages: paginacion.maxPaginas,
+                     directions: paginacion.direcciones,
+                     boundary: paginacion.limite,
+                     text: paginacion.text }">
+            </div>
+          </div>
+        </div>
+        
+        
+
+      </div>
+    </div><!-- /.panel panel-sky -->
+
+  </div>
+</div>
+
+<!--Inicio Modal-->
+<div id="modal_acciones" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-ls">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+
+      <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row">
+            <div class="col-md-12">
+
+              <label>(*) Empresa</label>
+              <div class="form-group admin-form">
+                <label class=" select">
+                  <select class="form-control" data-bind="value:contratoEmpresaVO.empresa_id">
+                    <option value="">[Seleccione...]</option>
+                    <!--ko foreach:{ data:lista_empresa, as:'item'} -->
+                      <option data-bind="value:item.empresa_ver__id,text:item.empresa_ver__nombre"></option>
+                    <!--/ko-->
+                    <!--ko foreach:{ data:lista_contratista, as:'item'} -->
+                      <option data-bind="value:item.contrato__contratista__id,text:item.contrato__contratista__nombre"></option>
+                    <!--/ko-->
+                  </select><i class="arrow"></i>
+                </label>
+              </div>
+              <div class="option-group field admin-form">
+                <label class="option option-primary">
+                  <input  id="check_ver" value="1" type="checkbox" data-bind='checked:check_validacion_ver' name="check_val">
+                  <span class="checkbox"></span>Ver Contrato
+                </label>
+                </div><br/>
+              <div class="option-group field admin-form">
+                <label class="option option-primary">
+                  <input  id="check_edit" value="1" type="checkbox" data-bind='checked:check_validacion_edit' name="check_val">
+                  <span class="checkbox"></span>Ver y Editar Contrato 
+                </label>
+              </div>
+            </div> <!-- /.col-md-12 -->
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Fin Modal-->
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<!-- <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> -->
+
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/contrato/permisoContrato.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    contratoEmpresa.consultar({{id_contrato}});//iniciamos la primera funcion
+    contratoEmpresa.contratoEmpresaVO.contrato_id({{id_contrato}});
+    contratoEmpresa.contrato({{id_contrato}});
+  });
+</script>
+{% endblock imports %}

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Meta, title, CSS, favicons, etc. -->
+  <meta charset="utf-8">
+  <title>{% block title %}{% endblock title %}</title>
+  <meta name="keywords" content="HTML5 Bootstrap 3 Admin Template UI Theme" />
+  <meta name="description" content="AdminDesigns - A Responsive HTML5 Admin UI Framework">
+  <meta name="author" content="AdminDesigns">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% load static %}
+
+  {% include 'styles.html' %}
+ 
+  {%block imports_css %}{% endblock imports_css %}
+  
+</head>
+
+<body class="dashboard-page sb-l-o sb-r-c">
+  {% if user.usuario.empresa.id == 4 %}
+    <!-- <div class="row" style="
+                  text-align: center;
+                  position: relative;
+                  z-index: 10000;
+                  height: 17px;
+                  background: red;
+                  color: white;
+                  font-weight: bold;">
+        <div class="col-lg-12">
+          <p class="center">Nos permitimos recordarle que se encuentra pendiente el pago del servicio SININ, correspondiente al año 2019.</p>
+        </div>
+    </div> -->
+    {% endif %}
+
+  <div id="main">
+    
+  <!-- Header -->
+     <header id="header" class="navbar navbar-fixed-top">
+      
+
+      <!--Nombre de la empresa y opciones varias-->
+      <div class="navbar-branding">
+        <a class="navbar-brand" href="{% url 'usuario.index' %}">
+          <b>SININ </b>
+        </a>
+        <span id="toggle_sidemenu_l" class="ad ad-lines"></span>
+      </div><!-- fin nombre de la empresa y opciones varias-->
+
+
+    <ul class="nav navbar-nav navbar-left">
+
+        <li class="hidden-xs">
+          <a class="request-fullscreen toggle-active" href="#" data-placement="right"  data-toggle="tooltip" data-original-title="Expandir pantalla">
+            <span class="ad ad-screen-full fs18"></span>
+          </a>
+        </li>
+    {% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#" data-bind="click:eliminar" data-placement="right" data-toggle="tooltip" data-original-title="Eliminar registro(s)">
+                  <i class="fa fa-trash" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+
+      {% endblock opciones_listado %}      
+
+      </ul><!-- fin de opciones del modulo-->
+
+      
+      {% block busqueda %}
+      <!--Buscador-->
+      <div class="navbar-form navbar-left navbar-search" role="search">
+        <div class="form-group">
+          <input type="text" id="txtBuscar" name="txtBuscar" class="form-control" placeholder="Buscar..." data-bind='event:{keypress: $root.consulta_enter}'>
+        </div>
+      </div><!--fin buscador-->
+      {% endblock busqueda %}
+
+      <ul class="nav navbar-nav navbar-right">
+
+        <!--Notificaciones-->        
+        {% load correspondencia_recibida_tags %}
+        {% if user.is_authenticated %}
+          {% miscorrespondencias user %}
+        {% endif %}
+        <!--fin notificaciones-->
+
+        <!--Mis Responsabilidades-->        
+        {% load responsabilidades %}
+        {% if user.is_authenticated %}
+          {% misResponsabilidades user %}
+        {% endif %}
+        <!--fin Mis Responsabilidades-->
+
+        <!--Opciones de perfil-->
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle fw600 p15" data-toggle="dropdown"> 
+            <img src="{{ user.usuario.foto_publica }}" alt="Imagen" class="mw30 br64 mr15">
+            <span class="caret caret-tp hidden-xs"></span>
+          </a>
+          <ul class="dropdown-menu list-group dropdown-persist w250" role="menu">
+
+            <li class="dropdown-header clearfix">
+                <h5>Bienvenido!</h5>
+                 <span style="color: blue;">{{ user.usuario.nombres }} {{user.usuario.apellidos}} </span><br>
+                 Empresa:<br>
+                <span style="color: blue;">{{ user.usuario.empresa.abreviatura }}</span><br>
+                Ultima entrada:<br>
+                <span style="color: blue;">{{ user.last_login }}</span>
+            </li>
+
+            <li class="list-group-item">
+              <a href="{% url 'usuario.perfil' %}" class="animated animated-short fadeInUp">
+                <span class="fa fa-pencil"></span> Editar perfil
+              </a>
+            </li>
+            <li class="list-group-item">
+              <a href="{% url 'usuario.changePass' %}" class="animated animated-short fadeInUp">
+                <span class="fa fa-pencil"></span> Cambiar contraseña
+              </a>
+            </li>            
+             <li class="list-group-item">
+              <a href="{% url 'usuario.accesos_directos' %}" class="animated animated-short fadeInUp">
+                <span class="fa fa-pencil"></span> Accesos directos
+              </a>
+            </li>
+            {% if 'parametrizacion' in perms or 'empresa' in perms %}
+              {% if 'parametrizacion.can_see_banco' in perms or 'parametrizacion.can_see_funcionario' in perms or 'parametrizacion.can_see_empresa' in perms or 'empresa.can_see in perms'%} 
+                <li class="list-group-item">
+                  <a href="{% url 'parametrizacion.parametrizacion' %}" class="animated animated-short fadeInUp">
+                    <span class="fa fa-gear"></span> Parametrización </a>
+                </li>
+             {% endif %}
+            {% endif %}
+
+            <li class="list-group-item">
+              <a href="{% url 'grupo_videos_tutoriales' %}" class="animated animated-short fadeInUp">
+                <span class="fa fa-pencil"></span> Videos Tutoriales
+              </a>
+            </li>
+
+            <li class="list-group-item">
+              <a href="{% url 'parametrizacion.manual_usuario' %}" class="animated animated-short fadeInUp">
+                <span class="fa fa-book"></span> Manual de Usuario
+              </a>
+            </li>
+
+            <li class="dropdown-footer">
+              <a href="{% url 'usuario.logout' %}" class="">
+              <span class="fa fa-power-off pr5"></span> Cerrar sesion </a>
+            </li>
+          </ul>
+        </li><!--fin Opciones de perfil-->
+
+      </ul><!--cierra navbar-right-->
+
+    </header>
+   <!--cierra Header -->
+
+    <!-- Menu -->
+        {% load opcion_tags %}
+        {% if user.is_authenticated %}
+          {% menu user %}
+        {% endif %}
+    <!-- Fin Menu -->
+
+    <!-- Start: Content-Wrapper -->
+    <section id="content_wrapper">
+
+     <!-- Navegacion -->
+
+      <header id="topbar">
+        <div class="topbar-left">
+          <ol class="breadcrumb">
+
+
+               <!-- <li class="crumb-active">
+                  <a>
+
+                  </a>
+               </li> -->
+              <div class="col-lg-12">
+                 <h2>{% block encabezado %}{% endblock encabezado %}</h2>
+              </div>
+                  {% block mapa %}
+                  {% endblock mapa %}
+          </ol>
+        </div>
+        <div class="topbar-right">
+           {% block opciones_izquierda %}
+           {% endblock opciones_izquierda %}
+        </div>
+      </header>
+
+     <!-- Fin Navegacion -->
+
+      <!-- Begin: Content -->
+      <section id="content" class="animated fadeIn">
+
+      <div class="tray tray-center">
+        {% block contenido %}
+        {% endblock contenido %}
+      </div>
+
+      </section><!-- End: Content -->
+
+
+    </section><!-- End: Content-Wrapper -->
+
+
+  </div><!-- End: Main -->
+
+
+ <div id='loading' style="display: none;">
+          <div class="pop-fondo"></div><img class="pop-imagen" src='{% static "css/images/iconoCargando.gif" %}')>
+  </div>
+
+ <div id='progressbar' style="display: none;">
+     <div class="pop-fondo"></div>
+     <div class="progress progress-striped pop-progress">
+         <div class="progress-bar progress-bar-success">0%</div>
+     </div>
+     <div id="status"></div>
+  </div>
+
+  <div class="modal fade" id="modalCerrarSesion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Sisión terminada</h5>
+       <!--  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button> -->
+      </div>
+      <div class="modal-body">
+        <h2>Sinin se ha cerrado debido a que ha iniciado sesión en otro equipo.</h2>
+      </div>
+      <div class="modal-footer">
+        <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+        <button type="button" class="btn btn-primary" onclick="refrescarSesion()">Aceptar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'scripts.html' %}
+
+{%block imports %}{% endblock imports %}
+
+</body>
+
+</html>

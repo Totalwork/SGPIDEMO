@@ -1,0 +1,35 @@
+<div class="panel panel-sky" data-bind="visible:(lista_actas()!=null && lista_actas().length > 0)">
+  <div class="panel-heading">
+    <h4>Listado actas</h4>
+  </div>
+  <div class="panel-body">
+    <div class="table-responsive" data-bind="dropdown">
+      <table class="table">
+        <thead>
+          <tr>  
+            <th>Operación</th>
+            <th>Desde</th>
+            <th>Hasta</th>
+            <th>Soporte</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!--ko foreach:{ data:lista_actas, as:'item'} -->
+            <tr>
+              <td data-bind="text: item.nombre"></td>
+              <td data-bind="text: item.fecha_inicio"></td>
+              <td data-bind="text: item.fecha_fin"></td>
+              <td >
+                <!-- <a data-toggle="tooltip" id="" href="" target="_blank" title="Ver soporte"><i class="fa fa-paperclip fa-2x"></i></a> -->
+                <a data-bind="click: $root.ver_soporte" href="#" style="cursor: pointer; color:#4a89dc">
+                  <i class="fa fa-file kv-caption-icon"></i> Documento
+                </a>
+              </td> 
+            </tr>
+          <!--/ko-->
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div><!-- /.panel panel-sky -->

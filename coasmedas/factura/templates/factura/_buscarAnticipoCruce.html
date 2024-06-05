@@ -1,0 +1,86 @@
+<div class="panel panel-primary" id="p5">
+  <div class="panel-heading ui-sortable-handle">
+    <span class="panel-title">Anticipo</span>
+  </div>
+  
+  <div class="panel-body" style="display: block;">
+    
+    <div class="mb20 text-right">
+      <!-- <span class="fs11 text-muted ml10">
+        <i class="fa fa-circle text-primary fs12 pr5"></i> Facebook</span>
+      <span class="fs11 text-muted ml10">
+        <i class="fa fa-circle text-info fs12 pr5"></i> Twitter</span>
+      <span class="fs11 text-muted ml10">
+        <i class="fa fa-circle text-warning fs12 pr5"></i> Google+</span> -->
+    </div>
+    <div class="row">
+
+      <div class="col-lg-12">
+
+        <div data-bind="html: mensaje_anticipo"></div>
+
+        <div class="panel panel-sky" data-bind="visible:(listado_anticipo()!=null && listado_anticipo().length > 0), dropdown">
+          <div class="panel-heading">
+            <span class="panel-title">
+              Listado Anticipo
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="table-responsive" >
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary" >
+                          <input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall_anticipo">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </th>
+                    <th></th>
+                    <th>Referencia</th>
+                    <th>Nombre</th>
+                    <th>Valor</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!--ko foreach:{ data:listado_anticipo, as:'item'} -->
+                    <tr>
+                      <td>
+                        <!--ko if: $root.listado_anticipo_c().indexOf(item.id) < 0 -->
+                          <div class="option-group field admin-form" >
+                            <label class=" mt10 option option-primary"  >
+                              <input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:id" />
+                              <span class="checkbox"></span>
+                              <!-- <span data-bind="text: item.nombre"></span> -->
+                            </label>
+                          </div><!-- end .option-group section -->
+                        <!-- /ko -->
+                      </td>
+                      <td>
+                        <small>
+                          <!--ko if: item.soporte != '' && item.soporte != null -->
+                            <a data-bind="attr:{href: '../../giros/ver-soporte/?id=' + item.id}" target="_blank">
+                              <i class="fa fa-file"></i>
+                            </a>
+                          <!-- /ko -->
+                        </small>
+                      </td>
+                      <td data-bind="text: item.referencia"></td>
+                      <td data-bind="text: item.nombre"></td>
+                      <td data-bind="text: formatMoney(item.valor)"></td>
+                      <!-- <td data-bind="text: sumar_valores(listado_detalla_anticipo(),'valor_giro')"></td> -->
+                    </tr>
+                  <!--/ko-->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div><!-- /.panel panel-sky -->
+      </div>
+
+    </div> <!-- ./row -->
+  </div> <!-- ./panel-body -->
+</div>

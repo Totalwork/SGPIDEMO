@@ -1,0 +1,38 @@
+
+<div class="row" >
+	<div class="col-xs-6">
+
+		<div class="option-group field admin-form" data-bind="foreach:{data:lista_tecnica, as:'item'}"> 		
+
+				<label class="block mt15 option option-primary"  >
+
+					<input disabled name="mobileos" type="checkbox" data-bind="checked:item.estado">
+					<!-- <span data-bind="text: item.nombre"></span> -->
+					<span class="checkbox"></span>
+					<span data-bind="text: item.requisito__nombre"></span>
+
+				</label>
+		</div>
+
+	</div>
+	<div class="col-xs-6">
+
+		<!--ko if: soporteTecnico()!='' && soporteTecnico()!=null -->
+		<div class="form-group">
+			<a data-bind="attr:{href: soporteTecnico}" target="_blank">
+				<i class="fa fa-file"></i>
+				Ver soporte
+			</a>
+		</div>
+		<!-- /ko -->
+		<!--ko if: soporteTecnico()=='' || soporteTecnico()==null -->
+			Sin soporte<br/><br/>
+		<!-- /ko -->
+
+		<div class="form-group">
+			<label>Observacion:</label>
+			<textarea class="form-control textarea-grow" data-bind='value:favorabilidadTecnicaVO.observacion' rows="4"></textarea>
+		</div>
+
+	</div>
+</div>

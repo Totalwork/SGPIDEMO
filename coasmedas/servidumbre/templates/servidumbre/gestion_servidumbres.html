@@ -1,0 +1,352 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Gestion de servidumbres{% endblock title %}
+
+{% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="{% url 'servidumbre.nuevo_expediente' %}"  data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+        {% if app in perms %}
+          {% if app|add:'.change_'|add:model in perms%}        
+            <li>
+              <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Cerrar expedientes" data-bind="click:cerrar_expedientes" data-toggle="modal" style="cursor:pointer;">
+              <i class="fa fa-thumbs-down fa-2x"></i>
+          </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        
+          {% if 'servidumbre.change_servidumbre_documento' in perms%}        
+            <li>
+              <a href="{% url 'servidumbre.configuracion' %}" data-placement="right"  data-toggle="tooltip" data-original-title="Configuracion grupos de docs.">
+                 <i class="fa fa-cog" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        
+
+{% endblock opciones_listado %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+    <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li>Gestion de servidumbres</li>
+{% endblock mapa %}
+
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+
+
+
+
+<div class="panel panel-sky">
+  <div class="row" >
+
+    <div class="col-lg-12">
+
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">
+              <a href="{% url 'servidumbre.graficas'%}" data-placement="right"  
+                data-toggle="tooltip" data-original-title="Regresar al dashboard">
+                <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              </a> 
+              <span class="panel-title hidden-xs">Listado de expedientes - N° de Registros :</span>
+              <span data-bind="text:paginacion.total"></span>  
+              
+
+            </div>
+
+          <!--</div>cierra panel mb25 mt5 -->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+
+  <div class="panel-body">
+    <div data-bind="html: mensaje"></div>  
+
+    <div class="row" data-bind="visible:(listado_expedientes()!=null && listado_expedientes().length > 0)">
+        <i class="fa fa-bell 2x" style="color: #FFFF00;"></i>Abierto; 
+        <i class="fa fa-bell 2x" style="color: #CDCDCD;"></i>Cerrado
+        <table class="table">
+                              
+          <thead>
+                <tr>
+                    <th>
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:checkall">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                    </th>
+                    <th></th>
+                    <th>Numero</th>
+                    <th>Macro contrato</th>
+                    <th>Departamento</th>
+                    <th>Municipio</th>
+                    <th>Proyecto - Servicio</th>
+                    <th>No. de predios</th>
+                    <th></th>
+                </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_expedientes, as:'item'}">
+                  <tr>
+                      <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:eliminado,value:id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div> 
+                      </td> 
+                      <td>                        
+                        <i  data-bind="css : item.estado.icono+' ' ,style:{color:item.estado.color}"></i>
+                      </td>
+                      <td data-bind="text: item.id"></td>
+                      <td data-bind="text: item.proyecto.nombremcontrato"></td>
+                      <td data-bind="text: item.proyecto.departamento"></td>
+                      <td data-bind="text: item.proyecto.municipio"></td>
+                      <td data-bind="text: item.proyecto.nombre"></td>
+                      <td data-bind="text: item.nopredios"></td>
+
+                      <td>
+                          
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+
+                            
+                                <li>
+                                  <a href="#" data-bind="attr:{href:'../expediente/'+item.id}">Ver Detalle</a>
+                                </li>
+                             
+
+                                {% if app in perms %}
+                                  {% if app|add:'.change_'|add:model in perms%}   
+                                    <li>
+                                      <a href="#" data-bind="attr:{href:'../editarexpediente/'+item.id}">Editar</a>
+                                    </li>
+                                  {% endif %}
+                                {% endif %}
+
+                                <li>
+                                  <a href="#" data-bind="attr:{href:'../predios/'+item.id}">Predios</a>
+                                </li>
+
+                                
+                                <!-- ko if: item.estado.codigo==159 -->
+                                  {% if app in perms %}
+                                    {% if app|add:'.change_'|add:model in perms%}                                   
+                                      <li>
+                                        <a href="#" data-bind="click:$root.Cerrar" id="OpcionCerrar">Cerrar expediente</a>
+                                      </li>                                  
+                                    {% endif %}
+                                  {% endif %}
+                                <!-- /ko -->  
+
+                                <!-- ko if: item.estado.codigo==160 -->
+                                  {% if app in perms %}
+                                    {% if app|add:'.change_'|add:model in perms%}                                  
+                                      <li>
+                                        <a href="#" data-bind="click:$root.Reabrir" id="OpcionReabrir">Reabrir expediente</a>
+                                      </li>             
+                                    {% endif %}
+                                  {% endif %}
+
+                                <!-- /ko -->
+
+                                
+                                                          
+                                      <li>
+                                        <!-- <a href="#" data-bind="click:$root.georeferencias" id="OpcionReabrir">Geocoordenadas</a> -->
+                                        <a href="#" data-bind="attr:{href:'../expediente-georeferencias/'+item.id}">Georreferencias</a>
+                                      </li> 
+                            </ul>
+                          </div>
+                      </td>          
+                  </tr>
+          </tbody>
+        </table>
+        
+        <div id="paginacion" >
+          <div data-bind="pagination: {
+                      currentPage: paginacion.pagina_actual,
+                      totalCount: paginacion.total,
+                      pageSize:paginacion.cantidad_por_paginas,
+                      maxPages: paginacion.maxPaginas,
+                      directions: paginacion.direcciones,
+                      boundary: paginacion.limite,
+                      text: paginacion.text }">
+
+          </div>
+        </div>
+        
+    </div><!--cierra row -->
+  </div><!-- cierra panel body-->
+
+</div>
+
+
+<!-- INICIO MODAL -->
+
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+       <form action="." method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6">
+
+            <label>(*) Proyecto</label>
+            <div class="form-group admin-form">
+              <label class=" select">
+                <select class="form-control" data-bind="
+                  value: expedienteVO.proyecto_id, 
+                  options:listado_proyectos, 
+                  optionsText:'nombre', 
+                  optionsValue:'id', 
+                  optionsCaption:'[Seleccione...]'">
+                </select>
+                <i class="arrow"></i>
+              </label>
+            </div>
+
+
+          </div> <!-- /.col-md-6 -->
+        </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" >Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL MODAL -->
+
+<!-- INICIO MODAL FILTRO -->
+ <div id="modal_filtro_expediente" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+      <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                <div class="form-group">
+                  <label>Macrocontrato</label>
+                <!--     <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" 
+                    data-bind="value:macontrato_filtro_select"> -->
+                    <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" >
+                      <option value="0">[Seleccione...]</option>
+                        <!-- <option data-bind="value:item.id,text:item.nombre"></option> -->
+                        <!--/ko-->
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Departamento</label>
+                    <!-- <select class="form-control" id="contrato_filtro" name="contrato_filtro"
+                    data-bind="value:departamento_filtro_select"> -->
+                    <select class="form-control" id="contrato_filtro" name="contrato_filtro">
+                      <option value="0">[Seleccione...]</option>
+                        <!--   <option data-bind="value:item.id,text:item.nombre"></option> -->
+                        <!--/ko-->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                  <label>Municipio</label>
+                   <!--  <select class="form-control" id="contratista_filtro" name="contratista_filtro" 
+                    data-bind="value:municipio_filtro_select"> -->
+                    <select class="form-control" id="contratista_filtro" name="contratista_filtro">
+                      <option value="0">[Seleccione...]</option>
+                         <!--  <option data-bind="value:item.id,text:item.nombre"></option> -->
+                        <!--/ko-->
+                    </select>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+                  <i class="fa fa-search"></i> Filtrar
+                </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{% block imports %}
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/jquery-ui-datepicker.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<!-- Select2 Plugin Plugin  -->
+<script type="text/javascript" src='{% static "vendor/plugins/select2/select2.min.js" %}'></script>
+<!-- TagManager Plugin  -->
+<script type="text/javascript" src='{% static "vendor/plugins/tagmanager/tagmanager.js" %}'></script>
+<!-- Typeahead Plugin  -->
+<script type="text/javascript" src='{% static "vendor/plugins/typeahead/typeahead.bundle.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/gestion_servidumbres.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+     	      
+     	expedientes.cargar(1);
+
+     
+      
+    });  
+
+  </script>
+
+{% endblock imports %}        
+

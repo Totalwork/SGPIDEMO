@@ -1,0 +1,178 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+
+{% block title %}Programacion{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma_proyecto' id_presupuesto id_proyecto %}">Cronograma de Proyecto</a></li>
+  <li class="active">Programacion</li>
+{% endblock mapa %}
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+
+{% block opciones_listado %} 
+
+                      
+            <li>
+              <a href="#" data-bind="click:abrir_modal">
+                 <i class="fa fa-upload" style="font-size: 20px;"></i>
+              </a>
+            </li>
+            
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+     
+  
+  <div class="panel panel-sky">
+          <div class="panel-heading">
+                <span class="panel-title">Programacion </span>
+          </div>
+          
+          <div class="panel-body" >
+
+            <div class="row">
+
+
+                  <div class="col-lg-8"> 
+                        <div id="high-line3" style="width: 100%;"></div>
+                  </div>
+
+
+                  <div class="col-lg-4">                      
+                       <Strong>Presupuesto: {{cronograma.presupuesto.nombre}} </Strong><br><br>
+                       <Strong>Proyecto:  {{cronograma.presupuesto.proyecto.nombre}}</Strong><br><br>
+                       <Strong>Esquema: {{cronograma.presupuesto.esquema.nombre}}</Strong><br><br>
+                       <Strong>Cronograma: {{cronograma.nombre}} </Strong><br><br>
+                  </div>
+              
+            </div>
+
+            <br><br>
+           <div data-bind="html: mensaje"></div> 
+          <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Hitos</th>
+              <th>Actividad</th>
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Apoyo</th>
+              <th>Cantidad</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.cantidadesNodo.detallepresupuesto.nombre_padre"></td>
+              <td data-bind="text: item.cantidadesNodo.detallepresupuesto.actividad.nombre"></td>
+              <td data-bind="text: item.cantidadesNodo.detallepresupuesto.codigoUC"></td>
+              <td data-bind="text: item.cantidadesNodo.detallepresupuesto.descripcionUC"></td>
+              <td data-bind="text: item.cantidadesNodo.nodo.nombre"></td>
+              <td data-bind="text: item.cantidadesNodo.cantidad"></td>
+              <td data-bind="text: item.fecha"></td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+
+          <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+
+      </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" > 
+<input type="hidden" id="id_proyecto" value="{{id_proyecto}}" class="form-control" >
+<input type="hidden" id="id_presupuesto" value="{{id_presupuesto}}" class="form-control" > 
+<input type="hidden" id="id_cronograma" value="{{id_cronograma}}" class="form-control" >
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <Strong>Presupuesto: {{cronograma.presupuesto.nombre}} </Strong><br><br>
+        <Strong>Proyecto:  {{cronograma.presupuesto.proyecto.nombre}}</Strong><br><br>
+        <Strong>Esquema: {{cronograma.presupuesto.esquema.nombre}}</Strong><br><br>
+        
+         <div class="form-group">
+            <a href="#" data-bind="click:descargar_plantilla"><label style="cursor: pointer;">Plantilla para diligenciar <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i></label></a>       
+        </div>
+
+
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+           <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados xls y xlsx.<br></small>                      
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Iniciar Carga</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+  <script src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico/programacion.js" %}'></script>
+{% endblock imports %}

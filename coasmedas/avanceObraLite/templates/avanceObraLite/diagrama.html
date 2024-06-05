@@ -1,0 +1,837 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Programacion{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li class="active">Programacion</li>
+{% endblock mapa %}
+
+
+
+    {% block opciones_listado %}
+
+     
+                     
+        <!-- {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %} -->
+
+      <!--ko if: cierre_programacion()==0 && confirmarFechas()==0 --> 
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#" data-bind="click:eliminar" data-placement="right" data-toggle="tooltip" data-original-title="Eliminar registro(s)">
+                  <i class="fa fa-trash" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+      <!--/ko-->
+
+      <!--ko if: cierre_programacion()==0 && $root.confirmarFechas()==1  -->
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%} 
+           
+              <li>
+                <a href="#" data-bind="click:abrir_carga_masiva">
+                   <i class="fa fa-upload" style="font-size: 20px;"></i>
+                </a>
+              </li>
+            
+          {% endif %}
+        {% endif %}
+      <!--/ko-->
+       
+
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+
+        
+
+      {% endblock opciones_listado %}    
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="cronograma_id" value="{{cronograma_id}}" class="form-control" >  
+<input type="hidden" id="programacion_cierre" value="{{cronograma.programacionCerrada}}" class="form-control" >
+<input type="hidden" id="confirmarFechas" value="{{cronograma.confirmarFechas}}" class="form-control" >
+<input type="hidden" id="fechaInicio" value="{{cronograma.fechaInicio}}" class="form-control" >  
+<input type="hidden" id="fechaFinal" value="{{cronograma.fechaFinal}}" class="form-control" >  
+
+  <div class="panel panel-sky" >
+          <div class="panel-heading">
+                <span class="panel-title">
+                  <a href="{% url 'avanceObraLite.cronograma_proyecto' proyecto_id%}" data-placement="right"    
+                    data-toggle="tooltip" data-original-title="Regresar al cronograma">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  Programación del cronograma
+                </span>
+                <!--ko if: $root.cierre_programacion()==0 --> 
+                   
+                  <!--ko if: $root.confirmarFechas()==0  -->
+                    <span class="panel-controls"> 
+                      <span class="panel-icon">
+                          <a href="#" data-bind="click:confirmar_fechas">
+                            Confirmar programación<i class="fa fa-check" style="font-size: 20px;"></i></a>
+                        </span>
+                    </span>
+                  <!--/ko-->
+
+                  <!--ko if: $root.confirmarFechas()==1  -->
+                    <span class="panel-controls"> 
+                            <span class="panel-icon">
+                              <a href="#" data-bind="click:cerrar_programacion">
+                                Cerrar programación <i class="fa fa-check" style="font-size: 20px;"></i></a>
+                            </span>
+                    </span>
+                  <!--/ko-->
+                 <!--/ko-->
+
+
+          </div>
+          <div class="panel-body">
+            <Strong>Proyecto: </Strong> {{cronograma.proyecto.nombre}}<br><br>
+            <Strong>Esquema: </Strong> {{cronograma.esquema.nombre}}<br><br>
+            <Strong>Fecha inicial y final: </Strong> <label style="font-weight: 400" id='fechas_cronograma'></label> 
+              <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==0 -->
+
+                  <a style="text-decoration:none; cursor:pointer" data-bind="click: abrir_editar_fechas">
+                    <i class="fa fa-pencil-square-o fa-1x"></i>
+                  </a>
+
+                  <br>
+                
+              <!--/ko-->
+            <br>
+          </div>
+          <div class="panel mb25">
+            <div class="panel-heading">                             
+                <ul class="nav panel-tabs-border panel-tabs">
+
+                  <li class="active" id="tab_li_1">
+                    <a href="#tab_div_1" id="tab_a_1" data-toggle="tab" aria-expanded="true">Periodos </a>
+                  </li>
+                  <!--ko if: $root.habilitar_detalles()  -->
+                    <li class="" id="tab_li_2"> 
+                      <a href="#tab_div_2" id="tab_a_2" data-toggle="tab" aria-expanded="false">UUCC a ejecutar</a>
+                    </li>
+                   <!--/ko-->
+                </ul>
+
+            </div>
+            <div class="panel-body p20 pb10">
+                <div class="tab-content pn br-n admin-form">
+
+                  <div id="tab_div_1" class="tab-pane active">
+   
+                    
+                    <div class="panel-heading" style="padding: 0px;">
+                       Listado de periodos <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+                    </div>
+                    <div data-bind="html: mensaje"></div>
+                    <div class="body" data-bind="visible:(listado()!=null && listado().length > 0)"> 
+                        <i class="fa fa-eye fa-2x" style="color:green;"></i>
+                        &nbsp;:&nbsp;[Periodo con cant. UUCC];
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+
+                        <i class="fa fa-eye fa-2x" style="color:#4a89dc;"></i>
+                        &nbsp;:&nbsp;[Periodo sin cant. UUCC];
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                        <br><br>
+                    <div class="table-responsive">
+                    <table class="table">                        
+                      <thead>                        
+                      <tr>        
+                        <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==0 -->
+                          <th>                
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:checkall">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div> 
+                          </th>
+                        <!--/ko-->
+                        <th style="width: 20%">Periodo</th>
+                        <th>Desde</th>
+                        <th>Hasta</th>
+                        <th></th>
+                      </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado, as:'item'}">
+                        <tr>
+                          <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==0 -->
+                            <td>                                 
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div>
+                            </td>
+                          <!--/ko--> 
+                          <td data-bind="text: ($index()+1)+($root.paginacion.cantidad_por_paginas()*($root.paginacion.pagina_actual()-1))"></td>
+                          <td data-bind="text: item.fechaDesde"></td>
+                          <td data-bind="text: item.fechaHasta"></td>
+                           
+                           <td>
+                            <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==0-->
+                              <div class="btn-group text-right">
+                                <a href="#" data-bind="click:$parent.consultar_por_id">
+                                  <i class="fa fa-pencil-square-o fa-2x"></i>
+                                </a>
+                              </div>
+                            <!--/ko-->
+
+                            <!--ko if:  $root.confirmarFechas()==1  -->
+                              <div class="btn-group text-right">
+                                <a href="#" data-bind="click:$parent.consultar_por_detalles">
+                                  <!--ko if: item.utilizado-->
+                                    <i class="fa fa-eye fa-2x " style="color: green"></i>
+                                  <!--/ko-->
+
+                                  <!--ko ifnot: item.utilizado-->
+                                    <i class="fa fa-eye fa-2x"></i>
+                                  <!--/ko-->
+                                  
+                                </a>
+                              </div>
+                            <!--/ko-->
+                          </td> 
+                          
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>
+                    <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion.pagina_actual,
+                                     totalCount: paginacion.total,
+                                     pageSize:paginacion.cantidad_por_paginas,
+                                     maxPages: paginacion.maxPaginas,
+                                     directions: paginacion.direcciones,
+                                     boundary: paginacion.limite,
+                                     text: paginacion.text }">
+
+                        </div>
+                    </div>
+                    </div>
+
+                  </div><!--cierra tap 1-->
+
+                  <div id="tab_div_2" class="tab-pane"> 
+                    <div class="panel-heading" style="padding: 0px;">
+                        Listado de UUCC a ejecutar <span data-bind="text:'- N° de Registros: ' + paginacion_detalles.totalRegistrosBuscados() + ' de ' + paginacion_detalles.total()"></span>
+                      <span class="panel-controls">
+                      <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+                        <span class="panel-icon">
+                          <a href="#" data-bind="click:guardar_cantidad" data-placement="right"  data-toggle="tooltip" data-original-title="Guardar Cantidad"><i class="fa fa-save" style="font-size: 20px;"></i></a>
+                        </span>
+                      <!--/ko--> 
+                        <span class="panel-icon">
+                          <a href="#" data-bind="click:abrir_modal_filter" data-placement="right"  data-toggle="tooltip" data-original-title="Filtro"><i class="fa fa-filter" style="font-size: 20px;"></i></a>
+                        </span>
+
+                      </span>
+
+                    </div>
+                      <div class="panel-heading" style="padding: 0px;">
+                        Cant. programada superior que Cant. presupuestada :
+                        <label style="
+                          width:35px;
+                          /*height:30px;*/
+                          border-radius: 100%;
+                          text-align: center;font-size: 12px;
+                          color: white;
+                          margin:  0px;
+                          background: #f4ab9f;
+                          font-weight: bold;
+                          ">
+                          <span  data-bind="text:$root.cant_superiores()"></span>                            
+                        </label>                         
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+
+                        Cant. programada inferior que Cant. presupuestada :
+                        <label style="
+                          width:35px;
+                          /*height:30px;*/
+                          border-radius: 100%;
+                          text-align: center;font-size: 12px;
+                          color: white;
+                          margin:  0px;
+                          background: #fadb9a;
+                          font-weight: bold;
+                          "                          
+                          >      
+                            <span  style="vertical-align: middle;" data-bind="text:$root.cant_inferiores()"></span>                      
+                        </label>                         
+                        &nbsp;&nbsp;&nbsp;&nbsp;
+                      </div>
+                    <div data-bind="html: mensaje_detalles"></div>
+                    <div class="body" data-bind="visible:(listado_detalles()!=null && listado_detalles().length > 0)"> 
+                      <div class="table-responsive">
+                        <table class="table">
+                          <thead>
+                          <tr>
+                            <!-- <th>Hitos</th> -->
+                            <th style="width: 30%">Actividad</th>
+                            <th style="width: 20%">UUCC</th>
+                            <th style="width: 40%">Descripcion UUCC</th>
+                            <th style="width: 10%">Cant. presupuestada</th>
+                            <th style="width: 10%">Cant. programada</th>
+                            <th></th>
+                          </tr>
+                          </thead>
+                          <tbody data-bind="foreach:{data:listado_detalles, as:'item'}">
+                          <tr data-bind="css:{
+                                    'warning': item.cantidad() > item.cantidad_programada(),
+                                    'danger': item.cantidad() < item.cantidad_programada()
+                                    }">
+                            <!-- <td data-bind="text: item.nombre_padre"></td> -->
+                            <td data-bind="text: item.actividad_nombre"></td>
+                            <td data-bind="text: item.codigoUC"></td>
+                            <td data-bind="cutWord:{num:30,text:item.descripcionUC(), verMax:'...', verMin:'...'}"></td>
+                            <!-- <td data-bind="text: item.descripcionUC"></td> -->
+                            <td >
+                              <input style="width: 65px" type="text" data-bind="value:item.cantidad,enable:item.habilitar" class="form-control" > 
+                            </td>
+                            <td data-bind="text: item.cantidad_programada"></td>
+                            <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+                              <td>
+                                <div class="btn-group text-right">
+                                  <a href="#" data-bind="click:$root.reformar_uucc">
+                                    <i class="fa fa-pencil-square-o fa-2x"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            <!--/ko-->
+
+                          </tr>
+                          </tbody>
+
+                        </table>
+                      </div>
+                      <div id="paginacion" >
+                        <div data-bind="pagination: {
+                                     currentPage: paginacion_detalles.pagina_actual,
+                                     totalCount: paginacion_detalles.total,
+                                     pageSize:paginacion_detalles.cantidad_por_paginas,
+                                     maxPages: paginacion_detalles.maxPaginas,
+                                     directions: paginacion_detalles.direcciones,
+                                     boundary: paginacion_detalles.limite,
+                                     text: paginacion_detalles.text }">
+
+                        </div>
+                      </div>
+
+
+                    </div>
+
+                  </div><!--cierra tap 2-->
+
+
+                  
+
+                </div>
+            </div>
+          </div>
+
+          
+  </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+<div id="modal_filtro" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Hitos</label>
+            <select class="form-control" data-bind="value:busquedaVO.hito_id">
+                      <option value="">[Seleccione..]</option>
+                       {% for item in capitulos %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+
+        <div class="form-group">
+            <label>Actividades</label>
+            <select class="form-control" data-bind="value:busquedaVO.actividad_id">
+                      <option value="">[Seleccione..]</option>
+                       <!-- ko foreach: listado_actividades_detalles -->
+                          <option data-bind="value:id,text:nombre"></option>
+                       <!-- /ko -->
+            </select>          
+        </div>
+
+        <div class="form-group">
+            <input type="text" id="txtBuscar_detalles" name="txtBuscar" class="form-control" placeholder="Buscar...">
+        </div> 
+
+           
+        </form>
+    </div>
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:filtrar">Filtrar</button>
+        </div> 
+  </div>
+</div>
+</div>
+
+
+
+
+<div id="modal_moficiar_periodo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Periodicidad(*)</label>
+            <select class="form-control" data-bind="value:cronogramaVO.periodicidad_id">
+                  <option value="">[Seleccione..]</option>
+                   {% for item in periodicidades %}
+                    <option value="{{ item.id }}">{{ item.nombre }}</option>
+                  {% endfor %} 
+            </select>          
+        </div>
+
+
+        <div class="form-group">
+          <label>Fecha Inicio(*)</label>
+          <div class="input-group date" id='datetimepicker2'>
+           <input  type="text" class="form-control" data-bind="datePicker:cronogramaVO.fechaInicio,value:cronogramaVO.fechaInicio"  onkeypress="return false">
+            <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+            </label>
+          </div>  
+        </div> 
+
+
+        <div class="form-group">
+          <label>Fecha Final(*)</label>
+          <div class="input-group date" id='datetimepicker2'>
+           <input  type="text" class="form-control" data-bind="datePicker:cronogramaVO.fechaFinal,value:cronogramaVO.fechaFinal"  onkeypress="return false">
+            <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+          </label>
+          </div>   
+        </div>
+
+        </form>
+    </div>
+      <div class="modal-footer">
+
+        <button type="button" class="btn btn-primary" data-bind="click:guardar_fechas_principales">Guardar</button>
+      </div> 
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->
+<div id="modal_acciones_carga_masiva" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <Strong>Proyecto:  {{cronograma.proyecto.nombre}}</Strong><br><br>
+        <Strong>Esquema:  {{cronograma.esquema.nombre}}</Strong><br><br>
+        
+
+        <div class="form-group">
+          <label>Presupuestos:</label>
+          <select id="cmbPresupuesto" class="form-control">
+            <option value="0">[Seleccione..]</option>
+            {% for item in presupuestos %}
+             <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-group">
+            <a href="#" data-bind="click:descargar_plantilla"><label style="cursor: pointer;">Plantilla para diligenciar <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i></label></a>       
+        </div>
+
+
+        <input type="hidden" id="id_esquema" value=" {{cronograma.esquema.id}}" class="form-control" >
+        <input type="hidden" id="id_cronograma" value="{{cronograma.id}}" class="form-control" >
+
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+        </div>       
+
+           
+        </form>
+    </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_carga_masiva">Iniciar Carga</button>
+        </div> 
+  </div>
+</div>
+</div>
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+       
+              <div class="form-group">
+                <label>Hasta(*)</label>
+
+                  <div class="input-group date" id='datetimepicker2'>
+                   <input  type="text" class="form-control" data-bind="datePicker:diagramaVO.fechaDesde,value:diagramaVO.fechaDesde"  onkeypress="return false">
+                    <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                    </label>
+
+                  </div>  
+
+              </div> 
+
+
+              <div class="form-group">
+                <label>Desde(*)</label>
+
+                  <div class="input-group date" id='datetimepicker2'>
+                  <input  type="text" class="form-control" data-bind="datePicker:diagramaVO.fechaHasta,value:diagramaVO.fechaHasta"  onkeypress="return false">
+                    <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                    </label>
+
+                  </div>   
+              </div>
+
+           
+
+
+
+
+          
+        </form>
+    </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+      </div> 
+  </div>
+</div>
+</div>
+
+
+
+<div id="modal_detalles_periodo" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      
+      <div class="modal-body" id='modal_list_actividades'>       
+          
+        <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+          <button id="divNuevoRegistro" style="cursor:pointer;" 
+            type="button" class="btn btn-primary" onclick="nuevaRegistro()">
+            Registrar UUCC
+          </button>
+          <button id="divOcultarRegistro" style="display: None;cursor:pointer;" 
+            type="button" class="btn btn-danger" onclick="ocultarNuevoRegistro()">
+            Ocultar registro
+          </button>
+          <br><br>
+        <!--/ko--> 
+
+          <Strong>Proyecto: </Strong> {{cronograma.proyecto.nombre}}<br><br>
+          <Strong>Esquema: </Strong> {{cronograma.esquema.nombre}}<br><br>
+          
+
+          <div id="nuevoRegistro"  style="display: None;border-style: solid;border-color:#CACFD2;">
+            <form id="panel_registro" action="." method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+                {% csrf_token %}              
+                                 
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo2'></h4><br>
+                    <!--ko if: $root.DetallesPeriodoVO.id()==0-->
+                      <div class="form-group">
+                        <label>Actividades</label>
+                        <select class="form-control" data-bind="value:actividad_id">
+                          <option value="">[Seleccione..]</option>
+                           {% for item in actividades %}
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                          {% endfor %} 
+                        </select><i class="arrow"></i> 
+                      </div>
+                      <div class="form-group">
+                        <label>UUCC disponibles</label>                      
+                        <select class="form-control" data-bind="value:DetallesPeriodoVO.detallePresupuesto_id">
+                          <option value="">[Seleccione...]</option>
+                          <!--ko foreach:{ data:listado_uucc_disponibles, as:'item'} -->
+                            <option data-bind="value:item.id,text:item.descripcionUC"></option>
+                          <!--/ko-->
+                        </select><i class="arrow"></i> 
+                      </div>
+                    <!--/ko-->  
+
+                    <!--ko if: $root.DetallesPeriodoVO.id()!=0-->
+                      <label>UUCC</label> 
+                      <input type="text" class="form-control" id='nombre_actividad' disabled>       
+                    <!--/ko-->  
+
+                  <div class="form-group">
+                    <label>Cantidad</label>
+                    <input type="number" class="form-control" data-bind='value:DetallesPeriodoVO.cantidad'>           
+                  </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:guardar_actividad">Guardar</button>
+              </div>
+            </form>
+          </div>
+
+          <div data-bind="html: mensaje_detalles_periodo"></div>
+          <div data-bind="visible:($root.listado_detalles_periodo()!=null && $root.listado_detalles_periodo().length>0)">
+            <table class="table">
+              <thead>
+                <tr>
+                  <!-- <th style="width: %">Hitos</th> -->
+                  <th style="width: 30%">Actividad</th>
+                  <th style="width: 20%">UUCC</th>
+                  <th style="width: 40%">Descripcion UUCC</th>
+                  <th style="width: 10%">Cantidad</th>  
+                  <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+                    <th>Opciones</th>  
+                  <!--/ko-->          
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:$root.listado_detalles_periodo, as:'item'}">
+                <tr>
+                  <!-- <td data-bind="text: item.detallePresupuesto.nombre_padre"></td> -->
+                  <td data-bind="text: item.detallePresupuesto.actividad.nombre"></td>
+                  <td data-bind="text: item.detallePresupuesto.codigoUC"></td>
+                  <td data-bind="cutWord:{num:30,text:item.detallePresupuesto.descripcionUC, verMax:'...', verMin:'...'}"></td>
+                  <td data-bind="text: item.cantidad"></td>
+
+                  <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+                    <td>
+                      <div class="btn-group text-right">
+                          <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                          <ul class="dropdown-menu" role="menu">
+                            <li>
+                              <a href="#" data-bind="click:$root.abrir_edicion_detalles_periodo">Editar</a>
+                            </li>
+                            <li>
+                              <a href="#" data-bind="click: $root.eliminar_detalles_periodo">
+                                Eliminar
+                              </a>
+                            </li>
+                          </ul>
+                      </div>
+                    </td>
+                  <!--/ko--> 
+
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+          <br><br>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="modal_reformado" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      
+      <div class="modal-body" id='modal_list_actividades'>       
+          
+        <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+          <button id="divNuevoRegistro_reformado" style="cursor:pointer;" 
+            type="button" class="btn btn-primary" onclick="nuevaRegistro_reformado()">
+            Registrar periodo
+          </button>
+          <button id="divOcultarRegistro_reformado" style="display: None;cursor:pointer;" 
+            type="button" class="btn btn-danger" onclick="ocultarNuevoRegistro_reformado()">
+            Ocultar registro
+          </button>
+          <br><br>
+        <!--/ko--> 
+
+          <Strong>Proyecto: </Strong> {{cronograma.proyecto.nombre}}<br><br>
+          <Strong>Esquema: </Strong> {{cronograma.esquema.nombre}}<br><br>
+          
+
+          <div id="nuevoRegistro_reformado"  style="display: None;border-style: solid;border-color:#CACFD2;">
+            <form id="panel_registro" action="." method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+                {% csrf_token %}              
+                                 
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo2'></h4><br>
+                  
+                  <div class="form-group">                    
+                    <!--ko if: $root.DetallesPeriodo2VO.id()==0-->
+                      <label>Periodos disponibles</label>
+                      <select class="form-control" data-bind="value:DetallesPeriodo2VO.periodoProgramacion_id">
+                        <option value="">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_periodos_disponibles, as:'item'} -->
+                          <option data-bind="value:item.id,text:item.fechaDesde+' - '+item.fechaHasta"></option>
+                        <!--/ko-->
+                      </select><i class="arrow"></i> 
+                    <!--/ko-->  
+
+                    <!--ko if: $root.DetallesPeriodo2VO.id()!=0-->
+                      <label>Periodos</label>
+                      <input type="text" class="form-control" id='nombre_actividad' disabled>       
+                    <!--/ko-->  
+                  </div>
+
+                  <div class="form-group">
+                    <label>Cantidad</label>
+                    <input type="number" class="form-control" data-bind='value:DetallesPeriodo2VO.cantidad'>           
+                  </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:guardar_reformado">Guardar</button>
+              </div>
+            </form>
+          </div>
+
+          <div data-bind="html: mensaje_reformado"></div>
+          <div data-bind="visible:($root.listado_reformado()!=null && $root.listado_reformado().length>0)">
+            <table class="table">
+              <thead>
+                <tr>
+                  
+                  <th>Desde</th>
+                  <th>Hasta</th>
+                  <th style="width: 10%">Cantidad</th>  
+                  <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+                    <th>Opciones</th>  
+                  <!--/ko-->          
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:$root.listado_reformado, as:'item'}">
+                <tr>                  
+                  <td data-bind="text: item.periodoProgramacion.fechaDesde"></td>
+                  <td data-bind="text: item.periodoProgramacion.fechaHasta"></td>
+                  <td data-bind="text: item.cantidad"></td>
+
+                  <!--ko if: $root.cierre_programacion()==0 && $root.confirmarFechas()==1-->
+                    <td>
+                      <div class="btn-group text-right">
+                          <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                          <ul class="dropdown-menu" role="menu">
+                            <li>
+                              <a href="#" data-bind="click:$root.abrir_edicion_reformado_periodo">Editar</a>
+                            </li>
+                            <li>
+                              <a href="#" data-bind="click: $root.eliminar_reformado_periodo">
+                                Eliminar
+                              </a>
+                            </li>
+                          </ul>
+                      </div>
+                    </td>
+                  <!--/ko--> 
+
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+          <br><br>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script> 
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/diagrama.js" %}?cache=2'></script>
+{% endblock imports %}

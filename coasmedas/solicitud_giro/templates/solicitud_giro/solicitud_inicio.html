@@ -1,0 +1,172 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Solicitud de giros{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Financiero</li>
+  <li class="active">Solicitud de giros</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+{% block contenido %}
+
+ 
+
+   <div class="row">
+        <div class="col-lg-12">
+          <div class="panel">
+            <div class="panel-heading">
+              <span>      
+                <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>               
+              <span>Opciones</span>  
+            </div>
+            <div class="panel-body">
+
+                   <div class="row mb10" id="spy3">
+
+                      {% if 'giros.can_see_registro_consulta_referencia' in perms %}
+                      <div class="col-sm-10 col-md-4">
+                      <a href="{% url 'solicitud.referencia' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                            <span class="label label-rounded label-danger" data-bind="text:sinreferencia"></span>                            
+                              <div class="col-md-4">
+                                  <i class="fa fa-pencil-square-o fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Registro y consulta documento Sap</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div>
+                      {% endif %}
+                      {% if 'giros.can_see_sol_giros_sin_revisar' in perms %}
+                       <div class="col-sm-10 col-md-4">                       
+                        <a href="{% url 'solicitud.actualizar.testop' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                            <span class="label label-rounded label-danger"  data-bind="text:sin_flujo"></span> 
+                              <div class="col-md-4">
+                                  <i class="fa fa-check-square-o fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Sol sin TEST/OP por revisar</h3>                            
+                              </div>
+                          </div>
+                        </div>                       
+                            </a>
+                      </div>
+                      {% endif %}
+                      {% if 'giros.can_see_sol_giros_test_op' in perms %}
+                        <div class="col-sm-10 col-md-4">
+                            <a href="{% url 'solicitud.solTestOP' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                            <span class="label label-rounded label-danger" data-bind="text:por_actualizar"></span> 
+                              <div class="col-md-4">
+                                  <i class="fa fa-sticky-note fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Sol sin TEST/OP</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div>
+                      {% endif %}
+                     
+				</div>
+
+        <div class="row mb10" id="spy3">
+                    {% if 'giros.can_see_sol_giros_por_pagar' in perms %}
+                      <div class="col-sm-10 col-md-4">
+                            <a href="{% url 'solicitud.solSinTestPagar' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                            <span class="label label-rounded label-danger" data-bind="text:sol_sinpagar"></span> 
+                              <div class="col-md-4">
+                                  <i class="fa fa-money fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Sol por pagar</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div> 
+                      {% endif %}
+                      <!-- <div class="col-sm-10 col-md-4">
+                            <a href="{% url 'solicitud.registrarcodigopago' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                              <div class="col-md-4">
+                                  <i class="fa fa-braille fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Registrar codigo de pago</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div>  -->
+                      {% if 'giros.can_see_sol_giros_pagos_rechazados' in perms %}
+                      <div class="col-sm-10 col-md-4">
+                            <a href="{% url 'rechazo.solicitud' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                              <div class="col-md-4">
+                                  <i class="fa fa-ban fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Pagos rechazados</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div>
+                      {% endif %}
+        </div>
+
+
+                      
+                    
+
+             </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+	<!--Loading-->
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+
+  <script type="text/javascript" src='{% static "js/ViewModels/solicitud_giro/solicitud_inicio.js" %}'></script>      
+
+  <script type="text/javascript">
+      $(document).ready(function () {
+        encabezado_giro.consultar(1);//iniciamos la primera funcion//iniciamos la primera funcion
+      });
+
+  </script>
+
+{% endblock imports %}
+
+

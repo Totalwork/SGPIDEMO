@@ -1,0 +1,9 @@
+#<IfModule mod_rewrite.c>
+#   
+#    AddHandler fcgid-script .fcgi
+#    RewriteEngine On
+#
+#    #RewriteRule /static/ C:/AppServ/www/Enelar/SININWEB/static
+#    RewriteCond %{SERVER_PORT} 80
+#    RewriteRule ^(.*)$ http://enelar.sinin.co/usuario/login/$1 [QSA,L]
+#</IfModule>

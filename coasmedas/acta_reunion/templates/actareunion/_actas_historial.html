@@ -1,0 +1,59 @@
+<div class="panel-body">
+
+  <div data-bind="html: mensajeActasHistorial"></div>
+
+  <div class="table-responsive" data-bind="visible:(listado_actasHistorial()!=null && listado_actasHistorial().length > 0)">
+
+    <table class="table">
+
+      <thead>
+        <tr>          
+          <th style="width: 15%">Fecha</th>
+          <th style="width: 15%">Tipo de operación</th>
+          <th style="width: 40%">Obeservación / motivo</th>
+          <th style="width: 10%">Controlador</th>          
+        </tr>
+      </thead>
+      <tbody data-bind="foreach:{data:listado_actasHistorial, as:'item'}">
+        <tr>
+          <td data-bind="text: item.fecha"></td>
+          <td data-bind="text: item.tipo_operacion.nombre"></td>
+          <!--ko ifnot: item.motivo-->
+          <td data-bind="ifnot:item.motivo" style="color:red">No aplica</td>
+          <!--/ko-->
+
+          <!--ko if: item.motivo-->
+          <td data-bind="cutWord:{num:65,text: item.motivo, verMax:'...', verMin:'...'}"></td>            
+          <!--/ko-->
+          
+         
+          <td data-bind="text: (item.controlador.persona.nombres+' '+item.controlador.persona.apellidos)"></td>          
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="paginacion">
+      <div data-bind="pagination: {
+                    currentPage: paginacionHistorial.pagina_actual,
+                    totalCount: paginacionHistorial.total,
+                    pageSize:paginacionHistorial.cantidad_por_paginas,
+                    maxPages: paginacionHistorial.maxPaginas,
+                    directions: paginacionHistorial.direcciones,
+                    boundary: paginacionHistorial.limite,
+                    text: paginacionHistorial.text }">
+
+      </div>
+    </div>
+
+  </div>
+  <!--cierra row -->
+</div><!-- cierra panel body-->
+
+
+<script type="text/javascript">
+
+  $(document).ready(function () {
+    acta.consultar_historial(1);    
+  });
+
+</script>

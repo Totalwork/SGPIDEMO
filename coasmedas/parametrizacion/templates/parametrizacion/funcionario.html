@@ -1,0 +1,348 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Funcionario{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li>
+  <li class="active">Funcionario</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#" data-bind="click:eliminar" data-placement="right" data-toggle="tooltip" data-original-title="Desactivar registro(s)">
+                  <i class="fa fa-thumbs-o-down" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+
+      {% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+      
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <div class="panel-heading">
+              <span>      
+                <a href="{% url 'parametrizacion.parametrizacion' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>               
+                <span>Listado de Funcionario 
+                <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> </th> 
+              <th >Nombre</th>
+              <th>Cargo</th>
+              <th>Estado</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td>
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div></td> 
+              <td data-bind="text: item.persona.nombres+' '+item.persona.apellidos"></td>
+              <td data-bind="text: item.cargo.nombre"></td>
+               <td data-bind="text:(item.activo ? 'Activo' : 'Inactivo')"></td>
+              <td>
+                 <div class="btn-group text-right">
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu">
+                       {% if 'parametrizacion.change_funcionario' in perms %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                       </li>
+                       {% endif %}
+                       <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+                        </li>
+                    </ul>
+                  </div>
+              </td>          
+            </tr>
+          </tbody>
+        </table>
+          
+          <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+        
+        
+
+                </div>
+  </div>
+
+  
+  </div>
+
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog" >
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+     
+        {% csrf_token %}
+              
+                <div class="row">
+                 
+                      <div class="col-lg-6">
+                      <!--ko if: habilitar_campos()==true -->
+                         <div class="panel user-group-widget">
+                          <div class="panel-heading">
+                            
+                              <span class="panel-icon">
+                                <i class="fa fa-users"></i>
+                              </span>
+                              <span class="panel-title">Persona(*)</span>                  
+                              
+                              <span class="panel-controls">
+                              <!--ko if: showBusqueda()==true -->
+                              <i class="fa fa-plus" data-bind="click:function(){agregar_persona(true)}"></i>
+                               <!--/ko--> 
+                              <!--ko if: showBusqueda()==false -->
+                                <i class="fa fa-minus" data-bind="click:function(){agregar_persona(false)}"></i>
+                               <!--/ko--> 
+                              </span>
+
+                          </div>
+                          <div class="panel-menu">
+                              <div data-bind="visible: showBusqueda"> 
+                              <div class="input-group">
+                                <input type="text" class="form-control" name="persona" id="persona" placeholder="Buscar Persona" data-bind="value:busqueda_persona,event:{keypress: $root.consulta_enter_persona}"> 
+                                   <span class="input-group-addon" data-bind="click:consultar_persona" style="cursor:pointer;">
+                                  <i class="fa fa-search" ></i>
+                                </span>
+                              </div>
+                               
+                             
+                                 <div class="panel-body panel-scroller scroller-sm scroller-primary scroller-pn pn" data-bind="visible:(listado_persona()!=null && listado_persona().length > 0)">
+                                  <table class="table mbn tc-med-1 tc-bold-2">
+                                      <thead>
+                                      </thead>
+                                      <tbody data-bind="foreach:{data:listado_persona, as:'item'}">
+                                        <tr>
+                                          <td>
+                                            <label data-bind="text:item.nombres+' '+item.apellidos, attr:{for:'per_'+item.id}"></label>
+                                            </td>
+                                           <td>
+                                              <input type="radio" id="check_persona" name="check_persona" data-bind="checked:procesar,click:$root.seleccionar_persona, attr:{id:'per_'+item.id}">
+                                            </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div> 
+
+                                 
+                                    <div class="form-group">
+                                      <label>Persona</label>
+                                      <input type="text" class="form-control" data-bind="value:funcionarioVO.nombre_persona" disabled="true">           
+                                    </div>
+                              </div>
+                                
+                              <div data-bind="visible: showRow"> 
+
+                                      <form action="." method="post">
+                                      {% csrf_token %}
+                                      <div class="form-group">
+                                        <label>Cedula(*)</label>
+                                        <input type="text" class="form-control" data-bind="value:personaVO.cedula">           
+                                      </div>
+                                      <div class="form-group">          
+                                        <label>Nombres(*)</label>
+                                        <input type="text" class="form-control" data-bind="value:personaVO.nombres">
+                                      </div>
+
+                                      <div class="form-group">          
+                                        <label>Apellidos(*)</label>
+                                        <input type="text" class="form-control" data-bind="value:personaVO.apellidos">
+                                      </div>
+
+                                       <div class="form-group">          
+                                        <label>Direccion</label>
+                                        <input type="text" class="form-control" data-bind="value:personaVO.direccion">
+                                      </div>
+
+                                       <div class="form-group">          
+                                        <label>Correo</label>
+                                        <input type="text" class="form-control" data-bind="value:personaVO.correo">
+                                      </div>
+                                      </form>
+                              </div>
+                          </div>
+                        </div>
+                        <!--/ko--> 
+
+                <!--ko if: habilitar_campos()==false -->
+                  <div class="form-group">
+                    <label>Persona(*)</label>
+                    <input type="text" data-bind="value:funcionarioVO.nombre_persona,enable:habilitar_campos" class="form-control" >           
+                  </div>
+                  <!--/ko--> 
+
+                 <div class="form-group">
+                    <label>Iniciales</label>
+                    <input type="text" data-bind="value:funcionarioVO.iniciales,enable:habilitar_campos" class="form-control" >           
+                  </div>
+
+                  <div class="form-group">
+                    <label>Cargo(*)</label>
+                     <select class="form-control" data-bind="value:funcionarioVO.cargo_id,enable:habilitar_campos">
+                      <option value="">[Seleccione..]</option>
+                      {% for item in cargos %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %}   
+                    </select>    
+                  </div>
+
+                 <div class="form-group"> 
+                    <div class="option-group field admin-form">
+                      <label class="option option-primary"  style="">
+                        <input name="mobileos" data-bind="checked:funcionarioVO.activo" type="checkbox">
+                        <span class="checkbox"></span>Activo
+                      </label>
+                    </div>
+                  </div>
+
+                      </div>                      
+                 
+                 <div class="col-lg-6">
+                   
+                   <div class="panel panel-primary">
+                    <div class="panel-heading">
+                      <h3 class="panel-title">Notificaciones</h3>
+                    </div>
+
+                     <div data-bind="visible:(notificaciones()==null || notificaciones().length == 0), html: mensaje_notificaciones"></div> 
+
+                    <div class="panel-body" data-bind="visible:(notificaciones()!=null && notificaciones().length > 0)">
+                    
+                        <table class="table table-bordered table-hover table-striped tablesorter">
+                          <thead>
+                            <tr>
+                              <th> 
+                                   <div class="option-group field admin-form">
+                                    <label class="option option-primary"  style="">
+                                      <input data-bind="checked:seleccionar_notificaciones" type="checkbox">
+                                      <span class="checkbox"></span>
+                                    </label>
+                                  </div>                            
+                              </th>
+                              <th>
+                                Nombre
+                              </th>                                                        
+                            </tr>
+                          </thead>
+                          <tbody data-bind="foreach: {data:notificaciones, as:'item'}">
+                            <tr>
+                              <td>
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input data-bind="checked:item.procesar, attr:{id:'not_'+item.id}" type="checkbox">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div>                               
+                              </td>                             
+                              <td>
+                                <label data-bind="text:item.nombre, attr:{for:'not_'+item.id}"></label>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>                     
+
+                    </div>
+                  </div>
+
+                 </div>
+
+            </div>  
+        </div>
+        <!--ko if: habilitar_campos()==true -->   
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+          </div>
+        <!--/ko--> 
+   
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+     <!-- Typeahead Plugin --> 
+    <script src='{% static "vendor/plugins/typeahead/typeahead.bundle.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/parametrizacion/Funcionario.js" %}?v=1'></script>
+
+    <script type="text/javascript">
+      $(document).ready(function(){
+
+        
+
+      });
+    </script>
+{% endblock imports %}

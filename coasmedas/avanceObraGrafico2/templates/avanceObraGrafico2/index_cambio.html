@@ -1,0 +1,276 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Listado de Cambio{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cambios' %}">Cambio</a></li>
+  <li class="active">Listado de Cambio</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}  
+ {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#">
+                  <i class="fa fa-close" data-bind="click:abrir_eliminar" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading">
+                <span class="panel-title">Listado de Cambios<span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+               
+          </div>
+          <div class="panel-body">
+           <Strong>Proyecto:  {{presupuesto.cronograma.proyecto.nombre}}</Strong><br><br>
+           <Strong>Cronograma:  {{presupuesto.cronograma.nombre}}</Strong><br><br>
+           <Strong>Presupuesto:  {{presupuesto.nombre}}</Strong><br><br>
+
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr>
+              <th width="5">  
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> 
+              </th>
+              <th>Motivo</th>
+              <th>Descripcion</th>
+              <th>Empresa Tecnica</th>
+              <th>Empresa Financiera</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+               <td width="5">                                                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+               </td> 
+              <td data-bind="text: item.motivo"></td>
+              <td data-bind="text: item.descripcion"></td>
+              <td data-bind="text: item.empresaTecnica.nombre"></td>
+              <td data-bind="text: item.empresaFinanciera.nombre"></td>
+              <td data-bind="text: item.estado.nombre"></td>
+               <td width="10">
+                 <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                          <li>
+                              <a href="#" data-bind="click:$root.abrir_detalle_cambio">Detalle del Cambio</a>
+                           </li>   
+
+                             <!--ko if: item.estado.id==$root.estado_cancelado() --> 
+                                  <li>
+                                     <a href="#"  data-bind="click:$root.abrir_modal_cancelado">Mensaje de Cancelado</a>
+                                 </li>
+                           <!--/ko-->                      
+                      </ul>
+                  </div>
+              </td> 
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="usuario_id" value="{{user.usuario.id}}" class="form-control" >  
+<input type="hidden" id="estado_id" value="{{estado_id}}" class="form-control" >  
+<input type="hidden" id="presupuesto_id" value="{{presupuesto_id}}" class="form-control" > 
+<input type="hidden" id="cancelado" value="{{estado_cancelado}}" class="form-control" >  
+
+  <!--Loading-->
+
+
+
+
+ <!--Modal-->
+
+<div id="modal_motivo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+      
+              <label>Motivo</label>
+               <div class="form-group">
+            <textarea class="form-control" rows="5" data-bind="value:motivo_cancelado"></textarea>
+          </div>
+
+          
+        <div class="modal-footer">
+
+           <button type="button" class="btn btn-primary" data-bind="click:cancelar">Guardar</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+ <!--Modal-->
+
+<div id="modal_mostrar_motivo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+      
+              <label>Motivo</label>
+               <div class="form-group">
+            <textarea class="form-control" rows="5" data-bind="text:motivo_cancelado" disabled="true"></textarea>
+          </div>
+
+          
+        <div class="modal-footer">
+
+           <button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Motivo(*)</label>
+            <input type="text" data-bind="value:cambioVO.motivo" class="form-control" >           
+        </div>
+
+        <div class="form-group">
+            <label>Empresa Tecnica(*)</label>
+            <select class="form-control" data-bind="value:cambioVO.empresaTecnica_id">
+                      <option value="">[Seleccione..]</option>
+                       {% for item in empresa %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+        <div class="form-group">
+            <label>Empresa Financiera(*)</label>
+            <select class="form-control" data-bind="value:cambioVO.empresaFinanciera_id">
+                      <option value="">[Seleccione..]</option>
+                       {% for item in empresa %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+         <div class="form-group">
+           <label>Descripcion</label>
+               <div class="form-group">
+            <textarea class="form-control" rows="5" data-bind="value:cambioVO.descripcion"></textarea>
+          </div>
+
+
+           
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+            
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/index_cambio.js" %}'></script>
+{% endblock imports %}

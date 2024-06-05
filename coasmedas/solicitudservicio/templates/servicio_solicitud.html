@@ -1,0 +1,342 @@
+﻿{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Solicitud de servicios{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>  
+	<li class="active">Solicitud Servicio</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+  
+
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  		   
+		    <div class="panel panel-sky">
+		    		    
+		    <div class="panel-heading">
+                Listado de solicitudes
+                <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+
+                 <!-- <span class="panel-controls">
+                  <a data-bind="click:abrir_filtros" data-placement="top"  data-toggle="tooltip" data-original-title="Filtros" title="" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span> -->
+          	</div>
+            <!-- <div class="row"> -->
+              <div class="col-lg-3">
+                <ul class="nav navbar-nav navbar">    
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle fw600 p15 " data-toggle="dropdown"> 
+                      <span class="badge badge-warning">{{ pendientes | length }}</span> Pendiente(s) por atender
+                      <span class="caret caret-tp hidden-xs"></span>
+                    </a>
+                    <ul class="dropdown-menu list-group dropdown-persist w350" role="menu">
+                      {% for pendiente in pendientes %}
+                        <li class="list-group-item">
+                          <a href="../../proceso/solicitudServicioSeguimiento/{{pendiente.procesoRelacionDato__procesoRelacion__id}}/" >
+                            <span class="fa fa-flag"></span> 
+                            <b>{{pendiente.procesoRelacionDato__elementoAnalizado}}</b></br>
+                            {{pendiente.procesoRelacionDato__item__descripcion}} 
+
+                          </a>
+                        </li>
+                      {% endfor %}
+                        <li class="list-group-item">
+                          <a href="{% url 'serviciosolicitud.mis_pendientes' %}">
+                            <font color="red"><b>{{ pendientes | length }} Ver todas... </b></font>
+                          </a>
+                        </li>                      
+                    </ul>
+                  </li>
+                </ul>   
+                </div>
+              <div class="col-lg-9 alert alert-info alert-dismissable"><p><i class="fa fa-warning"></i>
+                 Tiene <b>{{ pendientes | length }}</b> pendiente(s) por atender en el proceso de gestión contractual</p>
+              </div>
+              
+            <!-- </div> -->
+            <div data-bind="html: mensaje"></div> 
+
+          	 <div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+          	 	
+          	 	 <div class="table-responsive">
+                
+          	 	 	 <table class="table">
+          	 	 	 	  <thead>
+				            <tr>   
+                      <th>
+                        <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input data-bind="checked:seleccionar_todos" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                      </th>
+                      <th style="width: 20%;">Contrato</th>				              
+				              <th style="width: 15%;">Area</th>
+                      <th style="width: 20%;">Descripción</th>
+                      <th style="width: 10%;">Solicitante</th>
+				              <th style="width: 10%;">Tipo</th>				              
+				              <th style="width: 10%;">Estado</th> 
+                      <th style="width: 10%;">Avance</th>                    
+				              <th style="width: 5%;">Opciones</th>
+				            </tr>
+				           </thead>
+				           <tbody data-bind="foreach:{data:listado, as:'item'}">
+	          	 	 	 	<tr>
+                      <td>
+                        <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input data-bind="checked:item.procesar" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                      </td>
+                      <td data-bind="cutWord:{num:25,text:item.contrato.nombre, verMax:'...', verMin:'...'}"></td>
+  	          	 	 	 	<td data-bind="text:area.nombre"></td>
+                       <td data-bind="cutWord:{num:25,text:item.descripcion, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text:item.solicitante.persona.nombres + ' ' + item.solicitante.persona.apellidos"></td>     
+  	          	 	 	 	<td data-bind="text:item.tipo.nombre"></td>
+  	          	 	 	 	<td data-bind="text:item.estado.nombre"></td>
+                      <td>
+                          <div class="progress">
+            
+                            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-bind="text:item.porcentajeCumplido + '%',attr:{'valuenow':item.porcentajeCumplido} ,style:{width: item.porcentajeCumplido + '%'}"></div>
+
+                          </div>    
+                      </td>
+                     	<td>
+  	          	 	 	 		 <div class="btn-group text-right">
+  					                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+  					                      </i></a>
+  					                   <ul class="dropdown-menu" role="menu"> 
+                                  <li>
+                                    <a href="#" data-bind="click:$root.consultar_por_id">
+                                    Editar
+                                    </a>
+                                  </li>   
+
+                                  <li>
+                                    <a href="#" data-bind="click:$root.ver_detalle">
+                                    Ver Detalle
+                                    </a>
+                                  </li>
+                                  <li>
+                                    <a data-bind="attr:{'href': '../../proceso/solicitudServicioSeguimiento/' + item.procesoRelacion}">Seguimiento...</a>
+                                  </li>                                  
+                                  
+  					                    </ul>
+                    				  </div>
+  	          	 	 	 	</td>          	 	 	 	
+	          	 	 	 	</tr>
+	          	 	 	 </tbody> 
+          	 	 	 </table>
+          	 	 	
+
+          	 	 </div>
+
+
+                <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+       	        
+        		<div class="form-group">
+  	     			<label>*Contrato</label>
+              <select class="form-control" data-bind="value:modelVO.contrato_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in contratos %}
+                  <option value="{{ item.contrato__id }}">{{ item.contrato__nombre }}</option>
+                {% endfor %}
+              </select>
+	     		  </div>
+            
+            <div class="form-group">
+              <label>*Tipo</label>
+              <select class="form-control" data-bind="value:modelVO.tipo_id">
+                  <option value="">[Seleccione...]</option>
+                  {% for item in tipos %}
+                    <option value="{{ item.id }}">{{ item.nombre }}</option>
+                  {% endfor %}
+              </select>      
+            </div>
+
+            <div class="form-group">
+              <label>*Area</label>
+              <select class="form-control" data-bind="value:modelVO.area_id">
+                  <option value="">[Seleccione...]</option>
+                  {% for item in areas %}
+                    <option value="{{ item.id }}">{{ item.nombre }}</option>
+                  {% endfor %}
+              </select>      
+            </div>
+
+<!--             <div class="form-group">
+              <label>Fecha de autorización de area</label>           
+              <div class="input-group date">
+              <input type="text" class="form-control" id="fecha_autorizacion" data-bind="datePicker:modelVO.fechaAutorizacionArea,value:modelVO.fechaAutorizacionArea">
+                <label for="fecha_autorizacion" class="input-group-addon cursor">
+                  <i class="fa fa-calendar"></i>
+                </label>
+              </div> 
+            </div> -->
+
+
+            <div class="form-group">
+              <label>*Descripción:</label>
+              <textarea class="form-control" rows="5" cols="3" data-bind="value:modelVO.descripcion"></textarea>
+            </div>
+
+           
+<!--             <div class="form-group">
+              <label>*Tramitador</label>
+              <select class="form-control" data-bind="value:modelVO.tramitador_id">
+                  <option value="">[Seleccione...]</option>
+                  {% for item in usuarios %}
+                    <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }}</option>
+                  {% endfor %}
+              </select>      
+            </div> -->
+
+<!--              <div class="form-group">
+              <label>*Quien Autoriza</label>
+              <select class="form-control" data-bind="value:modelVO.autoriza_id">
+                  <option value="">[Seleccione...]</option>
+                  {% for item in usuarios %}
+                    <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }}</option>
+                  {% endfor %}
+              </select>      
+            </div> -->       
+
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+
+<div id="modal_detalle" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Detalle de la solicitud</h4>
+      </div>
+       <div class="modal-body">
+           
+           <div class="form-group">
+             <label>Contrato:</label>
+             <span data-bind="text:detalleVO.contrato"></span>             
+           </div>
+
+           <div class="form-group">
+             <label>Tipo:</label>
+             <span data-bind="text:detalleVO.tipo"></span>             
+           </div>
+
+           <div class="form-group">
+             <label>Area:</label>
+             <span data-bind="text:detalleVO.area"></span>             
+           </div>
+
+<!--            <div class="form-group">
+             <label>Fecha de autorización de area:</label>
+             <span data-bind="text:detalleVO.fecha_autorizacion"></span>             
+           </div> -->
+
+           <div class="form-group">
+             <label>Descripción:</label>
+             <span data-bind="text:detalleVO.descripcion"></span>             
+           </div>
+
+           <div class="form-group">
+             <label>Solicitante:</label>
+             <span data-bind="text:detalleVO.solicitante"></span>             
+           </div>
+
+<!--            <div class="form-group">
+             <label>Quien Autoriza:</label>
+             <span data-bind="text:detalleVO.autoriza"></span>             
+           </div> -->
+
+<!--            <div class="form-group">
+             <label>Tramitador:</label>
+             <span data-bind="text:detalleVO.tramitador"></span>             
+           </div> -->
+
+           <div class="form-group">
+             <label>Estado:</label>
+             <span data-bind="text:detalleVO.estado"></span>             
+           </div>
+             
+       </div>
+     
+        <div class="modal-footer">
+          <button data-dismiss="modal" class="btn btn-default" type="button">Cerrar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> 
+  	<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>  	
+  	<script type="text/javascript" src='{% static "js/ViewModels/solicitudservicio/solicitud_servicio.js" %}'></script>
+{% endblock imports %}

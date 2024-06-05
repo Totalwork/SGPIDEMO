@@ -1,0 +1,209 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Materiales{% endblock title%}
+{% block encabezado %}
+  <a href="{% url 'avance_de_obra_grafico2.catalogos' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al admin catalogos">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Materiales
+{% endblock encabezado %}
+
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.catalogos' %}">Admin. Catalogo</a></li>
+  <li class="active">Materiales</li>
+{% endblock mapa %}
+
+{% block contenido %}
+<div class="row" >  
+  <div class="col-lg-12">    
+    <div class="panel panel-sky">
+      <div class="panel-heading">
+        <span class="panel-title">
+          Listado de Materiales - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+        </span>
+      </div>
+      <div class="panel-body">
+          <b>Catalogo: </b>{{catalogo.nombre}}
+          <br>
+          <b>Estado: </b>{{catalogo_activo}}  
+          <br>
+          <br>        
+          <div data-bind="html: mensaje"></div>
+          <div data-bind="visible:(listado()!=null && listado().length > 0)">
+              <div class="table-responsive">
+                 
+                <table class="table">
+                  <thead>
+                    <tr>   
+                      <th width="3%">
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:checkall">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                      </th>                      
+                      <th width="10%">Codigo</th>
+                      <th width="30%">Descripcion</th>
+                      <th width="17%">Valor Unitario</th>
+                      <th width="17%">Unidad de Medida</th>                      
+                      <th width="5%">Opciones</th>
+                    </tr>
+                  </thead>
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>                      
+                      <td>
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:eliminado">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div> 
+                      </td>
+                      <td data-bind="text: item.codigo"></td>
+                      <td data-bind="text: item.descripcion"></td>  
+                      <td data-bind="text: formatCurrency(item.valorUnitario)"></td>  
+                      <td data-bind="text: item.unidadMedida"></td>                                                                  
+                      <td>
+                          <div class="btn-group text-right">
+                              <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                <i  class="fa fa-ellipsis-h fa-2x" ></i>
+                              </a>
+                              <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                {% if 'avance_de_obra_grafico2.change_material' in perms%} 
+                                <li>
+                                  <a href="#" data-bind="click:$root.modificar_material">Editar</a>
+                               </li>
+                               {% endif %}                                                                                                                                                                                                                     
+                              </ul>
+                          </div>
+                      </td>       
+                    </tr>
+                  </tbody>
+                </table>
+              </div>              
+              <div id="paginacion" >
+                <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                </div>
+              </div>          
+          </div>          
+      </div>
+    </div>	
+  </div>
+</div>
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+          <label>Codigo(*)</label>
+          <input  type="text" class="form-control" data-bind="text:material.codigo, value:material.codigo"> 
+        </div>
+        <div class="form-group">
+          <label>Descripcion(*)</label>
+          <input  type="text" class="form-control" data-bind="text:material.descripcion, value:material.descripcion"> 
+        </div>   
+        <div class="form-group">
+          <label>Valor(*)</label>                                                            
+          <input  type="text" class="form-control" data-bind="onlyNumber:material.valorUnitario, value:material.valorUnitario.formatted, selectedText"> 
+        </div>   
+        <div class="form-group">
+          <label>Unidad de Medida(*)</label>
+          <input  type="text" class="form-control" data-bind="text:material.unidadMedida, value:material.unidadMedida"> 
+        </div>                        
+        <div class="form-group">
+          <label>Catalogo(*)</label>
+          <input  type="text" class="form-control" value="{{catalogo.nombre}}" disabled> 
+        </div>                
+        <input type="hidden" id="catalogo_id" value="{{catalogo_id}}" class="form-control" >
+         <!--ko if: habilitar_campos()==true -->    
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+        <!--/ko-->       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="modal_estado1" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+             <div class="form-group">
+                <label><h4>¿Esta seguro que desea actualizar el estado del catalogo?<h4></label>    
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+              <button type="button" class="btn btn-primary" data-bind="click:$root.inactivar2">Si</button>
+            </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="modal_estado2" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+             <div class="form-group">
+                <label><h4>¿Esta seguro que desea actualizar el estado del catalogo?<h4></label>    
+            </div>
+
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">No</button>
+              <button type="button" class="btn btn-primary" data-bind="click:$root.activar2">Si</button>
+            </div>       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/materiales.js" %}?v=1'></script>
+{% endblock imports %}

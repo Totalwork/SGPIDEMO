@@ -1,0 +1,105 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Aprobacion de Trabajo{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Aprobacion de Trabajo</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'usuario.index' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al inicio">
+    <i class="fa fa-arrow-left"></i>
+  </a>
+  Aprobacion de Trabajo
+{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+{% block contenido %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel">
+
+      <div class="panel-heading">
+        <h4>Opciones</h4>                
+      </div>
+      <div class="panel-body">
+
+        <div class="row mb10" id="spy3">
+          <div class="col-sm-10 col-md-4">
+            <a href="{% url 'avance_de_obra_grafico2.registrado' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">                            
+                  <div class="col-md-3">
+                    <i class="fa fa-book fa-5x"></i>
+                  </div>
+                  <div class="col-md-7">                                 
+                    <h3 class="mt10 lh10">Registrados/Aprobados</h3>                         
+                   <span style="font-size: 18px" class="badge badge-dark" data-bind="text:registrado"></span>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-sm-10 col-md-4">                       
+            <a href="{% url 'avance_de_obra_grafico2.corregido' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-share fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt10 lh10">Corregidos</h3>                          
+                   <span style="font-size: 18px" class="badge badge-dark" data-bind="text:corregidos"></span>                          
+                  </div>
+                </div>
+              </div>                       
+            </a>
+          </div>
+
+
+            <div class="col-sm-10 col-md-4">                       
+            <a href="{% url 'avance_de_obra_grafico2.rechazados' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-close fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt10 lh10">Rechazados</h3>                           
+                   <span style="font-size: 18px" class="badge badge-dark" data-bind="text:rechazados"></span>                         
+                  </div>
+                </div>
+              </div>                       
+            </a>
+          </div>
+
+         
+
+        </div>
+
+          
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Loading -->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/aprobacion.js" %}'></script>
+{% endblock imports %}

@@ -1,0 +1,137 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Factura{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Factura</li>
+{% endblock mapa %}
+{% block encabezado %}Factura{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+{% block contenido %}
+<div class="row">
+  <div class="col-lg-12">
+    <div class="panel">
+
+      <div class="panel-heading">
+        <span>      
+          <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"          aria-hidden="true"></i></a>
+        </span>         
+        <span>Opciones</span>   
+      </div>
+      <div class="panel-body">
+
+        <div class="row mb10" id="spy3">
+          <div class="col-sm-10 col-md-4">
+            <a href="{% url 'factura.factura' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">                            
+                  <div class="col-md-4">
+                    <i class="fa fa-money fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt15 lh15">Factura</h3>                            
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <div class="col-sm-10 col-md-4">                       
+            <a href="{% url 'factura.cesion' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-share fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt15 lh15">Autorización de Giro</h3>                            
+                  </div>
+                </div>
+              </div>                       
+            </a>
+          </div>
+
+          <div class="col-sm-10 col-md-4">
+            <a href="{% url 'factura.descuento' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-minus-circle fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt15 lh15">Descuento</h3>                            
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="row mb10" id="spy3">
+          <div class="col-sm-10 col-md-4">
+            <a href="{% url 'factura.cruce' %}" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-exchange fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt15 lh15">Cruce</h3>                            
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- <div class="col-sm-10 col-md-4">
+            <a href="#" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-print fa fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt15 lh15">Informe</h3>                            
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div> -->
+
+          <!-- <div class="col-sm-10 col-md-4">
+            <a href="#" style="color:#f5f8fd">
+              <div class="panel panel-tile bg-primary light">
+                <div class="panel-body pn pl20 p5">
+                  <div class="col-md-4">
+                    <i class="fa fa-th-list fa-5x"></i>
+                  </div>
+                  <div class="col-md-6">                                 
+                    <h3 class="mt15 lh15">Compensaciones</h3>                            
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div> -->
+        </div>
+
+          
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Loading -->
+{% endblock contenido %}
+
+{% load static %}

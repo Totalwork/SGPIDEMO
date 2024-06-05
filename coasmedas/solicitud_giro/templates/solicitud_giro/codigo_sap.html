@@ -1,0 +1,376 @@
+  {% extends 'page.html' %}
+  {% load static %}
+
+  {% block opciones_listado %}
+  {% endblock opciones_listado %} 
+
+  {%block imports_css %}
+    <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+    <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+    <!-- Select2 Plugin CSS  -->
+    <link rel="stylesheet" type="text/css" href='{% static "vendor/plugins/select2/css/core.css" %}'>
+  {% endblock imports_css %}
+
+  {% block title %}Sol.Giros{% endblock title%}
+  {% block mapa %}
+    <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+    <li class="active">Financiero</li>
+    <li><a href="{% url 'solicitud.inicio' %}">Sol. Giros</a></li>
+    <li class="active">Documento Sap</li>
+  {% endblock mapa %}
+  {% block encabezado %}{% endblock encabezado %}
+
+  {% block contenido %}
+
+
+  <!--Inicio Table-->
+  <div class="row" >
+    <div class="col-lg-12">
+    
+
+      <div class="panel panel-sky">
+        <div class="panel-heading">
+          <span class="panel-title">
+            <span>      
+              <a href="{% url 'solicitud.inicio' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"              aria-hidden="true"></i></a>
+            </span>              
+          Listado Sol. Giros sin referencia - N° de Registros :  <span data-bind="text:paginacion.total"></span>
+          </span>
+          <div class="pull-right">
+              <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar referencia" data-toggle="modal" data-bind="click:abrir_filtro" style="cursor:pointer;">
+              <i class="fa fa-filter fa-2x"></i>
+              </a>
+          </div>
+        </div>
+        <div class="panel-body">
+        <div data-bind="html: mensaje"></div>
+          <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+            <table class="table" data-bind="dropdown">
+              <thead>
+                    <tr>
+                        <th width="20%" >Nombre proyecto</th>
+                        <th width="20%" >Nombre del giro</th>
+                        <th width="15%" >Total giro</th>
+                        <th width="10%" >N° Radicado</th>
+                        <th width="15%" >Documento Sap</th>
+                        <th width="15%" >Texto Documento Sap</th>
+                        <th width="15%" >Fecha contabilizacion</th>
+                        <th width="5%">Opciones</th>
+                    </tr>
+              </thead>
+              <tbody>
+                <!--ko foreach:{ data:listado, as:'item'} -->
+                    <tr>
+                      <td data-bind="cutWord:{num:22,text:item.contrato.nombre, verMax:'...', verMin:'...'}"></td>
+
+                      <td data-bind="text: item.nombre.nombre"></td>
+                      <td data-bind="text: formatMoney(item.suma_detalle)"></td>
+                      <td data-bind="text: item.numero_radicado"></td> 
+                      <!-- ko if: item.referencia==''  -->
+                      <td class="form-group has-error">
+                      
+
+                        
+                        <input class="form-control" type="text" data-bind='value:item.referencia,
+                        attr:{id:item.id+"-radicado"},onlyNumber:item.referencia,
+                        event:{keypress: function(d,e){if (e.which == 13)
+                        {item.referencia=$("#"+item.id+"-radicado").val();  
+                        $root.guardar_no_referencia(item);}return true;}}'>
+
+                      </td>
+                      <!-- /ko-->
+                      
+                      <!-- ko if: item.referencia!=''  -->
+                      <td class="form-group has-success">
+                      
+
+                        
+                        <input class="form-control" type="text" data-bind='value:item.referencia,
+                        attr:{id:item.id+"-radicado"},onlyNumber:item.referencia,
+                        event:{keypress: function(d,e){if (e.which == 13)
+                        {item.referencia=$("#"+item.id+"-radicado").val();  
+                        $root.guardar_no_referencia(item);}return true;}}'>
+
+                      </td>
+                      <!-- /ko-->  
+
+
+                       <!-- ko if: item.texto_documento_sap==''  -->
+                      <td class="form-group has-error">
+                      
+
+                        
+                        <input class="form-control" type="text" data-bind='value:item.texto_documento_sap,
+                        attr:{id:item.id+"-radicado"},onlyNumber:item.texto_documento_sap,
+                        event:{keypress: function(d,e){if (e.which == 13)
+                        {item.texto_documento_sap=$("#"+item.id+"-radicado").val();  
+                        $root.guardar_no_referencia(item);}return true;}}'>
+
+                      </td>
+                      <!-- /ko-->
+                      
+                      <!-- ko if: item.texto_documento_sap!=''  -->
+                      <td class="form-group has-success">
+                      
+
+                        
+                        <input class="form-control" type="text" data-bind='value:item.texto_documento_sap,
+                        attr:{id:item.id+"-radicado"},onlyNumber:item.texto_documento_sap,
+                        event:{keypress: function(d,e){if (e.which == 13)
+                        {item.texto_documento_sap=$("#"+item.id+"-radicado").val();  
+                        $root.guardar_no_referencia(item);}return true;}}'>
+
+                      </td>
+                      <!-- /ko-->    
+
+                      <!-- ko if: item.fecha_conta==null  -->
+                      <td class="form-group has-error">
+                                        
+
+                        <input class="form-control" type="text"  data-bind='datePicker:item.fecha_conta,value:item.fecha_conta,
+                        attr:{id:item.id+"-fecha"},
+                        event:{keypress: function(d,e){if (e.which == 13)
+                        {item.fecha_conta=$("#"+item.id+"-fecha").val();  
+                        $root.guardar_no_referencia(item);}return true;}}' >
+
+                      </td>
+
+                      <!-- /ko-->  
+
+                      <!-- ko if: item.fecha_conta!=null  -->
+                      <td class="form-group has-success">
+                                        
+
+                        <input class="form-control" type="text"  data-bind='datePicker:item.fecha_conta,value:item.fecha_conta,
+                        attr:{id:item.id+"-fecha"},
+                        event:{keypress: function(d,e){if (e.which == 13)
+                        {item.fecha_conta=$("#"+item.id+"-fecha").val();  
+                        $root.guardar_no_referencia(item);}return true;}}' >
+
+                      </td>
+
+                      <!-- /ko-->                        
+
+                      <td>
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu">
+                              <li>
+                                <a href="#" data-bind="attr:{href:'../detallegiro/' + item.id +'/'+item.nombre.contrato.id +'/'+item.contrato.id}">
+                                  Transacciones
+                                </a>
+                              </li>
+                              <li>
+                                <a href="#" data-bind="click:$root.reporte_de_giro">
+                                  Reporte
+                                </a>
+                              </li>
+                              <li>
+                                <a href="#" data-bind="click:function(){$root.abrir_descarga(item.contrato.nombre,item.nombre.nombre,item.id)}">
+                                  Soportes
+                                </a>
+                              </li>                              
+                            </ul>
+                          </div>
+                      </td>          
+                  </tr>
+                <!--/ko-->
+                  
+              </tbody>
+            </table>
+            <div id="paginacion" >
+              <div data-bind="pagination: {
+                       currentPage: paginacion.pagina_actual,
+                       totalCount: paginacion.total,
+                       pageSize:paginacion.cantidad_por_paginas,
+                       maxPages: paginacion.maxPaginas,
+                       directions: paginacion.direcciones,
+                       boundary: paginacion.limite,
+                       text: paginacion.text }">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /.panel panel-sky -->
+    </div><!--/.col lg 12-->
+  </div><!--/.row-->
+  <!--Fin Table-->
+
+
+  <!--Modal filtrar tabla modificar y consultrar-->
+
+  <div id="modal_referencia" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+        
+        <div class="modal-dialog modal-md">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+                </div>
+                <div class="modal-body">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <div class="form-group">
+                        <label>Macrocontrato</label>
+                          <select class="form-control" data-bind="value:macrocontrato_select" >
+                            <option value="">[Seleccione...]</option>
+                            {% for item in mcontrato%}
+                            <option value="{{ item.id }}">{{ item.nombre }}</option>
+                            {% endfor %}
+                          </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Contratista</label>
+                          <select class="form-control" data-bind="value:contratista">
+                            <option value="">[Seleccione...]</option>
+                            <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                            <option data-bind="value:item.contrato__contratista__id,text:item.contrato__contratista__nombre"></option>
+                            <!--/ko-->
+                          </select>
+                      </div>
+                      <div class="form-group">
+                        <label>Proyecto</label>
+                          <select class="form-control" data-bind="value:contratoobra">
+                            <option value="">[Seleccione...]</option>
+                            <!--ko foreach:{ data:lista_obra, as:'item'} -->
+                            <option data-bind="value:item.contrato__id,text:item.contrato__nombre"></option>
+                            <!--/ko-->                      
+                          </select>
+                      </div>
+                      <div class="form-group">
+                       <div class="col-md-9 radio-custom radio-primary mb5">
+                                <input type="radio" id="sinreferencia" value="" data-bind="checked:referencia" name="referencia">
+                                <label for="sinreferencia">Sin referencia</label>
+                                <input type="radio" id="conreferencia" value="1" data-bind="checked:referencia" name="referencia">
+                                <label for="conreferencia">Con referencia</label>
+                                <input type="radio" id="todoreferencia" value="2" data-bind="checked:referencia" name="referencia">
+                                <label for="todoreferencia">Todo</label>
+
+                       </div>
+                      </div>                                         
+
+                    </div>
+
+                  </div>
+                </div>
+
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+                    <i class="fa fa-search"></i> Filtrar
+                  </button>
+              </div>
+
+            </div>
+          </div>
+  </div><!--cierra modal_filtro-->
+
+
+
+
+
+
+  <!--Fin del modal-->
+
+  <div id="reporte_giro" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                  <div class="form-group">
+                    
+                      <label>
+                        <input name="reporteGiro" id="solicitudAnticipo" value="solicitudAnticipo" type="radio">
+                        Formato de Solicitud de Anticipo
+                      </label>
+                    
+                      <label>
+                        <input name="reporteGiro" id="cuentasPorPagar" value="cuentasPorPagar" type="radio" checked="">
+                        Formato de Cuentas por pagar
+                      </label>
+
+                      <input type="hidden" id="id_anticipo" name="id_anticipo" data-bind="value:anticipo_id">
+                      <input type="hidden" id="mcontrato_id" name="mcontrato_id" data-bind="value:mcontrato_id">
+
+                  </div>
+
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:generar_reporte_giro">
+                  <i class="fa fa-print"></i> Generar
+                </button>
+              </div>
+
+          </div>
+        </div>
+      </div><!--cierra modal_filtro-->
+
+  <div id="reporte_descarga" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+        <div class="modal-dialog ">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+                <div data-bind="html: mensaje"></div>
+                <div class="table-responsive" data-bind="visible:(listado_soporte()!=null && listado_soporte().length > 0)">
+                  <table class="table" data-bind="dropdown">
+                    <tbody>
+                      <!--ko foreach:{ data:listado_soporte, as:'item'} -->
+                      <tr>
+                        <th data-bind="text: item.nombre" ></th>
+                        <td>
+                          <a data-bind="attr:{href:item.documento}" target="_blank" >
+                            <i class="fa fa-file fa-2x kv-caption-icon"></i>
+                          </a>
+                        </td>
+                      </tr>
+                      <!--/ko-->
+                    </tbody>
+                  </table>
+                </div>
+                
+            </div>
+          </div>
+        </div>
+      </div><!--cierra modal_filtro-->      
+
+
+  <!--Loading-->
+  {% endblock contenido %}
+
+  {% load static %}
+
+  {%block imports %}
+
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "vendor/plugins/select2/select2.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/solicitud_giro/referencia.js" %}'></script>
+
+  <script type="text/javascript">
+      $(document).ready(function () {
+        encabezado_giro.consultar(1);//iniciamos la primera funcion//iniciamos la primera funcion
+        encabezado_giro.filtros('','','','');
+      });
+
+  </script>
+
+
+
+
+  {% endblock imports %}

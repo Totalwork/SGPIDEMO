@@ -1,0 +1,299 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Listado de actividades{% endblock title%}
+
+{% block mapa %}
+<!-- Start: Topbar -->
+<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+<li><a href="{% url 'cronogramacontrato.home' %}">Cronograma contratos</a></li>
+<li> <a href="{% url 'cronogramacontrato.esquemacronograma'%}">Esquemas cronogramas</a></li>
+<li > <a href="{% url 'cronogramacontrato.capitulosesquema' id_cronograma %}"> Capitulo esquemas </a></li>
+<li class="active">Listado de actividades</li>
+
+<!-- End: Topbar -->
+{% endblock mapa %}
+
+{% block opciones_listado %}
+{% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+<li>
+  <a href="#" data-bind="click: crear">
+    <i class="fa fa-plus" style="font-size: 20px;"></i>
+  </a>
+</li>
+
+<li>
+  <a href="#" data-bind="click: guardar_tabla">
+    <i class="fa fa-save" style="font-size: 20px;"></i>
+  </a>
+</li>
+{% endif %}
+
+
+
+{% endblock opciones_listado %}
+
+
+{% block encabezado %}{% endblock encabezado %}
+
+
+{% block busqueda %}  
+
+<div class="navbar-form navbar-left navbar-search" role="search">
+  <div class="form-group">
+    <input type="text" class="form-control" id="txtBuscar" placeholder="Buscar..." data-bind="event:{keypress: $root.consulta_enter}">
+  </div>
+</div>
+
+{% endblock busqueda %}
+
+
+{% block contenido %}
+<input type="hidden" id="capituloid" value="{{ capituloid }}">
+
+
+<!-- Capitulos del esquema -->
+<div class="panel">
+
+
+  <div class="panel-heading">
+    <span class="panel-title">
+      Listado de actividades de 
+      <span data-bind="html: nombreCronograma"></span> -
+      <span data-bind="html: nombreCapitulo"></span>
+      - No. De registros: [<span data-bind="html:nregistros"></span>]
+    </span>
+
+    <div class="pull-right">
+      <span class="panel-controls">
+
+      </span>
+    </div>
+  </div>
+  <div data-bind="html: mensaje"></div>
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre de actividad</th>
+          <th>Orden</th>
+          <th>Inicio programado</th>
+          <th>Fin programado</th>
+          <th>Permite soporte</th>
+          <th>Tiene observaciones</th>
+          <th>Opciones</th>
+        </tr>
+      </thead>
+      <tbody data-bind="foreach:{data:listado_actividades, as:'item'}">
+        <tr>
+          <td data-bind="cutWord:{num: 30,text: item.descripcion, verMax:'...', verMin:'...'}"></td>
+          <td>
+            <input type="number" min="0" data-bind="value: item.orden">
+          </td>
+          <td>
+            <select class="form-control" data-bind="options: $root.posiblesValores,
+                optionsText: 'text', 
+                optionsValue: 'value', 
+                value: item.inicioprogramado">
+            </select>
+          </td>
+          <td>
+            <select class="form-control" data-bind="options: $root.posiblesValores,
+                optionsText: 'text', 
+                optionsValue: 'value', 
+                value: item.finprogramado">
+            </select>
+          </td>
+          <td>
+            <select class="form-control" data-bind="options: $root.posiblesValores,
+                optionsText: 'text', 
+                optionsValue: 'value', 
+                value: item.requiereSoporte">
+            </select>
+          </td>
+          <td>
+            <select class="form-control" data-bind="options: $root.posiblesValores,
+                optionsText: 'text', 
+                optionsValue: 'value', 
+                value: item.soporteObservaciones">
+            </select>
+          </td>
+          <td>
+            <div class="btn-group text-right">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                  class="fa fa-ellipsis-h fa-2x"></i>
+              </a>
+              <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                {% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+                <li>
+                  <a href="#" data-bind="click: function(){$root.editar(item)}">Editar nombre</a>
+                </li>
+                <li>
+                  <a href="#" data-bind="click: function(){$root.modal_mover(item)}">Mover</a>
+                </li>
+                <li>
+                  <a href="#" data-bind="click: function(){$root.eliminar_actividad(item.id)}">Eliminar</a>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="paginacion">
+    <div data-bind="pagination: {
+    currentPage: paginacion.pagina_actual,
+    totalCount: paginacion.total,
+    pageSize:paginacion.cantidad_por_paginas,
+    maxPages: paginacion.maxPaginas,
+    directions: paginacion.direcciones,
+    boundary: paginacion.limite,
+    text: paginacion.text }">
+    </div>
+
+
+    <!-- modal -->
+
+    <div id="modal_actividad" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+      class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+          </div>
+          <div class="modal-body">
+
+            <form action="." method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+
+                {% csrf_token %}
+                <!-- inputs -->
+                <div id="activacrear">
+                  <div class="form-group">
+                    <label>Orden: </label>
+                    <input type="number" min="0" class="form-control" data-bind="value:actividadVO.orden">
+                    <label>Nombre: </label>
+                    <input type="text" class="form-control" data-bind="value:actividadVO.descripcion">
+                    <label>Inicio programado: </label>
+                    <select class="form-control" data-bind="value:actividadVO.inicioprogramado">
+                      <option value="True">Si</option>
+                      <option value="False">No</option>
+                    </select>
+
+                    <label>Fin programado: </label>
+                    <select class="form-control" data-bind="value:actividadVO.finprogramado">
+                      <option value="True">Si</option>
+                      <option value="False">No</option>
+                    </select>
+
+                    <label>Permite soporte: </label>
+                    <select class="form-control" data-bind="value:actividadVO.requiereSoporte">
+                      <option value="True">Si</option>
+                      <option value="False">No</option>
+                    </select>
+
+                    <label>Soporte observaciones: </label>
+                    <select class="form-control" data-bind="value:actividadVO.soporteObservaciones">
+                      <option value="True">Si</option>
+                      <option value="False">No</option>
+                    </select>
+
+                  </div>
+
+
+                  <!-- <div id="activacrear">
+                    <label>Orden: </label>
+                   <input  data-bind="value:capituloVO.orden" class="form-control"  type="number" min="0">
+                   
+                  </div> -->
+
+
+                </div>
+
+                <div id="activaeditar">
+                  <label>Nombre: </label>
+                  <input type="text" class="form-control" data-bind="value:actividadVO.descripcion">
+
+                </div>
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <!-- modal mover actividades -->
+  <div id="modal_mover_actividad" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+
+          <form action="." method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- inputs -->
+
+            <label>Capitulos:</label>
+            <select class="form-control" data-bind="value: cambio_id">
+              <option>
+                Seleccione un capitulo...
+              </option>
+              <!--ko foreach:{ data:listado_capitulos, as:'item'} -->
+              <option data-bind="value: item.id, text: item.nombre">
+              </option>
+              <!--/ko-->
+            </select>
+
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+
+</div>
+<!-- Capitulos del esquema -->
+
+
+
+
+
+
+{% endblock %}
+
+{%block imports %}
+
+<script type="text/javascript" src="{% static 'assets/js/main.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script>
+<script type="text/javascript" src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+<script type="text/javascript" src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+
+<script type="text/javascript"
+  src='{% static "js/ViewModels/cronogramacontrato/listadoactividades.js" %}?cache=1.4'></script>
+
+{% endblock imports %}

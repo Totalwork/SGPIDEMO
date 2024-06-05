@@ -1,0 +1,351 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Visitas Retie{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">Seguimiento Retie</a></li>  
+	<li class="active">Consultar Visitas</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+       
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+
+{% endblock opciones_listado %}     
+
+{% block contenido %}
+<!-- http://52.26.19.129/sinin/contrato/poliza.php?codigo=302 -->
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		   <div data-bind="html: mensaje"></div> 
+
+		    <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+		    		    
+		    <div class="panel-heading">
+          <span>      
+            <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>             
+               Listado de visitas
+               <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+                <span class="panel-controls">
+                  <a data-bind="click:abrir_filtros" data-placement="top" data-toggle="tooltip" data-original-title="Filtros" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+          	</div>
+
+          	 <div class="panel-body">
+          	 	              
+          	 	 <div class="table-responsive">
+
+               <i class="text-success fa fa-bell" style="font-size:16px"></i>
+               &nbsp;:&nbsp;[Ejecutada];
+               &nbsp;&nbsp;&nbsp;&nbsp;
+
+                <i class="text-warning fa fa-bell" style="font-size:16px"></i>
+               &nbsp;:&nbsp;[Pendiente por Programar];
+               &nbsp;&nbsp;&nbsp;&nbsp;
+
+              <i class="text-info fa fa-bell" style="font-size:16px"></i>
+               &nbsp;:&nbsp;[Programada];
+               &nbsp;&nbsp;&nbsp;&nbsp;
+
+               <i class="text-danger fa fa-bell" style="font-size:16px"></i>
+               &nbsp;:&nbsp;[Cancelada];
+
+                <table class="table table-bordered table-hover">
+                    <thead>
+                    <tr>     
+                     <th>
+                        <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input name="mobileos" data-bind="checked:seleccionar" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                      </th>                 
+                      <th>Macro-Contrato</th>    
+                      <th>Proyecto</th>
+                      <th>Departamento</th>  
+                      <th>Municipio</th>                                        
+                      <th>Hora</th>                                        
+                      <th>Fecha Programada</th>                                        
+                      <th>Fecha de Ejecución</th>  
+                      <th>Estado</th>                                      
+                      <th></th>
+                    </tr>
+                   </thead>
+                   <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr data-bind="css:{'warning':item.estado.id==46, 'success':(item.estado.id==48 || item.estado.id==49), 'info':(item.estado.id==47 || item.estado.id==51), 'danger':item.estado.id==50 }">   
+                     <td>
+                       <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input name="mobileos" data-bind="checked:item.procesar" type="checkbox">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </td>                 
+                    <td data-bind="cutWord:{num:25,text:item.proyecto.mcontrato.nombre, verMax:'...', verMin:'...'}"></td>
+                    <td data-bind="cutWord:{num:25,text:item.proyecto.nombre, verMax:'...', verMin:'...'}"></td>
+                    <td data-bind="text: item.proyecto.municipio.departamento.nombre"></td>   
+                    <td data-bind=text:item.proyecto.municipio.nombre></td>
+                    <td data-bind="text:item.hora"></td>
+                    <td data-bind="text: item.fecha_programada"></td>   
+                    <td data-bind=text:item.fecha_ejecutada></td>
+                    <td data-bind="text:item.estado.nombre"></td>                                    
+                    <td>
+                   
+                     <div class="btn-group text-right">
+                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                                </i></a>
+
+                             <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                
+                                 <li>
+                                    <a href="#" data-bind="attr:{href:'../programar-visita/'+item.id}">Programar Visita</a>
+                                 </li>
+                                
+                                 <li>
+                                    <a href="#" data-bind="attr:{href:'../seguimiento-visita/'+item.id}">Seguimiento de Visita</a>
+                                  </li>
+                                  <!-- ko if: item.estado.id==47 || item.estado.id==51-->
+                                   <li>
+                                    <a href="#" data-bind="click:$root.cancelar_visita">Cancelar Visita</a>
+                                  </li>
+                                  <!-- /ko -->  
+                                   <li>
+                                    <a href="#" data-bind="click:$root.verificarProceso">Seguimiento de Proceso</a>
+                                  </li>
+                                  
+                              </ul>
+                      </div>
+                    </td>                              
+                    </td>                 
+                    </tr>
+                   </tbody> 
+                 </table>
+          	 	 	
+                 <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+          	 	 </div>
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+  <!--Modal-->
+<!-- 
+<div id="modal_acciones" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+       	         
+           <div class="form-group">
+              <label>Macro Contrato</label>             
+              <select id="cmb_contrato_id" class="form-control" data-bind="value:configuracionVO.contrato_id">
+                <option value="">[Seleccione...]</option>
+                {% for item in contratos %}
+                  <option value="{{item.contrato.id}}">{{item.contrato.nombre}}</option>
+                {% endfor %}
+              </select>            
+            </div>
+                     
+           <div class="form-group">
+                  <label>Porcentaje</label>
+                   <div class="input-group"> 
+                    <input class="form-control" data-bind="value:configuracionVO.porcentaje, onlyNumber:configuracionVO.porcentaje">
+                    
+                     <label for="fecha_nacimiento" class="input-group-addon cursor">
+                        %
+                      </label>
+                  </div>                  
+            </div>
+
+            <div class="form-group">
+                  <label>Comentario</label>
+                  <textarea class="form-control" cols="55" rows="3" data-bind="value:configuracionVO.comentario"></textarea>
+             </div>
+         
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div> -->
+
+<div id="modal_filtros" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Filtros</h4>
+      </div>
+       <div class="modal-body">
+        
+         <div class="col-lg-6">
+
+            <div class="form-group">
+              <label>Macro-contrato:</label>
+              <select id="mcontrato" name="mcontrato" class="form-control" data-bind="value:filtrosVO.contrato_id">
+                <option value="">Todos</option>
+                {% for item in contratos %}
+                  <option value="{{ item.contrato.id }}">{{ item.contrato.nombre }}</option>
+                {% endfor %}  
+              </select>
+            </div>
+
+             <div class="form-group" id="dv_proyecto"><label>Proyecto:</label>
+              <select class="form-control" name="proyecto" data-bind="value:filtrosVO.proyecto_id">
+                <option value="" selected="">Todos</option>
+                 <!-- ko foreach: { data:listado_proyectos, as:'item' } -->
+                  <option data-bind="value:item.id, text:item.nombre"></option>
+                <!-- /ko -->
+              </select>
+             </div>
+
+              <div class="form-group" id="dv_proyecto"><label>Departamento:</label>
+              <select class="form-control" data-bind="value:filtrosVO.departamento_id">
+                <option value="" selected="">Todos</option>
+                 <!-- ko foreach: { data:listado_departamentos, as:'item' } -->
+                  <option data-bind="value:item.id, text:item.nombre"></option>
+                <!-- /ko -->
+              </select>
+             </div>
+
+              <div class="form-group" id="dv_proyecto"><label>Municipio:</label>
+              <select class="form-control" data-bind="value:filtrosVO.municipio_id">
+                <option value="" selected="">Todos</option>
+                 <!-- ko foreach: { data:listado_municipios, as:'item' } -->
+                  <option data-bind="value:item.id, text:item.nombre"></option>
+                <!-- /ko -->
+              </select>
+             </div>
+
+              <div class="form-group">
+              <label>Estado:</label>
+              <select class="form-control" name="estado" data-bind="value:filtrosVO.estado_id">
+                <option value="">Todos</option>
+                {% for item in estados %}   
+                  <option value="{{ item.id }}">{{ item.nombre }}</option>
+                {% endfor %}                          
+              </select>
+            </div>                   
+         </div> 
+         
+         <div class="col-lg-6">
+           
+           <div class="form-group">
+                  <label>Fecha inicio programación</label>           
+                  <div class="input-group date">
+                  <input type="text" class="form-control" id="fecha_programacion" data-bind="datePicker:filtrosVO.fecha_inicio_programada,value:filtrosVO.fecha_inicio_programada">
+                    <label for="fecha_programacion" class="input-group-addon cursor">
+                      <i class="fa fa-calendar"></i>
+                    </label>
+                  </div> 
+                </div>
+
+           <div class="form-group">
+                  <label>*Fecha fin programación</label>           
+                  <div class="input-group date">
+                  <input type="text" class="form-control" id="fecha_programacion" data-bind="datePicker:filtrosVO.fecha_fin_programada,value:filtrosVO.fecha_fin_programada">
+                    <label for="fecha_programacion" class="input-group-addon cursor">
+                      <i class="fa fa-calendar"></i>
+                    </label>
+                  </div> 
+                </div>
+
+
+            <div class="form-group">
+                  <label>*Fecha inicio ejecución</label>           
+                  <div class="input-group date">
+                  <input type="text" class="form-control" id="fecha_programacion" data-bind="datePicker:filtrosVO.fecha_inicio_ejecutada,value:filtrosVO.fecha_inicio_ejecutada">
+                    <label for="fecha_programacion" class="input-group-addon cursor">
+                      <i class="fa fa-calendar"></i>
+                    </label>
+                  </div> 
+                </div>
+                
+
+            <div class="form-group">
+                  <label>*Fecha fin ejecución</label>           
+                  <div class="input-group date">
+                  <input type="text" class="form-control" id="fecha_programacion" data-bind="datePicker:filtrosVO.fecha_fin_ejecutada,value:filtrosVO.fecha_fin_ejecutada">
+                    <label for="fecha_programacion" class="input-group-addon cursor">
+                      <i class="fa fa-calendar"></i>
+                    </label>
+                  </div> 
+                </div>             
+
+         </div> 
+
+       </div>
+     
+        <div class="modal-footer">
+
+         <button type="button" class="btn btn-primary" data-bind="click:function(){ consultar(1);}">Consultar</button>
+
+        </div>      
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+     <script type="text/javascript" src='{% static "js/plugins/locale/es.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> 
+    <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>     	
+  	<script type="text/javascript" src='{% static "js/ViewModels/seguimiento_retie/Retie.js" %}?v=2'></script>   
+    <script type="text/javascript">
+      $(document).ready(function(){
+
+        retie.consultar(1);
+        retie.filtrosVO.contrato_id(0);
+
+      });
+    </script>
+{% endblock imports %}

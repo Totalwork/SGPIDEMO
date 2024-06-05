@@ -1,0 +1,657 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?sensor=false&key=AIzaSyDP-V_ViyXNNnyrI9T3KyqmLfOMq_YA5I8"></script>
+{% endblock imports_css %}
+
+
+{% block title %}Avance de Obra{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma_proyecto' id_presupuesto id_proyecto %}">Cronograma de Proyecto</a></li>
+  <li class="active">Avance de Obra</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+
+            <li>
+              <a href="#" data-bind="click:abrir_grafico">
+                  <i class="fa fa-area-chart" style="font-size: 20px;"></i>
+              </a>
+            </li>
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+ <div class="row">
+
+       <!--ko if: habilitar_cambio()==true -->
+          <div class="col-lg-4">
+            <strong>Nombre del Cambio:</strong><br> 
+            <span data-bind="text:nombre_cambio"></span>
+          </div>
+          <div class="col-lg-6">
+             <button type="button" class="btn btn-primary" data-bind="click:guardar_cambio_final">Guardar</button><br><br>
+             <button type="button" class="btn btn-primary" data-bind="click:cancelar_cambio">Cancelar</button><br>
+          </div>
+         <!--/ko--> 
+
+         <!--ko if: habilitar_cambio()==false -->
+      <div class="col-lg-6">
+        <button type="button" class="btn btn-primary" data-bind="click:abrir_modal_cambio">Agregar Cambio</button>
+      </div>
+         <!--/ko--> 
+  </div>
+
+  <br>
+
+  <div class="row" >
+
+<div class="col-lg-10">
+  
+  
+      <div id="map" class="col-lg-12"  style="border-color:black;border-style: solid;height: 450px;">
+      </div>
+  </div>
+
+  <div class="col-lg-2">
+
+
+  <div class="panel panel-sky">
+          <div class="panel-heading">
+                <span class="panel-title">Filtro</span>
+          </div>
+          <div class="panel-body">
+              
+               <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:ejecutado,click:consultar_cambio_ejecucion">
+                    <span class="checkbox"></span>
+                    Ejecutado
+                  </label>
+                </div> 
+
+                <br>
+
+                 <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:no_ejecutado,click:consultar_cambio_ejecucion">
+                    <span class="checkbox"></span>
+                    Por ejecutar
+                  </label>
+                </div> 
+
+                 <br>
+
+                  <button type="button" class="btn btn-primary">Rango de Fechas</button>
+
+
+                <br><br>
+                  <!-- ko foreach: listado_estado -->
+
+                     <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input type="checkbox" data-bind="checked:eliminado,click:$parent.consultar_cambio_estado">
+                          <span class="checkbox"></span>
+                         <span data-bind="text:nombre"></span> </label>
+                      </div> 
+                     <br>
+                   <!-- /ko --> 
+
+
+          </div>
+  </div>
+
+
+      </div>
+  </div>
+
+
+  
+
+</div>
+
+<input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >  
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="id_presupuesto" value="{{id_presupuesto}}" class="form-control" > 
+<input type="hidden" id="id_cronograma" value="{{id_cronograma}}" class="form-control" > 
+<input type="hidden" id="id_proyecto" value="{{id_proyecto}}" class="form-control" > 
+<input type="hidden" id="capa_id" value="{{capa_id}}" class="form-control" > 
+
+
+  <!--Loading-->
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" data-bind="value:nodoVO.nombre" class="form-control" >           
+        </div>    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  <!--Modal-->
+
+<div id="modal_listado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+          <div class="progress mt10">
+          <div class="progress-bar progress-bar-primary" data-bind="style: { width: porcentaje_total()+'%' },
+                attr: {'aria-valuenow' : porcentaje_total}" role="progressbar2" aria-valuemin="0" aria-valuemax="100"><span data-bind="text:porcentaje_total()+'%'" style="color: #000000"></span></div>
+              </div>
+        
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Cantidad a Ejecutar</th>
+              <th>Fecha Programada</th>
+              <th>Cantidad ejecutada sumada</th>
+              <th>Fecha Ejecucion</th>
+              <th>Cantidad ejecutada</th>
+              <th>Notas</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_detalles, as:'item'}">
+            <tr>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+              <td data-bind="text: item.cantidad_ejecutada"></td>
+              <td data-bind="text: item.fecha_programada"></td>
+              <td data-bind="text: item.cantidad_sumada"></td>
+              <td>
+                
+                 <div class="input-group date" id='datetimepicker2'>
+               <input  type="text" class="form-control" data-bind="datePicker:item.fecha,value:item.fecha" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+
+              </td>
+              <td>
+                    <input type="text" data-bind="value:item.cantidad" class="form-control" style="width: 45px">  
+              </td>
+              <td>
+                
+                 <textarea rows="3" data-bind="value: item.notas" class="form-control" placeholder="Dígite una observacion"></textarea>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_cambio_cantidades">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+  
+  <!--Modal-->
+
+<div id="modal_tendido" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Origen</label>
+              </div>
+              <div class="col-lg-2">
+                <span data-bind="text:nombre_nodo_origen"></span>
+              </div>
+        </div>
+
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Destino</label>
+              </div>
+        </div>
+
+        <div class="row">           
+
+              <div class="col-lg-6">
+                    <select class="form-control" data-bind="value:apoyoVO.nodoDestino_id">
+                              <option value="">[Seleccione..]</option>
+                               <!-- ko foreach: listado_apoyos -->
+                                <option data-bind="value:id,text:nombre"></option>
+                              <!-- /ko -->    
+                    </select>    
+              </div>
+        </div>
+        <br>        
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th></th>
+              <th>Hito</th>
+              <th>Actividad</th>              
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+            </tr>
+
+            <tbody data-bind="foreach:{data:listado_nodos, as:'item'}">
+            <tr>
+              <td> 
+                <input type="radio" id="si" data-bind="checked:$parent.apoyoVO.detallepresupuesto_id,value:item.id" name="bdi">
+              </td>
+              <td data-bind="text: item.nombre_padre"></td>
+              <td data-bind="text: item.actividad.nombre"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+            </tr>
+          </tbody>
+
+          </thead>
+        </table>
+        </div>
+        <br>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:crear_tendido">Crear</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  <!--Modal-->
+
+<div id="modal_cambios" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" class="form-control" data-bind="value:cambioCronogramaVO.nombre">           
+        </div>    
+
+          <div class="form-group">
+            <label>Motivo</label>
+            <textarea rows="3" class="form-control" data-bind="value:cambioCronogramaVO.motivo"></textarea>
+        </div>  
+
+          <div class="form-group">
+            <label>Tipo de Acciones</label>   
+            <select class="form-control" data-bind="value:cambioCronogramaVO.tipo_accion_id">
+                 <option value="">[Seleccione..]</option>
+               {% for item in tipos %}
+                    <option value="{{ item.codigo }}">{{ item.nombre }}</option>
+                {% endfor %} 
+            </select>     
+        </div>  
+
+         <div class="form-group">
+            <label>Aprobacion Tecnico</label>   
+            <select class="form-control" data-bind="value:cambioCronogramaVO.empresa_tecnica_id">
+                 <option value="">[Seleccione..]</option>
+                  {% for item in empresas %}
+                    <option value="{{ item.id }}">{{ item.nombre }}</option>
+                {% endfor %} 
+            </select>     
+        </div>  
+
+         <div class="form-group">
+            <label>Aprobacion Financiera</label>   
+            <select class="form-control" data-bind="value:cambioCronogramaVO.empresa_financiera_id">
+                 <option value="">[Seleccione..]</option>
+                  {% for item in empresas %}
+                    <option value="{{ item.id }}">{{ item.nombre }}</option>
+                {% endfor %} 
+            </select>     
+        </div>  
+        
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_cambio">Iniciar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+ <!--Modal-->
+
+<div id="modal_cantidad_nueva" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr>
+              <th>Hito</th> 
+              <th>Actividad</th> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Cantidad</th>
+              <th>Fecha</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_actividades, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nombre_padre"></td>
+              <td data-bind="text: item.actividad"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+             
+              <td>
+                    <input type="text" data-bind="value:item.cantidad" class="form-control" >  
+              </td>
+               <td>
+                
+                 <div class="input-group date" id='datetimepicker2'>
+               <input  type="text" class="form-control" data-bind="datePicker:item.fecha,value:item.fecha" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_nuevas_cantidades">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<!--Modal-->
+
+<div id="modal_modificar_datos" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr>
+              <th>Hito</th> 
+              <th>Actividad</th> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Cantidad Actual</th>
+              <th>Cantidad Nueva</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_actividades_modificacion, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nombre_padre"></td>
+              <td data-bind="text: item.actividad"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+              <td data-bind="text: item.cantidad"></td>             
+              <td>
+                    <input type="text" data-bind="value:item.cantidad_nueva" class="form-control" >  
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_modificacion">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  
+
+<div id="modal_detalle_tendido" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Origen</label>
+              </div>
+              <div class="col-lg-2">
+                <span data-bind="text:nombre_nodo_origen"></span>
+              </div>
+        </div>
+
+        <br>
+
+        <div class="row">
+              <div class="col-lg-2">
+               <div class="btn-group text-right">
+                   <a href="#" data-bind="click:eliminar_tendidos"><i class="fa fa-trash fa-2x" >
+                      </i></a>
+                  </div>
+              </div>
+        </div>
+
+        <br>
+           <div data-bind="html: mensaje_tendidos"></div>   
+          <div class="table-responsive" data-bind="visible:(listado_tendidos()!=null && listado_tendidos().length > 0)">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th> <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall_tendido">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </th>
+              <th>Apoyo Destino</th>
+            </tr>
+
+            <tbody data-bind="foreach:{data:listado_tendidos, as:'item'}">
+            <tr>
+              <td> 
+                 <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </td>
+              <td data-bind="text: item.nodoDestino.nombre"></td>
+            </tr>
+          </tbody>
+
+          </thead>
+        </table>
+        </div>
+        <br>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+ <!--Modal-->
+
+<div id="modal_detalle_cambio" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr>
+              <th>Hito</th> 
+              <th>Actividad</th> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Cantidad</th>
+              <th>Fecha</th>
+              <th>Nota</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_cambios, as:'item'}">
+            <tr>
+              <td data-bind="text: item.programacion.cantidadesNodo.detallepresupuesto.nombre_padre"></td>
+              <td data-bind="text: item.programacion.cantidadesNodo.detallepresupuesto.actividad.nombre"></td>
+              <td data-bind="text: item.programacion.cantidadesNodo.detallepresupuesto.codigoUC"></td>
+              <td data-bind="text: item.programacion.cantidadesNodo.detallepresupuesto.descripcionUC"></td>
+             
+              <td>
+                    <input type="text" data-bind="value:item.cantidadEjecutada" class="form-control" >  
+              </td>
+               <td>
+                
+                 <div class="input-group date" id='datetimepicker2'>
+               <input  type="text" class="form-control" data-bind="datePicker:item.fecha,value:item.fecha" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+
+              </td>
+
+
+              <td>
+                
+                 <textarea rows="3" data-bind="value: item.observacion" class="form-control" placeholder="Dígite una observacion"></textarea>
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_detalle_cambio">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico/avance_obra.js" %}'></script>
+
+ 
+{% endblock imports %}

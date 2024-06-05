@@ -1,0 +1,100 @@
+
+
+     <div class="panel-body">
+     
+     	<div class="row">
+
+      <div class="row">
+        
+       
+          
+          	<div class="kv-avatar center-block" style="width:200px;">
+                <input id="foto" name="foto1" type="file" class="file-loading" data-bind="perfilImage:{value:empleadoVO.foto,allowedFileExtensions: ['jpg','jpge'],
+								  elErrorContainer: '#errorBlock', removeLabel:'', source:foto}">
+								  <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados jpg y jpge.<br></small>								  
+            </div>  
+          <div id="errorBlock" class="help-block"></div>
+        
+
+      </div>
+
+	     	     			     		
+				<div class="form-group">
+	     			
+	     			<label>Persona</label>
+	     			<div class="input-group">
+                       <input type="text" class="form-control" placeholder="" data-bind="value:nombre_persona" readonly>  
+                       <input type="hidden" data-bind="value:empleadoVO.persona_id">
+                       <span class="input-group-addon" title="Crear persona" data-bind="click:abrir_crear_persona" style="cursor: pointer;">
+                         <i class="fa fa-plus"></i>
+                       </span>
+                         <span class="input-group-addon" title="Buscar persona" data-bind="click:abrir_buscar_persona" style="cursor: pointer;">
+                         <i class="fa fa-search"></i>
+                       </span>
+                    </div>                      
+                
+	     		</div>
+	     		
+	     		<div class="form-group">
+	     			<label>Fecha de nacimiento</label>
+	     			
+                      <div class="input-group date">
+                      <input type="text" class="form-control" id="fecha_nacimiento" data-bind="datePicker:empleadoVO.fecha_nacimiento,value:empleadoVO.fecha_nacimiento, dateTimePickerOptions:{maxDate:new Date()}">
+                        <label for="fecha_nacimiento" class="input-group-addon cursor">
+                          <i class="fa fa-calendar"></i>
+                        </label>
+
+                      </div>   
+
+	     			
+	     		</div>
+
+	     		 <div class="form-group">          
+	               <label>Apto:</label>
+	               <select class="form-control" data-bind="value:empleadoVO.apto">
+	                 <option value="">[Seleccionar...]</option>
+	                 <option value="1">Si</option>
+	                 <option value="0">No</option>
+	               </select>           
+	             </div>
+
+     				     
+	     		<div class="form-group">
+	     			<label>Observación</label>
+	     			<textarea class="form-control" data-bind="value:empleadoVO.observacion" rows="5" cols="3"></textarea>
+	     		</div>
+
+	     		<div class="form-group">
+				<label>Requerimientos</label>	
+				<table class="table table-bordered table-hover table-striped">
+					<thead>
+						<tr>
+							<th class="center">Nombre</th>
+							<th class="center">Cumple</th>
+							<th class="center">No Cumple</th>
+							<th class="center">No Aplica</th>
+						</tr>
+					</thead>					
+					<tbody data-bind="foreach:{data:listado_requermientos,as:'item'}">
+						<tr>
+							<td data-bind="text:item.requerimiento"></td>
+							<td class="center">
+							<input type="radio" data-bind="checked:item.requerimiento_valor_id,attr:{name:'requerimiento_' + item.requerimiento_id()}" value="1">
+							</td>
+							<td class="center">
+							<input type="radio" data-bind="checked:item.requerimiento_valor_id,attr:{name:'requerimiento_' + item.requerimiento_id()}" value="2">
+							</td>
+							<td class="center">
+							<input type="radio" data-bind="checked:item.requerimiento_valor_id,attr:{name:'requerimiento_' + item.requerimiento_id()}" value="3">
+							</td>
+						</tr>
+					</tbody>		
+				
+				</table>
+				</div>
+
+	     	
+		</div>
+
+     </div>      	
+          	

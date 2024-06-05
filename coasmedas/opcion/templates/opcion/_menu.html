@@ -1,0 +1,65 @@
+<aside id="sidebar_left" class="nano nano-primary affix">
+
+<!-- Start: Sidebar Left Content -->
+  <div class="sidebar-left-content nano-content" >
+
+    <!-- Start: Sidebar Left Menu -->
+    <ul class="nav sidebar-menu" style="background: #30363e;">
+        <li class="sidebar-label pt15">inicio </li>
+        {% for i in lista %}
+          {%if i.children%}
+            {% if i.urlActiva in ruta %}
+            <li class="active">
+            {%else %}
+            <li>
+            {%endif %}
+              <a class="accordion-toggle" href="#" id="{{i.id}}">
+                <span class="{{i.icono}}"></span>
+                <span class="sidebar-title">{{i.texto}} </span>
+                <span class="caret"></span>
+              </a>
+              <ul class="nav sub-nav">
+                {% for ic in i.children %}
+                  {% if ic.urlActiva in ruta %}
+                    <li class="active">
+                    <script>
+                      $("#"+ {{ic.padre.id}}).addClass("menu-open");
+                    </script>
+                  {%else%}
+                    <li>
+                  {%endif%}
+                      <a href="{% url ic.destino %}" id="{{ic.id}}">
+                      <span class="{{ic.icono}}"></span>{{ic.texto}}  </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </li>
+          {%else%}
+            {% if i.urlActiva in ruta %}
+              <li class="active">
+            {%else %}
+              <li>
+            {%endif %}
+              {%if i.destino == '#' %}
+              <a href="#">
+              {% else %}
+              <a href="{% url i.destino %}">
+              {% endif %}
+              <span class="{{i.icono}}"></span><span class="sidebar-title">{{i.texto}} </span></a>
+            </li>  
+          {%endif%}
+            
+        {% endfor%}
+        <li>
+          <!-- cierra el menu por completo -->
+          <div class="sidebar-toggle-mini">
+            <a href="#">
+              <span class="fa fa-sign-out"></span>
+            </a>
+          </div><!-- cierra el menu por completo -->          
+        </li>
+    </ul><!-- End: Sidebar Menu -->
+
+  </div><!-- End: Sidebar Left Content -->
+
+</aside><!-- End: Sidebar Menu -->

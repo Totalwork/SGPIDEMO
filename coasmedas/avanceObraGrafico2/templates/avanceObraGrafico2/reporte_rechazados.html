@@ -1,0 +1,147 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Reporte de Trabajo{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.aprobacion' %}">Opciones</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.corregido' %}">Rechazados</a></li>
+  <li class="active">Reporte de Trabajo</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}  
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading">
+                <span class="panel-title">Listado de Reporte de Trabajo<span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+               
+          </div>
+          <div class="panel-body">
+           <Strong>Proyecto:  {{proyecto.nombre}}</Strong><br><br>
+
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Cronograma</th>
+              <th>Presupuesto</th>
+              <th>Fecha de Trabajo</th>
+              <th>Usuario de Registro</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+               <td data-bind="text: item.presupuesto.nombre"></td>
+               <td data-bind="text: item.presupuesto.cronograma.nombre"></td>
+              <td data-bind="text: item.fechaTrabajo"></td>
+              <td data-bind="text: item.usuario_registro.persona.nombres+' '+item.usuario_registro.persona.apellidos"></td>
+              <td data-bind="text: item.estado.nombre"></td>
+
+            
+               <td width="10">
+                 <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                         <li>
+                              <a href="#" data-bind="click:$root.abrir_modal_rechazo">Mensajes de Rechazos</a>
+                           </li>
+                      </ul>
+                  </div>
+              </td> 
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="proyecto_id" value="{{proyecto_id}}" class="form-control" >  
+
+<input type="hidden" id="usuario_id" value="{{user.usuario.id}}" class="form-control" >    
+
+  <!--Loading-->
+
+ <!--Modal-->
+
+<div id="modal_rechazo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+                        <ul>
+                        <!--ko if: listado_rechazo().length > 0 -->
+                         <!-- ko foreach: listado_rechazo -->
+                               <li> <span style="font-size:15px;" data-bind="text:motivoRechazo"></span><br>
+                                <span style="font-size:11px;" data-bind="text:fecha_format"></span></li>
+                          <!-- /ko -->                          
+                         <!-- /ko -->
+
+                         </ul>
+          
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cancelar</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/reporte_rechazados.js" %}'></script>
+{% endblock imports %}

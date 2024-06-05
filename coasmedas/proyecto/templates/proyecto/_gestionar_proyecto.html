@@ -1,0 +1,28 @@
+<div class="panel panel-sky" data-bind="visible:(lista_proyecto2()!=null && lista_proyecto2().length > 0)">
+	<div class="panel-heading">
+		<h4>Listado Proyecto</h4>
+	</div>
+	<div class="panel-body">
+		<div class="table-responsive">
+			<table class="table">
+				<thead>
+					<tr>
+						<th>Municipio</th>
+						<th>Departamento</th>
+						<th>Nombre</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!--ko foreach:{ data:lista_proyecto2, as:'item'} -->
+						<tr>
+							<td data-bind="text: item.municipio.nombre"></td>
+							<td data-bind="text: item.municipio.departamento.nombre"></td>
+							<td data-bind="text: item.nombre"></td>
+						</tr>
+					<!--/ko-->
+				</tbody>
+			</table>
+		</div>
+
+	</div>
+</div><!-- /.panel panel-sky -->

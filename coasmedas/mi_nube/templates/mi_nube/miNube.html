@@ -1,0 +1,961 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" href='{% static "js/plugins/vakata-jstree/dist/themes/default/style.min.css" %}'/>
+{% endblock imports_css %}
+
+{% block opciones_listado %}
+
+<li>
+  <div class='col-lg-12' id="infoEspacio" >
+  <div class="progress" style="margin-top:20px;margin-bottom:0px;height:6px">                 
+    <div class="progress-bar progress-bar-info progress-bar-striped" id="espacioPorcentaje"   >
+    </div>                   
+       <!-- <div class="progress-bar progress-bar-success"  style="width: 10%"></div>  -->                                
+  </div>                 
+   Se han utilizado <span data-bind="text:espacioUtilizado" ></span>  de  <span data-bind="text:espacioTotal" ></span> gigabyte(GB)             
+</div>
+</li>
+
+{% endblock opciones_listado %} 
+
+{% block title %}Mi Nube{% endblock title%}
+{% block mapa %}
+
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}   
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>  
+{% if 'mi_nube.can_see_Archivo' in perms %}
+    <div class="row" >
+      <div class="panel panel-sky" >
+            <div class="panel-heading form-group">                               
+                                    
+                <!-- <center><h4>Directorio de Archivos</h4></center> -->
+                <span class="panel-title"> Directorio de Archivos </span> 
+                 <div class="pull-right"  style="margin-right: 17%;">
+
+                  <button data-bind="click:$root.subir_nivel"  class="btn btn-default" type="button" title="Subir nivel" data-toggle="tooltip" data-placement="top" >
+                      <span class="fa-stack fa-lg" style="color: #428bca;" >
+                        <i class="fa fa-level-up fa-stack-2x"></i>
+                      </span> 
+                  </button>
+
+                  {% if 'mi_nube.add_archivo' in perms %}
+                  <button data-bind="click:$root.abrir_modal"  class="btn btn-default" type="button" title="Crear nueva carpeta" data-toggle="tooltip" data-placement="top" >
+                      <span class="fa-stack fa-lg" style="color: #428bca;" >
+                        <i class="fa fa-folder-o fa-stack-2x"></i>
+                        <i class="fa fa-plus-circle fa-stack-1x"></i>
+                      </span> 
+                  </button>
+                  {% endif %}
+                  {% if 'mi_nube.change_archivo' in perms %}
+                  <button  data-bind="click:$root.abrir_modal_editar" class="btn btn-default" type="button" title="Editar nombre" data-toggle="tooltip" data-placement="top">
+                      <span class="fa-stack fa-lg" style="color: #428bca;" >                       
+                          <i class="fa fa-pencil fa-stack-2x"></i>
+                      </span> 
+                  </button>
+                  {% endif %}
+                  {% if 'mi_nube.delete_archivo' in perms %}
+                  <button  data-bind="click:$root.eliminar" class="btn btn-default" type="button"  title="Eliminar archivo" data-toggle="tooltip" data-placement="top">
+                    <span class="fa-stack fa-lg" style="color: #428bca;"  >                 
+                      <i class="fa fa-trash-o fa-stack-2x"></i>
+                    </span> 
+                  </button>
+                  {% endif %}
+                  {% if 'mi_nube.add_archivo' in perms %}
+                   <button  data-bind="click:$root.abrir_modal_cargarArchivo" class="btn btn-default" type="button" title="Subir archivo" data-toggle="tooltip" data-placement="top" >
+                    <span class="fa-stack fa-lg" style="color: #428bca;"  >                    
+                      <i class="fa fa-cloud-upload fa-2x"></i>
+                    </span> 
+                  </button>          
+                  {% endif %} 
+                  
+                  <button data-bind="click:$root.descarga_archivo" class="btn btn-default" type="button" title="Descargar archivo" data-toggle="tooltip" data-placement="top" >
+                      <span class="fa-stack fa-lg" style="color: #428bca;"  >                    
+                        <i class="fa fa-cloud-download fa-2x"></i>
+                      </span> 
+                  </button>
+                  
+                  {% if 'mi_nube.change_archivo' in perms %}
+                  <button data-bind="click:$root.abrir_modal_asociar"  class="btn btn-default" type="button" title="Asociar archivo" data-toggle="tooltip" data-placement="top" >
+                    <span class="fa-stack fa-lg" style="color: #428bca;"  >                    
+                        <i class="fa fa-exchange fa-2x"></i>
+                    </span> 
+                  </button>
+                  {% endif %} 
+                  {% if 'mi_nube.change_archivo' in perms %}
+                  <button data-bind="click:$root.abrir_modal_compartir"  class="btn btn-default" type="button" title="Compartir archivo" data-toggle="tooltip" data-placement="top" >
+                    <span class="fa-stack fa-lg" style="color: #428bca;"  >                    
+                        <i class="fa  fa-share-alt fa-2x"></i>
+                    </span> 
+                  </button>
+                  {% endif %} 
+                  <button data-bind="click:$root.abrir_modal_filtro"  class="btn btn-default" type="button" title="Consultar archivos asociados a contratos o proyectos" data-toggle="tooltip" data-placement="top" >
+                    <span class="fa-stack fa-lg" style="color: #428bca;"  >                    
+                        <i class="fa  fa-filter fa-2x"></i>
+                    </span> 
+                  </button>
+
+                  <button data-bind="click:$root.cancelar_busqueda"  class="btn btn-default" type="button" title="Cancelar filtro" data-toggle="tooltip" data-placement="top" >
+                    <span class="fa-stack fa-lg" style="color: #428bca;" >
+                      <i class="fa fa-close fa-stack-1x text-danger"></i>
+                      <i class="fa fa-search fa-stack-2x "></i>
+                    </span> 
+                  </button>
+                </div>
+            </div>
+      <div class="panel-body" >
+        <div class="col-lg-3"  style="resize: both; height:500px; overflow: scroll;" >
+            <label>&nbsp;&nbsp;Directorio</label> 
+            <div id="jstree" style="border-style:none; "></div>
+        </div> 
+        
+        <div class="col-lg-9" style="resize: both; height:500px; overflow: scroll;">        
+            <div class="form-group" >Directorio : <a id="rutaDir"></a>
+            </div> 
+            <br>
+            <div data-bind="html: mensaje"></div> 
+            <div data-bind="visible:(listado()!=null && listado().length > 0)">
+                  <div class="table-responsive" data-bind="event :{
+                                    dragover:   function(data, e){ $root.dragover(e);},
+                                    drop:       function(data, e){ $root.drop(e, $data);},
+                                    dragenter:  function(data, e){ $root.dragenter(e, $index());},
+                                    dragleave:  function(data, e){ $root.dragleave(e, $index());}
+                                    }"  >
+                        <table class="table">
+                            <thead>
+                            <tr>
+                              <th width="3%"><input type="checkbox" data-bind="checked:checkall" class="fom-control"  > </th>
+                              <th width="35%">Nombre</th>    
+                              <!-- <th width="10%">Peso</th> -->
+                              <th width="25%">Fecha</th>
+                              <th width="32%">Modificado</th>
+                              <!-- <th width="5%">Tipo</th> -->
+                            </tr>
+                          </thead>
+                          <tbody data-bind="foreach:{data:listado, as:'item'}">
+                            <tr data-bind="event :{
+                                    mousedown:$root.abrir_menu_contextual, 
+                                    dblclick:$root.dobleclick,                                   
+                                    dragover:   function(data, e){ $root.dragover(e);},
+                                    drop:       function(data, e){ $root.drop(e, $data);},
+                                    dragenter:  function(data, e){ $root.dragenter(e, $index());},
+                                    dragleave:  function(data, e){ $root.dragleave(e, $index());}
+                                    }"  style="cursor:pointer" >
+                              <td><input type="checkbox" data-bind="checked:eliminado,value:id" class="fom-control"  > </td> 
+                              <td > 
+                                <!-- VALIDAMOS SI EL USUARIO LE ESTAN COMPARTIENDO EL ARCHIVO -->
+                                <!--ko if: item.propietario_id!={{ user.usuario.id }} --> 
+                                  <i class="fa fa-share-alt-square fa-2x" aria-hidden="true" style="color: #31B404;"></i>
+                                <!-- /ko --> 
+
+                                <!-- VALIDAMOS SI EL USUARIO ESTA COMPARTIENDO EL ARCHIVO -->
+                                <!--ko if: item.compartido>0 && item.propietario_id=={{ user.usuario.id }} --> 
+                                  <i class="fa fa-share-alt-square fa-2x" aria-hidden="true" style="color:#428bca;"></i>
+                                <!-- /ko --> 
+
+                                <span data-bind="css : item.icono+' fa-2x' ,style:{color:item.color}" ></span>
+                                <span data-bind="text:item.nombre" ></span>
+                              </td> 
+                              <td data-bind="text: moment(item.fechaModificado).format('LL , h:mm a')"></td>
+                              <td data-bind="text: item.usuarioModificado"></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                        <br><br><br><br><br><br>
+                  </div>              
+           </div>
+      </div>
+ 
+      </div> 
+      </div>   
+    </div>
+{% endif %} 
+<!-- INICIA FILA CONSULTAR ARCHIVOS ASOCIADOS A PROYECTOS O CONTRATOS -->
+<div id="modal_acciones_filtro" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridSystemModalLabel">Consultar archivos asociados a contratos o proyectos</h4>
+      </div>
+      <div class="modal-body">
+          <div class="container-fluid">  
+
+            <div class="col-lg-12">
+              <label>Nombre del archivo ó carpeta</label>
+              <input  placeholder="Indique  el nombre del archivo ó carpeta" type="text" class="form-control" 
+                id="txtBuscarContratoProyecto" >
+            </div>
+
+            <div class="col-lg-12">
+              <label>Contrato</label>
+              <select class="form-control form-group" data-bind="value:mcontrato_id" >
+                            <option value="">Seleccione el contrato ...</option>        
+                            <!--ko foreach: { data:listado_mcontratos , as:'item'}-->        
+                              <option data-bind="value:item.id, text:item.nombre"></option>
+                            <!-- /ko -->
+              </select>            
+            </div>
+
+            <div class="col-lg-12">
+              <label>Departamento</label>
+              <select class="form-control form-group" data-bind="value: departamento_id" >
+                <option value="">Seleccione el departamento ...</option>        
+                <!--ko foreach: { data:listado_departamentos , as:'item'}-->        
+                  <option data-bind="value:item.id, text:item.nombre"></option>
+                <!-- /ko -->
+              </select>            
+            </div>
+
+            <div class="col-lg-12">
+              <label>Municipio</label>
+              <select class="form-control form-group" data-bind="value: municipio_id">
+                <option value="">Seleccione el municipio ...</option>        
+                <!--ko foreach: { data:listado_municipios , as:'item'}-->        
+                  <option data-bind="value:item.id, text:item.nombre"></option>
+                <!-- /ko -->
+              </select>           
+            </div>
+            <div class="col-lg-12">
+              <label>Proyectos</label>
+              <select class="form-control form-group" data-bind="value: proyecto_id">
+                <option value="">Seleccione el proyecto ...</option>        
+                <!--ko foreach: { data:listado_proyecto_filtro , as:'item'}-->        
+                  <option data-bind="value:item.proyecto.id, text:item.proyecto.nombre"></option>
+                <!-- /ko -->
+              </select>             
+            </div>                            
+          </div>                            
+      </div>
+      <div class="modal-footer">  
+        <button class="btn btn-primary"  data-bind="click:consultarContratoProyecto_btn">Consultar</button>
+      </div>  
+    </div>
+  </div>
+</div>
+<!-- FINALIZA CONSULTAR ARCHIVOS ASOCIADOS A PROYECTOS O CONTRATOS -->
+
+<!-- INICIA FILA CREAR CARPETA-->
+<div id="modal_acciones_carpeta" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridSystemModalLabel">Crear carpeta</h4>
+      </div>
+      <div class="modal-body">
+          <div class="container-fluid">                                                          
+              <div class="form-group">
+                  <label>(*) Nombre de carpeta:</label>
+                <input  placeholder="Indique  el nombre de la carpeta" type="text" class="form-control" id="nombre"
+                data-bind="value : mi_nubeVO.nombre , event:{keypress: guardar_carpeta_enter }" >
+              </div>                              
+          </div>                           
+      </div>
+      <div class="modal-footer">  
+        <button class="btn btn-primary" data-bind="click:guardar_carpeta" >Crear</button>
+      </div>  
+    </div>
+  </div>
+</div>
+<!-- FINALIZA CREAR CARPETA -->
+
+<!-- INICIA FILA EDITAR NOMBRE -->
+<div id="modal_acciones_editar" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog ">
+           <div class="modal-content">
+               <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridSystemModalLabel">Editar nombre</h4>
+               </div>
+                <div class="modal-body">
+                    <div class="container-fluid">                
+                      <div class="panel-body">
+                        <div class="form-group ">
+                          <label>Nombre Actual:</label>
+                          <input type="text" class="form-control" data-bind="value : mi_nubeVO.nombreActual" disabled>
+                        </div>
+                        <div class="form-group ">
+                          <label>Nuevo nombre:</label>
+                          <input type="text" class="form-control" data-bind="value : mi_nubeVO.nombre" >
+                        </div>
+                      </div>
+                    </div>                            
+                </div>
+                <div class="modal-footer"> 
+                    <button class="btn btn-primary" data-bind="click:actualizar_nombre_archivo" >Actualizar</button>
+                </div> 
+           </div>
+    </div>
+</div>
+<!-- FINALIZA EDITAR NOMBRE -->
+
+<!-- INICIA FILA CARGAR ARCHIVO -->
+<div id="modal_acciones_cargarArchivo" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+   <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title" id="gridSystemModalLabel">Subir archivo</h4>
+    </div>
+    <div class="modal-body">
+        <div class="container-fluid">
+
+              <div class="form-group">  
+                <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:mi_nubeVO.destino,allowedFileExtensions: ['pdf'
+                ,'doc', 'docx' 
+                ,'xlsx' 
+                , 'png' 
+                , 'avi' , 'mpeg' , 'wmv'
+                ,'pptx'
+                , 'zip', 'mp3'
+                , 'dwg'
+                , 'txt'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                <small id="emailHelp" class="form-text text-muted">
+                  Tipos de archivos aceptados doc, docx, xlsx, png, avi, mpeg, wmv, pptx, zip, mp3, dwg y txt.<br>
+                </small>
+              </div>
+              <div class="form-group">
+                <input type="checkbox"  data-bind="checked: mi_nubeVO.validaNombre" > &nbsp;<label>Cambiar nombre </label>
+              </div>
+              <!-- ko if: mi_nubeVO.validaNombre -->
+              <div class="form-group ">
+                <label>Nombre </label>
+                <input type="text" class="form-control" data-bind="value:mi_nubeVO.nombreActual ,excludeCaracterMinube:mi_nubeVO.nombreActual">
+              </div>
+              <!-- /ko -->              
+        </div>                            
+    </div>
+    <div class="modal-footer"> 
+      <button class="btn btn-primary" data-bind="click:guardar_archivo"  >Subir</button>
+    </div>                              
+    </div>
+  </div>
+</div>
+<!-- FINALIZA CARGAR ARCHIVO -->
+
+<!-- INICIA FILA ASOCIAR ARCHIVO -->
+<div id="modal_acciones_asociar" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:100%" >
+   <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridSystemModalLabel">Asociar archivos </h4>
+    </div>
+    <div class="modal-body">
+        <div class="container-fluid">
+
+ 
+          <div class="col-lg-8 form-group">          
+                             
+            <div class="col-lg-2">
+              <div class="radio-custom mb5"> 
+                <input id="radioExample1" type="radio" name="radioExample" value="true" data-bind="checked:proyectoContrato" />
+                <label for="radioExample1" class="radio-inline" >Proyectos</label>  
+              </div>
+            </div>
+            <div class="col-lg-2">
+              <div class="radio-custom radio-primary mb5">
+                <input id="radioExample2" type="radio" name="radioExample" value="false" data-bind="checked: proyectoContrato" /> 
+                <label for="radioExample2" class="radio-inline" >Contratos</label>
+              </div>
+            </div>          
+          </div> 
+          <!-- PROYECTO ARCHIVO // PROYECTO ARCHIVO // PROYECTO ARCHIVO // PROYECTO ARCHIVO // PROYECTO ARCHIVO -->
+          <!-- ko if: proyectoContrato()=='true' -->
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Proyectos Por Asociar</span>
+              </div>
+              <div class="panel-body" >
+                  <div class="form-group">
+                    <select class="form-control form-group" data-bind="value:proyecto_mcontrato_id" >
+                            <option value="">Seleccione el contrato ...</option>        
+                            <!--ko foreach: { data:listado_mcontratos , as:'item'}-->        
+                              <option data-bind="value:item.id, text:item.nombre"></option>
+                            <!-- /ko -->
+                    </select> 
+                  </div>
+                  <div class="form-group ">
+                    <select class="form-control form-group" data-bind="value: proyecto_departamento_id" >
+                            <option value="">Seleccione el departamento ...</option>        
+                            <!--ko foreach: { data:listado_departamentos , as:'item'}-->        
+                              <option data-bind="value:item.id, text:item.nombre"></option>
+                            <!-- /ko -->
+                    </select>     
+                  </div>
+                  <div class="form-group ">
+                    <select class="form-control form-group" data-bind="value: proyecto_municipio_id">
+                            <option value="">Seleccione el municipio ...</option>        
+                            <!--ko foreach: { data:listado_municipios_proyecto , as:'item'}-->        
+                              <option data-bind="value:item.id, text:item.nombre"></option>
+                            <!-- /ko -->
+                    </select>     
+                  </div>
+                  <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombre del proyecto o servicio" type="text" id="txtBuscarProyecto"  data-bind="event:{keypress: consulta_enter_proyecto }" >
+                  <span class="input-group-addon" data-bind="click:consulta_btn_proyecto" >Consultar</span>
+                </div>                 
+
+                  <div data-bind="html: mensajePorAsignar"></div> 
+                  <div data-bind="visible:(listado_proyecto()!=null && listado_proyecto().length > 0)">
+                      <button type="button" data-bind="click : asociar_proyecto" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4>Asignar Proyectos -
+                          <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                        </h4>
+                      </button>
+                      <div class="table-responsive">
+                        <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="3%"><input type="checkbox" data-bind="checked:checkallProyecto"></th>    
+                          <th width="25%">Mcontrato</th>  
+                          <th width="17%">Departamento</th>
+                          <th width="20%">Municipio</th>
+                          <th width="35%">Nombre</th>
+                                                  
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_proyecto, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.procesar"></td> 
+                          <td data-bind="text: item.proyecto__mcontrato__nombre"></td>   
+                          <td data-bind="text: item.proyecto__municipio__departamento__nombre"></td>
+                          <td data-bind="text: item.proyecto__municipio__nombre"></td>
+                          <td data-bind="text: item.proyecto__nombre"></td>                           
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>           
+                  </div>  
+                </div>
+            </div>
+          </div>          
+    
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Proyectos Asociados</span>
+              </div>
+              <div class="panel-body" >
+                  <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombre del proyecto o servicio" type="text" id="txtBuscarProyectoArchivo"  data-bind="event:{keypress: consulta_enter_proyecto_archivo }" >
+                  <span class="input-group-addon" data-bind="click : consulta_btn_proyecto_archivo" >Consultar</span>
+                </div> 
+                  
+                <div data-bind="html: mensajeAsignados"></div> 
+                  <div data-bind="visible:(listado_proyecto_archivo()!=null && listado_proyecto_archivo().length > 0)">
+                      <button type="button" data-bind="click : quitar_proyecto" class="btn btn-sm btn-primary btn-block"  >
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar Proyectos                          
+                        </h4>
+                      </button>
+                      <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="3%"><input type="checkbox" data-bind="checked:checkallProyectoArchivo"></th>    
+                          <th width="25%">Mcontrato</th>  
+                          <th width="27%">Departamento</th>
+                          <th width="20%">Municipio</th>
+                          <th width="25%">Nombre</th>
+                                                  
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_proyecto_archivo, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.eliminado"></td> 
+                          <td data-bind="text: item.mcontrato__nombre"></td>   
+                          <td data-bind="text: item.municipio__departamento__nombre"></td>
+                          <td data-bind="text: item.municipio__nombre"></td>
+                          <td data-bind="text: item.nombre"></td>                           
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>           
+                  </div> 
+              </div>
+            </div>
+          </div>      
+          <!-- /ko --> 
+
+          <!-- CONTRATO ARCHIVO // CONTRATO ARCHIVO // CONTRATO ARCHIVO // CONTRATO ARCHIVO // CONTRATO ARCHIVO -->
+          <!-- ko if: proyectoContrato()=='false' -->
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Contratos Por Asociar</span>
+              </div>
+              <div class="panel-body" >
+
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select class="form-control form-group" data-bind="value:estado_id_filtro" >
+                            <option value="">Seleccione el estado del contrato ...</option>        
+                            <!--ko foreach: { data:listado_estados_contrato , as:'item'}-->        
+                              <option data-bind="value:item.id, text:item.nombre"></option>
+                            <!-- /ko -->
+                    </select> 
+                </div>
+
+                <div class="input-group form-group">
+                  <input class="form-control" placeholder="Numero ó nombre del contrato" type="text" id="txtBuscarContrato"  data-bind="event:{keypress: consulta_enter_contrato }" >
+                  <span class="input-group-addon" data-bind="click:consulta_btn_contrato">Consultar</span>
+                </div> 
+
+                 <div data-bind="html: mensajeContratosPorAsignar"></div> 
+                  <div data-bind="visible:(listado_proyecto()!=null && listado_contrato().length > 0)">
+                      <button type="button" data-bind="click : asociar_contrato" class="btn btn-sm btn-primary btn-block"  >
+                        <h4>Asignar Contratos -
+                          <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                        </h4>
+                      </button>
+                      <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="3%"><input type="checkbox" data-bind="checked:checkallContrato"></th>    
+                          <th width="25%">Nombre</th>  
+                          <th width="20%">Numero</th>
+                          <th width="25%">Tipo</th>
+                          <th width="25%">Estado</th>
+                                                  
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_contrato, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.procesar"></td> 
+                          <td data-bind="text: item.nombre"></td>   
+                          <td data-bind="text: item.numero"></td>
+                          <td data-bind="text: item.tipo_contrato__nombre"></td>
+                          <td data-bind="text: item.estado__nombre"></td>                           
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>           
+                  </div> 
+              </div>
+            </div>
+          </div>
+    
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Contratos Asociados</span>
+              </div>
+              <div class="panel-body" >
+
+                  <div class="input-group form-group">
+                  <input class="form-control" placeholder="Numero ó nombre del contrato" type="text" id="txtBuscarContratoArchivo" data-bind="event:{keypress: consulta_enter_contrato_archivo }"  >
+                  <span class="input-group-addon" data-bind="click:consulta_btn_contrato_archivo">Consultar</span>
+                </div> 
+                
+                  <div data-bind="html: mensajeContratosAsignados"></div> 
+                  <div data-bind="visible:(listado_proyecto_archivo()!=null && listado_contrato_archivo().length > 0)">
+                      <button type="button" data-bind="click : quitar_contrato" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar Contratos                          
+                        </h4>
+                      </button>
+                      <div class="table-responsive">
+                        <table class="table">
+                          <thead>
+                        <tr>
+                          <th width="3%"><input type="checkbox" data-bind="checked:checkallContratoArchivo"></th>    
+                          <th width="25%">Nombre</th>  
+                          <th width="20%">Numero</th>
+                          <th width="25%">Tipo</th>
+                          <th width="25%">Estado</th>                                                     
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_contrato_archivo, as:'item'}">
+                        <tr>
+                          <td><input type="checkbox" data-bind="checked:item.eliminado"></td> 
+                          <td data-bind="text: item.nombre"></td>   
+                          <td data-bind="text: item.numero"></td>
+                          <td data-bind="text: item.tipo_contrato__nombre"></td> 
+                          <td data-bind="text: item.estado__nombre"></td>                    
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>           
+                  </div> 
+              </div>
+            </div>
+          </div>
+          <!-- /ko --> 
+
+
+
+        </div>                            
+    </div>
+                           
+    </div>
+  </div>
+</div>
+<!-- FINALIZA ASOCIAR ARCHIVO -->
+
+<!-- INICIA FILA COMPARTIR ARCHIVO -->
+<div id="modal_acciones_compartir" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" style="width:100%">
+   <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title" id="gridSystemModalLabel">Compartir archivos</h4>
+    </div>
+    <div class="modal-body">
+        <div class="container-fluid">
+
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Usuarios  Por Asociar</span>
+              </div>
+              <div class="panel-body" >
+                  <div class="form-group ">
+                    <label>Empresa </label>
+                    <select class="form-control form-group" data-bind="value: empresaUsuario_filtro">
+                            <option value="">Seleccione la empresa ...</option>        
+                            <!--ko foreach: { data:listado_empresas , as:'item'}-->        
+                              <option data-bind="value:item.empresa_ver.id, text:item.empresa_ver.nombre"></option>
+                            <!-- /ko -->
+                    </select>   
+                  </div>
+                  <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombres , apellidos o nombre de usuario" type="text" id="txtBuscarUsuario"  data-bind="event:{keypress: consultar_usuarioSin_archivo_enter }" >
+                  <span class="input-group-addon" data-bind="click : consultar_usuarioSin_archivo_btn" >Consultar</span>
+                </div> 
+                  
+                  <div data-bind="html: mensajePorAsignar"></div> 
+                  <div data-bind="visible:(listado_usuario()!=null && listado_usuario().length > 0)">
+
+                      <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:asociar_usuario" >
+                        <h4>Asignar Permisos -
+                          <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                        </h4>
+                      </button>
+                      <br>
+                      <br> 
+                      
+                      <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>   
+                          <th width="60%">Nombres y Apellidos</th>
+                          <th width="22%">Nombre De Usuario</th>
+                          <th width="9%">
+                            <div class="checkbox-custom mb5">
+                              <input type="checkbox" id="checkboxDefault3" data-bind="checked:checkallUsuario">
+                              <label for="checkboxDefault3">Lectura</label>
+                            </div>
+                          </th>  
+                          <th width="9%">                           
+                            <div class="checkbox-custom checkbox-primary mb5">
+                              <input type="checkbox" id="checkboxExample4" data-bind="checked:checkallUsuarioEscritura">
+                              <label for="checkboxExample4">Escritura</label>
+                            </div>                             
+                          </th>                        
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_usuario, as:'item'}">
+                        <tr> 
+                          <td data-bind="text: item.persona__nombres+' '+item.persona__apellidos"></td>
+                          <td data-bind="text: item.user__username"></td> 
+                          <td>
+                            <div class="checkbox-custom mb5">
+                              <input type="checkbox" data-bind="attr:{id: 'checkboxLectura'+item.id} ,checked:item.procesar , click:function(){$root.lecturaUsuario(item); return true;}">
+                              <label data-bind="attr:{for: 'checkboxLectura'+item.id}" >Lectura</label>
+                            </div>
+                            
+                          </td> 
+                          <td>
+                            <div class="checkbox-custom checkbox-primary mb5">
+                              <input type="checkbox" data-bind="attr:{id: 'checkboxEscritura'+item.id} , checked:item.valor_generico , click:function(){$root.escrituraUsuario(item); return true;}" >
+                              <label data-bind="attr:{for: 'checkboxEscritura'+item.id}"  >Escritura</label>
+                            </div> 
+                          </td>                            
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>           
+                </div>  
+
+              </div>
+            </div>
+          </div>
+          <!-- FINALIZA FILA -->
+          <div class="col-md-6">  
+            <div  class="panel" >
+              <div class="panel-heading">
+                <span class="panel-title">Usuarios  Asociados</span>
+              </div>
+              <div class="panel-body" >
+                  <div class="form-group ">
+                    <label>Empresa </label>
+                    <select class="form-control form-group" data-bind="value: empresaUsuarioArchivo_filtro">
+                            <option value="">Seleccione la empresa ...</option>        
+                            <!--ko foreach: { data:listado_empresas , as:'item'}-->        
+                              <option data-bind="value:item.empresa_ver.id, text:item.empresa_ver.nombre"></option>
+                            <!-- /ko -->
+                    </select>   
+                  </div>
+                  <div class="input-group form-group">
+                  <input class="form-control" placeholder="Nombres , apellidos o nombre de usuario" type="text" id="txtBuscarUsuarioArchivo"  data-bind="event:{keypress: consultar_usuarioCon_archivo_enter }" >
+                  <span class="input-group-addon" data-bind="click : consultar_usuarioCon_archivo_btn" >Consultar</span>
+                </div> 
+                  
+                  <div data-bind="html: mensajeAsignados"></div> 
+                  <div data-bind="visible:(listado_usuario_archivo()!=null && listado_usuario_archivo().length > 0)">
+                      <button type="button" class="btn btn-sm btn-primary btn-block" data-bind="click:quitar_usuario" >
+                        <h4>
+                             Actualizar Permisos                           
+                        </h4>
+                      </button>
+
+                      <div class="table-responsive">
+                            <table class="table">
+                          <thead>
+                        <tr>                         
+                          <th width="60%">Nombres y Apellidos</th>
+                          <th width="22%">Nombre De Usuario</th>
+                          <th width="9%">
+                            <div class="checkbox-custom mb5">
+                              <input type="checkbox" id="checkboxDefault6" data-bind="checked:checkallUsuarioArchivo">
+                              <label for="checkboxDefault6">Lectura</label>
+                            </div>
+                          </th>
+                          <th width="9%">
+                            <div class="checkbox-custom checkbox-primary mb5">
+                              <input type="checkbox" id="checkboxExample7" data-bind="checked:checkallUsuarioArchivoEscritura">
+                              <label for="checkboxExample7">Escritura</label>
+                            </div> 
+                          </th>
+                                                  
+                        </tr>
+                      </thead>
+                      <tbody data-bind="foreach:{data:listado_usuario_archivo, as:'item'}">
+                        <tr>  
+                          <td data-bind="text: item.usuario__persona__nombres()+' '+item.usuario__persona__apellidos()"></td>
+                          <td data-bind="text: item.usuario__user__username()"></td>
+                          <td>
+                            <div class="checkbox-custom  mb5">
+                              <input type="checkbox"  data-bind="attr:{id: 'checkboxList'+item.id()} ,checked:item.eliminado , click:function(){$root.lecturaUsuarioConArchivo(item); return true;} " >
+                              <label data-bind="attr:{for: 'checkboxList'+item.id()}" ></label>
+                            </div> 
+                          </td> 
+                          <td>
+                            <div class="checkbox-custom checkbox-primary mb5">
+                              <input type="checkbox" data-bind="attr:{id: 'checkboxListEscritura'+item.id()} ,checked:item.escritura, click:function(){$root.escrituraUsuarioConArchivo(item); return true;} ">
+                              <label data-bind="attr:{for: 'checkboxListEscritura'+item.id()}" ></label>
+                            </div> 
+                          </td>                           
+                        </tr>
+                      </tbody>
+                    </table>
+                    </div>           
+                </div>
+
+                  <!-- FINALIZA TABLA DE USUARIOS -->
+
+              </div>
+            </div>
+          </div>
+          <!-- FINALIZA FILA -->                    
+        </div>                            
+    </div>
+                             
+    </div>
+  </div>
+</div>
+<!-- FINALIZA COMPARTIR ARCHIVO -->
+
+
+<!-- MENU CONTEXTUAL -->
+<ul id="menuCapa" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" style="cursor:pointer;">
+
+        <li role="presentation" id="item7presentation">
+          <a role="menuitem" tabindex="-1" onClick="clickMenu(7);">Visualizar</a>
+        </li>
+        <li role="presentation">
+          <a role="menuitem" tabindex="-1" data-bind="click: $root.consultar_por_id" >Editar</a>
+        </li>
+        <li role="presentation" >
+          <a role="menuitem" tabindex="-1" data-bind="click: $root.eliminar2" >Eliminar</a>
+        </li>
+        <li role="presentation" >
+          <a role="menuitem" tabindex="-1" data-bind="click: $root.detalle_archivo" >Detalle</a>
+        </li>        
+        <li role="presentation" id="MenuCMover">
+          <a role="menuitem" tabindex="-1"  data-bind="click: $root.abrir_modal_mover" >Mover</a>
+        </li>
+        <li role="presentation" >
+          <p><br></p>       
+        </li>
+</ul>
+
+
+<!-- DETALLE DEL ARCHIVO -->
+<div id="detalleArchivoM" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+  <div class="modal-dialog ">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridSystemModalLabel">Detalle del elemento seleccionado:</h4>
+                  
+               </div>
+                          <div class="modal-body">
+                              
+                              <div class="container-fluid" >
+                                    
+                                    <table class="table table-bordered">
+                                     <thead style="padding:4px;">
+                                       <tr>
+                                          <th width="37%" >Tipo</th><td><h6 data-bind='text:tipoArchivo' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                                       </tr>
+                                       <tr>
+                                          <th>Nombre</th><td><h6 data-bind='text:mi_nubeVO.nombre' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                                       </tr>
+                                       <tr>
+                                          <th>Fecha de modificación</th><td><h6  data-bind='text:mi_nubeVO.fechaModificado' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                                       </tr>
+                                       <tr>
+                                          <th>Usuario de modificación</th><td><h6 data-bind='text:usuarioModificado' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                                       </tr>
+                                       <tr>
+                                          <th>Tamaño</th><td><h6 data-bind='text:mi_nubeVO.peso' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                                       </tr>
+                                       <tr>
+                                          <th>Propietario</th><td><h6 data-bind='text:propietario' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                                       </tr>
+                                      </thead> 
+                                     </table>                       
+                  
+                
+                              </div>                            
+                          </div>
+
+                          <div class="modal-footer">
+                            <div class="col-lg-12" id="Rarchivo-actualizar" ></div>    
+                            <button data-dismiss="modal" class="btn btn-default" type="button">Cerrar</button>
+                            
+                          </div> 
+
+           </div>
+    </div>
+</div>
+
+<!-- MOVER ARCHIVO //// MOVER ARCHIVO //// MOVER ARCHIVO //// MOVER ARCHIVO  -->
+<div id="moverArchivo" class="modal fade " tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog ">
+       <div class="modal-content">
+           <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            
+              <table class="table table-bordered" style="width:80%;">
+               <thead style="padding:4px;">
+                 <tr>
+                    <th>Nombre</th><td><h6 data-bind='text:mi_nubeVO.nombre' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                 </tr>
+                 <tr>
+                    <th>Fecha de modificación</th><td><h6 data-bind='text:mi_nubeVO.fechaModificado' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                 </tr>
+                 <tr>
+                    <th>Usuario de modificación</th><td><h6 data-bind='text:usuarioModificado' style="margin-top:1px; margin-bottom:1px;"></h6></td>
+                 </tr>
+                </thead> 
+               </table>
+              <h4 class="modal-title" id="gridSystemModalLabel">El elemento seleccionado se movera a:</h4>
+              
+           </div>
+              <div class="modal-body" style="height: 400px;">
+                  <label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Directorio</label>
+                  <div class="container-fluid" >                                              
+                        <div class="modal-body" id="Rmover-archivo"></div>     
+                  </div>                            
+              </div>
+              <div class="modal-footer">
+                <div class="col-lg-12" id="Rarchivo-mover" ></div>    
+                <button data-dismiss="modal" class="btn btn-default" type="button">Cancelar</button>
+                 <button class="btn btn-primary" data-bind="click:$root.mover_archivo" >Mover</button> 
+              </div>
+       </div>
+    </div>
+</div>
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/vakata-jstree/dist/jstree.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/mi_nube/miNube.js" %}?v=2'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+        $( "#topbar" ).remove();
+        /*-----------------------MENU CONTEXTUAL---------------------------------*/
+        $("#content").on("mousedown",function(e) {
+          if(e.button == 0){
+            $("#menuCapa").hide('fast');
+          }
+        });
+        $(document).bind("contextmenu", function(e){  
+          return false;
+        });
+      /*-------CLICK SOBRE LA LISTA------*/
+      /*---------------FINALIZA EL MENU CONTEXTUAL-------------------------------*/ 
+        $.jstree.defaults.core.themes.variant = "large";
+        // 6 create an instance when the DOM is ready 
+        // 7 bind to events triggered on the tree
+        $('#jstree').on("changed.jstree", function (e, data) {
+          id_archivo=data.selected[0];
+          rutaUrl = buscarRuta();
+          $("#rutaDir").html(rutaUrl);
+          if(typeof  id_archivo != 'undefined'){
+              mi_nube.consultar();                                   
+          }else{
+
+          }            
+        });   
+                            
+    }); 
+
+
+    function buscarRuta(){
+      ruta = "";
+      padre_id = parseInt($("#jstree").jstree("get_selected")) ; 
+      if(!isNaN(padre_id)) {
+           
+          ruta = "Inicio/"; 
+          ruta2 = "";
+          if(padre_id!=1){
+            var inst = $('#jstree').jstree(true);
+            
+            while(padre_id!=1){
+             /* alert("luis"+padre_id)*/
+              nodo = inst.get_text(padre_id);
+              padre_id = inst.get_node(padre_id).parent;
+              /*alert("nodo =  -- "+nodo+" padre = "+padre_id);*/
+              ruta2= nodo+"/"+ruta2;
+            }
+          }
+          ruta = ruta+ruta2;
+      }     
+
+      return ruta ;
+    } 
+
+  </script>
+  <!-- END: PAGE SCRIPTS -->
+{% endblock imports %}

@@ -1,0 +1,267 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Propietarios{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'p_p_construccion.proyectos_construccion' %}">P.P construccion</a></li>
+  <li><a href="{% url 'p_p_construccion.lote' proyecto_id %}">Administrar</a></li>
+  <li class="active">Propietarios</li>
+{% endblock mapa %}
+{% block encabezado %}<!--propietarios-->{% endblock encabezado %}
+
+{% block busqueda %}{% endblock busqueda %}
+{% block opciones_listado %} 
+
+  {% if app|add:'.add_'|add:model in perms%}        
+    <li>
+      <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+        <i class="fa fa-plus" style="font-size: 20px;"></i>
+      </a>
+    </li>
+  {% endif %}
+
+{% endblock opciones_listado %} 
+
+{% block contenido %}
+
+
+  <div class="row" >
+
+    <div class="col-lg-12">
+             
+      <div class="panel panel-sky">
+                
+        <div class="panel-heading">Listado de propietarios</div>
+            
+          <div class="panel-body">
+              
+            <div class="row">
+                 
+              <div class="col-lg-6">
+         
+                <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Buscar propietarios</span>
+                  </div>
+
+                  <div class="panel-body">
+                    <div class="form-group input-group">
+                      <input type="text" class="form-control" placeholder="Buscar por nombre" id="txtBuscarE" data-bind="event:{keydown:function(d,e){if (e.keyCode === 13)consultar();else return true;}}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btnConsultarTodos"><i class="fa fa-search" data-bind="click:consultar()"></i></button>
+                        </span>
+                    </div>
+
+                    <button type="button" data-bind="click : asociar_propietarios, visible:listado()!=null && listado().length > 0" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4>Agregar -<i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i></h4>
+                    </button>
+                    
+                    <div class="row" data-bind="html:mensaje"></div> 
+
+                      <table class="table" data-bind="visible:listado()!=null && listado().length > 0">
+                        <thead>
+                          <tr>                      
+                            <th width="10%">
+                                <div class="option-group field admin-form">
+                                  <label class="option option-primary"  style="">
+                                    <input type="checkbox" data-bind="checked:checkall">
+                                    <span class="checkbox"></span>
+                                  </label>
+                                </div> 
+                            </th>
+                            <th>Cedula</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Telefono</th>
+                            <th>Correo</th> 
+                          </tr>
+                        </thead>
+                        <tbody data-bind="foreach:{data:listado, as:'item'}">
+                          <tr>
+
+                          <td>
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div> 
+                          </td>
+                            <td data-bind="text:item.cedula"></td>
+                            <td data-bind="text:item.nombres"></td>
+                            <td data-bind="text:item.apellidos"></td>
+                            <td data-bind="text:item.telefono"></td>
+                            <td data-bind="text:item.correo"></td>
+                          </tr>  
+                        </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div><!--cierra panel body-->                    
+              </div> <!--cierra col lg 6-->
+
+
+
+               <div class="col-lg-6">
+         
+                <div class="panel">
+                  <div class="panel-heading">
+                    <span class="panel-title">Buscar propietarios asociados</span>
+                  </div>
+
+                  <div class="panel-body">
+                    <div class="form-group input-group">
+                      <input type="text" class="form-control" placeholder="Buscar por nombre" id="txtBuscarA" data-bind="event:{keydown:function(d,e){if (e.keyCode === 13)consultar_propietarios_asociados();else return true;}}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btnConsultarTodosA"><i class="fa fa-search" data-bind="click:consultar_propietarios_asociados()"></i></button>
+                        </span>
+                    </div>
+
+                    <button type="button" data-bind="click : desasociar_propietarios, visible:listado_asociado()!=null && listado_asociado().length > 0" class="btn btn-sm btn-primary btn-block"  >                        
+                         <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar                      
+                         </h4>
+                    </button>
+                    
+                    <div class="row" data-bind="html:mensaje_asociado"></div> 
+
+                      <table class="table" data-bind="visible:listado_asociado()!=null && listado_asociado().length > 0">
+                        <thead>
+                          <tr>                      
+                            <th width="10%">
+                                <div class="option-group field admin-form">
+                                  <label class="option option-primary"  style="">
+                                    <input type="checkbox" data-bind="checked:checkall2">
+                                    <span class="checkbox"></span>
+                                  </label>
+                                </div> 
+                            </th>
+                            <th>Cedula</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Telefono</th>
+                            <th>Correo</th> 
+                          </tr>
+                        </thead>
+                        <tbody data-bind="foreach:{data:listado_asociado, as:'item'}">
+                          <tr>
+
+                          <td>
+                              <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div> 
+                          </td>
+                            <td data-bind="text:item.propietario.cedula"></td>
+                            <td data-bind="text:item.propietario.nombres"></td>
+                            <td data-bind="text:item.propietario.apellidos"></td>
+                            <td data-bind="text:item.propietario.telefono"></td>
+                            <td data-bind="text:item.propietario.correo"></td>
+                          </tr>  
+                        </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div><!--cierra panel body-->                    
+              </div> <!--cierra col lg 6-->
+
+            </div><!--cierra row-->
+          </div><!--cierra panel body-->
+    </div><!--cierra lg 12-->
+  </div>  <!--cierra row-->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Cedula (*)</label>
+              <input type="text" data-bind="value:propietarioVO.cedula" class="form-control" placeholder="Dígite la cedula del propietario"/>
+          </div>
+
+          <div class="form-group">
+            <label>Nombres (*)</label>
+              <input type="text" data-bind="value:propietarioVO.nombres" class="form-control" placeholder="Dígite el nombre del propietario"/>
+          </div>
+
+          <div class="form-group">
+            <label>Apellidos (*)</label>
+              <input type="text" data-bind="value:propietarioVO.apellidos" class="form-control" placeholder="Dígite el apellido del propietario"/>
+          </div>
+
+          <div class="form-group">
+            <label>Correo</label>
+              <input type="text" data-bind="value:propietarioVO.correo" class="form-control" placeholder="Dígite el correo del propietario"/>
+          </div>
+
+          <div class="form-group">
+            <label>Telefono</label>
+              <input type="text" data-bind="value:propietarioVO.telefono,onlyNumber:propietarioVO.telefono" class="form-control" placeholder="Dígite el telefono del propietario"/>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+
+
+
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/p_p_construccion/propietario.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      propietario.propietario_loteVO.lote_id({{lote_id}});
+      propietario.consultar(1);//iniciamos la primera funcion
+      propietario.consultar_propietarios_asociados(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

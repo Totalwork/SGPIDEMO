@@ -1,0 +1,212 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Giros{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Giros</li>
+{% endblock mapa %}
+{% block encabezado %}<!--Giros-->{% endblock encabezado %}
+
+{% block contenido %}
+
+{% block busqueda %}
+
+{% endblock busqueda %}
+
+ 
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+
+        <!-- create new order panel -->
+          <div class="panel mb25 mt5">
+            <div class="panel-heading"><span class="panel-title hidden-xs">Registro y consulta de giros</span>
+              <ul class="nav panel-tabs-border panel-tabs">
+                <li class="active"><a href="#tab1_1" data-toggle="tab">Consultar / Modificar </a></li>
+                <li> <a href="#tab1_2" data-toggle="tab">Verificar Giro</a></li>
+                <li> <a href="#tab1_3" data-toggle="tab">No. Radicado</a></li>
+              </ul>
+            </div>
+
+            <div class="panel-body p20 pb10">
+              <div class="tab-content pn br-n admin-form">
+
+                <div id="tab1_1" class="tab-pane active">
+ 
+                  {% include 'giros/_consultar_modificar.html' %}
+
+                </div><!--cierra tap 1-->
+
+                <div id="tab1_2" class="tab-pane">
+
+                  {% include 'giros/_verificar_giro.html' %}  
+
+                </div><!--cierra tap 2-->
+
+                <div id="tab1_3" class="tab-pane">
+
+                  {% include 'giros/_no_radicado.html' %}
+
+                </div><!--cierra tap 3-->
+
+              </div>
+            </div>
+          </div><!--cierra panel mb25 mt5 -->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+<!-- <input class="gui-input hasDatepicker" placeholder="Datepicker Popup" type="text" data-bind="datePicker:encabezado_giroVO.fecha_conta"> -->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+          <!--ko if: encabezado_giroVO.id()=='' -->
+
+          <div class="form-group">
+            <label>Macrocontrato</label>
+              <select class="form-control" data-bind="value:macrocontrato_select">
+                <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Contratista</label>
+              <select class="form-control" data-bind="value:contratista">
+                <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+              </select>
+          </div>
+
+
+          <div class="form-group">
+            <label>Contrato</label>
+              <select class="form-control" data-bind="value:encabezado_giroVO.contrato_id">
+                  <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_contrato_select, as:'item2'} -->
+                      <option data-bind="value:item2.id,text:item2.nombre"></option>
+                  <!--/ko-->
+                </select>
+          </div>
+
+          <!--/ko--> 
+
+          <div class="form-group">
+            <label>Nombre anticipo</label>
+             <select class="form-control" data-bind="options:nombre_giros,value:encabezado_giroVO.nombre_id,optionsText:'nombre', optionsValue:'id',valueAllowUnset: true, 
+             optionsCaption:'[Seleccione...]'">
+            </select>
+          </div>
+
+          <!--ko if: encabezado_giroVO.id() >  0 && encabezado_giroVO.soporte()!='' && encabezado_giroVO.soporte()!=null-->
+          <a data-bind="attr: {href: encabezado_giroVO.soporte}" target="_blank" style="cursor:pointer;">
+            <i class="fa fa-file kv-caption-icon"></i> Documento
+          </a>
+         <!--/ko--> 
+
+          <div class="form-group">          
+            <label>Documento</label>
+            <input type="file" class="note-image-input" id="archivo2" name="archivo2"  data-bind="fileData:{value:encabezado_giroVO.soporte,allowedFileExtensions: ['png','jpg','jpge','pdf','xlsx','docx'],
+                                   elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+            <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, xlsx y docx.<br></small>
+          </div>
+
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Modal-->
+
+<div id="generar_informe" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Macrocontrato</label>
+              <select class="form-control" id="mcontrato" name="mcontrato">
+                <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:exportar_excel_contrato">
+            <i class="fa fa-print"></i> Exportar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/giros/encabezado_giro.js" %}?v=5'></script>
+  
+{% endblock imports %}

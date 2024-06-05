@@ -1,0 +1,233 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+
+{% block title %}Cantidad de Apoyo{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico2.presupuesto' cronograma_id %}">Presupuesto</a></li>
+  <li class="active">Cantidad de Apoyo</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %} 
+
+            <li>
+              <a href="#" data-bind="click:abrir_modal">
+                 <i class="fa fa-upload" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+            <li>
+              <a href="#" data-bind="click:descargar_informe">
+                  <i class="fa fa-cloud-download"  style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+     
+  
+  <div class="panel panel-sky">
+          <div class="panel-heading">
+                <span class="panel-title">Cantidad de Poste/Poste </span>
+                <span class="panel-controls"> 
+                        <span class="panel-icon">
+                          <a href="#" data-bind="click:abrir_modal_filter"><i class="fa fa-filter" style="font-size: 20px;"></i></a>
+                        </span>
+                </span>
+          </div>
+          
+          <div class="panel-body" >
+           <Strong>Presupuesto:  {{presupuesto.nombre}}</Strong><br><br>
+           <Strong>Proyecto:  {{presupuesto.cronograma.proyecto.nombre}}</Strong><br><br>
+           <Strong>Esquema:  {{presupuesto.cronograma.esquema.nombre}}</Strong><br><br>     
+          
+
+           <div data-bind="html: mensaje"></div> 
+          <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+                <table class="table">
+              <thead>
+            <tr>
+              <th>Hitos</th>
+              <th>Actividad</th>
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Cantidad Total</th>
+              <th>Cantidad en Apoyos</th>
+              <th>Opciones</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr data-bind="style:{'background-color':item.color}">
+              <td data-bind="text: item.nombre_padre"></td>
+              <td data-bind="text: item.actividad_nombre"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+              <td data-bind="text: cantidad"></td>
+              <td data-bind="text: apoyos"></td>
+
+                <td>
+                 <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                           <li>
+                              <a href="#" data-bind="click:$parent.consultar_id">Ver Detalle</a>
+                           </li>
+                    </ul>
+                  </div>
+              </td>
+
+
+            </tr>
+          </tbody>
+        </table>
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+        </div>
+
+        
+
+                </div>
+
+      </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="sin_poste" value="{{presupuesto.sin_poste}}" class="form-control" >  
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <Strong>Proyecto:  {{presupuesto.cronograma.proyecto.nombre}}</Strong><br><br>
+        <Strong>Esquema:  {{presupuesto.cronograma.esquema.nombre}}</Strong><br><br>
+        <Strong>Presupuesto:  {{presupuesto.nombre}}</Strong><br><br>
+        
+         <div class="form-group">
+            <a href="#" data-bind="click:descargar_plantilla"><label style="cursor: pointer;">Plantilla para diligenciar <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i></label></a>       
+        </div>
+
+
+        <div class="form-group">          
+          <label>Archivo</label>
+           <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+           <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados xls y xlsx.<br></small>        
+        </div>
+
+
+        <input type="hidden" id="id_proyecto" value="{{proyecto_id}}" class="form-control" >
+        <input type="hidden" id="id_esquema" value="{{esquema_id}}" class="form-control" >
+        <input type="hidden" id="id_presupuesto" value="{{presupuesto_id}}" class="form-control" >
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Iniciar Carga</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+<!--Modal-->
+
+<div id="modal_filtro" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Hitos</label>
+            <select class="form-control" data-bind="value:busquedaVO.hito_id">
+                      <option value="">[Seleccione..]</option>
+                       {% for item in capitulos %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+            </select>          
+        </div>
+
+
+          <div class="form-group">
+            <label>Actividades</label>
+            <select class="form-control" data-bind="value:busquedaVO.actividad_id">
+                      <option value="">[Seleccione..]</option>
+                       <!-- ko foreach: listado_actividades -->
+                          <option data-bind="value:id,text:nombre"></option>
+                       <!-- /ko -->
+            </select>          
+        </div>
+
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:filtrar">Filtrar</button>
+        </div>    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico2/cantidad_apoyo.js" %}'></script>
+{% endblock imports %}

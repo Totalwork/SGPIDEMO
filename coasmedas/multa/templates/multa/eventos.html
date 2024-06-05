@@ -1,0 +1,199 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Multa{% endblock title%}
+{% block mapa %}
+
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="../index/">Multas</a></li>
+  <li class="active">Eventos</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+<div class="row" >
+
+<div class="col-lg-12">     
+  <div class="panel panel-sky">
+          <div class="panel-heading">
+            <span>      
+              <a href="../index/"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"              aria-hidden="true"></i></a>
+            </span> 
+            Listado de eventos - N° de Registros : </span> <span data-bind="text:paginacion.total"></span>
+            <span class="panel-controls">
+              <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros"  title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda" >
+                <i class="fa fa-filter fa-2x"></i>
+              </a>
+            </span>
+          </div>
+          <div class="panel-body" >
+          <div data-bind="html: mensaje"></div> 
+          <div data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="table-responsive" data-bind="dropdown"  >
+            <table class="table">
+              <thead>
+                <tr>
+                  <th width="5%" >
+                    <div class="option-group field admin-form">
+                      <label class="option option-primary"  style="">
+                        <input type="checkbox" data-bind="checked:checkall">
+                        <span class="checkbox"></span>
+                      </label>
+                    </div>
+                  </th>    
+                  <th width="55%" >Evento</th>
+                  <th width="15%" >Valor</th>
+                  <th width="20%" >Conjunto</th>
+                  <th width="5%" >Opciones</th>
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado, as:'item'}">
+                <tr>
+                  <td> 
+                    <div class="option-group field admin-form">
+                      <label class="option option-primary"  style="">
+                        <input class="checkboxList" name="evento[]" type="checkbox" data-bind="checked:eliminado,value:id">
+                        <span class="checkbox"></span>
+                      </label>
+                    </div>  
+                  </td> 
+                  <td data-bind="cutWord:{num:80,text:item.nombre, verMax:'...', verMin:'...'}"></td>
+                  <td data-bind="text: formatMoney(item.valor)"></td>
+                  <td data-bind="text: item.conjunto.nombre"></td>
+                  <td>
+                     {% if 'multa.change_evento' in perms %}
+                     <div class="btn-group text-right">
+                       <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x">
+                          </i></a>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">                         
+                          <li>
+                            <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                          </li>                          
+                        </ul>
+                      </div>
+                    {% endif %}
+                  </td>      
+                </tr>
+              </tbody>
+            </table>
+            <div id="paginacion" >
+              <div data-bind="pagination: {
+                             currentPage: paginacion.pagina_actual,
+                             totalCount: paginacion.total,
+                             pageSize:paginacion.cantidad_por_paginas,
+                             maxPages: paginacion.maxPaginas,
+                             directions: paginacion.direcciones,
+                             boundary: paginacion.limite,
+                             text: paginacion.text }">
+
+              </div>
+            </div>
+          </div>
+        </div>      
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+          <div class="form-group col-lg-12">
+            <label>Conjunto de evento</label>
+            <select class="form-control" data-bind="options: listado_conjunto_eventos,
+                               optionsText: 'nombre', 
+                               optionsValue: 'id', 
+                               optionsCaption: 'Seleccione el conjunto de evento...',
+                               value : eventoVO.conjunto_id
+                               ">
+            </select>   
+          </div>
+
+          <div class="form-group col-lg-12 ">
+            <label>(*) Evento</label>
+            <textarea type="text" class="form-control" data-bind="value:eventoVO.nombre" ></textarea>           
+          </div>
+
+          <div class="form-group col-lg-12 ">
+            <label>(*) Valor</label>
+            <input type="text" class="form-control" data-bind="onlyNumber: eventoVO.valor, value:eventoVO.valor">         
+          </div>   
+
+        </form>
+       </div>
+        <div class="modal-footer">
+           <button type="button" class="btn btn-primary" data-bind="click:guardar, text:titulo_btn"></button>
+        </div>
+    </div>
+  </div>
+</div>
+<!--Modal-->
+
+
+<div id="modal_busqueda" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm" >
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="panel-body bg-light">
+
+        <div class="form-group" >
+          <label>Cojunto de eventos</label>
+          <select class="form-control form-group" data-bind='value:conjunto_id'>  
+              <option value="">Seleccione...</option> 
+              <!--ko foreach: { data:listado_conjunto_eventos , as:'item'}-->        
+                <option data-bind="value:item.id, text: item.nombre">
+                </option>
+              <!-- /ko -->
+          </select>         
+        </div>
+        <div class="form-group" >
+          <label>Evento</label>
+          <textarea type="text" class="form-control" id="txtBuscar" ></textarea> 
+        </div>                      
+                
+        <!-- datos generales -->    
+       </div>
+       <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click: function(){ consultar(1) }">Consultar</button>
+       </div>
+    </div>
+  </div>
+</div>
+<!--Modal consulta de Correspondencia-->
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/multa/evento.js" %}'></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+        evento.consultar(1);
+        evento.consultar_conjunto_eventos();
+    });  
+  </script>
+{% endblock imports %}
+

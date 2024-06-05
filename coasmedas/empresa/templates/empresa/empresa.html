@@ -1,0 +1,130 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{% block title %}Empresa{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li>
+  <li class="active">Empresa</li>
+{% endblock mapa %}
+{% block encabezado %}Empresa{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+
+{% block contenido %}
+
+ 
+
+   <div class="row">
+        <div class="col-lg-12">
+          <div class="panel">
+            <div class="panel-heading">
+              <span>      
+                <a href="{% url 'parametrizacion.parametrizacion' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>               
+              <span>Mi Empresa</span>            
+            </div>
+            <div class="panel-body">
+
+                   <div class="row mb10" id="spy3">
+                      <div class="col-sm-10 col-md-4">
+                      <a href="{% url 'correspondencia.plantilla' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">                            
+                              <div class="col-md-4">
+                                  <i class="fa fa-envelope fa fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Correspondencia</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div>
+
+
+                       <div class="col-sm-10 col-md-4">                       
+                        <a href="{% url 'correspondencia.prefijo' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                              <div class="col-md-4">
+                                  <i class="fa fa-adn fa fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Prefijos Correspondencia</h3>                            
+                              </div>
+                          </div>
+                        </div>                       
+                            </a>
+                      </div>
+
+                      {% if 'parametrizacion.can_see_cargo' in perms %}
+                      <div class="col-sm-10 col-md-4">
+                         <a href="{% url 'empresa.cargo' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                              <div class="col-md-4">
+                                  <i class="fa fa-list-ul fa fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Listado de Cargo</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div>
+                      {% endif %}
+
+
+                        <div class="col-sm-10 col-md-4">
+                            <a href="{% url 'correspondencia.correspondencia_consecutivo' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                              <div class="col-md-4">
+                                  <i class="fa fa-clock-o fa fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Consecutivos Carta</h3>                            
+                              </div>
+                          </div>
+                        </div>
+                        </a>
+                      </div>
+
+                      <div class="col-sm-10 col-md-4">
+                        <a href="{% url 'actareunion.consecutivo' %}" style="color:#f5f8fd">
+                          <div class="panel panel-tile bg-primary light">
+                            <div class="panel-body pn pl20 p5">
+                              <div class="col-md-4">
+                                  <i class="fa fa-clock-o fa fa-5x"></i>
+                              </div>
+                              <div class="col-md-6">                                 
+                                <h3 class="mt15 lh15">Consecutivos Actas de reunion</h3>                            
+                              </div>
+                            </div>
+                          </div>
+                        </a>
+                      </div>
+                      
+                    </div>
+
+             </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+	<!--Loading-->
+	
+
+{% endblock contenido %}
+
+{% load static %}

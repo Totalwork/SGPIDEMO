@@ -1,0 +1,390 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Configuracion{% endblock title %}
+
+{% block opciones_listado %}
+        
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li><a href="/servidumbre/home">Gestion de servidumbres</a></li>
+  <li>Configuración</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+
+
+
+<div class="panel panel-sky">
+  <div class="row" >  
+    <div class="col-lg-12">
+    	
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">
+              <a href="{% url 'servidumbre.expediente'%}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar a Gestion de expedientes">
+                 <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              </a>            
+              <span class="panel-title hidden-xs">Grupos y documentos
+				      </span>                                        
+            </div>
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+  	<div class="panel-body">
+
+        <div class="modal-body "> <!-- Inicio tablero principal -->
+
+
+
+            <div class="col-lg-6" style="padding-right: 30px;"> <!-- Inicio primer panel -->
+
+              <div class="panel-heading"> 
+                <span class="panel-title hidden-xs">Grupos disponibles en el sistema :</span>
+                <span data-bind="text:paginacion.total"></span> 
+
+              </div>
+              <div class="panel-body">
+                <div class="row">         
+                  <div class="input-group">
+                    <ul class="nav navbar-nav navbar-left">
+                    {% if app in perms %}
+                      {% if app|add:'.add_'|add:model in perms%}      
+                        <li>
+                          <a href="#" data-bind="click:abrir_modalGrupo" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                            <i class="fa fa-plus" style="font-size: 20px;"></i>
+                          </a>         
+                        </li>               
+                      {% endif %}
+                    {% endif %}
+                    {% if app in perms %}
+                      {% if app|add:'.delete_'|add:model in perms%}   
+                        <li>
+                          <a href="#" data-bind="click:eliminarGrupos" data-placement="right"   data-toggle="tooltip" data-original-title="Configuracion grupos de docs.">
+                            <i class="fa fa-trash" style="font-size: 20px;"></i>
+                          </a>    
+                        </li>                  
+                      {% endif %}
+                    {% endif %}   
+                    <li>               
+                      <div class="from-group input-group">                 
+                        <input class="form-control" type="text"
+                          id="txtBuscarGrupo" name="txtBuscarGrupo" 
+                          data-bind='event:{keypress: $root.buscarGrupo}' 
+                          placeholder="Buscar por nombre del grupo..." >
+                            <span class="input-group-addon">
+                              <a href="#" data-bind="click:get_grupo">
+                                <i class="fa fa-search"></i>
+                              </a>
+                            </span>
+                      </div> 
+                    </li>                 
+                  </ul>
+                  </div>
+                </div>
+                <div class="row">
+                  <div data-bind="html: mensaje"></div>
+                </div>
+                <div class="row">
+                  <div id="divProyectos" 
+                  data-bind="visible:(listado()!=null && listado().length > 0)">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                                  <th>
+                                    <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                        <input type="checkbox" data-bind="checked:checkall">
+                       <!--                  <input type="checkbox"> -->
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div>
+                                  </th>
+                                  <th>Nombre del grupo de documentos</th>                                
+                                  <th></th>
+                          </tr>
+                        </thead>
+                        <tbody data-bind="foreach:{data:listado, as:'item'}">
+                          <tr>
+                                  <td>
+                                    <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                        <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                <!--         <input type="checkbox" > -->
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div> 
+                                  </td>
+                                    <td data-bind="text: item.nombre"></td>                                  
+                                    <td>
+                                      <a href="#"
+                                      data-bind="click:$root.consultar_documentos_del_grupo">
+                                        <i class="fa fa-list-ol"></i>
+                                      </a>
+                                    </td>
+                                  
+                          </tr>
+
+                        </tbody>
+                      </table>
+                    </div>
+                  
+                  </div>
+                      <center>
+                      <div id="paginacion" >
+                            <div data-bind="pagination: {
+                                     currentPage: paginacion.pagina_actual,
+                                     totalCount: paginacion.total,
+                                     pageSize:paginacion.cantidad_por_paginas,
+                                     maxPages: paginacion.maxPaginas,
+                                     directions: paginacion.direcciones,
+                                     boundary: paginacion.limite,
+                                     text: paginacion.text }">
+
+                            </div>
+                      </div>
+                     </center>  
+                  </div> 
+              </div>             
+            </div><!--Fin primer panel -->
+
+
+
+
+          <div class="col-lg-6" id="divDocumentos" style="display: none;padding-left: : 30px;"> <!--Inicio segundo planel -->
+          <!--   <div class="col-lg-6" id="divDocumentos"> -->
+    
+              <div class="panel-heading"> 
+                <input type="hidden" id="idGrupo" data-bind="value:GrupoVO.id">
+                <!-- <span class="panel-title hidden-xs">Documentos del Grupo [ </span>
+                <span data-bind="text:GrupoVO.nombre"></span>
+                <span class="panel-title hidden-xs">] : </span> -->
+                <span class="modal-title" id="gridModalLabel" data-bind='text:titulo_grupo'></span>
+                <span data-bind="text:paginacionDocumetos.total"></span> 
+
+              </div>
+           <!--  <div class="col-lg-6" id="divDocumentos" > -->
+              <div class="panel-body">
+                <div class="row">         
+                  <div class="input-group">
+                    <ul class="nav navbar-nav navbar-left">
+                    {% if app in perms %}
+                      {% if app|add:'.add_'|add:model in perms%}      
+                        <li>
+                          <a href="#" data-bind="click:abrir_modalDocumento"  data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                            <i class="fa fa-plus" style="font-size: 20px;"></i>
+                          </a>         
+                        </li>               
+                      {% endif %}
+                    {% endif %}
+                    {% if app in perms %}
+                      {% if app|add:'.delete_'|add:model in perms%}   
+                        <li>
+                          <a href="#" data-bind="click:eliminarDocumentos" data-placement="right"  data-toggle="tooltip" data-original-title="Configuracion grupos de docs.">
+                            <i class="fa fa-trash" style="font-size: 20px;"></i>
+                          </a>    
+                        </li>                  
+                      {% endif %}
+                    {% endif %}   
+
+                    <li>  
+                      <div class="from-group input-group">
+                    <input class="form-control" type="text"
+                    id="txtBuscarDocumento" name="txtBuscarDocumento" 
+                    data-bind='event:{keypress: $root.buscarDocumento}' 
+                    placeholder="Buscar por nombre del documento..." >
+                      <span class="input-group-addon">
+                      <a href="#" data-bind="click:get_documentos">
+                        <i class="fa fa-search"></i>
+                      </a>
+                            </span>
+                      </div>
+
+                    </li>
+
+                  </ul>
+                  </div>
+                </div>
+                <div class="row">
+                  <div data-bind="html: mensajeDocumento"></div>
+                </div>
+                <div class="row">
+                  <div id="divProyectos" 
+                  data-bind="visible:(listadoDocumentos()!=null && listadoDocumentos().length > 0)">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                                  <th>
+                                    <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                        <input type="checkbox" data-bind="checked:checkallDocumentos">
+                                     <!--    <input type="checkbox"> -->
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div>
+                                  </th>
+                                  <th>Documentos del grupo</th>                                
+                                  <th></th>
+                          </tr>
+                        </thead>
+                        <tbody data-bind="foreach:{data:listadoDocumentos, as:'item'}">
+                          <tr>
+                                  <td>
+                                    <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                        <input type="checkbox" data-bind="checked:eliminado,value:id">
+                                <!--         <input type="checkbox" > -->
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div> 
+                                  </td>
+                                    <td data-bind="text: item.nombre"></td>                                 
+                                    
+                                  
+                          </tr>
+
+                        </tbody>
+                      </table>
+                    </div>
+                  
+                  </div>
+                      <center>
+                      <div id="paginacion" >
+                            <div data-bind="pagination: {
+                                     currentPage: paginacionDocumetos.pagina_actual,
+                                     totalCount: paginacionDocumetos.total,
+                                     pageSize:paginacionDocumetos.cantidad_por_paginas,
+                                     maxPages: paginacionDocumetos.maxPaginas,
+                                     directions: paginacionDocumetos.direcciones,
+                                     boundary: paginacionDocumetos.limite,
+                                     text: paginacionDocumetos.text }">
+
+                            </div>
+                      </div>
+                     </center>  
+                </div>
+              </div>
+          </div><!--cierra segundo panel -->
+        </div><!--cierra tablero principal -->
+
+    </div><!--cierra panel-body -->
+</div><!--cierra panel panel-sky -->
+
+
+
+<div id="modal_nuevo_grupo" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'>          
+        </h4>
+      </div>
+      <form action="." method="post" enctype="multipart/form-data">
+        <div class="modal-body">
+        
+            {% csrf_token %}
+          <div class="row">
+            <div class="form-group col-lg-12">
+              <label>(*) Nombre del grupo de documentos: </label>
+              <input class="form-control" type="text" id="txtGrupoNombre" data-bind="value:GrupoVO.nombre" required>
+            </div>
+            
+          </div>              
+        </div>
+        <div class="modal-footer">            
+              <button type="button" class="btn btn-primary" data-bind="click:guardarGrupo">
+                Guardar
+              </button>            
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div id="modal_nuevo_documento" class="modal fade bd-example-modal-sm" 
+  tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'>          
+        </h4>
+      </div>
+      <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+      <div class="modal-body">
+          <div class="row">
+            <input type="hidden" data-bind="value:DocumentoVO.grupo_documento_id">
+            <div class="form-group col-lg-12">
+              <label>(*) Nombre del grupo de documentos: </label>
+              <input class="form-control" type="text" id="txtDocumentoGrupoNombre" disabled="" >
+            </div>
+            <div id="validacionGrupoDocumento" style="display: none;color: red;">
+                Ocurrió un error, se debe seleccionar un grupo de documentos automaticamente.
+            </div>
+          </div>
+          <div class="row">
+            <div class="form-group col-lg-12">
+              <label>(*) Nombre del documento: </label>
+              <input class="form-control" type="text" id="txtDocumentoNombre" data-bind="value: DocumentoVO.nombre" required>
+            </div>
+            
+          </div>                
+        </div>      
+        <div class="modal-footer">           
+          <button type="button" class="btn btn-primary" data-bind="click:guardarDocumento">
+            Guardar
+           </button>
+        </div>    
+      </form>
+      </div> 
+    </div>
+  </div>
+</div>
+
+{% endblock contenido %} 
+
+{% load static %}
+
+{% block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>  
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script> 
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/configuracion.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      $('#txtBuscar').val(sessionStorage.getItem("dato_expediente"));     
+   
+      grupo.get_grupo(1);
+      
+
+
+      
+    });  
+
+  </script>
+
+{% endblock imports %}   

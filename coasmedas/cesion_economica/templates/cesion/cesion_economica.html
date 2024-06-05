@@ -1,0 +1,634 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Cesion economica{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Cesion economica</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block opciones_listado %}
+
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+           <i class="fa fa-plus" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title">
+                <span>      
+                  <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                  aria-hidden="true"></i></a>
+                </span>                
+                </span><span>Cesion economica</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar cesion" data-bind="click:filtrar_cesion" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+            </div>
+
+            <div class="panel-body">
+
+              <i class="fa fa-bell 2x" style="color:#999"></i> En tramite;
+              <i class="fa fa-bell 2x" style="color:#F90"></i> En aprobacion;
+              <i class="fa fa-bell 2x" style="color:#0F0"></i> Aprobado;
+              <i class="fa fa-bell 2x" style="color:#1000ff"></i> Pagado;
+              <i class="fa fa-bell 2x" style="color: #9817a0"></i>Rechazado;
+              <i class="fa fa-bell 2x" style="color:#F00"></i> Anulado;
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:10%"></th>
+                        <th style="width:20%">Contrato</th>
+                        <th style="width:10%">No. Contrato</th>
+                        <th style="width:20%">Contratista</th>
+                        <th style="width:20%">Proveedor</th>
+                        <th style="width:10%">Valor</th>
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+
+                      <td>
+
+                          <!--ko if: item.estado.id==137 -->
+                            <i class="fa fa-bell 2x" style="color: #999"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==138 -->
+                            <i class="fa fa-bell 2x" style="color: #F90"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==139 -->
+                            <i class="fa fa-bell 2x" style="color: #0F0"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==142 -->
+                            <i class="fa fa-bell 2x" style="color: #1000ff"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==140 -->
+                            <i class="fa fa-bell 2x" style="color: #F00"></i>
+                          <!--/ko -->
+
+                          <!--ko if: item.estado.id==141 -->
+                            <i class="fa fa-bell 2x" style="color: #9817a0"></i>
+                          <!--/ko -->
+
+                      </td>
+                      <td data-bind="cutWord:{num:30,text:item.contrato.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.contrato.numero"></td>
+                      <td data-bind="cutWord:{num:30,text:item.contrato.contratista.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.proveedor.nombre"></td>
+                      <td data-bind="text: formatMoney(item.valor)"></td>
+                      <td>
+                         <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+
+                              <!--ko if: item.estado.id == 137-->
+                              <li>
+                                <a href="#" data-bind="click:$root.consultar_por_id">
+                                  Editar
+                                </a>
+                              </li>
+                              <!--/ko -->
+
+                              <li>
+                                <a href="#" data-bind="click:$root.ver_mas_detalle">
+                                  Detalle de la cesion
+                                </a>
+                              </li>
+
+                              <!--ko if: item.estado.id ==137-->
+                              <li>
+                                <a href="#" data-bind="click:$root.abrir_modal_enaprobacion">
+                                  Generar formato en aprobacion
+                                </a>
+                              </li>
+                              <!--/ko -->
+
+                              <!--ko if: item.estado.id == 138-->
+                              <li>
+                                <a href="#" data-bind="click:$root.abrir_modal_aprobacion">
+                                  Aprobar/ Rechazar
+                                </a>
+                              </li>
+                              <!--/ko -->
+
+                              <!--ko if: item.estado.id!=131 && item.estado.id != 140 -->
+                              <li>
+                                <a href="#" data-bind="click:$root.actualizar_cesion_estado">
+                                   Anular
+                                </a>
+                              </li>
+                              <!--/ko -->
+
+                            </ul>
+                          </div>       
+                      </td>
+
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<!--Modal filtrar los informe-->
+
+  <div id="modal_filtro" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label>Macrocontrato </label>
+                <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" data-bind="value:mcontrato_fil">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_mcontrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Contratista</label>
+                <select class="form-control" id="contratista_filtro" name="contratista_filtro" data-bind="value:contratista_fil">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_contratista, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+
+            <div class="form-group">
+              <label>Contrato</label>
+                <select class="form-control" id="contrato_filtro" name="contrato_filtro">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+
+            <div class="form-group">
+              <label>Estado</label>
+                <select class="form-control" id="estado_filtrar" name="estado_filtrar">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_estado, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Macrocontrato (*)</label>
+              <select class="form-control" id="mcontrato_filt" name="mcontrato_filt" data-bind="value:mcontrato_fil2">
+                <option value="0">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_mcontrato2, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+
+          <div class="form-group">
+            <label>Contrato (*)</label>
+              <select class="form-control" data-bind="value:cesion_economicaVO.contrato_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_contrato_select, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+
+          <div class="form-group">
+            <label>Proveedor (*)</label>
+              <select class="form-control" data-bind="value:cesion_economicaVO.proveedor_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_proveedor, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Banco (*)</label>
+              <select class="form-control" data-bind="value:cesion_economicaVO.banco_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_banco, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo cuenta (*)</label>
+              <select class="form-control" data-bind="value:cesion_economicaVO.tipo_cuenta_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_tipo_cuenta, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre giro (*)</label>
+              <select class="form-control" data-bind="value:cesion_economicaVO.nombre_giro_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:listado_nombre_giro, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Número de cuenta (*)</label>
+              <input type="text" data-bind="value:cesion_economicaVO.numero_cuenta" class="form-control" placeholder="Dígite el número de la cuenta"/>
+          </div>
+
+          <div class="form-group">
+            <label>Valor</label>
+              <input type="text" data-bind="value:cesion_economicaVO.valor.formatted,onlyNumber:cesion_economicaVO.valor" class="form-control" placeholder="Dígite el valor"/>
+          </div>
+
+          <div class="form-group">          
+            <label>Soporte tramite (*)</label>
+             <input type="file" id="archivo" name="archivo" class="note-image-input"  data-bind="fileData:{value:cesion_economicaVO.soporte_tramite,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+                                     elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+              
+              <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>
+              <br>
+              <input type="hidden" data-bind="value:cesion_economicaVO.soporte_tramite">            
+          </div> 
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Modal-->
+
+<div id="modal_enaprobacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <input type="hidden" data-bind="value:cesion_economicaVO.id" class="form-control"/>
+
+          <div class="form-group">          
+            <label>Soporte (*)</label>
+             <input type="file" id="archivo2" name="archivo2" class="note-image-input"  data-bind="fileData:{value:cesion_economicaVO.soporte_enaprobacion,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+                                     elErrorContainer: '#errorBlock', removeLabel:''}"/>
+            <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>                                     
+            <p>Cargar correo de verificacion</p>  
+          </div> 
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_enaprobacion">
+            <i class="fa fa-floppy-o"></i> Guardar y Generar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--modal de ver mas-->
+ <div id="vermas_detalle" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+        <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                <strong>Contrato : </strong><span data-bind="text:contrato_vermas"></span><br>  
+                <strong>Proveedor : </strong><span data-bind="text:proveedor_vermas"></span><br>
+                <strong>Tipo cuenta : </strong><span data-bind="text:tipo_cuenta_vermas"></span><br>
+                <strong>Estado : </strong><span data-bind="text:estado_vermas"></span><br>
+                <strong>Banco : </strong><span data-bind="text:banco_vermas"></span><br>
+                <strong>Nombre giro : </strong><span data-bind="text:nombre_giro_vermas"></span><br>
+                <strong>Numero cuenta : </strong><span data-bind="text:numero_cuenta_vermas"></span><br>
+                <strong>Valor : </strong><span data-bind="text:formatMoney(valor_vermas())"></span><br>
+                <strong>Motivo de rechazo : </strong><span data-bind="text:motivo_rechazo"></span><br>
+                <strong>Fecha tramite : </strong><span data-bind="text:fecha_tramite_vermas"></span><br>
+                <strong>Fecha en aprobacion : </strong><span data-bind="text:fecha_enaprobacion_vermas"></span><br>
+                <strong>Fecha aprobada : </strong><span data-bind="text:fecha_aprobada_vermas"></span><br>
+
+                <!--ko if: soporte_vermas_tramite()!='' && soporte_vermas_tramite()!=null-->
+                <strong>Soporte tramite : </strong>
+                  <a data-bind="attr: {href: soporte_vermas_tramite}" 
+                  target="_blank" style="cursor:pointer;">
+                    <i class="fa fa-file kv-caption-icon"></i>
+                  </a><br>
+                <!--/ko-->   
+
+                <!--ko if: soporte_vermas_enaprobacion()!='' && soporte_vermas_enaprobacion()!=null-->
+                <strong>Soporte en aprobacion : </strong>
+                  <a data-bind="attr: {href: soporte_vermas_enaprobacion}" 
+                  target="_blank" style="cursor:pointer;">
+                    <i class="fa fa-file kv-caption-icon"></i>
+                  </a><br>
+                <!--/ko-->   
+
+                <!--ko if: soporte_vermas_aprobado()!='' && soporte_vermas_aprobado()!=null-->
+                <strong>Soporte aprobado : </strong>
+                  <a data-bind="attr: {href: soporte_vermas_aprobado}" 
+                  target="_blank" style="cursor:pointer;">
+                    <i class="fa fa-file kv-caption-icon"></i>
+                  </a><br>
+                <!--/ko-->   
+                
+
+              </div>
+          </div>
+        </div>
+      </div>
+<!--fin modal ver mas-->
+
+
+
+<!--Modal-->
+
+<div id="modal_aprobacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <input type="hidden" data-bind="value:cesion_economicaVO.id" class="form-control"/>
+          <input type="hidden" data-bind="value:cesion_economicaVO.contrato_id" class="form-control"/>
+          <input type="hidden" data-bind="value:cesion_economicaVO.proveedor_id" class="form-control"/>
+          <input type="hidden" data-bind="value:cesion_economicaVO.tipo_cuenta_id" class="form-control"/>
+          <input type="hidden" data-bind="value:cesion_economicaVO.banco_id" class="form-control"/>
+          <input type="hidden" data-bind="value:cesion_economicaVO.numero_cuenta" class="form-control"/>
+          <input type="hidden" data-bind="value:cesion_economicaVO.valor" class="form-control"/>
+          <input type="hidden" data-bind="value:nombregiro" class="form-control"/>
+
+          <div class="form-group">
+            <label>Aprobar/Rechazar (*)</label>
+              <select class="form-control" data-bind="value:validacion_aprovada">
+                <option value="0">[Seleccione...]</option>
+                <option value="1">Aprobar</option>
+                <option value="2">Rechazar</option>
+            </select>
+          </div>
+
+          <!--ko if: validacion_aprovada()=='1' -->
+
+          <div class="form-group">          
+            <label>Soporte (*)</label>
+             <input type="file" id="archivo3" name="archivo3" class="note-image-input"  data-bind="fileData:{value:cesion_economicaVO.soporte_aprobado,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+                                     elErrorContainer: '#errorBlock', removeLabel:''}"/>
+                                     <small id="emailHelp" class="form-text text-muted">Tipos de archivos aceptados png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>                                      
+          </div>
+
+          <div class="form-group">
+            <label>Observacion </label>
+            <textarea rows="3" data-bind="value:cesion_economicaVO.observacion" class="form-control" placeholder="Dígite la observacion "></textarea>
+          </div> 
+
+          <!--/ko--> 
+
+          <!--ko if: validacion_aprovada()=='2' -->
+          <div class="form-group">
+            <label>Motivo rechazo : </label>
+            <textarea rows="3" data-bind="value:cesion_economicaVO.motivo_rechazo" class="form-control" placeholder="Dígite el motivo"></textarea>
+          </div>
+          <!--/ko--> 
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <!--ko if: validacion_aprovada()=='1' -->
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_aprobacion">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+          <!--/ko--> 
+
+          <!--ko if: validacion_aprovada()=='2' -->
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_rechazo">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+          <!--/ko--> 
+          
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Modal-->
+
+<div id="modal_rechazo" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <input type="hidden" data-bind="value:cesion_economicaVO.id" class="form-control"/>
+
+          <div class="form-group">
+            <label>Motivo rechazo : </label>
+            <textarea rows="3" data-bind="value:cesion_economicaVO.motivo_rechazo" class="form-control" placeholder="Dígite el motivo"></textarea>
+          </div>
+
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_rechazo">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/cesion_economica/cesion_economica.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      //cuenta.consultar(1);//iniciamos la primera funcion
+      $('#txtBuscar').val(sessionStorage.getItem("dato_informe"));
+      cesion_economica.consultar(1);//iniciamos la primera funcion
+      cesion_economica.consultar_macrocontrato2();
+      cesion_economica.select_proveedor();
+      cesion_economica.select_banco();
+      cesion_economica.select_tipocuenta();
+      cesion_economica.select_contrato();
+      //cesion_economica.select_nombregiro();
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

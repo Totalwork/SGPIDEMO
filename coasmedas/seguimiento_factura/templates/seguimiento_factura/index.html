@@ -1,0 +1,228 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Seguimiento de factura{% endblock title%}
+{% block mapa %}
+  <li><a><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li class="active">Seguimiento a pago de facturas</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+{% block opciones_listado %} {% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+{% block contenido %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel">
+            <div class="panel-body">
+
+            	{% if 'factura.can_see_facturas_por_contabilizar' in perms %}
+            	 <div class="col-sm-10 col-md-3">
+	                <a href="/seguimiento_factura/facturas-por-contabilizar" style="color:#f5f8fd">
+	                    <div class="panel panel-tile bg-primary light">
+	                        <div class="panel-body pn pl20 p5">                            
+	                            <div class="col-md-4">
+	                                <i class="fa fa-list fa-4x"></i>
+	                            </div>
+	                            <div class="col-md-6"> 	                                                    
+	                               	<center><h3 class="mt15 lh15">Facturas por contabilizar</h3></center>                                     
+	                            </div>
+
+	                            <div style="width:22px;
+								                height:22px;
+								                border-radius:10px;
+								                border:2px solid red;
+								                text-align: center;
+								                font-size: 12px;
+								                float: right;
+								                color: white;
+								                background: red;
+								                font-weight: bold;">
+	                          					{{cantidadFacturaPorContabilizar}}
+	                          	</div>    
+
+	                        </div><br>
+						</div>
+	                   
+	                </a>
+	            </div><!--cierra col-sm-10 col-md-4--> 
+	            {% endif %}  
+
+	            {% if 'seguimiento_factura.can_see_seguimiento_factura_habilitar_tes_op' in perms %}
+	            <div class="col-sm-10 col-md-3">
+	                <a href="/seguimiento_factura/habilitar-testOp" style="color:#f5f8fd">
+	                    <div class="panel panel-tile bg-primary light">
+	                        <div class="panel-body pn pl20 p5">                            
+	                            <div class="col-md-4">
+	                                <i class="fa fa-archive fa-4x"></i>
+	                            </div>
+	                            <div class="col-md-6">  
+	                                                    
+	                               	<center><h3 class="mt15 lh15">Habilitar TEST/OP</h3></center>                                                                                
+	                            </div>
+	                        </div><br>
+						</div>
+	                   
+	                </a>
+	            </div><!--cierra col-sm-10 col-md-4--> 
+	            {% endif %} 
+
+	            {% if 'seguimiento_factura.can_see_seguimiento_factura_test_op' in perms %}
+	            <div class="col-sm-10 col-md-3">
+	                <a href="/seguimiento_factura/gestion-op" style="color:#f5f8fd">
+	                    <div class="panel panel-tile bg-primary light">
+	                        <div class="panel-body pn pl20 p5">                            
+	                           	<div class="col-md-4">
+	                                <i class="fa fa-exchange fa-4x"></i>
+	                            </div>
+
+	                           	<div class="col-md-6">                                                     
+	                               	<center><h3 class="mt15 lh15">TEST/OP</h3></center>
+	                            </div><!--cierra col-md-6-->
+
+									<div style="width:22px;
+								                height:22px;
+								                border-radius:10px;
+								                border:2px solid red;
+								                text-align: center;
+								                font-size: 12px;
+								                float: right;
+								                color: white;
+								                background: red;
+								                font-weight: bold;">
+	                          					{{cantidadTetst}}
+	                          		</div>       
+
+	                        </div><br>
+						</div>                   
+	                </a>
+	            </div><!--cierra col-sm-10 col-md-4-->
+	            {% endif %} 
+
+	            {% if 'seguimiento_factura.can_see_seguimiento_factura_recursos_propios' in perms %}
+	           	<div class="col-sm-10 col-md-3">
+	                <a href="/seguimiento_factura/gestion-op-recursos-propios" style="color:#f5f8fd">
+	                    <div class="panel panel-tile bg-primary light">
+	                        <div class="panel-body pn pl20 p5">                            
+	                           	<div class="col-md-4">
+	                                <i class="fa fa-archive fa-4x"></i>
+	                            </div>
+
+	                           	<div class="col-md-6">                                
+	                               	<center><h3 class="mt15 lh15">Recursos propios</h3></center>                     
+	                            </div><!--cierra col-md-6-->
+
+									<div style="width:22px;
+								                height:22px;
+								                border-radius:10px;
+								                border:2px solid red;
+								                text-align: center;
+								                font-size: 12px;
+								                float: right;
+								                color: white;
+								                background: red;
+								                font-weight: bold;">
+	                          					{{cantidadTetstRecursosPropios}} 
+	                          		</div>       
+
+	                        </div><br>
+						</div>                   
+	                </a>
+	            </div><!--cierra col-sm-10 col-md-4-->
+	            {% endif %} 
+
+	            {% if 'seguimiento_factura.can_see_seguimiento_factura_por_pagar' in perms %}
+	            <div class="col-sm-10 col-md-3">
+	                <a href="/seguimiento_factura/facturas-por-pagar" style="color:#f5f8fd">
+	                    <div class="panel panel-tile bg-primary light">
+	                        <div class="panel-body pn pl20 p5">                            
+	                           	<div class="col-md-4">
+	                                <i class="fa fa-archive fa-4x"></i>
+	                            </div>
+
+	                           	<div class="col-md-6">                                
+	                               	<center><h3 class="mt15 lh15">Facturas por pagar</h3></center>                     
+	                            </div><!--cierra col-md-6-->
+
+									<div style="width:22px;
+								                height:22px;
+								                border-radius:10px;
+								                border:2px solid red;
+								                text-align: center;
+								                font-size: 12px;
+								                float: right;
+								                color: white;
+								                background: red;
+								                font-weight: bold;">
+	                          					{{cantidadFacturaPorPagar}} 
+	                          		</div>       
+
+	                        </div><br>
+						</div>                   
+	                </a>
+	            </div>
+	            <!--cierra col-sm-10 col-md-4-->
+	            {% endif %} 
+
+	            {% if 'seguimiento_factura.can_see_seguimiento_factura_consultar_pago' in perms %}
+	           	<div class="col-sm-10 col-md-3">
+	                <a href="/seguimiento_factura/consulta-factura-pagada" style="color:#f5f8fd">
+	                    <div class="panel panel-tile bg-primary light">
+	                        <div class="panel-body pn pl20 p5">                            
+	                           	<div class="col-md-4">
+	                                <i class="fa fa-book fa-4x"></i>
+	                            </div>
+	                           	<div class="col-md-6">  
+	                                                    
+	                               	<center><h3 class="mt15 lh15">Consulta pago de factura</h3></center>                                                                                
+	                            </div>
+	                        </div><br>
+						</div>                   
+	                </a>
+	            </div><!--cierra col-sm-10 col-md-4-->
+	            {% endif %} 
+
+	            {% if 'seguimiento_factura.can_see_seguimiento_factura_administrador_cuenta' in perms %}
+	           	<div class="col-sm-10 col-md-3">
+	                <a href="/seguimiento_factura/administrador-cuenta" style="color:#f5f8fd">
+	                    <div class="panel panel-tile bg-primary light">
+	                        <div class="panel-body pn pl20 p5">                            
+	                           	<div class="col-md-4">
+	                                <i class="fa fa-book fa-4x"></i>
+	                            </div>
+	                           	<div class="col-md-6">  
+	                                                    
+	                               	<center><h3 class="mt15 lh15">Administrador cuenta </h3></center>                                                                                
+	                            </div>
+	                        </div><br>
+						</div>                   
+	                </a>
+	            </div><!--cierra col-sm-10 col-md-4-->
+	            {% endif %}                                                                              
+					
+            </div><!--cierra panel-body-->
+        </div>
+    </div>
+</div><!--cierra row-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <!--<script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/seguimiento_factura.js" %}'></script>-->
+
+{% endblock imports %}
+

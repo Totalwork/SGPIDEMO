@@ -1,0 +1,216 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Cronograma de Proyecto{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma' %}">Cronograma</a></li>
+  <li class="active">Cronograma de Proyecto</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}  
+ {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#">
+                 <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        {% if app in perms %}
+          {% if app|add:'.delete_'|add:model in perms%}   
+            <li>
+              <a href="#">
+                  <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0)">
+          <div class="panel-heading">
+                <span class="panel-title">Listado de Cronograma del Proyecto<span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+               
+          </div>
+          <div class="panel-body">
+           <Strong>Presupuesto:  {{presupuesto.nombre}}</Strong><br><br>
+           <Strong>Proyecto:  {{presupuesto.proyecto.nombre}}</Strong><br><br>
+
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr>
+              <th width="5">  
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall">
+                    <span class="checkbox"></span>
+                  </label>
+                </div> 
+              </th>
+              <th>Cronograma</th>
+              <th>Fecha Inicio</th>
+              <th>Estado</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+               <td width="5">                                                 
+                <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+               </td> 
+              <td data-bind="text: item.nombre"></td>
+               <td data-bind="text: item.fechaInicio"></td> 
+               <!--ko if: item.estado==null --> 
+                <td></td>
+              <!--/ko-->
+              <!--ko if: item.estado!=null --> 
+                <td data-bind="text: item.estado.nombre"></td>
+              <!--/ko-->
+               <td width="10">
+                 <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">
+                          <li>
+                              <a href="#" data-bind="click:$root.abrir_hitos">Hitos</a>
+                           </li>
+                       <li>
+                          <a href="#" data-bind="click:$root.abrir_cantidad_ejecutar">Cantidades a ejecutar</a>
+                        </li>
+                       <li>
+                          <a href="#" data-bind="click:$root.abrir_linea_base">Linea Base</a>
+                        </li>
+                        <li>
+                          <a href="#" data-bind="click:$root.abrir_programacion">Programacion</a>
+                        </li>
+                         <li>
+                          <a href="#" data-bind="click:$root.abrir_avance_obra">Avance de Obra con GPS</a>
+                        </li>
+                         <li>
+                          <a href="#" data-bind="click:$root.abrir_avance_obra_sin_gps">Avance de Obra sin GPS</a>
+                        </li>
+                         <li>
+                          <a href="#" data-bind="click:$root.abrir_cambio">Cambios</a>
+                        </li>
+                    </ul>
+                  </div>
+              </td> 
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+
+  <!--Loading-->
+
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+         <div class="form-group">
+            <label>Nombre(*)</label>
+            <input type="text" data-bind="value:cronogramaVO.nombre,enable:habilitar_campos" class="form-control" >           
+        </div>
+
+        <!--ko if: habilitar_campos()==false -->  
+         <div class="form-group">
+            <label>Estado</label>
+            <input type="text" data-bind="value:cronogramaVO.estado_id,enable:habilitar_campos" class="form-control" >           
+        </div>
+        <!-- /ko --> 
+
+     
+
+         <div class="form-group">
+              <label>Fecha de Inicio(*)</label>
+              <div class="input-group date" id='datetimepicker2'>
+               <input  type="text" class="form-control" data-bind="datePicker:cronogramaVO.fechaInicio,value:cronogramaVO.fechaInicio,enable:habilitar_campos" onkeypress="return false">
+                <label for="fecha_nacimiento" class="input-group-addon cursor"><i class="fa fa-calendar" ></i>
+                </label>
+
+              </div>   
+          </div>
+
+
+            <input type="hidden" id="id_presupuesto" value="{{id_presupuesto}}" class="form-control" >
+         <!--ko if: habilitar_campos()==true -->    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div> 
+        <!--/ko-->       
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico/cronograma_proyecto.js" %}'></script>
+{% endblock imports %}

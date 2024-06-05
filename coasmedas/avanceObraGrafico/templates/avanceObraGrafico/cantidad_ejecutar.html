@@ -1,0 +1,93 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+
+{% block title %}Cantidad a Ejecutar{% endblock title%}
+
+
+ {% block opciones_listado %}
+{% endblock opciones_listado %} 
+
+{% block busqueda %}  
+{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avance_de_obra_grafico.cronograma_proyecto' id_presupuesto id_proyecto %}">Cronograma de Proyecto</a></li>
+  <li class="active">Cantidad a Ejecutar</li>
+{% endblock mapa %}
+{% block encabezado %}Cantidad a Ejecutar{% endblock encabezado %}
+
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+   <div data-bind="html: mensaje"></div>   
+  
+  <div class="panel panel-sky" data-bind="visible:(metaVO()!=null && metaVO().length > 0)">
+          <div class="panel-heading cursor">
+                      <span class="panel-title"> Listado</span>
+          </div>
+          <div class="panel-body">
+            <p><span><strong>Cronograma:</strong></span>
+            {{nombre_cronograma}}</p>
+             <input type="hidden" id="id_cronograma" value="{{id_cronograma}}" class="form-control" >
+          </div>
+          <div class="panel-body">
+          <div class="table-responsive" data-bind="dropdown">
+                <table class="table"  style="table-layout: fixed;">
+              <thead>
+            <tr>
+              <th width="35">Descripcion</th>
+              <th width="15">Peso( <span data-bind='text:peso_total'></span>%)</th>
+              <th width="50">Cantidad</th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:metaVO(), as:'item'}">         
+         
+            <tr data-bind="css:{'info': item.nivel()==1}">
+              <td width="35">
+
+                    <span style="font-weight: bold" data-bind="text: item.nombre"></span>
+                 
+                </td>
+                <td width="15"><span data-bind="text:item.peso"></span>%</td>
+               <td width="50">
+                 <span data-bind="text: item.cantidad"></span>
+              </td>
+            </tr> 
+          </tbody>
+        </table>
+        </div>
+ </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_presupuesto" value="{{id_presupuesto}}" class="form-control" >
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraGrafico/cantidad_ejecutar.js" %}'></script>
+    <script type="text/javascript">
+    
+</script>
+
+{% endblock imports %}

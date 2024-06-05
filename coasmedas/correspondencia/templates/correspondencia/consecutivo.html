@@ -1,0 +1,226 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %} 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Empresa permisos{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrización</a></li>  
+  <li><a href="{% url  'empresa.empresa' %}">Mi Empresa</a></li>  
+	<li class="active">Consecutivo</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}       
+           
+        <li>
+          <a href="#" data-bind="click:abrir_modal" data-placement="right" data-toggle="tooltip" data-original-title="Crear consecutivo">
+            <i class="fa fa-plus" style="font-size: 20px;"></i>
+          </a>
+        </li>
+       
+{% endblock opciones_listado %}    
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  		   
+		    <div class="panel panel-sky">
+		    		    
+		    <div class="panel-heading">
+          <span>      
+            <a href="{% url 'empresa.empresa' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>           
+                Configurar correspondencia                
+          	</div>
+            
+          	 <div class="panel-body">
+          	 	
+          	 	 <div class="row">
+                 
+               <div class="col-lg-6">
+         
+            <!---->
+                  <div class="panel">
+                    <div class="panel-heading">
+                      <span class="panel-title">Radicados</span>
+                    </div>
+                    <div class="panel-body">
+                        
+                       <div class="row" data-bind="html:mensaje_radicado"></div> 
+                                          
+                       <table class="table" data-bind="visible:radicados()!=null && radicados().length > 0">
+                         <thead>
+                          <tr>                      
+                            <th>Año</th>
+                            <th>Radicado</th> 
+                            <th></th>
+                          </tr>
+                         </thead>
+                          <tbody data-bind="foreach:{data:radicados, as:'item'}">
+                              <tr>                   
+                                <td data-bind="text:item.ano"></td>
+                                <td data-bind="text:item.numero"></td>
+                                <td>
+                                  <a href="#" data-bind="click:$parent.consultar_radicado_por_id">
+                                    <i class="fa fa-pencil fa-2x"></i>
+                                  </a>
+                                </td>
+                              </tr>  
+                          </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div>       
+            <!---->                    
+
+
+            </div>    
+
+
+
+                <div class="col-lg-6">
+         
+            <!---->
+                  <div class="panel">
+                    <div class="panel-heading">
+                        <span class="panel-title">Consecutivos</span>
+                    </div>
+                    <div class="panel-body">
+                        
+                        <div class="row" data-bind="html:mensaje_consecutivo"></div> 
+
+                        <table class="table" data-bind="visible:consecutivos()!=null && consecutivos().length > 0">
+                         <thead>
+                          <tr>                      
+                            <th>Año</th>
+                            <th>Consecutivo</th> 
+                            <th>Prefijo</th> 
+                            <th></th>
+                          </tr>
+                         </thead>
+                          <tbody data-bind="foreach:{data:consecutivos, as:'item'}">
+                              <tr>                   
+                                <td data-bind="text:item.ano"></td>
+                                <td data-bind="text:item.numero"></td>
+                                <td data-bind="text:item.prefijo.nombre"></td>
+                                 <td>
+                                 <a href="#" data-bind="click:$parent.consultar_por_id">
+                                    <i class="fa fa-pencil fa-2x"></i>
+                                 </a>
+                                </td>
+                              </tr>  
+                          </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div>       
+            <!---->                    
+
+
+            </div>   
+
+
+
+          	 	 </div>
+
+               
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+
+ <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+                  <label>Tipo</label>                   
+                  <select class="form-control" data-bind="value:tipo">                                   
+                      <option value="1">Radicado</option>
+                      <option value="2">Consecutivo</option>                   
+                  </select>
+           </div>
+      </div>
+       <div class="modal-body" data-bind="visible:(tipo()==2)">
+                        
+           <div class="form-group">
+                  <label>Año</label>                   
+                  <input class="form-control" data-bind="onlyNumber: consecutivoVO.ano , value:consecutivoVO.ano">
+           </div>
+          
+           <div class="form-group">
+                  <label>Prefijo</label>                   
+                  <select class="form-control" data-bind="value:consecutivoVO.prefijo_id">
+                    <option value="">[Seleccione...]</option>
+                    {% for item in prefijos %}
+                      <option value="{{ item.id }}">{{ item.nombre }}</option>
+                    {% endfor %}
+                  </select>
+           </div>
+
+           <div class="form-group">
+              <label>Número</label>                   
+              <input class="form-control" data-bind="onlyNumber: consecutivoVO.numero , value:consecutivoVO.numero">
+           </div>
+         
+       </div>
+
+        <div class="modal-body"  data-bind="visible:tipo()==1">
+          
+           <div class="form-group">
+                  <label>Año</label>                   
+                  <input class="form-control" data-bind="onlyNumber: consecutivoVO.ano , value:radicadoVO.ano">
+           </div>
+         
+           <div class="form-group">
+                  <label>Número</label>                   
+                  <input class="form-control" data-bind="onlyNumber: consecutivoVO.numero , value:radicadoVO.numero">
+           </div>
+         
+       </div>
+     
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar, visible:tipo()==2">Guardar</button>
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_radicado, visible:tipo()==1">Guardar</button>
+        </div>      
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+<input type="hidden" id="empresa_id" value="{{ user.usuario.empresa.id }}">
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}     	
+  	<script type="text/javascript" src='{% static "js/ViewModels/correspondencia/consecutivo.js" %}'></script>   
+{% endblock imports %}

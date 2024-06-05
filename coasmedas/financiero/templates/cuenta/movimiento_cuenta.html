@@ -1,0 +1,325 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Financiero movimientos{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'financiero_cuenta.cuenta' %}">Cuentas</a></li>
+  <li class="active">Movimientos</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+  <div class="row">
+    <div class="col-lg-5">
+
+      <strong>Número : </strong><span data-bind="text:numero_cuenta"></span><br> 
+      <strong>Nombre : </strong><span data-bind="text:nombre_cuenta"></span><br>
+      <strong>Número de filas : </strong><span data-bind="text:cantidad_movimiento"></span><br>
+    </div>
+  </div>
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Financiero movimientos cuentas</span>
+
+              <span class="panel-controls">
+                <a data-bind="click:filtrar_movimiento" data-toggle="modal" style="cursor:pointer;">
+                  <i class="fa fa-filter fa-2x"></i>
+                </a>
+              </span>
+
+
+            </div>
+            <div data-bind="html: mensaje"></div>
+
+            <div class="panel-body pn" data-bind="visible:(listado()!=null && listado().length > 0)">
+              <div class="table-responsive">
+
+                <table class="table table-bordered mbn" >
+                  <thead>
+                      <tr>
+                        <th><input type="checkbox" data-bind="checked:checkall"></th>
+                        <th>Fecha</th>
+                        <th>Valor</th>
+                        <th>Tipo</th>
+                        <th>Descripción</th>
+                        <th></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+                      <td> <input type="checkbox" data-bind="checked:eliminado,value:id"></td> 
+                      <td data-bind="text: item.fecha"></td>
+                      <td data-bind="text: formatMoney(item.valor)"></td>
+                      <td data-bind="text: item.tipo.nombre"></td>
+                      <td data-bind="text: item.descripcion"></td>
+                      <td>
+
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-138px;top:19px">
+                              <li>
+                                <a href="#" data-bind="click:$root.consultar_por_id">
+                                <i class="fa fa-pencil-square-o"></i> Editar
+                                </a>
+                              </li>
+
+                            </ul>
+                          </div>
+
+                      </td>
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                
+              </div>
+
+              <div id="paginacion" >
+                <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Fecha</label>
+            <div class="input-group date">
+
+              <input class="form-control" type="text" placeholder="Seleccione la fecha" data-bind="value:movimiento_cuentaVO.fecha,datePicker:movimiento_cuentaVO.fecha" onkeypress="return false">
+              <label for="fecha" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+              </label>
+
+            </div>   
+          </div> 
+
+          <div class="form-group">
+            <label>Tipo de movimiento</label>
+              <select class="form-control" data-bind="value:movimiento_cuentaVO.tipo_id">
+                <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_tipo_select, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Valor</label>
+              <input type="text" data-bind="value:movimiento_cuentaVO.valor,onlyNumber:movimiento_cuentaVO.valor" class="form-control" placeholder="Dígite el valor del movimiento"/>
+          </div>
+
+
+          <div class="form-group">
+            <label>Descripción</label>
+            <textarea rows="3" data-bind="value:movimiento_cuentaVO.descripcion" class="form-control" placeholder="Dígite la descripción"></textarea>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+
+<!--Modal para generar informe-->
+
+<div id="modal_informe" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+        <div class="modal-body">
+
+          <form>
+
+            <div class="form-group">
+              <label>Desde</label>
+              <div class="input-group date">
+
+                <input class="form-control" id="desde" name="desde" type="text" placeholder="Seleccione la fecha" data-bind="value:desde,datePicker:desde" onkeypress="return false">
+                <label for="fecha_desde" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div>
+
+
+            <div class="form-group">
+              <label>Hasta</label>
+              <div class="input-group date">
+
+                <input class="form-control" id="hasta" name="hasta" type="text" placeholder="Seleccione la fecha" data-bind="value:hasta,datePicker:hasta" onkeypress="return false">
+                <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div>  
+
+          </form>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:exportar_excel_movimiento">
+            <i class="fa fa-print"></i> Exportar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Fin del modal para generar informe-->
+
+
+<!--Modal filtrar las cuentas-->
+
+  <div id="modal_filtro_movimiento" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+             <div class="form-group">
+              <label>Desde</label>
+              <div class="input-group date">
+
+                <input class="form-control" id="desde_filtro" name="desde_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:desde_filtro,datePicker:desde_filtro" onkeypress="return false">
+                <label for="fecha_desde" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div>
+
+
+            <div class="form-group">
+              <label>Hasta</label>
+              <div class="input-group date">
+
+                <input class="form-control" id="hasta_filtro" name="hasta_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:hasta_filtro,datePicker:hasta_filtro" onkeypress="return false">
+                <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                </label>
+
+              </div>   
+            </div>  
+
+
+            <div class="form-group">
+              <label>Tipo de movimiento</label>
+                <select class="form-control" id="tipo_filtro" name="tipo_filtro">
+                  <option value="0">[Selecciones...]</option>
+                    <!--ko foreach:{ data:lista_tipo_select, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/financiero/movimiento_cuenta.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      movimiento.movimiento_cuentaVO.cuenta_id({{id_cuenta}});
+      movimiento.consultar(1);//iniciamos la primera funcion
+      movimiento.encabezado_detalle();
+    });  
+
+  </script>
+
+{% endblock imports %}
+

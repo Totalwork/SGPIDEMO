@@ -1,0 +1,250 @@
+{% extends 'page.html' %}
+{% load static %}
+{% block title %}Informe del MME{% endblock title%}
+{% block opciones_listado %}{% endblock opciones_listado %}  
+{% block mapa %}
+ 
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="../informe/">Informe</a></li>
+  <li class="active">Informe MME</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+<div class="row" >
+  <div class="panel panel-sky">
+    <div class="panel-heading">
+      <a href="../informe/" data-placement="right"  
+        data-toggle="tooltip" data-original-title="Regresar a las opciones de informe general">
+        <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+      </a> 
+      Informe del Ministerio de minas y energias
+
+    </div>
+    <div class="panel-body">
+
+      <div class="col-lg-6">
+          
+          <div class="form-group">
+          <label>Contrato</label>
+            <select id="contrato" class="form-control" data-bind="value:datoVO.contrato_id" >
+                   <option value="">[Seleccione...]</option>
+                    {% for item in macro %}
+                     <option value="{{ item.contrato.id }}">{{ item.contrato.nombre }}</option>
+                   {% endfor %} 
+            </select>
+          </div>
+          <br/>
+
+          <label>Proyecto</label>
+          <div class="from-group input-group"> 
+            
+            <select id="contrato" class="form-control" data-bind="value:datoVO.proyecto_id" >
+                   <option value="">[Seleccione...]</option>
+                    <!--ko foreach:{ data:listado_proyectos, as:'item'} -->
+                      <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+            </select>   
+            <span class="input-group-addon">
+              <a href="#" data-bind="click:abrir_actividades_proyecto">
+                <i class="fa fa-cog"></i>
+              </a>
+            </span>
+          </div>
+          <br/>
+
+          <div class="form-group">
+            <label>Mes</label>
+             <select id="Fecha" class="form-control" data-bind="value:datoVO.mes">
+                   <option value="">[Seleccione...]</option>
+                   <option value="1">Enero</option>
+                   <option value="2">Febrero</option>
+                   <option value="3">Marzo</option>
+                   <option value="4">Abril</option>
+                   <option value="5">Mayo</option>
+                   <option value="6">Junio</option>
+                   <option value="7">Julio</option>
+                   <option value="8">Agosto</option>
+                   <option value="9">Septiembre</option>
+                   <option value="10">Octubre</option>
+                   <option value="11">Noviembre</option>
+                   <option value="12">Diciembre</option>
+            </select>     
+          </div>
+
+          <div class="form-group">
+            <label>Año</label>
+             <select id="Fecha" class="form-control" data-bind="value:datoVO.ano">
+                   <option value="">[Seleccione...]</option>
+                   <option value="2019">2019</option>
+                   <option value="2020">2020</option>
+                   <option value="2021">2021</option>
+                   <option value="2022">2022</option>
+                   
+            </select>     
+          </div>
+
+          <button type="button" class="btn btn-primary" data-bind="click:generar_informe">Generar</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="modal_contrato_actividades" class="modal fade bd-example-modal-md" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      
+      <div class="modal-body" id='modal_list_actividades'>
+        
+          <button id="divNuevoCarga" style="cursor:pointer;" 
+            type="button" class="btn btn-primary" onclick="nuevaCargaMasiva()">
+            Actualización carga masiva
+          </button>
+          <button id="divOcultarCarga" style="display: None;cursor:pointer;" 
+            type="button" class="btn btn-danger" onclick="ocultarNuevoCargaMasiva()">
+            Ocultar carga masiva
+          </button>
+
+          <button id="divNuevoRegistro" style="cursor:pointer;" 
+            type="button" class="btn btn-primary" onclick="nuevaRegistro()">
+            Registrar actividad
+          </button>
+          <button id="divOcultarRegistro" style="display: None;cursor:pointer;" 
+            type="button" class="btn btn-danger" onclick="ocultarNuevoRegistro()">
+            Ocultar registro
+          </button>
+
+          <div id="modal_acciones_carga_masiva"  style="display: None;border-style: solid;border-color:#CACFD2;">
+            <form action="." method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+              
+                {% csrf_token %}
+                
+                <Strong>Departamento: </Strong> <label id='departamento_nombre'></label> <br>
+                <Strong>Municipio: </Strong> <label id='municipio_numero'></label><br>
+                <Strong>Contrato/convenio: </Strong> <label id='contrato_descripcion'></label> <br>
+                
+                <div class="form-group">
+                    <a href="#" data-bind="click:descargar_plantilla">
+                      <label style="cursor: pointer;">
+                        Plantilla para diligenciar 
+                        <i class="fa fa-arrow-down" style="font-size: 20px;cursor: pointer;"></i>
+                      </label>
+                    </a>
+                </div>               
+
+                <div class="form-group">          
+                  <label>Archivo</label>
+                   <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                </div> 
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:guardar_carga_masiva">Iniciar Carga</button>
+              </div>    
+            </form>
+          </div>
+
+          <div id="nuevoRegistro"  style="display: None;border-style: solid;border-color:#CACFD2;">
+            <form id="panel_registro" action="." method="post" enctype="multipart/form-data">
+              <div class="modal-body">
+                {% csrf_token %}              
+                                 
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo2'></h4><br>
+                  <div class="form-group">
+                    <label>Actividad</label>
+                    <!--ko if: actividadVO.id()==0-->
+                      <select class="form-control" data-bind="value:actividadVO.actividad_id">
+                        <option value="">[Seleccione...]</option>
+                        <!--ko foreach:{ data:listado_actividades_disponibles, as:'item'} -->
+                          <option data-bind="value:item.id,text:item.nombre"></option>
+                        <!--/ko-->
+                      </select><i class="arrow"></i> 
+                    <!--/ko-->  
+
+                    <!--ko if: actividadVO.id()!=0-->
+                      <input type="text" class="form-control" id='nombre_actividad' disabled>       
+                    <!--/ko-->  
+                  </div>
+
+                  <div class="form-group">
+                    <label>Valor</label>
+                    <input type="onlyNumber" class="form-control" data-bind='value:actividadVO.valor'>           
+                  </div>
+
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bind="click:guardar_actividad">Guardar</button>
+              </div>
+            </form>
+          </div>
+
+          <div data-bind="html: mensaje"></div>
+          <div data-bind="visible:(listado_actividades_contrato()!=null && listado_actividades_contrato().length>0)">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Actividad</th>
+                  <th>Valor</th>  
+                  <th>Opciones</th>           
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado_actividades_contrato, as:'item'}">
+                <tr>
+                  <td data-bind="text: item.actividad.nombre"></td>
+                  <td data-bind="text: item.valor"></td>
+
+                  <td>
+                    <div class="btn-group text-right">
+                        <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                        <ul class="dropdown-menu" role="menu">
+                          <li>
+                            <a href="#" data-bind="click:$root.abrir_edicion">Editar</a>
+                          </li>
+                          <li>
+                            <a href="#" data-bind="click: function(){ $root.eliminar_actividad(item.id); }">
+                              Eliminar
+                            </a>
+                          </li>
+                        </ul>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+
+            </table>
+          </div>
+          <br><br>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/informe/informeMME.js" %}?v=3.2'></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      
+    });  
+  </script>
+{% endblock imports %}

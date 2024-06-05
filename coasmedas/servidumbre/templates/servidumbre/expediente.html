@@ -1,0 +1,178 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Detalles expediente{% endblock title %}
+
+{% block opciones_listado %}
+        
+        {% if 'servidumbre.add_servidumbre_expediente' in perms%}       
+          <li>
+            <a href="{% url 'servidumbre.nuevo_expediente' %}"  data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+               <i class="fa fa-plus" style="font-size: 20px;"></i>
+            </a>
+          </li>
+        {% endif %}
+        
+        <!-- <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li> -->
+        
+        
+        {% if 'servidumbre.change_servidumbre_documento' in perms%}        
+          <li>
+            <a href="{% url 'servidumbre.configuracion' %}" data-placement="right"  data-toggle="tooltip" data-original-title="Configuracion grupos de docs.">
+               <i class="fa fa-cog" style="font-size: 20px;"></i>
+            </a>
+          </li>
+        {% endif %}
+        
+
+{% endblock opciones_listado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+    <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li><a href="/servidumbre/home">Gestion de servidumbres</a></li>
+  <li>Ver detalle</li>
+{% endblock mapa %}
+
+{% block contenido %}
+
+
+<div class="panel panel-sky">
+    <div class="row" >
+
+    	<div class="col-lg-12">
+    	
+        <!-- create new order panel -->
+          <!-- <div class="panel mb25 mt5"> -->
+            <div class="panel-heading">
+              <a href="{% url 'servidumbre.expediente'%}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar a Gestion de expedientes">
+                 <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              </a>            
+              <span class="panel-title hidden-xs">Expediente No. {{id}}
+				</span>                                        
+            </div>
+    	</div><!--col-lg-12" -->
+  	</div><!--cierra row -->
+
+    <div class="panel-body">
+    	<div data-bind="html: mensaje"></div>  
+		
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label>Proyecto</label>                          
+                        <textarea class="form-control" type="text" data-bind="value:proyectoVO.nombre" disabled=""></textarea>
+                </div>
+            </div>
+         <br>
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label>Macro contrato: </label><br>
+                        <input class="form-control" type="text" data-bind="value:proyectoVO.mcontrato_id" disabled="" ></input>
+                           
+                 </div> 
+            </div>
+        <br>
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label> Departamento de: </label><br>
+                        <input class="form-control" type="text" data-bind="value:proyectoVO.departamento_id"  disabled=""></input>
+                         
+                </div> 
+            </div>
+        <br>                     
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label>Municipio de: </label><br>
+                        <input class="form-control" type="text" data-bind="value:proyectoVO.municipio_id" disabled=""></input>             
+                </div> 
+            </div>                     
+        <br>
+            <div class="row">
+                 <div class="form-group col-lg-6">
+                    <label>Fecha de creacion: </label><br>
+                        <input class="form-control" type="text"  data-bind="value:expedienteVO.fecha_creacion" disabled=""></input>
+                     
+                </div> 
+            </div>
+        <br>
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label>Estado actual: </label><br>
+                        <input class="form-control" type="text"  data-bind="value:expedienteVO.estado_id" disabled=""></input>
+                       
+                </div> 
+            </div>
+        <br>
+            <div class="row">
+                <div class="form-group col-lg-6">
+                    <label>Usuario creador: </label><br>
+                        <input class="form-control" type="text"  data-bind="value:expedienteVO.usuario_creador" disabled=""></input>
+                      
+                </div> 
+            </div>
+        <br>
+                     
+
+
+    </div><!--cierra panel-body -->
+
+
+</div><!--cierra panel panel-sky -->
+
+
+
+{% endblock contenido %} 
+
+{% load static %}
+
+{% block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+  </script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/servidumbre/gestion_servidumbres.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      if ({{id}}){
+        expedientes.expedienteVO.id({{id}});
+        expedientes.expedienteVO.proyecto_id({{expediente.proyecto.id}});
+        expedientes.expedienteVO.estado_id('{{expediente.estado.nombre}}');
+        expedientes.expedienteVO.fecha_creacion('{{expediente.fecha_creacion}}');
+        expedientes.expedienteVO.usuario_creador('{{expediente.usuario_creador.persona.nombres}} {{expediente.usuario_creador.persona.apellidos}}');
+
+        expedientes.proyectoVO.id({{expediente.proyecto.id}});
+        expedientes.proyectoVO.nombre('{{expediente.proyecto.nombre}}');
+        expedientes.proyectoVO.mcontrato_id('{{expediente.proyecto.mcontrato.nombre}}');   
+        expedientes.proyectoVO.municipio_id('{{expediente.proyecto.municipio.nombre}}');
+        expedientes.proyectoVO.departamento_id('{{expediente.proyecto.municipio.departamento.nombre}}');
+
+        
+          
+      }
+      
+
+      
+    });  
+
+  </script>
+
+{% endblock imports %}   
+

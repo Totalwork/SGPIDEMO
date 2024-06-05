@@ -1,0 +1,206 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %} 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Empresa permisos{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  	<li><a href="">Seguridad Social</a></li>
+	<li class="active">Empresas permisos</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  		   
+		    <div class="panel panel-sky">
+		    		    
+		    <div class="panel-heading">
+          <span>      
+            <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"            aria-hidden="true"></i></a>
+          </span>           
+                Empresas que pueden ver mis empleados
+                
+          	</div>
+            
+          	 <div class="panel-body">
+          	 	
+          	 	 <div class="row">
+                 
+               <div class="col-lg-6">
+         
+            <!---->
+                  <div class="panel">
+                    <div class="panel-heading">
+                      <span class="panel-title">Buscar Empresas</span>
+                    </div>
+                    <div class="panel-body">
+                      <div class="form-group input-group">
+                      <input type="text" class="form-control" placeholder="Buscar por nombre" id="txtBuscarE" data-bind="event:{keydown:function(d,e){if (e.keyCode === 13)consultar_empresas();else return true;}}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btnConsultarTodos"><i class="fa fa-search" data-bind="click:consultar_empresas"></i></button>
+                        </span>
+                      </div>
+                        <button type="button" data-bind="click : guardar, visible:listado_empresas()!=null && listado_empresas().length > 0" class="btn btn-sm btn-primary btn-block"  >                        
+                        <h4>Agregar -
+                          <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i>
+                        </h4>
+                      </button>
+                       <div class="row" data-bind="html:mensaje_empresas"></div> 
+
+                       <table class="table" data-bind="visible:listado_empresas()!=null && listado_empresas().length > 0">
+                         <thead>
+                          <tr>                      
+                            <th>
+                               <div class="option-group field admin-form">
+                                <label class="option option-primary"  style="">
+                                  <input data-bind="checked:check_empresas" type="checkbox">
+                                  <span class="checkbox"></span>
+                                </label>
+                              </div>                             
+                            </th>
+                            <th>Empresa</th> 
+                          </tr>
+                         </thead>
+                          <tbody data-bind="foreach:{data:listado_empresas, as:'item'}">
+                              <tr>                   
+                                <td>
+                                    <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                         <input type="checkbox" data-bind="checked:item.procesar">
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div>                                   
+                                </td>
+                                <td data-bind="text:item.nombre"></td>
+                              </tr>  
+                          </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div>       
+            <!---->                    
+
+
+            </div>    
+
+
+              <!-- <div class="col-lg-2">
+               
+                        
+                        <button class="btn btn-default asignar" type="button" name="asignar_c" data-bind="click:guardar">
+                        <i class="fa fa-arrow-circle-right fa-3x eliminar" style="color:#428bca"></i>
+                        </button>
+                        <button class="btn btn-default eliminar" type="button" name="eliminar_c" data-bind="click:eliminar">
+                        <i class="fa fa-arrow-circle-left fa-3x" style="color:#428bca"></i>
+                        </button>  
+                              
+                          
+                </div> -->
+
+
+                <div class="col-lg-6">
+         
+            <!---->
+                  <div class="panel">
+                    <div class="panel-heading">
+                        <span class="panel-title">Empresas Empleados</span>
+                    </div>
+                    <div class="panel-body">
+                      <div class="form-group input-group">
+                      <input type="text" class="form-control" placeholder="Buscar por nombre" id="txtBuscarEE" data-bind="event:{keydown:function(d,e){if (e.keyCode === 13)consultar_empresas_empleados();else return true;}}">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="btnConsultarTodos"><i class="fa fa-search" data-bind="click:consultar_empresas_empleados"></i></button>
+                        </span>
+                      </div>
+                      
+                      <button type="button" data-bind="click : eliminar, visible:listado_empresas_empleados()!=null && listado_empresas_empleados().length > 0" class="btn btn-sm btn-primary btn-block"  >
+                        <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i>
+                            - Quitar                      
+                        </h4>
+                      </button>
+
+                       <div data-bind="html:mensaje_empresas_empleados"></div> 
+
+                       <table class="table" data-bind="visible:listado_empresas_empleados()!=null && listado_empresas_empleados().length > 0">
+                         <thead>
+                          <tr>                      
+                            <th>                              
+                               <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                         <input type="checkbox" data-bind="checked:check_empresas_permiso">
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div>  
+                            </th>
+                            <th>Empresa</th> 
+                          </tr>
+                         </thead>
+                          <tbody data-bind="foreach:{data:listado_empresas_empleados, as:'item'}">
+                              <tr>                   
+                                <td>
+                                  <div class="option-group field admin-form">
+                                      <label class="option option-primary"  style="">
+                                         <input type="checkbox" data-bind="checked:item.procesar">
+                                        <span class="checkbox"></span>
+                                      </label>
+                                    </div>  
+                                </td>
+                                <td data-bind="text:item.empresa"></td>
+                              </tr>  
+                          </tbody>
+                       </table>
+
+                    </div>                    
+
+                  </div>       
+            <!---->                    
+
+
+            </div>   
+
+
+
+          	 	 </div>
+
+               
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+
+  <!--Modal-->
+
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}     	
+  	<script type="text/javascript" src='{% static "js/ViewModels/seguridad_social/EmpresasEmpleados.js" %}'></script>
+{% endblock imports %}

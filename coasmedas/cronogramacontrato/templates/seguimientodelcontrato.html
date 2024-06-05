@@ -1,0 +1,533 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+{% endblock imports_css %}
+
+
+{% block title %}Siguimiento del contrato{% endblock title%}
+
+{% block mapa %}
+<!-- Start: Topbar -->
+ <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+ <li><a href="{% url 'cronogramacontrato.home' %}">Cronograma contratos</a></li>
+  <li class="active">Seguimiento del contrato</li>
+<!-- End: Topbar -->
+{% endblock mapa %}
+
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+
+{% block encabezado %}{% endblock encabezado %}
+
+
+{% block busqueda %}{% endblock busqueda %}
+
+
+{% block contenido %}
+<input type="hidden" id="id_contrato" value="{{ id_contrato }}">
+<div class="row">
+  <div class="col-lg-12">
+    <!-- Panel -->
+    <div class="panel">
+      <div class="panel-title">
+        <span class="panel-title">
+          Seguimiento del contrato
+        </span>
+      </div>
+
+      <div class="panel-body">
+        <div class="col-lg-4">
+
+          <b>
+            <div>Esquema del cronograma: {{cronogramaContrato.nombre}}</div>
+            <input type="hidden" name="esquemaId" id="esquemaId" 
+            value="{{cronogramaContrato.id}}">
+          </b>
+          <b>
+            <div data-bind="text: 'Contrato:  ' + nombreContrato()"></div>
+          </b>
+          <!-- <b><span style="display: inline-block;">Avance gral del cronograma:</span></b> -->
+          <div class="progress">
+            <div class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0"
+              data-bind="style:{width:avanceGralCronograma()+'%'}, text: avanceGralCronograma()+'%'"
+              aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+        <!-- Pie Chart -->
+        <div class="col-lg-4">
+          <div class="panel" id="spy7">
+            <div class="panel-heading">
+              <span class="panel-title">
+                Estado de inicio de actividades
+                <!-- <span data-bind="html:num_registro"></span> -->
+              </span>
+            </div>
+            <div class="panel-body">
+              <div id="estadosInicio" style="height: 200px; width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- End Pie Chart -->
+        <!-- Pie Chart -->
+        <div class="col-lg-4">
+          <div class="panel" id="spy7">
+            <div class="panel-heading">
+              <span class="panel-title">
+                Estado de fin de actividades
+                <!-- <span data-bind="html:num_registro"></span> -->
+              </span>
+            </div>
+            <div class="panel-body">
+              <div id="estadosFin" style="height: 200px; width: 100%;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- End Pie Chart -->
+
+
+        <!--Inicio capitulos y actividades -->
+        <div class="col-lg-12">
+          <div class="panel panel-sky">
+            <div class="panel-heading">
+              Actividades del cronograma
+            </div>
+            <div class="panel-body">
+              <div data-bind="html: ActivitiesMessage"></div> 
+              <div class="col-lg-12" data-bind="visible:(listado_contratos()!=null && listado_contratos().length > 0)">
+                
+                <div data-bind="foreach:{data:listado_contratos, as:'capitulo'}">
+                  <div class="panel panel-primary">
+                    <div class="panel-heading" style="cursor: pointer;"
+                    data-bind="click: function(){ $root.toogle(id) }">
+                      <div class="col-lg-7">
+                        <span style="color: white;">Etapa: </span><span style="color: white;" data-bind="cutWord:{num:65,text:nombre, verMax:'...', verMin:'...'}"></span>
+                      </div>
+                      <div class="col-lg-4" style="padding-top: 10px;">
+                        <div class="progress">                      
+                          <div class="progress-bar progress-bar-success"
+                          role="progressbar" aria-valuemin="0"
+                          data-bind="style:{width:avance+'%'}, text:avance+'%'"
+                          aria-valuemax="100" >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-lg-1" style="padding-top: 10px;" >
+                        <i style="float: right;cursor: pointer;" 
+                        class="fa fa-caret-square-o-down fa-2x" 
+                        data-bind="attr: {'id': 'btn'+id}" ></i>
+                      </div>                      
+                    </div>
+                    <div class="panel-body" data-bind="attr:{'id':'panel'+ id}" style="display: none">
+                      <div data-bind="visible:(capitulo.actividades == null)">
+                        <div class="alert alert-warning alert-dismissable">
+                          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                          <i class="fa fa-warning pr10"></i>
+                            No se encontraron actividades relacionadas en esta etapa.
+                        </div>
+                      </div>
+                      <div data-bind="visible:(capitulo.actividades != null && capitulo.actividades.length > 0)">
+                        <div class="table-responsive">
+                          <table class="table table-hover table-striped">
+                            <thead>
+                              <tr>
+                                <th width="20%">Descripción actividad</th>
+                                <th width="13%">Estado inicio</th>
+                                <th width="5%">Inicio programado</th>
+                                <th width="13%">Estado fin</th>
+                                <th width="5%">Fin programado</th>
+                                <th width="9%">Inicio ejecutado</th>
+                                <th width="9%">Fin ejecutado</th>
+                                <th width="5%">Soportes</th>
+                                <th width="15%">Observaciones</th>
+                                <th width="5%"></th>
+                              </tr>
+                            </thead>
+                            <tbody data-bind="foreach:{data:capitulo.actividades, as:'item'}">
+
+                              <tr>
+                                <td data-bind="cutWord:{num:40,text:item.descripcion, verMax:'...', verMin:'...'}"></td>
+                                <td data-bind="text: item.estadoinicio, css:{'danger' : item.estadoinicio=='Retrasado','warning': item.estadoinicio=='Proximo a iniciar','info':item.estadoinicio=='Inició retrasado', 'success': item.estadoinicio=='Inició a tiempo'}"></td>
+                                <td data-bind="text: item.inicioprogramado"></td>
+                                <td data-bind="text: item.estadofin, css:{'warning': item.estadofin=='Por vencer','danger':item.estadofin=='Vencida','info':item.estadofin=='Cumplida retrasada','success':item.estadofin=='Cumplida a tiempo'}"></td>
+                                <td data-bind="text: item.finprogramado"></td>
+                                <td>
+                                  <div data-bind="if: item.inicioejecutado == null">
+                                    <span style="color: red;">Pendiente</span>
+                                  </div>
+                                  <div data-bind="ifnot: item.inicioejecutado == null">
+                                    <span  data-bind="text: item.inicioejecutado"></span>
+                                </td>
+                                <td >
+                                  <div data-bind="if: item.finejecutado == null">
+                                    <span style="color: red;">Pendiente</span>
+                                  </div>
+                                   <div data-bind="ifnot: item.finejecutado == null">
+                                    <span data-bind="text: item.finejecutado"></span>
+                                   </div>
+                                </td>
+                                <td>
+                                  <div data-bind="if: !item.requieresoporte">
+                                    <span>No aplica</span>
+                                  </div>
+                                  <div data-bind="if: item.requieresoporte">
+                                    <span data-bind="text: '(' + item.cantidadSoportes + ')'">
+                                    </span>
+                                    <a href="#" data-bind="click: function(){ $root.verSoportesActividad(item.id); }">
+                                      <i class="fa fa-paperclip fa-2x"></i>
+                                    </a>
+                                  </div>
+                                </td>
+                                <td>
+                                  <div data-bind="ifnot: item.admiteobservaciones">
+                                    <span>No aplica</span>
+                                  </div>
+                                  <div data-bind="if: item.admiteobservaciones">
+                                    <span data-bind="cutWord:{num:40,text:item.observaciones, verMax:'...', verMin:'...'}"></span>
+                                  </div>
+                                </td>
+                                <td>
+                                  {% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+                                  <div class="btn-group text-right">
+                                    <a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false" href="#">
+                                      <i  class="fa fa-ellipsis-h fa-2x" ></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                        <li>
+                                          <a href="#" data-bind="click: function(){ $root.programar(item.id,item.inicioprogramado,item.finprogramado, item.descripcion) }">Editar Programación</a>
+                                        </li>
+                                        <li>
+                                          <a href="#" data-bind="click: function(){ $root.IniciarRegistroInicio(item.id,item.inicioejecutado,item.observaciones, item.descripcion) }">Registrar inicio</a>
+                                        </li>
+
+                                        <li data-bind="visible: (item.cantidadSoportes > 0 && item.requieresoporte == true)">
+                                          
+                                            <a href="#" data-bind="click: function(){ $root.IniciarRegistroFinalizacion(item.id,item.finejecutado,item.observaciones, item.descripcion) }">Registrar finalización</a>
+                                        </li>  
+                                          <li data-bind="visible: (item.cantidadSoportes == 0) && item.requieresoporte == true">
+                                            <a href="#" data-bind="click: function(){ $root.mensajeRestriccion() }">Registrar finalización</a>
+                                          </li>
+                                          <li data-bind="visible: (item.cantidadSoportes < 0 && item.requieresoporte == false)">
+                                            <a href="#" data-bind="click: function(){ $root.IniciarRegistroFinalizacion(item.id,item.finejecutado,item.observaciones, item.descripcion) }">Registrar finalización</a>
+                                          </li>
+
+                                        </li>
+                                    </ul>                                    
+                                  </div>
+                                  {% endif %}
+                                </td>
+                              </tr>
+
+                            </tbody>
+                            
+                          </table>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!--Fin capitulos y actividades -->
+      </div> <!-- Div Panel body -->
+    </div> <!-- Div panel -->
+  </div> <!-- Div col-lg-12 -->
+
+
+  <!-- modal -->
+
+  <div id="modal_editar" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+
+          <form action="." method="post" enctype="multipart/form-data">
+            <div class="modal-body">
+
+              {% csrf_token %}
+
+
+              <div class="form-group">
+                <label>Inicio programado: </label>
+                <input type="date" class="form-control" data-bind="value:ActividadContratoVO.inicioprogramado">
+                <label>Fin programado: </label>
+                <input type="date" class="form-control" data-bind="value:ActividadContratoVO.finprogramado">
+                <label> Inicio ejecución: </label>
+                <input type="date" class="form-control" data-bind="value:ActividadContratoVO.inicioejecutado">
+                <label> Fin ejecucion: </label>
+                <input type="date" class="form-control" data-bind="value:ActividadContratoVO.finejecutado">
+                <label> Observaciones: </label>
+                <input type="text" class="form-control" data-bind="value:ActividadContratoVO.observaciones">
+
+
+                <!-- <label>Archivo</label> -->
+                <!-- <input type="file" class="note-image-input" id="archivo" name="archivo"  data-bind="fileData:{value:archivo_carga,allowedFileExtensions: ['xls','xlsx'],elErrorContainer: '#errorBlock', removeLabel:''}"/>  -->
+              </div>
+
+            </div>
+            <!-- <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="">Iniciar Carga</button>
+          </div>     -->
+          </form>
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- modal -->
+
+
+  <!-- modal soportes -->
+
+  <div id="modal_soportes" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+          {% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+            <form action="." method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group">          
+                <label>Nombre:</label>
+                <input type="text" class="form-control" data-bind='value:soporteVO.nombre'>
+              </div>
+              <div class="form-group">          
+                <label>Documento:</label>
+                 <input type="file" id="archivo" name="archivo" class="note-image-input"  data-bind="fileData:{value:soporteVO.archivo,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+                                         elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                  <input type="hidden" data-bind="value:soporteVO.archivo"/>
+                  <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg.<br></small>                    
+              </div>
+              <div class="form-group">
+                <button type="button" class="btn btn-primary" data-bind="click:guardarSoporte" >Guardar</button>
+                <button type="button" class="btn btn-primary" data-bind="click:limpiarFormGuardarSoporte" >Limpiar</button>
+              </div>
+            </form>
+          {% endif %}          
+          <div data-bind="html: mensajeSoporte"></div>
+
+          <div class="table-responsive" data-bind="visible:(listado_soportes()!=null && listado_soportes().length > 0)">
+            <table class="table table-bordered mbn">
+              <thead>
+                <tr>
+                  <td>Nombre soporte</td>
+                  <td>Opciones</td>
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado_soportes, as:'item'}">
+                <tr>
+                  <td data-bind="text: item.nombre"></td>
+                  <td>
+                     <div class="btn-group text-right">
+                      <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                      <ul class="dropdown-menu" role="menu">
+                        <li>
+                          <a href="#" data-bind="attr:{href:'/cronogramacontrato/getsoportesbyid/?link=' + item.archivo_nombre }"  target="_blank">Descargar</a>
+                        </li>
+                        {% if 'cronogramacontrato.can_change_ccactividadcontrato' in perms %}
+                           <li>
+                             <a href="#" data-bind="click:$root.consultarSoportePorId.bind($data,item.id,item.nombre,item.actividadcontrato.id)">
+                             Editar</a>
+                           </li>
+                           <li>
+                             <a href="#" data-bind="click:$root.eliminarSoporte.bind($data,item.id)">
+                             Eliminar</a>
+                           </li>
+                        
+                        {% endif %}
+                      </ul>
+                     </div>
+                    
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- <div class="modal-footer">
+       <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+     </div> -->
+      </div>
+    </div>
+  </div>
+
+  <!-- fin modal soportes-->
+  <!-- modal programar -->
+  <div id="modal_programacion" style="overflow:auto;" data-backdrop="static" data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+          <span style="font-weight:bold;" data-bind="text: 'Actividad: ' + programacionVO.descripcion()"></span>
+          <br/><br/>
+          <form action="." method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+              <div class="form-group">
+                <label>Fecha estimada del inicio de la actividad:</label>
+                <input class="form-control" data-bind='datePicker:programacionVO.inicioprogramado,value:programacionVO.inicioprogramado'
+                type="text">
+              </div>
+              <div class="form-group">
+                <label>Fecha estimada de finalización de la actividad:</label>
+                <input class="form-control" data-bind='datePicker:programacionVO.finprogramado,value:programacionVO.finprogramado'
+                type="text">
+              </div>
+
+          </form>          
+
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:actualizarProgramacion">Guardar programación</button>
+      </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  <!-- fin modal programar -->
+  <!-- inicio modal registrar inicio -->
+  <div id="modal_registarInicio" style="overflow:auto;" data-backdrop="static" 
+  data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+          <span style="font-weight:bold;" data-bind="text: 'Actividad: ' + inicioVO.descripcion()"></span>
+          <br/><br/>
+          <form action="." method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+              <div class="form-group">
+                <label>Fecha de inicio de ejecución de la actividad:</label>
+                <input class="form-control" data-bind='datePicker:inicioVO.fecha,value:inicioVO.fecha'
+                type="text">
+              </div>
+              <div class="form-group">
+                <label>Observaciones:</label>                
+                <textarea class="gui-textarea form-control" style="width: 100%" cols="20" rows="5" id="comment" name="comment" 
+                data-bind='text: inicioVO.observaciones, value:inicioVO.observaciones'></textarea>
+                              
+                
+              </div>
+
+          </form>          
+
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:actualizarRegistroInicio">Guardar</button>
+      </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- fin modal registrar inicio -->
+
+  <!-- inicio modal registrar finalizacion -->
+  <div id="modal_registarFin" style="overflow:auto;" data-backdrop="static" 
+  data-keyboard="false"
+    class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind="text: titulo"></h4>
+        </div>
+        <div class="modal-body">
+          <span style="font-weight:bold;" data-bind="text: 'Actividad: ' + finVO.descripcion()"></span>
+          <br/><br/>
+          <form action="." method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+              <div class="form-group">
+                <label>Fecha de finalización de ejecución de la actividad:</label>
+                <input class="form-control" data-bind='datePicker:finVO.fecha,value:finVO.fecha'
+                type="text">
+              </div>
+              <div class="form-group">
+                <label>Observaciones:</label>                
+                <textarea class="gui-textarea form-control" style="width: 100%" cols="20" rows="5" id="comment" name="comment" 
+                data-bind='text: finVO.observaciones, value:finVO.observaciones'></textarea>
+                              
+                
+              </div>
+
+          </form>          
+
+        </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:actualizarRegistroFin">Guardar</button>
+      </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- fin modal registrar finalizacion -->
+
+
+</div> <!-- Div row -->
+
+
+
+
+{% endblock %}
+
+{%block imports %}
+<script type="text/javascript" src="{% static 'assets/js/main.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script>
+<script type="text/javascript" src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+<script type="text/javascript" src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+</script>
+  <script type="text/javascript" src='{% static "assets/admin-tools/admin-forms/js/jquery-ui-datepicker.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript"
+  src='{% static "js/ViewModels/cronogramacontrato/seguimientodelcontrato.js" %}?cache=2.1'>
+  </script>
+
+{% endblock imports %}

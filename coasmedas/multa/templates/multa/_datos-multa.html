@@ -1,0 +1,26 @@
+<ul class="icon-list">
+  <li>
+    <b> Consecutivo Numero :</b>  <span >{{ solicitud.consecutivo }}</span>
+  </li>
+  <li>
+    <b> Numero del contrato :</b> <span >{{ solicitud.contrato.numero }}</span>
+  </li>
+  <li>
+    <b> Nombre:</b>   <span >{{ solicitud.contrato.nombre }}</span>
+  </li>
+   <li>
+    <b> Estado del contrato:</b> <span >{{ solicitud.contrato.estado.nombre }}</span>
+  </li>
+   <li>
+    <b> Contratista:</b> <span >{{ solicitud.contrato.contratista.nombre }}</span>
+  </li>
+   <li>
+    <b> Estado de la solicitud:</b> <span >{{ estado }}</span>
+  </li>
+  <li>
+    <b> Valor solicitado:</b> <span >{{ solicitud.valorSolicitado }}</span>
+  </li>
+  <li>
+    <b> Valor para imposición:</b> <span >{{ solicitud.valorImpuesto }}</span>
+  </li>
+</ul>

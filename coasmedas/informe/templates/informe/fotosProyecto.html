@@ -1,0 +1,87 @@
+{% extends 'page.html' %}
+{% load static %}
+{% block title %}Informe fotos de proyectos{% endblock title%}
+{% block opciones_listado %}{% endblock opciones_listado %}  
+{% block mapa %}
+ 
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="../informe/">Informe</a></li>
+  <li class="active">Informe fotos de proyectos</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+<div class="row" >
+  <div class="col-lg-12">        
+    <div class="panel panel-sky" >
+      <div class="panel-heading">
+        <a href="../informe/" data-placement="right"  
+            data-toggle="tooltip" data-original-title="Regresar a las opciones de informe general">
+            <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+        </a> 
+        Informe fotos de Proyectos
+      </div>
+      <div class="panel-body">
+
+        <div class="form-group col-lg-6">
+        <!-- INICIA FORMULARIO -->
+            <div class="form-group col-lg-12">
+              <label>(*) Convocatoria </label>
+              <select class="form-control" data-bind="value: fotoProyectoVO.contrato"  >
+                  <option value="">Seleccione...</option>        
+                  <!--ko foreach: { data:listado_contrato , as:'item'}-->        
+                    <option data-bind="value: item.id, text: item.nombre"></option>
+                  <!-- /ko -->
+              </select>     
+            </div>
+
+            <div class="form-group col-lg-12">          
+              <label>(*) Foto</label> 
+              <select class="form-control form-group" data-bind="value: fotoProyectoVO.foto" >  
+                <option value="">Seleccione...</option> 
+                {% for item in estados %}
+                <option value="{{ item.id }}">{{ item.nombre }}</option>
+                {% endfor %}
+              </select>  
+            </div>                            
+            <div class="form-group col-lg-12">          
+              <label>Desde</label>
+              <input type="text" class="form-control" data-bind='datePicker:fotoProyectoVO.fechaDesde ,value:fotoProyectoVO.fechaDesde' placeholder="AAAA-MM-DD" >
+            </div>
+
+            <div class="form-group col-lg-12">          
+              <label>Hasta</label>
+              <input type="text" class="form-control" data-bind='datePicker:fotoProyectoVO.fechaHasta ,value:fotoProyectoVO.fechaHasta' placeholder="AAAA-MM-DD" >
+            </div>                   
+        <!-- FINALIZA FORMULARIO --> 
+        </div>       
+      </div>
+      <div class="modal-footer col-sm-3">
+        <button type="button" class="btn btn-primary" data-bind="click:generar_informe_foto_proyecto">Generar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Modal-->
+
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/informe/informe.js" %}?v=1'></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+      informe.consultar_contratos();
+    });  
+  </script>
+{% endblock imports %}

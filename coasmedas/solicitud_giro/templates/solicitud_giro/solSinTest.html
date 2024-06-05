@@ -1,0 +1,66 @@
+    {% extends 'page.html' %}
+    {% load static %}
+
+    {%block imports_css %}
+     <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+      <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+     
+    {% endblock imports_css %}
+
+    {% block opciones_listado %}
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+          </a>
+        </li>
+    {% endblock opciones_listado %} 
+
+    {% block busqueda %}
+
+    {% endblock busqueda %}    
+
+    {% block title %}Actualizar TEST/OP{% endblock title%}
+    {% block mapa %}
+      <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+      <li class="active">Financiero</li>
+      <li><a href="{% url 'solicitud.inicio' %}">Sol. Giros</a></li>
+      <li class="active"> Actualizar TEST - OP </li>
+    {% endblock mapa %}
+    {% block encabezado %}{% endblock encabezado %}
+
+    {% block contenido %}
+
+      <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+      {% include 'solicitud_giro/_solSinTest.html' %}
+      
+    {% endblock contenido %}
+
+    {% load static %}
+
+    {%block imports %}
+
+      <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+      <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+      <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+      </script>
+      <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+      <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+
+      <script type="text/javascript" src='{% static "js/ViewModels/solicitud_giro/solTestOP.js" %}'></script>
+  
+
+  <script type="text/javascript">
+      $(document).ready(function () {
+        encabezado_giro.consultar_lista_tipo_pago();
+        encabezado_giro.consultar(1);//iniciamos la primera funcion//iniciamos la primera funcion
+        
+      });
+
+  </script>
+    
+
+  </script>      
+      
+
+
+    {% endblock imports %}

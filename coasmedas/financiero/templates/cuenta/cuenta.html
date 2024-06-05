@@ -1,0 +1,310 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Financiero cuenta{% endblock title%}
+{% block mapa %}
+  <li><a><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li class="active">Cuenta</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Financiero cuentas</span>
+
+                <span class="panel-controls">
+                  <a data-bind="click:filtrar_cuenta" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+            </div>
+            <div data-bind="html: mensaje"></div>
+
+            <div class="panel-body pn" data-bind="visible:(listado()!=null && listado().length > 0)">
+              <div class="table-responsive">
+
+                <table class="table table-bordered mbn" >
+                  <thead>
+                      <tr>
+                        <th><input type="checkbox" data-bind="checked:checkall"></th>
+                        <th>Contrato</th>
+                        <th>Nombre</th>
+                        <th>Saldo</th>
+                        <th></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+                      <td> <input type="checkbox" data-bind="checked:eliminado,value:id"></td> 
+                      <td data-bind="text: item.contrato.nombre"></td>
+                      <td data-bind="text: item.nombre"></td>
+                      <td data-bind="text: formatMoney(item.valor)"></td>
+                      <td>
+
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-138px;top:19px">
+                              <li data-bind="if: !item.soloLectura">
+                                <a href="#" data-bind="click:$root.consultar_por_id">
+                                <i class="fa fa-pencil-square-o"></i> Editar
+                                </a>
+                              </li>
+
+                              <li>
+                                <a href="#" data-bind="click:$root.ver_mas_cuenta">
+                                  <i class="fa fa-eye"></i> Ver detalle
+                                </a>
+                              </li>
+
+                              <li data-bind="if: !item.soloLectura">
+                                <a href="#" data-bind="attr:{href:'../cuenta_moviento/' + item.id}">
+                                  <i class="fa fa-book" aria-hidden="true"></i> Movimiento cuenta
+                                </a>
+                             </li>
+
+                            </ul>
+                          </div>
+
+                      </td>
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                
+              </div>
+
+              <div id="paginacion" >
+                <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+        <!--ko if: cuentaVO.id()=='' -->
+
+          <div class="form-group">
+            <label>Macrocontrato</label>
+              <select class="form-control" data-bind="value:cuentaVO.contrato_id">
+                <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <!--/ko--> 
+
+          <div class="form-group">
+            <label>Número de cuenta</label>
+              <input type="text" data-bind="value:cuentaVO.numero,disable:cuentaVO.id()>0" class="form-control" placeholder="Dígite el número de la cuenta"/>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre de la cuenta</label>
+              <input type="text" data-bind="value:cuentaVO.nombre" class="form-control" placeholder="Dígite el nombre de la cuenta"/>
+          </div>
+
+
+          <div class="form-group">
+            <label>Valor</label>
+              <input type="text" data-bind="value:cuentaVO.valor,disable:cuentaVO.id()>0,onlyNumber:cuentaVO.valor" class="form-control" placeholder="Dígite el valor de la cuenta"/>
+          </div>
+
+
+          <div class="form-group">
+            <label>Fiduciaria</label>
+              <input type="text" data-bind="value:cuentaVO.fiduciaria" class="form-control" placeholder="Dígite la fiduciaria"/>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Modal filtrar las cuentas-->
+
+  <div id="modal_filtro_cuenta" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label>Macrocontrato</label>
+
+                <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro">
+
+                  <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+
+
+<!--Modal para generar informe-->
+
+<div id="generar_informe" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Macrocontrato</label>
+              <select class="form-control" id="mcontrato_exportar" name="mcontrato_exportar">
+                <option value="0">[Selecciones...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:exportar_excel_cuenta">
+            <i class="fa fa-print"></i> Exportar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Fin del Modal para generar informe-->
+
+<!--modal de ver mas-->
+ <div id="vermas_cuenta" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+        <div class="modal-dialog modal-sm">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                <strong>Nombre contrato : </strong><span data-bind="text:nombre_contrato"></span><br>  
+                <strong>Nombre cuenta : </strong><span data-bind="text:nombre_cuenta"></span><br>
+                <strong>Número cuenta : </strong><span data-bind="text:numero_cuenta"></span><br>
+                <strong>Fiduciaria : </strong><span data-bind="text:fiduciaria"></span><br>
+                <strong>Saldo : </strong><span data-bind="text:formatMoney(saldo())"></span><br>
+
+              </div>
+          </div>
+        </div>
+      </div><!--cierra modal_filtro-->  
+
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/financiero/cuenta.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      cuenta.consultar(1);//iniciamos la primera funcion
+    });  
+
+  </script>
+
+{% endblock imports %}
+

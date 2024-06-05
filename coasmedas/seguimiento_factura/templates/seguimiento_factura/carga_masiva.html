@@ -1,0 +1,265 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Carga masiva{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'seguimiento_factura.index' %}">Seguimiento factura</a></li>
+  <li><a href="{% url 'seguimiento_factura.habilitar-testOp' %}">Factura con vencimiento</a></li>
+  <li class="active">Carga masiva</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block opciones_listado %} {% endblock opciones_listado %}
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+
+  <div class="row" ><br><br>
+    <div class="col-lg-12">
+
+      <div class="panel" id="spy4">
+        <div class="panel-heading">
+          <span class="panel-title"></span><span>Carga masiva</span>
+        </div>           
+        <div class="panel-body">
+
+          <div class="col-sm-12">                 
+            <a style="cursor:pointer;" href="{% url 'seguimiento_factura.descargar_plantilla' %}" target="_blank" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+              <i class="fa fa-file-excel-o fa-2x" aria-hidden="true"></i>
+              <label style="cursor:pointer;">Plantilla para cargar masiva (xlsx)</label>
+            </a>
+          </div>
+      
+          <div class="col-sm-4">
+            <label>Planilla diligenciada :</label>
+              <div class="form-group">
+                <!-- <input id="archivo" name="archivo" required type="file"> -->
+                <input type="file" id="archivo" name="archivo"  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/> 
+
+                  <p class="help-block">Seleccione el documento.</p>   
+              </div>
+          </div>
+          <!-- <div class="col-sm-4">
+            <label>Fecha de reporte :</label>
+              <input class="form-control" type="text" placeholder="Seleccione la fecha" 
+                data-bind="datePicker:fecha,value:fecha, dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+              <p class="help-block">Seleccione la fecha.</p>
+          </div>
+ -->
+          <div class="col-sm-5">
+            <br><button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:leer_excel">Subir información</button>
+          </div>
+
+
+          <div class="col-sm-12">
+            <br><br><div id="mensajeFactura_no"></div>
+
+            <div class="table-responsive" data-bind="visible:(listado_conflictos()!=null && listado_conflictos().length>0)">
+
+              <hr><center><label>Informe de conflictos entre registros del sistema y archivo recibido</label><center><br>
+
+              <center><button type="button" class="btn btn-primary" data-bind="click:actualizar_excel">Guardar</button></center><br><br>
+
+              <table id="tabla" class="table table-striped table-bordered table-hover" data-bind='visible:valida_tabla'>
+                <thead>
+                  <tr>
+                    <th>No.Factura</th>
+                    <th>Referencia</th>
+                    <th>Descripcion</th>
+                    <th>Registro Sistema
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input id="id_sistema" name="id_sistema" type="checkbox" data-bind="checked:checkSistema">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div>
+                    </th>
+                    <th>Archivo Recibido
+                      <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input id="id_sistema" name="id_sistema" type="checkbox" data-bind="checked:checkrecibido">
+                            <span class="checkbox"></span>
+                          </label>
+                      </div>
+                    </th>
+                    <th>Detalle</th>      
+                  </tr>
+                </thead>
+
+                <tbody data-bind="foreach:{data:listado_conflictos, as:'item'}">
+              
+                  <tr data-bind='visible:item.mostrar'>
+                    <td data-bind='text:item.numero_factura'></td>
+                    <td data-bind='text:item.referencia'></td>
+                    <td data-bind='text:item.descripcion'></td>
+
+                    <td>
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input id="sistema_id" name="sistema_id" type="checkbox" data-bind="click:$parent.chequear_checkbox,checked:item.eliminado">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </td>
+                    
+                    <td>
+                      <div class="option-group field admin-form">
+                        <label class="option option-primary"  style="">
+                          <input id="recibido_id" name="recibido_id" type="checkbox" data-bind="click:$parent.chequear_checkbox2,checked:item.procesar">
+                          <span class="checkbox"></span>
+                        </label>
+                      </div>
+                    </td>
+
+                    <td>
+                      <a style="cursor:pointer" data-bind="click:$parent.modalDetalle" title="Detalle"> 
+                        <i class="fa fa-info-circle fa-2x"></i> 
+                      </a>
+
+                    </td>
+                  </tr>
+
+                </tbody>
+              </table>
+
+            </div><!--cierra responsive-->
+
+          </div><!--cierro col sm 12-->
+
+        </div><!--cierra panel body-->
+      </div><!--cieraa panel-->   
+          
+    </div><!--col-lg-12" -->
+
+  </div><!--cierra row -->
+
+
+  <!--Modal para ver el detalle-->
+  <div id="modalDetalle" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button>
+          <center><h4 class="modal-title"> Detalle de conflicto</h4></center>
+        </div>
+
+        <div class="modal-body">
+          <div class="row">
+
+            <div class="col-sm-8">
+              <label>Descripcion : </label> 
+              <span data-bind="text:descripcion_conflicto"></span> 
+            </div><br><br>
+
+            <!-- ko if: validacion() ==2 -->
+
+              <div class="col-sm-8">
+                <label>Registro del sistema : </label> 
+                <span data-bind="text:referencia2"></span> 
+              </div>
+
+              <div class="col-sm-4">
+                <button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:function(){ actualizar_conflicto(0);}">Aplicar
+                </button>
+              </div><br><br><br>
+
+              <div class="col-sm-8">
+                <label>Archivo recibido : </label> 
+                <span data-bind="text:referencia"></span>
+              </div>
+                
+              <div class="col-sm-4">
+                <button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:function(){ actualizar_conflicto(1);}">Aplicar
+                </button>
+              </div>
+
+            <!-- /ko -->
+
+            <!-- ko if: validacion() ==4 -->
+
+              <div class="col-sm-8">
+                <label>Registro del sistema : </label> 
+                <span data-bind="text:fecha_reporte_sist"></span> 
+              </div>
+
+              <div class="col-sm-4">
+                <button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:function(){ actualizar_conflicto(5);}">Aplicar
+                </button>
+              </div><br><br><br>
+
+              <div class="col-sm-8">
+                <label>Archivo recibido : </label> 
+                <span data-bind="text:fecha_reporte_archi"></span>
+              </div>
+                
+              <div class="col-sm-4">
+                <button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:function(){ actualizar_conflicto(4);}">Aplicar
+                </button>
+              </div>
+
+            <!-- /ko -->
+
+            <!-- ko if: validacion() ==3 -->
+
+              <div class="col-sm-8">
+                <label>Registro del sistema : </label> 
+                <span data-bind="text:formatMoney(valor2())"></span> 
+              </div>
+
+              <div class="col-sm-4">
+                <button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:function(){ actualizar_conflicto(0);}">Aplicar
+                </button>
+              </div><br><br><br>
+
+              <div class="col-sm-8">
+                <label>Archivo recibido : </label> 
+                <span data-bind="text:formatMoney(valor())"></span>
+              </div>
+                
+              <div class="col-sm-4">
+                <button type="button" class="btn btn-primary " data-dismiss="modal" data-bind="click:function(){ actualizar_conflicto(2);}">Aplicar
+                </button>
+              </div><br><br>
+
+            <!-- /ko -->
+
+          </div><!--cierra el row-->
+        </div><!--modal-body-->
+      </div><!--modal-content-->
+    </div><!--modal-dialog-->
+  </div><!--cierra modal modalDetalle-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/carga_masiva.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      carga_masiva.consultar_contratista();//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+
+{% endblock imports %}
+

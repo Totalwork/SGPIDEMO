@@ -1,0 +1,177 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Gestion de Proyectos{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>
+  <li class="active">Opciones</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'gestion_proyecto.gestion_proyecto' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar a la gestion de proyectos">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Gestion de Proyectos
+{% endblock encabezado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+   
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading cursor">                   
+              <span class="panel-title">
+                Opciones
+              </span>
+          </div>
+          <div class="panel-body">
+
+           {% if 'gestion_proyecto.can_see_afondo' in perms %}
+              <div class="col-sm-10 col-md-4">
+                <a href="{% url 'gestion_proyecto.fondo' %}" style="color:#f5f8fd">
+                  <div class="panel panel-tile bg-primary light">
+                    <div class="panel-body pn pl20 p5">                            
+                      <div class="col-md-4">
+                        <i class="fa fa-cubes fa fa-5x"></i>
+                      </div>
+                      <div class="col-md-6">                                 
+                        <h3 class="mt15 lh15">Tipos de Fondos</h3>                            
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+             {% endif %}
+
+             {% if 'gestion_proyecto.can_see_diseno' in perms %}
+              <div class="col-sm-10 col-md-4">
+                <a href="{% url 'gestion_proyecto.disenadores' %}" style="color:#f5f8fd">
+                  <div class="panel panel-tile bg-primary light">
+                    <div class="panel-body pn pl20 p5">                            
+                      <div class="col-md-4">
+                        <i class="fa fa-building-o fa fa-5x"></i>
+                      </div>
+                      <div class="col-md-6">                                 
+                        <h2 class="mt15 lh15">Diseñadores</h2>                            
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+             {% endif %}
+
+             {% if 'gestion_proyecto.can_see_datodiseno' in perms %}
+              <div class="col-sm-10 col-md-4">
+                <a href="{% url 'gestion_proyecto.datos_diseno' %}" style="color:#f5f8fd">
+                  <div class="panel panel-tile bg-primary light">
+                    <div class="panel-body pn pl20 p5">                            
+                      <div class="col-md-4">
+                        <i class="fa fa-file-text-o fa fa-5x"></i>
+                      </div>
+                      <div class="col-md-6">                                 
+                        <h3 class="mt15 lh15">Datos a Solicitar</h3>                            
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              {% endif %}
+
+              {% if 'gestion_proyecto.can_see_acampana' in perms %}
+              <div class="col-sm-10 col-md-4">
+                <a href="{% url 'gestion_proyecto.campana' %}" style="color:#f5f8fd">
+                  <div class="panel panel-tile bg-primary light">
+                    <div class="panel-body pn pl20 p5">                            
+                      <div class="col-md-4">
+                        <i class="fa fa-flag-checkered fa fa-5x"></i>
+                      </div>
+                      <div class="col-md-6">                                 
+                        <h3 class="mt15 lh15">Campañas y Documentos</h3>                            
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              {% endif %}
+
+              {% if 'gestion_proyecto.can_see_asolicitante' in perms %}
+              <div class="col-sm-10 col-md-4">
+                <a href="{% url 'gestion_proyecto.solicitante' %}" style="color:#f5f8fd">
+                  <div class="panel panel-tile bg-primary light">
+                    <div class="panel-body pn pl20 p5">                            
+                      <div class="col-md-4">
+                        <i class="fa fa-bullhorn fa fa-5x"></i>
+                      </div>
+                      <div class="col-md-6">                                 
+                        <h2 class="mt15 lh15">Solicitantes</h2>                            
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              {% endif %}
+
+               {% if 'gestion_proyecto.can_see_permiso_diseno' in perms %}
+              <div class="col-sm-10 col-md-4">
+                <a href="{% url 'gestion_proyecto.permisos' %}" style="color:#f5f8fd">
+                  <div class="panel panel-tile bg-primary light">
+                    <div class="panel-body pn pl20 p5">                            
+                      <div class="col-md-4">
+                        <i class="fa fa-key fa fa-5x"></i>
+                      </div>
+                      <div class="col-md-6">                                 
+                        <h3 class="mt15 lh15">Permiso de Acceso</h3>                            
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </div>
+              {% endif %}
+
+       
+        </div>
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+   
+        <!-- end: .tray-center -->
+
+      <!-- End: Content -->
+  </div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >      
+
+
+  </div>
+
+</div>
+
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}

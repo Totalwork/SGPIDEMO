@@ -1,0 +1,172 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Informe Ejecutivo{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+   <li class="active"><a href="{% url 'proyecto.resumen_por_fondo' %}">Informe Ejecutivo</a></li>
+  	<li><a href="{% url 'proyecto.resumen_por_giros' fondo_id %}">Resumen giros</a></li>
+	<li class="active">Resumen por contrato MME</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+ {% block opciones_listado %}
+{% endblock opciones_listado %}      
+
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		    <div class="panel panel-sky" >
+		    		    
+		        <div class="panel-heading">
+                Listado
+                <span class="panel-controls">
+                  <a data-placement="top"  data-toggle="tooltip" data-original-title="Filtros" data-bind="click:abrir_filtros" title="" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+          	</div>
+            
+          	 <div class="panel-body">
+          	 	
+          	 	 <div class="table-responsive">
+               
+               <div class="row">  
+                 <div class="col-lg-12 btn-group">
+
+                       <h3>4.1 Resumen por contrato MME</h3>
+                    
+                    <br>
+                     
+                        <i class="fa fa-map fa-2x btn" aria-hidden="true"></i>  
+                        <i class="fa fa-print fa-2x btn" aria-hidden="true" onclick="window.open('{% url 'proyecto.exportar_resumen_por_fondo' %}','_blank')"></i>                     
+                                             
+                        <i class="fa fa-ellipsis-v fa-2x btn dropdown-toggle" aria-hidden="true" data-toggle="dropdown"></i>
+
+                        <ul class="dropdown-menu" role="menu">
+                         <li><a href="{% url 'proyecto.resumen_por_fondo' %}">0.Resumen por fondo</a></li>
+                          <li><a href="{% url 'proyecto.resumen_por_fondo_contrato_giro' fondo_id %}">4.1 Detallar por contrato MME</a></li>
+                           <li><a href="{% url 'proyecto.resumen_por_fondo_giro_contratista' fondo_id %}">5.Resumen por contratista / proveedor</a></li>
+                          <li><a href="{% url 'proyecto.balance_financiero' fondo_id 0 %}">6. Balance financiero</a></li>
+                        </ul>
+
+                    </div>
+                  </div>
+               <br>
+               <br>    
+
+               {% if resumen|length == 0 %}
+                  <div><div class="alert alert-warning alert-dismissable"><i class="fa fa-warning"></i>No se encontraron registros</div></div> 
+               {% endif %}
+                {% if resumen|length > 0 %}
+          	 	 	 <table class="table">
+          	 	 	 	  <thead>
+				            <tr>
+				              <th>Fondo de financiacion</th>    
+				              <th>Contrato MME</th>
+				              <th>Valor Girado</th>				              
+				              <th>Saldo en cuentas</th> 
+                      <th></th>
+				            </tr>
+				           </thead>
+				           <tbody>
+                   {% load funciones_tags %}
+                   {% load humanize %}
+
+                   {% for item in resumen %}
+                        {% if item.id == 1 %}
+      	          	 	 	 	<tr>	          	 	 	 
+          	          	 	 	 	<td>{{ item.fondo }}</td>
+          	          	 	 	 	<td>{{ item.contrato }}</td> 
+                              <td>${{ item.valor|intcomma }}</td>                        
+                              <td>${{ item.saldo|intcomma }}</td> 
+                              <td>
+                                 <a href="{% url 'proyecto.resumen_por_fondo_giro_contratista' item.id %}" style="cursor:pointer; ">
+                                 <i data-toggle="tooltip" id="4" class="fa fa-sitemap fa-2x" title="" data-original-title="Ver mas"></i></a> 
+                              </td>                  	 	 	 	
+      	          	 	 	 	</tr>                         
+                        {% endif %}
+                        
+                         {% if resumen|length == forloop.counter and resumen|total_prone:'valor' > 0 %}
+                              <tr>
+                                 <th>Total Prone</th>                                 
+                                 <th></th>                           
+                                 <th>{{ resumen|format_money_total_prone:'valor' }}</th>
+                                 <th>{{ resumen|format_money_total_prone:'saldo' }}</th>
+                                 <th></th>
+                              </tr>
+                        {% endif %}
+
+                      {% endfor %}
+
+                     {% for item in resumen %}
+
+                        {% if item.id == 2 %}
+                           <tr>                   
+                            <td>{{ item.fondo }}</td>
+                            <td>{{ item.contrato }}</td>                        
+                             
+                            <td>${{ item.valor|intcomma }}</td>                        
+                            <td>${{ item.saldo|intcomma }}</td> 
+                            <td>
+                               <a href="{% url 'proyecto.resumen_por_fondo_giro_contratista' item.id %}" style="cursor:pointer; ">
+                               <i data-toggle="tooltip" id="4" class="fa fa-sitemap fa-2x" title="" data-original-title="Ver mas"></i></a> 
+                            </td>                         
+                          </tr>
+                           
+                        {% endif %}
+
+                        {% if resumen|length == forloop.counter and resumen|total_faer:'valor' > 0 %}
+                            <tr>
+                               <th>Total faer</th>                                                        
+                               <th></th>
+                               <th>{{ resumen|format_money_total_faer:'valor' }}</th>
+                               <th>{{ resumen|format_money_total_faer:'saldo' }}</th>
+                               <th></th>
+                            </tr>
+                        {% endif %}
+
+                      {% endfor %}
+	          	 	 	 </tbody> 
+                   {% load funciones_tags %}
+                   <tfoot>
+                     <th>Total</th>
+                     <th></th>                     
+                     <th>{{ resumen|format_money_total:'valor' }}</th>
+                     <th>{{ resumen|format_money_total:'saldo' }}</th>
+                     <th></th>
+                   </tfoot>
+          	 	 	 </table>
+          	 	 	 {% endif %}
+
+          	 	 </div>
+
+
+          	 </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>  	   
+{% endblock imports %}

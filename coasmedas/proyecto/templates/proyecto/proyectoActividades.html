@@ -1,0 +1,279 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Actividades{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'proyecto.proyecto' %}">Proyecto</a></li>
+  <li class="active">Actividades</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'proyecto.proyecto'%}" data-placement="right"  
+    data-toggle="tooltip" data-original-title="Regresar a proyectos">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a> 
+  Actividades Proyecto
+
+{% endblock encabezado %}
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#">
+          <i class="fa fa-plus" data-bind="click:abrir_modal" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+    {% if app|add:'.add_'|add:model in perms%}
+      <li>
+        <a href="#">
+          <i class="fa fa-trash" data-bind="click:eliminar" style="font-size: 20px;"><div><div><div></div></div></div></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+<div class="alert alert-default light alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-cog pr10 hidden"></i>
+  <!-- <span > -->
+  <div class=" row"> <!-- data-bind="html:tituloPanel" -->
+    
+    <h4>&nbsp; Información del Proyecto </h4>
+    
+      <ul class="icon-list">
+        <div class="col-md-12">
+          <li>
+            <b>&nbsp; Municipio:</b>&nbsp;<small data-bind="html:municipio_c"></small>
+          </li>
+          <li>
+            <b>&nbsp; Departamento:</b>&nbsp;<small data-bind="html:departamento_p"></small>
+          </li>
+          <li>
+            <b>&nbsp; Proyecto:</b>&nbsp;<small data-bind="html:nombre_p"></small>
+          </li>
+        </div>
+      </ul>
+    
+  </div>
+  <!-- </span> -->
+</div>
+
+<!-- <div class="" data-animate="[&quot;100&quot;,&quot;fadeIn&quot;]" style="height: 140px;">
+    <h4> Información del Proyecto </h4>
+      <ul class="icon-list">
+        <div class="col-md-12">
+          <li>
+            <b> Municipio:</b>&nbsp;<small data-bind="html:municipio_c"></small>
+          </li>
+          <li>
+            <b> Departamento:</b>&nbsp;<small data-bind="html:departamento_p"></small>
+          </li>
+          <li>
+            <b> Proyecto:</b>&nbsp;<small data-bind="html:nombre_p"></small>
+          </li>
+        </div>
+      </ul>
+</div> -->
+
+<!-- <aside class="tray tray-right tray590" style="height: 800px;">
+  <h4> Información del Proyecto</h4>
+  <ul class="icon-list">
+    <li>
+      <i class="fa fa-exclamation-circle text-warning fa-lg pr10"></i>
+      <b> Municipio:</b> <small data-bind="html:municipio_c"></small>
+    </li>
+    <li>
+      <i class="fa fa-exclamation-circle text-warning fa-lg pr10"></i>
+      <b> Departamento:</b> <small data-bind="html:departamento_p"></small>
+    </li>
+    <li>
+      <i class="fa fa-exclamation-circle text-warning fa-lg pr10"></i>
+      <b> Proyecto:</b> <small data-bind="html:nombre_p"></small>
+    </li>
+  </ul>
+</aside> -->
+
+<!--Inicio de la table -->
+<div class=" row">
+  
+  <div class="col-lg-12">
+
+    <div data-bind="html: mensaje"></div>
+
+    <div class="panel panel-sky" data-bind="visible:(listado()!=null && listado().length > 0), dropdown">
+      <div class="panel-heading">
+        <span class="panel-title">
+          Listado de Actividades <span data-bind="html:num_registro"></span>
+        </span>
+      </div>
+      <div class="panel-body">
+        <div class="table-responsive" >
+          <table class="table">
+            <thead>
+              <tr>
+              	<th>
+									<div class="option-group field admin-form">
+										<label class="option option-primary" >
+											<input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+											<span class="checkbox"></span>
+										</label>
+									</div>
+								</th>
+                <th width="80%" >Actividad</th>
+                <th width="10%" >Fecha</th>
+                <th width="10%" >Opciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!--ko foreach:{ data:listado, as:'item'} -->
+                <tr>
+                	<td>
+										<div class="option-group field admin-form" >
+											<label class=" mt10 option option-primary"  >
+												<input name="mobileos" type="checkbox" data-bind="checked:eliminado,value:id" />
+												<span class="checkbox"></span>
+												<!-- <span data-bind="text: item.nombre"></span> -->
+											</label>
+										</div><!-- end .option-group section -->
+									</td>
+                  <td data-bind="text: item.descripcion"></td>
+                  <td data-bind="text: item.fecha"></td>
+                  <td>
+                    <div class="btn-group text-right">
+                      <i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false"></i>
+                      <ul class="dropdown-menu" role="menu">
+                        <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                        </li>
+                        <li>
+                          <a href="#" data-bind="click:$root.consultar_por_id_detalle">Ver Detalle</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              <!--/ko-->
+            </tbody>
+          </table>
+          <!-- <div id="paginacion" >
+            <div data-bind="pagination: {
+                     currentPage: paginacion.pagina_actual,
+                     totalCount: paginacion.total,
+                     pageSize:paginacion.cantidad_por_paginas,
+                     maxPages: paginacion.maxPaginas,
+                     directions: paginacion.direcciones,
+                     boundary: paginacion.limite,
+                     text: paginacion.text }">
+            </div>
+          </div> -->
+        </div>
+
+      </div>
+    </div><!-- /.panel panel-sky -->
+
+  </div>
+</div><!-- end section -->
+<!--Fin de la table -->
+
+<!--Inicio Modal - Guardar Actividades -->
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-ls">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+        <!-- <form action="." method="post" enctype="multipart/form-data"> mb5 -->
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-12">
+
+          	<div class="form-group">          
+              <label>Descripción:</label>
+              <textarea class="form-control textarea-grow" data-bind='value:proyectoActividadesVO.descripcion' rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Fecha:</label>
+              <input class="form-control" data-bind='datePicker:proyectoActividadesVO.fecha,value:proyectoActividadesVO.fecha' type="text">
+            </div>
+
+          </div>
+        </div>
+        <!-- </form> -->
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Fin Modal - Guardar Actividades -->
+
+<!--Inicio Modal - Detalle Actividades -->
+<div id="detalle_actividades" class="modal fade bd-example-modal-ls" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-ls">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="gridModalLabel">Detalle Actividades del Proyecto</h4>
+			</div>
+			<div class="modal-body">
+				<div class="" data-animate="[&quot;200&quot;,&quot;fadeIn&quot;]">
+
+          <h4> Información de la Actividad</h4>
+          <ul class="icon-list">
+            <li>
+              <b> Proyecto:</b>&nbsp;<small data-bind="html:detalle.proyecto_nombre"></small>
+            </li>
+            <li>
+              <b> Fecha:</b>&nbsp;<small data-bind="html:detalle.fecha"></small>
+            </li>
+            <li>
+              <b> Descripción:</b>&nbsp;<small data-bind="html:detalle.descripcion"></small>
+            </li>
+          </ul>
+        </div>
+			</div> <!-- ./modal-body -->
+		</div>
+	</div>
+</div>
+<!--Fin Modal - Detalle Actividades-->
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/proyecto/proyectoActividades.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    proyectoActividades.consultar(1,{{id_proyecto}});//iniciamos la primera funcion
+
+    proyectoActividades.id_proyecto({{id_proyecto}});
+    // proyectoActividades.list_sub_contratista2();
+    // proyectoActividades.contrato({{id_contrato}});
+
+    //proyectoActividades.tipos(agregarOpcionesObservable({{ tipos }}));
+  });
+</script>
+{% endblock imports %}

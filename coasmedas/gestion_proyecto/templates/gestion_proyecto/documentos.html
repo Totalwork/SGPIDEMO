@@ -1,0 +1,196 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+<link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+<link rel="stylesheet" type="text/css" href='{% static "css/acordeon/zozo.accordion.min.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Documentos a Solicitar{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'gestion_proyecto.gestion_proyecto' %}">Gestion de Proyectos</a></li>  
+  <li><a href="{% url 'gestion_proyecto.opciones' %}">Opciones</a></li>
+  <li><a href="{% url 'gestion_proyecto.campana' %}">Campañas</a></li>
+  <li class="active">Documentos a Solicitar</li>
+{% endblock mapa %}
+{% block encabezado %}
+  <a href="{% url 'gestion_proyecto.campana' %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar a las campañas">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Documentos a Solicitar
+{% endblock encabezado %}
+
+
+{% block opciones_listado %}
+            
+            {% if 'gestion_proyecto.add_documentoestado' in perms %}
+            <li>
+              <a href="#" data-placement="right" data-bind="click:abrir_modal" data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 20px;"></i>
+              </a>
+            </li>
+            {% endif %}
+
+             <li>
+              <a href="#" data-placement="right" data-bind="click:abrir_modal_clonacion" data-toggle="tooltip" data-original-title="Clonar registro">
+                  <i class="fa fa-files-o" style="font-size: 20px;"></i>
+              </a>
+            </li>
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+<div class="col-lg-12">
+<div class="panel panel-sky">
+    <div class="panel-heading">
+                <h4>{{campana.nombre}}</h4>
+          </div>
+          <div class="panel-body">
+          <div class="col-lg-12">
+        <!--ko if: listado().length > 0 -->
+                      <ul id="demo-accordion" >
+                       <!-- ko foreach: { data: listado, as: 'estados' } -->
+                          <li>
+                              <h3 data-bind="text:nombre"></h3>
+                               <div>
+                                    <!--ko if: listado_documentos.length > 0 -->
+                                    <table  id="documentos" name="documentos"  class="table table-bordered table-hover table-striped tablesorter">
+                                     <tbody data-bind="foreach: listado_documentos" >  
+                                       <td data-bind="text: nombre" style="border: hidden"></td>
+                                       <td style="border: hidden" align="right">
+                                       {% if 'gestion_proyecto.delete_documentoestado' in perms %}
+                                            <a class="editar" style="cursor:pointer" title="Eliminar Nombre del documento" >
+                                              <i class="fa fa-trash fa-2x" data-bind="attr:{onclick:'mensaje_eliminacion('+id+','+'\''+nombre + '\'' +')'}"></i>
+                                            </a>
+                                          {% endif %}
+                                        {% if 'gestion_proyecto.change_documentoestado' in perms %}
+                                            <a class="editar" style="cursor:pointer" title="Editar Nombre del documento" >
+                                                <i class="fa fa-pencil-square-o fa-2x" data-bind="attr:{onclick:'consultar_por_id('+id+')'}"></i>                      
+                                            </a>
+                                            {% endif %}
+                                       </td>
+                                    </tbody>                      
+                                 </table>
+                                  <!-- /ko --> 
+                                   <!--ko if: listado_documentos.length == 0 -->
+                                   <div class="col-lg-6">
+                                       <span>No tiene documentos en este estado.</span>
+                                    </div>
+                                    <br>
+                                   <!-- /ko -->
+                              </div>
+                          </li>
+                          <!-- /ko -->
+                      </ul>
+                       <!-- /ko -->
+              <!-- Zozo Accordion End-->
+          </div>
+  </div>
+  </div>
+
+</div>
+  </div>
+
+     <input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" > 
+     <input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >      
+     <input type="hidden" id="id_campana" value="{{campana.id}}" class="form-control" >      
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label>Estado</label>
+          <select class="form-control" data-bind="value:documentosVO.estado_id" >
+                      <option value="">[Seleccione..]</option>
+                      {% for item in estados %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+          </select>         
+        </div>
+
+        <div class="form-group">
+          <label>Nombre del documento</label>
+          <input type="text" class="form-control" data-bind="value:documentosVO.nombre">           
+        </div>
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!--Modal-->
+
+
+<div id="modal_clonacion" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="form-group">
+          <label>Clonar de</label>
+          <select class="form-control" data-bind="value:clonacionVO.id_campana_clonar">
+                      <option value="">[Seleccione..]</option>
+                      {% for item in campanas %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %} 
+          </select>         
+        </div>
+
+        </form>
+       </div>
+
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:clonar">Clonar</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}  
+    <script type="text/javascript" src='{% static "js/ViewModels/gestion_proyecto/documentos.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/accordion/zozo.accordion.min.js" %}'></script>
+{% endblock imports %}

@@ -1,0 +1,182 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <!-- <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'> -->
+{% endblock imports_css %}
+
+{% block title %}Asignar Responsabilidades{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'parametrizacion.parametrizacion' %}">Parametrizacion</a></li>
+  <li><a href="{% url 'parametrizacion.inicioResponsabilidades' %}">Inicio Responsabilidades</a></li>
+  <li class="active">Asignar Responsabilidades</li>
+{% endblock mapa %}
+{% block encabezado %}Asignar Responsabilidades{% endblock encabezado %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block busqueda %}
+{% endblock busqueda %}
+
+{% block contenido %}
+
+<div class=" row">
+  <div class="col-md-6">
+    <form action="." method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="panel user-group-widget">
+        <div class="panel-heading">
+					<span>      
+						<a href="{% url 'parametrizacion.inicioResponsabilidades' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"						aria-hidden="true"></i></a>
+					  </span>
+          <span class="panel-title">Buscar Responsabilidades</span>                  
+        </div>
+
+        <div class="panel-menu">
+          <!-- <label>Empresa:</label>
+					<div class="form-group admin-form">
+            <label class=" select">
+              <select data-bind="value:$root.empresa_id">
+                {% for item in empresas %}
+                  <option value="{{ item.id }}">{{ item.nombre }}</option>
+                {% endfor %}
+              </select>
+              <i class="arrow"></i>
+            </label>
+          </div> -->
+
+          <label>Funcionario:</label>
+          <div class="form-group admin-form">
+            <label class=" select">
+              <select data-bind="value:$root.funcionario_id">
+                <option value="0">[Seleccione...]</option>
+                <!--ko foreach:{ data:lista_funcionario, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.persona.nombres +' '+ item.persona.apellidos"></option>
+                <!--/ko-->
+              </select>
+              <i class="arrow"></i>
+            </label>
+          </div>
+
+          <!-- <button type="button" class="btn btn-primary" data-bind="click:list_responsabilidades">Consultar</button><br/><br/> -->
+          <div data-bind="html: mensaje"></div>
+
+          <div class="panel panel-sky" data-bind="visible:(lista_responsabilidades()!=null && lista_responsabilidades().length > 0)">
+            <!-- <div class="panel-heading">
+              <span class="panel-title">
+                Listado Responsabilidades
+              </span>
+              <div class="pull-right">
+                <button type="button" class="btn btn-primary btn-gradient btn-alt btn-block item-active" data-bind="click:guardar_responsabilidades">Asignar <i class="fa fa-hand-o-right fa-lg" style="font-size: 21px" ></i></button>
+              </div>
+            </div> -->
+            <button class="btn btn-sm btn-primary btn-block" type="button" data-bind="click : guardar_responsabilidades">
+              <h4>Asignar Responsabilidades - <i class="fa fa-hand-o-right fa-lg" aria-hidden="true"></i></h4>
+            </button>
+            <div class="panel-body">
+
+              <div class="option-group field admin-form">
+                <label class="option option-primary" >
+                  <input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall">
+                  <span class="checkbox"></span>
+                </label>
+              </div>
+              <div class="option-group field admin-form" data-bind="foreach:{data:lista_responsabilidades, as:'item'}">     
+
+                <label class="block mt15 option option-primary"  >
+
+                  <input name="mobileos" type="checkbox" data-bind="checked: eliminado, value: item.id">
+                  <!-- <span data-bind="text: item.nombre"></span> -->
+                  <span class="checkbox"></span>
+                  <span data-bind="text: item.nombre"></span>
+
+                </label>
+              </div>
+
+            </div>
+          </div><!-- /.panel panel-sky -->
+
+        </div>
+      </div>
+    </form>
+
+  </div>
+
+  <div class="col-md-6">
+    <form action="." method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="panel user-group-widget">
+        <div class="panel-heading">
+
+          <span class="panel-title">Responsabilidades Funcionario</span>
+        </div>
+
+        <div class="panel-menu">
+          
+          <div data-bind="html: mensaje2"></div>
+
+          <div class="panel panel-sky" data-bind="visible:(lista_responsabilidades2()!=null && lista_responsabilidades2().length > 0)">
+            <!-- <div class="panel-heading">
+              <span class="panel-title">
+                Listado Responsabilidades Funcionario
+              </span>
+              <div class="pull-right">
+                <button type="button" class="btn btn-primary btn-gradient btn-alt btn-block item-active" data-bind="click:eliminar_responsabilidades">Eliminar Asignación&nbsp;<i class="fa fa-hand-o-left fa-lg" style="font-size: 21px" ></i></button>
+              </div>
+            </div> -->
+            <button class="btn btn-sm btn-primary btn-block" type="button" data-bind="click : eliminar_responsabilidades">
+              <h4><i class="fa fa-hand-o-left fa-lg" aria-hidden="true"></i> - Quitar Responsabilidades</h4>
+            </button>
+            <div class="panel-body">
+              
+              <div class="option-group field admin-form">
+                <label class="option option-primary" >
+                  <input name="mobileos" value="ok" type="checkbox" data-bind="checked:checkall2">
+                  <span class="checkbox"></span>
+                </label>
+              </div>
+              <div class="option-group field admin-form" data-bind="foreach:{data:lista_responsabilidades2, as:'item'}">     
+
+                <label class="block mt15 option option-primary"  >
+
+                  <input name="mobileos" type="checkbox" data-bind="checked: eliminado, value: item.id">
+                  <!-- <span data-bind="text: item.nombre"></span> -->
+                  <span class="checkbox"></span>
+                  <span data-bind="text: item.nombre"></span>
+
+                </label>
+              </div>
+
+            </div>
+          </div><!-- /.panel panel-sky -->
+
+        </div>
+      </div>
+    </form>
+  </div>
+</div><!-- end section -->
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<!-- <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/parametrizacion/asignarResponsabilidades.js" %}'></script>
+
+<script type="text/javascript">
+  $(document).ready(function () {
+    responsabilidadesFuncionario.id_empresa({{id_empresa}});
+    responsabilidadesFuncionario.list_funcionario({{id_empresa}});//iniciamos la primera funcion
+  });
+</script>
+{% endblock imports %}

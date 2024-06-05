@@ -1,0 +1,212 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+  <!-- Select2 Plugin CSS  -->
+  <link rel="stylesheet" type="text/css" href='{% static "vendor/plugins/select2/css/core.css" %}'>
+    <style>
+      #mapa {
+        width: 100%;
+        height: 700px;
+      }
+    </style>  
+{% endblock imports_css %}
+
+{% block title %}Ubicacion{% endblock title%}
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li class="active">Proyecto</li>
+  <li class="active">Ubicacion</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+{% block contenido %}
+
+  <div class="panel">
+    <div class="panel-heading">
+      <span class="panel-title">
+        <a href="{% url 'usuario.index' %}" data-placement="right"    
+          data-toggle="tooltip" data-original-title="Regresar al inicio">
+          <i class="fa fa-arrow-left"></i>
+        </a>
+        <span class="glyphicon glyphicon-map-marker"></span>Puntos de ubicación del proyecto</span>
+        <div class="pull-right">
+                <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar referencia" data-toggle="modal" data-bind="click:abrir_filtro" style="cursor:pointer;">
+                <i class="fa fa-filter fa-2x"></i>
+                </a>             
+        </div>        
+    </div>
+    <div class="panel-body" >
+     
+      <!-- <div id="mapa" class="map" style="position: relative; overflow: hidden;"></div> -->
+
+      <div class="col-lg-12">
+           <div id="mapa" class="map" style="width:100%;height:450px;"></div>
+      </div>
+    </div>
+  </div>
+
+    <!--Modal filtrar tabla modificar y consultrar-->
+
+    <div id="modal_filtro" class="modal fade bd-example-modal-lg"  role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+          
+          <div class="modal-dialog modal-lg" style="height:80%">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                      <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row">
+                    
+                      <div class="col-md-12">
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="mcontrato" class="control-label">Macrocontrato</label>
+                            <br/> 
+                            <select id="mcontrato" multiple="multiple" data-bind="selectedOptions:macrocontrato_select">
+                              {% for item in mcontrato %}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>  
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="contratista" class="control-label">Contratista</label>
+                            <br/> 
+                            <select id="contratista" multiple="multiple" multiple data-bind="selectedOptions:contratista, optionsText:'contrato__contratista__nombre', options:listado_contratista, optionsValue:'contrato__contratista__id'">
+                            </select>
+                          </div> 
+                        </div>
+
+
+<!--                         <div class="col-md-4">
+
+                          <div class="form-group">
+                            <label for="estadoO" class="control-label">Estado de obra</label>
+                            <br/> 
+                            <select id="estadoO" multiple="multiple" data-bind="selectedOptions:macrocontrato_select">
+                              {% for item in estadoobra %}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>  
+
+                        </div>   --> 
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="estadoP" class="control-label">Estado de proyecto</label>
+                            <br/> 
+                            <select id="estadoP" multiple="multiple" data-bind="selectedOptions:estado_proyecto">
+                              {% for item in estadoproyecto %}
+                              <option value="{{ item.id }}">{{ item.nombre }}</option>
+                              {% endfor %}
+                            </select>
+                          </div>  
+                        </div>    
+                                                                     
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="departamento" class="control-label">Departamento</label>
+                            <br/> 
+                            <select id="departamento" multiple="multiple" multiple data-bind="selectedOptions:departamento, optionsText:'municipio__departamento__nombre', options:departamento_select, optionsValue:'municipio__departamento__id'">
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="municipio" class="control-label">Municipio</label>
+                            <br/> 
+                            <select id="municipio" multiple="multiple" multiple data-bind="selectedOptions:municipio, optionsText:'municipio__nombre', options:listado_municipio, optionsValue:'municipio__id'">
+                            </select>
+                          </div> 
+                        </div>
+
+                    
+                        <div class="col-md-12">
+                          <div class="form-group">
+                            <label>Proyecto</label>
+                              <input type="text"  class="form-control" data-bind="value:proyectonombre">
+
+                          </div>  
+                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+
+                <div class="modal-footer">
+
+                    <button type="button" class="btn btn-primary" data-bind="click:function(){consultar_puntos_gps(1);}">
+
+                      <i class="fa fa-search"></i> Filtrar
+                    </button>
+                </div>
+
+              </div>
+            </div>
+    </div><!--cierra modal_filtro-->  
+
+
+
+
+
+<!--Loading-->
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+</script>
+<!-- <script type="text/javascript" src='{% static "vendor/plugins/select2/bootstrap-multiselect.js" %}'></script> -->
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+<script type="text/javascript" src='{% static "vendor/plugins/select2/select2.min.js" %}'></script>
+<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBJIu6W6VBANXP1Tq6mCKhjvupUARUNIuI'></script>
+<script type="text/javascript" src='{% static "js/ViewModels/puntos_gps/ubicacion.js" %}'></script>
+
+
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+      //initMap();
+      PuntosGPS.consultar_puntos_gps();
+      
+    });
+
+    // function initMap() {
+
+
+    //     var uluru = {lat: 10.1018397 , lng: -74.4825431 };
+    //     var map = new google.maps.Map(document.getElementById('mapa'), {
+    //       zoom: 7,
+    //       center: uluru
+    //     });
+    //     var marker = new google.maps.Marker({
+    //       position: uluru,
+    //       map: map
+    //     });
+    //   }
+
+
+
+
+</script>
+
+{% endblock imports %}

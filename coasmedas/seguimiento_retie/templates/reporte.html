@@ -1,0 +1,111 @@
+{% extends 'page.html' %}
+{% load static %}
+
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'> 
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Reporte Seguimiento Retie{% endblock title%}
+{% block mapa %}
+	<li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="">Seguimiento Retie</a></li>  
+	<li class="active">Generar reporte</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+  <div class="row" >
+
+		<div class="col-lg-12">
+		  
+		   <div data-bind="html: mensaje"></div> 
+
+		    <div class="panel panel-sky" >
+		    		    
+		        <div class="panel-heading">
+              <span>      
+                <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>                
+               Generar reporte
+          	</div>
+
+          	<div class="panel-body">
+
+            <div class="row">
+
+              <div class="col-lg-6">
+                
+                <form method="get" action="{% url 'seguimiento_retie.exportar_informe' %}">
+                    <div class="form-group">
+                      <label>Macro-contrato:</label>
+                      <select id="mcontrato" name="mcontrato" class="form-control" data-bind="value:mcontrato_id">
+                        <option value="0">Todos</option>
+                        {% for item in contratos %}
+                          <option value="{{ item.contrato.id }}">{{ item.contrato.nombre }}</option>
+                        {% endfor %}  
+                      </select>
+                    </div>
+
+                    <div class="form-group" id="dv_contratista">
+                      <label>Contratista:</label>
+                      <select class="form-control" name="contratista">
+                        <option value="0" selected="">Todos</option>
+                        <!-- ko foreach: { data:listado_contratistas, as:'item' } -->
+                          <option data-bind="value:item.id, text:item.nombre"></option>
+                        <!-- /ko -->
+                      </select>
+                    </div>
+
+                     <div class="form-group" id="dv_proyecto"><label>Proyecto:</label>
+                      <select class="form-control" name="proyecto">
+                        <option value="0" selected="">Todos</option>
+                         <!-- ko foreach: { data:listado_proyectos, as:'item' } -->
+                          <option data-bind="value:item.id, text:item.nombre"></option>
+                        <!-- /ko -->
+                      </select>
+                     </div>
+
+                      <div class="form-group">
+                      <label>Estado:</label>
+                      <select class="form-control" name="estado">
+                        <option value="0">Todos</option>
+                        {% for item in estados %}   
+                          <option value="{{ item.id }}">{{ item.nombre }}</option>
+                        {% endfor %}                          
+                      </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Generar</button>
+
+                </form>
+
+              </div>
+          
+            </div>            
+                
+      
+        </div>
+
+		    </div>
+
+		</div>
+
+  </div>   
+
+  <!--Modal-->
+
+
+<!--Modal-->
+
+{% endblock contenido %}
+
+
+{% load static %}
+
+
+{%block imports %}  
+  	<script type="text/javascript" src='{% static "js/ViewModels/seguimiento_retie/Retie.js" %}'></script>   
+{% endblock imports %}

@@ -1,0 +1,772 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block imports_css %}
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/plugins/c3charts/c3.min.css' %}">
+  <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+{% block title %}Actas de reunión{% endblock title %}
+
+{% block opciones_listado %}
+        {% if app in perms %}
+          {% if app|add:'.add_'|add:model in perms%}        
+            <li>
+              <a href="#"  data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+                 <i class="fa fa-plus" style="font-size: 24px;"></i>
+              </a>
+            </li>
+          {% endif %}
+        {% endif %}
+        <li>
+          <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+              <i class="fa fa-cloud-download" style="font-size: 24px;"></i>
+          </a>
+        </li>       
+        
+
+        
+
+{% endblock opciones_listado %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li>Actas de reunión</li>
+{% endblock mapa %}
+
+{% block encabezado %}{% endblock encabezado %}
+
+{% block contenido %}
+
+
+
+
+
+<div class="panel panel-sky">
+
+
+  <!-- Graficas Dashboard -->
+  <div class="container-fluid" data-bind="visible:(listado()!=null && listado().length > 0)">
+    <div class="row" style="padding-top: 10px;">
+      
+      <div class="col-lg-3">
+        <div class="panel grafica" id="pchart12">
+          <div class="panel-heading">
+            <span class="panel-icon">
+              <i class="fa fa-pie-chart"></i>
+            </span>
+            <span class="panel-title">Actas por Estado</span>
+          </div>
+          <div class="panel-body bg-light dark">
+            <div id="pie-chartActasPorEstado" style="height: 50%; width: 100%;"></div>
+          </div>
+        </div>
+      </div> 
+
+      <div class="col-lg-3">
+        <div class="panel grafica" id="pchart12">
+          <div class="panel-heading">
+            <span class="panel-icon">
+              <i class="fa fa-pie-chart"></i>
+            </span>
+            <span class="panel-title">Compromisos por Estado</span>
+          </div>
+          <div class="panel-body bg-light dark">
+            <div data-bind="html: mensajeGraficaCompromisos"></div>  
+            <div id="pie-chartCompromisosPorEstado" style="height: 50%; width: 100%;"></div>
+          </div>
+        </div>
+      </div> 
+      
+      <div class="col-lg-3">
+        <div class="panel grafica" id="pchart12">
+          <div class="panel-heading">
+            <span class="panel-icon">
+              <i class="fa fa-pie-chart"></i>
+            </span>
+            <span class="panel-title">Mis Compromisos por Estado</span>
+          </div>
+          <div class="panel-body bg-light dark">
+            <div data-bind="html: mensajeGraficaMisCompromisos"></div>  
+            <div id="pie-chartMisCompromisosPorEstado" style="height: 50%; width: 100%;"></div>
+          </div>
+        </div>
+      </div>       
+
+      <div class="col-lg-3">
+        <div class="panel grafica" id="pchart12">
+          <div class="panel-heading">
+            <span class="panel-icon">
+              <i class="fa fa-pie-chart"></i>
+            </span>
+            <span class="panel-title">Supervisados por Estado</span>
+          </div>
+          <div class="panel-body bg-light dark">
+            <div data-bind="html: mensajeGraficaCompromisosSupervisados"></div>  
+            <div id="pie-chartCompromisosSupervisados" style="height: 50%; width: 100%;"></div>
+          </div>
+        </div>
+      </div>             
+
+    </div>
+  </div>
+  <!-- Graficas Dashboard -->
+
+  <div class="row" >
+
+    <div class="col-lg-12">
+      <div class="panel-heading">
+        <span>      
+          <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"          aria-hidden="true"></i></a>
+        </span>         
+        <span class="panel-title hidden-xs">Listado de actas de reunión  - N° de Registros :</span>
+        <span data-bind="text:paginacion.total"></span> 
+
+        <div class="pull-right">
+          <span class="panel-controls">
+            <a data-placement="top" data-toggle="tooltip" data-original-title="Filtros"  title="" style="cursor:pointer;" data-bind="click:abrir_modal_busqueda" >
+              <i id='iconoFiltro' class="fa fa-filter fa-2x"></i>
+            </a>
+          </span>
+        </div>
+            
+      </div>
+      
+     
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+  <input type="hidden" id="usuario_id" value="{{ user.usuario.id }}">
+
+  <div class="panel-body">
+    <div data-bind="html: mensaje"></div>  
+
+    <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+          
+          <i class="fa fa-pause fa-2x" style="font-size:24px;color: #CDCDCD"></i>
+          &nbsp;&nbsp;Pausada
+          &nbsp;&nbsp;&nbsp;&nbsp;
+
+          <i class="fa fa-stop fa-2x" style="font-size:24px;color:  #C70039"></i>
+          &nbsp;&nbsp;Anulada
+          &nbsp;&nbsp;&nbsp;&nbsp;
+
+          <i class="fa fa-play fa-2x" style="font-size:24px;color: #FFC300"></i>
+          &nbsp;&nbsp;En curso
+          &nbsp;&nbsp;&nbsp;&nbsp;
+
+          <i class="fa fa-stop-circle fa-2x" style="font-size:24px;color: #2ECC71"></i>
+          &nbsp;&nbsp;Cerrada
+          &nbsp;&nbsp;&nbsp;&nbsp;
+
+         
+          <br>
+          <br>
+        <table class="table">
+                              
+          <thead>
+                <tr>
+                    <th style="width: 5%"></th>
+                    <th style="width: 15%">No. Acta</th>
+                    <th style="width: 15%">Fecha</th>
+                    <th style="width: 15%">Acta previa</th>
+                    <th style="width: 40%">Tema principal</th>
+                    <th style="width: 10%">Soporte</th>
+                    <th style="width: 10%">Opciones</th>                  
+                </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado, as:'item'}">
+                  <tr>                      
+                      <td>                        
+                        <i  data-bind="css : item.estado.icono+' fa-2x ' ,style:{color:item.estado.color}"></i>
+                      </td>                      
+                      <td data-bind="text: item.consecutivo"></td>
+                      <td data-bind="text: item.fecha"></td>
+                      <td data-bind="text: item.acta_previa"></td>
+                      <td data-bind="cutWord:{num:65,text:item.tema_principal, verMax:'...', verMin:'...'}"></td>
+
+                      <td>
+                        <!--ko if: item.soporte -->
+                          <a href="#" data-bind="click: function(){$root.ver_soporte(item.id)}" target="_blank" style="cursor:pointer;">
+                            <i class="fa fa-file fa-2x kv-caption-icon"></i>
+                          </a>
+                        <!--/ko--> 
+
+                        <!--ko if: !item.soporte -->
+                          <span style="color:red" >Pendiente</span>
+                        <!--/ko--> 
+                      </td>
+
+                      <td>
+                          
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                            </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-148px;top:24px;">
+
+                                <!--ko if: item.estado.id!='158' && item.estado.id!='156'-->
+                                  {% if app in perms %}
+                                    {% if app|add:'.change_'|add:model in perms%}   
+                                      <li>
+                                        <a href="#" data-bind="click:$root.consultar_por_id">Editar</a>
+                                      </li>
+                                    {% endif %}
+                                  {% endif %}
+                                <!--/ko-->  
+                            
+                                <li>
+                                  <a href="#" data-bind="click:$root.ver_detalle">Ver Detalle</a>
+                                </li>
+                                
+                                {% if app in perms %}
+                                  {% if app|add:'.change_'|add:model in perms%}                                   
+                                    <li>
+                                      <a href="#" data-bind="click:$root.participantes">Participantes</a>
+                                    </li>                                  
+                                  {% endif %}
+                                {% endif %}                          
+
+                                <li>
+                                  <a href="#" data-bind="attr:{href:'../acta-examinar/'+item.id}">Examinar</a>
+                                </li>
+
+                                
+
+                                <!--ko if: item.estado.id=='155' || item.estado.id=='157'-->
+                                  <!--ko if: item.controlador_actual.id=={{request.user.usuario.id}} || item.usuario_organizador.id=={{request.user.usuario.id}}-->
+                                      {% if app in perms %}
+                                        {% if app|add:'.change_'|add:model in perms%}                                   
+                                          <li>
+                                            <a href="#" data-bind="click:$root.cerrar_acta" id="OpcionCerrar">Cerrar acta</a>
+                                          </li>                                  
+                                        {% endif %}
+                                      {% endif %}
+                                  <!--/ko-->           
+                                <!--/ko-->    
+
+
+                                <li>
+                                  <a href="#" data-bind="click:function(){ $root.generar_qr(item.id)} ">Generar codigo QR</a>
+                                </li>              
+                                 
+                            </ul>
+                          </div>
+                      </td>          
+                  </tr>
+          </tbody>
+        </table>
+        
+        <div id="paginacion" >
+          <div data-bind="pagination: {
+                      currentPage: paginacion.pagina_actual,
+                      totalCount: paginacion.total,
+                      pageSize:paginacion.cantidad_por_paginas,
+                      maxPages: paginacion.maxPaginas,
+                      directions: paginacion.direcciones,
+                      boundary: paginacion.limite,
+                      text: paginacion.text }">
+
+          </div>
+        </div>
+        
+    </div><!--cierra row -->
+  </div><!-- cierra panel body-->
+
+</div>
+
+
+<!-- INICIO MODAL -->
+
+<div id="modal_acciones" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+      <div class="modal-body">
+       <form action="." method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+        <div class="row">
+          <div class="col-md-12">
+            <div class="panel">
+
+              <div class="col-lg-12">
+                <label>Tema principal (*)</label>
+                <div class="form-group col-lg-13">
+                  <textarea class="form-control" style="width: 100%" type="text" data-bind="value:actaVO.tema_principal"></textarea>
+                </div>
+              </div>
+                   
+          
+
+              <div class="col-md-6">
+             
+                <label>Organizador (*)</label>
+                <div class="form-group admin-form">
+                  <label class=" select">
+                    <select class="form-control" data-bind="value:actaVO.usuario_organizador_id">
+                      <option value="">[Seleccione...]</option>
+                      {% for item in usuarios_organizador %}
+                        <option value="{{ item.id }}">{{ item.persona__nombres }} {{item.persona__apellidos}}</option>
+                      {% endfor %}
+                    </select><i class="arrow"></i>
+                  </label>
+                </div>
+
+              </div>
+
+              <div class="col-md-6">
+              
+                <div class="form-group">
+                  <label>Fecha (*)</label>
+                  <div class="input-group date">                    
+
+                    <input class="form-control" id="fecha" name="fecha" type="text" placeholder="Seleccione la fecha" data-bind="datePicker:actaVO.fecha, value:actaVO.fecha" onkeypress="return false">
+                    <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                    </label>
+                  </div>   
+                </div>           
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FINAL MODAL -->
+
+<!-- INICIO MODAL PARTICIPANTES -->
+<div id="modal_acciones_participantes" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">
+          <label data-bind='text:titulo'></label>
+          &nbsp;
+
+          <!--ko if: acta_estado()==155 || acta_estado()==157-->
+            <a href="#"  data-bind="click:$root.abrir_modal_participante" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo participante">
+               <i class="fa fa-plus" style="font-size: 24px;"></i>
+            </a>
+
+            <a href="#"  data-bind="click:$root.eliminar_participantes" data-placement="right"  data-toggle="tooltip" data-original-title="Retirar participante">
+               <i class="fa fa-trash" style="font-size: 24px;"></i>
+            </a>
+          <!--/ko-->  
+
+        </h4>
+
+      </div>
+      
+
+      <div class="modal-body">              
+          <div data-bind="html: mensaje_participantes" ></div>
+
+          <div class="table-responsive" data-bind="visible:(listado_participantes()!=null && listado_participantes().length > 0)">
+            <table class="table">                                        
+              <thead>
+                <tr>
+                  <th style="width: 10%">
+                    <div class="option-group field admin-form">
+                      <label class="option option-primary"  style="">
+                        <input type="checkbox" data-bind="checked:checkall">
+                        <span class="checkbox"></span>
+                      </label>
+                    </div>
+                  </th>
+                  <th style="width: 35%">Nombre completo</th>
+                  <th style="width: 35%">Empresa</th>  
+                  <th style="width: 35%">Función</th>
+
+                </tr>
+              </thead>
+              <tbody data-bind="foreach:{data:listado_participantes, as:'item'}">
+                <tr>                      
+                  <td >
+                    <div class="option-group field admin-form" 
+                    data-bind="visible:(item.funcion=='')">
+                      <label class="option option-primary"  style="">
+                        <input type="checkbox" data-bind="checked:eliminado,value:id">
+                        <span class="checkbox"></span>
+                      </label>
+                    </div>
+                  </td>
+                  <td data-bind="text: item.nombre_completo"></td>
+                  <td data-bind="text: item.empresa"></td>
+                  <td data-bind="text: item.funcion"></td>
+                </tr>
+              </tbody>
+            </table>            
+          </div>
+        </div>
+    
+
+      
+
+
+      </div>
+    </div>
+  </div>
+</div>
+<!-- FINAL MODAL -->
+
+
+<!-- INICIO MODAL PARTICIPANTES -->
+<div id="modal_acciones_participantes_gestion" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo2'></h4>
+
+      </div>
+      <input type="hidden" id="acta_id" value="">
+
+      <div class="modal-body">
+        <div class="col-md-6">
+          <div class="panel">
+            <div class="option-group field admin-form">
+              <label class="option option-primary">
+                <input  id="check" type="checkbox" data-bind='checked:$root.check' name="check_val">
+                <span class="checkbox"></span>Solo internos (usuarios del sistema)
+              </label>
+            </div>
+            </br>
+
+            <div class="input-group">
+                <input class="form-control" type="text"
+                id="txtBuscarPersona" name="txtBuscarPersona" 
+                data-bind='event:{keypress: $root.buscarPersona}' 
+                placeholder="Buscar por nombre o apellidos..." >
+                  <span class="input-group-addon">
+                  <a href="#" data-bind="click:function(){$root.consultar_no_participantes(1)}">
+                    <i class="fa fa-search"></i>
+                  </a>
+                </span>
+            </div>
+            <div data-bind="html: mensaje_no_participantes" ></div>
+            <div class="table-responsive" 
+            data-bind="visible:(listado_no_participantes()!=null && listado_no_participantes().length > 0)">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 5%">
+                      
+                    </th>
+                    <th style="width: 35%">Nombre completo</th>
+                    <th style="width: 35%">Empresa</th>
+                  </tr>
+                </thead>
+
+                <tbody data-bind="foreach:{data:listado_no_participantes, as:'item'}">
+                  <tr>
+                    <td >
+                      <a href="#" data-bind="click:$root.invitarParticipante">
+                        <i class="fa fa-check-circle fa-2x"></i>
+                      </a>
+                    </td>
+                    <td data-bind="text: item.nombre_completo"></td>
+                    <td data-bind="text: item.empresa"></td>
+                  </tr>
+                </tbody>
+
+                
+              </table>
+              <div id="paginacion" >
+                <div data-bind="pagination: {
+                         currentPage: paginacionPersona.pagina_actual,
+                         totalCount: paginacionPersona.total,
+                         pageSize:paginacionPersona.cantidad_por_paginas,
+                         maxPages: paginacionPersona.maxPaginas,
+                         directions: paginacionPersona.direcciones,
+                         boundary: paginacionPersona.limite,
+                         text: paginacionPersona.text }">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-5" style="margin-left: 3%;" id="panel_registro_persona">
+          <div class="panel">
+            <div class="row">
+              <h4>Registro de personas</h4>
+            </div>
+            <div class="row">
+                <div class="form-group">
+                  <label>(*) Cedula</label>
+                    <input class="form-control" type="text" id="txtCedula"
+                    data-bind='onlyNumber: personaVO.cedula , value: personaVO.cedula'>
+                </div>            
+              </div>              
+              <div class="row">
+                <div class="form-group">
+                  <label>(*) Nombres</label>
+                    <input class="form-control" type="text" id="txtNombres"
+                    data-bind='value:personaVO.nombres'>
+                </div>            
+              </div>              
+              <div class="row">
+                <div class="form-group">
+                  <label>(*) Apellidos</label>
+                    <input class="form-control" type="text" id="txtApellidos"
+                    data-bind='value:personaVO.apellidos'>
+                </div>            
+              </div>
+              <div class="row">
+                <div class="form-group">
+                  <label>Correo</label>
+                    <input class="form-control" type="text" id="txtCelular"
+                    data-bind='value:personaVO.correo'>
+                </div>            
+              </div>              
+              <div class="row">
+                <div class="form-group">
+                  <label>Telefono</label>
+                    <input class="form-control" type="text" id="txtTelefono"
+                    data-bind='value:personaVO.telefono'>
+                </div>            
+              </div>              
+              <div class="row">
+                <div class="form-group">
+                  <button type="button" class="btn btn-primary" data-bind="click:guardarPersona">
+                    Guardar
+                  </button>
+                </div>
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- FINAL MODAL -->
+
+<!-- INICIO MODAL DETALLES -->
+<div id="modal_acciones_detalles" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+      </div>
+      <input type="hidden" id="acta_id" value="">
+
+      <div class="modal-body">
+        <ul class="icon-list">
+         
+          <li>
+            <b> Tema principal:</b>&nbsp;<span id="detalle_tema_principal"></span>
+          </li>
+          <li>
+            <b> Organizador:</b>&nbsp;<span id="detalle_usuario_organizador"></span>
+          </li>
+          <li>
+            <b> Controlador:</b>&nbsp;<span id="detalle_controlador_actual"></span>
+          </li>
+          <li>        
+            <b> Soporte:</b>&nbsp;
+              <a href="#" id="detalle_soporte_archivo" data-bind="click: function(){$root.ver_soporte()}" target="_blank" style="cursor:pointer;display: none;">
+                <i class="fa fa-file kv-caption-icon"></i>
+              </a>
+            <span id="detalle_soporte" style="color: red"></span>
+            
+          </li>
+          <li>        
+            <b> Estado:</b>&nbsp;<i  data-bind="css : detalle_icono()+' ',style:{color: detalle_color()}"></i>
+            <span id="detalle_estado"></span>
+          </li>
+          <li>
+            <b> Fecha:</b>&nbsp;<span id="detalle_fecha"></span>
+          </li>
+          
+          
+
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- FINAL MODAL -->
+
+
+
+<!-- INICIO MODAL FILTRO -->
+
+ <div id="modal_filtro" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">      
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+            <div class="col-md-6">
+              <div class="panel">
+
+                <label>Controlador</label>
+                <div class="form-group admin-form">
+                  <label class=" select">
+                    <select class="form-control" data-bind="value:filtro_actaVO.controlador_id">
+                      <option value="">[Seleccione...]</option>
+                      {% for item in usuarios_filtro %}
+                        <option value="{{ item.id }}">{{ item.persona__nombres }} {{item.persona__apellidos}}</option>
+                      {% endfor %}
+                    </select><i class="arrow"></i>
+                  </label>
+                </div>
+
+                <label>Organizador</label>
+                <div class="form-group admin-form">
+                  <label class=" select">
+                    <select class="form-control" data-bind="value:filtro_actaVO.organizador_id">
+                      <option value="">[Seleccione...]</option>
+                      {% for item in usuarios_filtro %}
+                        <option value="{{ item.id }}">{{ item.persona__nombres }} {{item.persona__apellidos}}</option>
+                      {% endfor %}
+                    </select><i class="arrow"></i>
+                  </label>
+                </div>
+
+                <label>Macrocontrato</label>
+                <div class="form-group admin-form">
+                  <label class=" select">
+                    <select class="form-control" data-bind="value:filtro_actaVO.macrocontrato_id">
+                      <option value="">[Seleccione...]</option>
+                      {% for item in macrocontratos %}
+                        <option value="{{ item.contrato__id }}">{{ item.contrato__nombre }}</option>
+                      {% endfor %}
+                    </select><i class="arrow"></i>
+                  </label>
+                </div>
+
+                <label>Proyecto</label>
+                <div class="form-group admin-form">
+                  <label class=" select">
+                    <select class="form-control" data-bind="value:filtro_actaVO.proyecto_id" id="proyecto_id">
+                      <option value=''>[Seleccione...]</option>
+                      <!--ko foreach:{data:listado_proyectos, as:'item'}--> 
+                        <option data-bind="text:item.nombre,value:item.id"></option>
+                      <!--/ko-->
+                    </select><i class="arrow"></i>
+                  </label>
+                </div>
+
+
+                <label>Contrato</label>
+                <div class="form-group admin-form">
+                  <label class=" select">
+                    <select class="form-control" data-bind="value:filtro_actaVO.contrato_id" id="contrato_id">
+                      <option value=''>[Seleccione...]</option>
+                      <!--ko foreach:{data:listado_contratos, as:'item'}--> 
+                        <option data-bind="text:item.nombre,value:item.id"></option>
+                      <!--/ko-->
+                    </select><i class="arrow"></i>
+                  </label>
+                </div>
+
+                
+                
+
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="panel">
+
+                <label>Estado</label>
+                <div class="form-group admin-form">
+                  <label class=" select">
+                    <select class="form-control" data-bind="value:filtro_actaVO.estado_id">
+                      <option value="">[Seleccione...]</option>
+                      {% for item in estados %}
+                        <option value="{{ item.id }}">{{ item.nombre }}</option>
+                      {% endfor %}
+                    </select><i class="arrow"></i>
+                  </label>
+                </div>
+
+                <div class="form-group">
+                  <label>Desde</label>
+                  <div class="input-group date">
+
+                    <input class="form-control" id="desde_filtro" name="desde_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:filtro_actaVO.desde,datePicker:filtro_actaVO.desde" onkeypress="return false">
+                    <label for="fecha_desde" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                    </label>
+
+                  </div>   
+                </div>
+
+                <div class="form-group">
+                  <label>Hasta</label>
+                  <div class="input-group date">
+
+                    <input class="form-control" id="hasta_filtro" name="hasta_filtro" type="text" placeholder="Seleccione la fecha" data-bind="value:filtro_actaVO.hasta,datePicker:filtro_actaVO.hasta" onkeypress="return false">
+                    <label for="fecha_hasta" class="input-group-addon cursor"><i class="fa fa-calendar"></i>
+                    </label>
+
+                  </div>   
+                </div>
+
+
+              </div>
+            </div>
+
+
+          </div>
+
+          <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+             <!--  <button type="button" class="btn btn-primary">  --> 
+                <i class="fa fa-search"></i> Filtrar
+              </button>
+          </div>
+
+        </div>
+      </div>
+</div>
+
+
+<input type="hidden" id="acta_id" value="">
+
+{% endblock contenido %}
+
+{% load static %}
+
+{% block imports %}
+<script src="{% static 'assets/js/main.js' %}"></script>
+<script src="{% static 'vendor/plugins/c3charts/d3.min.js' %}"></script>
+<script src="{% static 'vendor/plugins/c3charts/c3.min.js' %}"></script> 
+<script src='{% static "js/plugins/highcharts/highcharts.js" %}'></script>
+<script src='{% static "assets/js/demo/charts/highcharts.js" %}'></script>
+<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+<script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/jquery-ui-datepicker.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'>
+</script>
+
+<script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+<script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  
+<!-- Typeahead Plugin  -->
+<script type="text/javascript" src='{% static "js/ViewModels/acta_reunion/acta.js" %}?v=5'></script>
+
+
+{% endblock imports %}        

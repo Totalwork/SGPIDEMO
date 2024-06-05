@@ -1,0 +1,184 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Comparar{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'control_cambios.index' %}">Control de cambios</a></li>
+  <li><a href="{% url 'control_cambios.cambio_obra' %}">UUCC Proyectos</a></li>
+  <li><a href="{% url 'control_cambios.administrar_uucc' id_proyecto %}">Administrar cambios</a></li>
+  <li class="active">Comparar</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+
+<li>
+  <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+    <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+  </a>
+</li>
+
+{% endblock opciones_listado %}     
+
+{% block contenido %}
+
+  <div class="row">
+    <div class="col-lg-12">
+
+      <strong>Macro contrato : </strong>
+        <span  data-bind="cutWord:{num:35,text:'{{proyecto.mcontrato.nombre}}', verMax:'...', verMin:'...'}" ></span><br>   
+      <strong>Contratista : </strong><span>{{proyecto.contrato.first.contratista.nombre}}</span><br>
+      <strong>Departamento : </strong><span>{{proyecto.municipio.departamento.nombre}}</span><br>
+      <strong>Municipio : </strong><span>{{proyecto.municipio.nombre}}</span><br>
+      <strong>Proyecto : </strong>
+        <span  data-bind="cutWord:{num:50,text:'{{proyecto.nombre}}', verMax:'...', verMin:'...'}" ></span><br>
+    </div>
+  </div><br><br>
+
+
+  <div class="row" >
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Listado de control de cambios de unidades constructivas</span>
+
+            </div>
+
+            <div class="panel-body" >
+
+                <div data-bind="html: mensaje"></div>
+                <div class="table-responsive">
+
+                  <table class="table" >
+                    <thead>
+                      <tr data-bind="foreach:{data:listado_encabezado, as:'col'}">                        
+                        <th style="width:20%" data-bind="text: col.replace('_', ' ')"></th>
+                      </tr>
+                  </thead>
+                  <tbody">
+                      <tr data-bind="foreach:{data:$root.lista_soporte, as:'col'}">
+                        <!-- ko if: $index()==0 -->
+                           <td style="width:20%">Soporte</td>
+                        <!-- /ko -->
+
+                        <!-- ko if: $index()>0 &&  col.valida==1 -->
+                           <td style="width:20%">
+                              <a href="" data-bind="click:function(){$root.soporte_cambio(col.id, col.motivo);}">
+                                        <i class="fa fa-paperclip fa-2x"></i>
+                             </a>
+                           </td>
+                        <!-- /ko -->
+
+                         <!-- ko if: $index()>0 &&  col.valida!=1 -->
+                           <td>
+                                       
+                           </td>
+                        <!-- /ko -->
+
+                      </tr>
+                      <!-- ko foreach:{data:listado, as:'item'} -->
+                        <tr>
+                          <!-- ko foreach:{data:$root.listado_encabezado, as:'col'} -->
+                            <td style="width:20%" data-bind="text: item[col]"></td>
+                          <!-- /ko -->
+                        </tr>
+                      <!-- /ko -->
+                  </tbody>
+                  </table>
+                 
+                </div><!--cierra la tabla-->
+
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+  <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+<!--Modal-->
+
+<!--Modal para subir el soporte de la solicitud-->
+
+  <div id="soporte_cambio" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="font-size: 30px;font-weight: bold;"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+        <div class="modal-body">
+
+          <div class="table-responsive"> 
+            <div class="row">
+              <div data-bind="html: mensaje_listado_soportes"></div>
+
+                <div class="col-lg-12" class="table-responsive" data-bind="visible:(listado_soporte()!=null && listado_soporte().length > 0)">
+                  <table class="table"> 
+                    <thead>
+                      <tr> 
+                        <th></th>
+                        <th>Nombre de archivo</th>
+                      </tr>
+                    </thead>
+
+                    <tbody data-bind="foreach:{data:listado_soporte, as:'item'}">
+                      <tr>
+                        <td>
+                          <a data-bind="attr: {href: item.ruta}" target="_blank" style="cursor:pointer;">
+                            <i class="fa fa-paperclip fa-2x"></i>
+                          </a>
+                        </td>
+                           <td data-bind="text: item.nombre"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                </div><!--cierra col-->
+            </div><!--cierra row-->
+          </div><!--cierra class responsive-->
+
+        </div>
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+      <!--Fin del modal-->     
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/control_cambios/comparar.js" %}'></script>
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      comparar.proyecto_id({{id_proyecto}});
+      comparar.consultar();//iniciamos la primera funcion    
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

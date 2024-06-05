@@ -1,0 +1,884 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+<!--   <script async defer src="https://maps.googleapis.com/maps/api/js?sensor=false&key=AIzaSyDP-V_ViyXNNnyrI9T3KyqmLfOMq_YA5I8"></script> -->
+<script type='text/javascript' src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBJIu6W6VBANXP1Tq6mCKhjvupUARUNIuI'></script>
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" type="text/css" href='{% static "assets/skin/default_skin/css/theme.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "assets/skin/default_skin/css/theme2.css" %}'>
+  <link rel="stylesheet" type="text/css" href='{% static "assets/skin/default_skin/css/theme3.css" %}'>
+
+  <!-- Admin Forms CSS -->
+  <link rel="stylesheet" type="text/css" href='{% static "assets/admin-tools/admin-forms/css/admin-forms.css" %}'>
+
+{% endblock imports_css %}
+
+
+{% block encabezado %}
+  <a href="{% url 'avanceObraLite.reporte_trabajo' presupuesto_id   %}" data-placement="right"    
+    data-toggle="tooltip" data-original-title="Regresar al reporte de trabajo">
+    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+  </a>
+  Detalle del Trabajo del dia: {{reporte.fechaTrabajo}}
+{% endblock encabezado %}
+
+
+{% block title %}Avance de Obra{% endblock title%}
+{% block mapa %}
+  &nbsp;&nbsp;&nbsp;
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma' %}">Cronograma</a></li>
+  <li><a href="{% url 'avanceObraLite.cronograma_proyecto' proyecto_id %}">Cronograma de Proyecto</a></li>
+  <li><a href="{% url 'avanceObraLite.presupuesto' cronograma_id %}">presupuesto</a></li>
+  <li><a href="{% url 'avanceObraLite.reporte_trabajo' presupuesto_id %}">Reporte de Trabajo</a></li>
+  <li class="active">Avance de Obra con GPS</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+        
+         <!--ko if: habilitar_reporte()==false --> 
+            <li>
+              <a href="#" data-bind="click:guardar_reporte">
+                  <i class="fa fa-save" style="font-size: 20px;"></i>
+              </a>
+            </li>
+
+             <!--/ko-->
+{% endblock opciones_listado %}
+
+{% block contenido %} 
+
+
+<div class="col-lg-12">
+  
+  
+      <div id="map" class="col-lg-12"  style="border-color:black;border-style: solid;height: 600px;">
+      </div>
+  </div>
+
+  </div>
+
+
+  
+
+</div>
+
+<input type="hidden" id="id_usuario" value="{{user.usuario.id}}" class="form-control" >  
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+<input type="hidden" id="id_presupuesto" value="{{presupuesto_id}}" class="form-control" > 
+<input type="hidden" id="id_cronograma" value="{{cronograma_id}}" class="form-control" > 
+<input type="hidden" id="id_proyecto" value="{{proyecto_id}}" class="form-control" > 
+<input type="hidden" id="reporte_id" value="{{reporte_id}}" class="form-control" > 
+<input type="hidden" id="reporte_cerrado" value="{{reporte.reporteCerrado}}" class="form-control" > 
+<input type="hidden" id="capa_id" value="{{capa_id}}" class="form-control" > 
+
+<input type="hidden" id="sin_poste" value="{{presupuesto.sin_poste}}" class="form-control" > 
+
+
+  <!--Loading-->
+
+  <!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label>Nombre</label>
+            <input type="text" data-bind="value:nodoVO.nombre" class="form-control" >           
+        </div>    
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">Guardar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+  <!--Modal-->
+
+<div id="modal_listado" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+           <div class="row">
+              <div class="col-lg-6">
+                <label>Nombre del Apoyo:</label>
+                <span data-bind="text:nombre_apoyo"></span>
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+          <!--ko if: sin_poste()==false --> 
+          <div class="progress mt10">
+          <div class="progress-bar progress-bar-primary" data-bind="style: { width: porcentaje_total()+'%' },
+                attr: {'aria-valuenow' : porcentaje_total}" role="progressbar2" aria-valuemin="0" aria-valuemax="100"><span data-bind="text:porcentaje_total()+'%'" style="color: #000000"></span></div>
+          </div>
+              <!--/ko--> 
+        <!--Inicio Tabs-->
+        <div class="panel">
+          <div class="panel-heading">
+            <ul class="nav panel-tabs-border panel-tabs panel-tabs-left">
+              <li class="active">
+                <a href="#tab2_1" data-toggle="tab">Unidades constructivas</a>
+              </li>
+              <li>
+                <a href="#tab2_2" data-toggle="tab">Materiales</a>
+              </li>
+              <li>
+                <a href="#tab2_3" data-toggle="tab">Avance en el apoyo</a>
+              </li>
+
+            </ul>
+          </div>
+          <div class="panel-body">
+            <div class="tab-content pn br-n">
+              <div id="tab2_1" class="tab-pane active">
+                <form action="." method="post" enctype="multipart/form-data">
+                {% csrf_token %}      
+                
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                    <tr> 
+                      <th>Codigo UUCC</th>
+                      <th>Descripcion UUCC</th>
+                      <th>Cantidad a Ejecutar</th>
+                      <th>Cantidad ejecutada</th>
+                      <th>Cantidad a reportar</th>
+                      
+                    </tr>
+                  </thead>
+
+                    <tbody data-bind="foreach:{data:listado_detalles, as:'item'}">
+                    <tr>
+                      <td data-bind="text: item.codigoUC"></td>
+                      <td data-bind="text: item.descripcionUC"></td>
+                      <td data-bind="text: item.cantidad"></td>
+                      <td data-bind="text: item.cantidad_ejecutada"></td>
+                     
+                      <td>
+                        <div data-bind="if: item.editable">
+                          <input type="text" data-bind="value:item.cantidad_registrar" class="form-control" style="width: 45px">
+                        </div>
+                        <div data-bind="ifnot: item.editable">
+                          <i class="fa fa-check" style="color:green;"></i>Terminada
+                        </div>
+                        
+                        
+                      </td>
+                       
+                    </tr>
+                  </tbody>
+
+                </table>
+                </div>
+     
+                </form>
+              </div>
+              <div id="tab2_2" class="tab-pane">
+                <div class="row">
+                  <div class="col-md-10">
+                    <div data-bind="html: mensajeMateriales"></div> 
+                    <div class="table-responsive" data-bind="visible:(listadoMat_detalle()!=null && listadoMat_detalle().length > 0)">
+                      <h4>Listado de materiales</h4>
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Codigo</th>
+                            <th>Descripción</th>
+                            <th>Cantidad a ejecutar</th>
+                            <th>Cantidad ejecutada</th>
+                          </tr>
+                        </thead>
+                        <tbody data-bind="foreach:{data:listadoMat_detalle, as:'item'}">
+                          <td data-bind="text: item.codigo"></td>
+                          <td data-bind="text: item.descripcion"></td>
+                          <td data-bind="text: item.cantidad"></td>
+                          <td data-bind="text: item.cantidad_ejecutada"></td>
+                        </tbody>
+                      </table>
+                    </div>                    
+                  </div>
+                </div>
+
+              </div>
+              <div id="tab2_3" class="tab-pane">                    
+                  <div data-bind="foreach:{data:listadoPorcentajes, as:'item'}">
+                    <div >
+                      <div class="col-md-3 text-center">
+                        <div class="info-circle" style="width: 100%;" data-bind="attr:{'id':'c'+item.id ,'title':item.actividad, value:item.porcentaje}" data-circle-color="primary">
+                        </div>
+                      </div>
+                    </div>
+                    
+                  </div>
+
+                
+              </div>
+
+            </div>
+          </div>
+        </div>
+        <!--Fin Tabs-->
+    </div>
+                <div class="modal-footer">
+
+                  <button type="button" class="btn btn-primary" data-bind="click:guardar_cambio_cantidades">Guardar</button>
+                </div> 
+  </div>
+</div>
+</div>
+  
+  <!--Modal-->
+
+<div id="modal_tendido" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+         <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Origen</label>
+              </div>
+              <div class="col-lg-2">
+                <span data-bind="text:nombre_nodo_origen"></span>
+              </div>
+        </div>
+
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Destino</label>
+              </div>
+        </div>
+
+        <div class="row">           
+
+              <div class="col-lg-6">
+                    <select class="form-control" data-bind="value:apoyoVO.nodoDestino_id">
+                              <option value="">[Seleccione..]</option>
+                               <!-- ko foreach: listado_apoyos -->
+                                <option data-bind="value:id,text:nombre"></option>
+                              <!-- /ko -->    
+                    </select>    
+              </div>
+        </div>
+        <br>        
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th></th>
+              <th>Hito</th>
+              <th>Actividad</th>              
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+            </tr>
+
+            <tbody data-bind="foreach:{data:listado_nodos, as:'item'}">
+            <tr>
+              <td> 
+                <input type="radio" id="si" data-bind="checked:$parent.apoyoVO.detallepresupuesto_id,value:item.id" name="bdi">
+              </td>
+              <td data-bind="text: item.nombre_padre"></td>
+              <td data-bind="text: item.actividad.nombre"></td>
+              <td data-bind="text: item.codigoUC"></td>
+              <td data-bind="text: item.descripcionUC"></td>
+            </tr>
+          </tbody>
+
+          </thead>
+        </table>
+        </div>
+        <br>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:crear_tendido">Crear</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+ 
+
+  
+
+<div id="modal_detalle_tendido" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+
+        <div class="row">
+              <div class="col-lg-2">
+                <label>Apoyo Origen</label>
+              </div>
+              <div class="col-lg-2">
+                <span data-bind="text:nombre_nodo_origen"></span>
+              </div>
+        </div>
+
+        <br>
+
+          <!--ko if: habilitar_reporte()==false --> 
+        <div class="row">
+              <div class="col-lg-2">
+               <div class="btn-group text-right">
+                   <a href="#" data-bind="click:eliminar_tendidos"><i class="fa fa-trash fa-2x" >
+                      </i></a>
+                  </div>
+              </div>
+        </div>
+          <!--/ko-->    
+
+        <br>
+           <div data-bind="html: mensaje_tendidos"></div>   
+          <div class="table-responsive" data-bind="visible:(listado_tendidos()!=null && listado_tendidos().length > 0)">
+            <table class="table">
+              <thead>
+            <tr> 
+              <th> <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:checkall_tendido">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </th>
+              <th>Apoyo Destino</th>              
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+            </tr>
+
+            <tbody data-bind="foreach:{data:listado_tendidos, as:'item'}">
+            <tr>
+              <td> 
+                 <div class="option-group field admin-form">
+                  <label class="option option-primary"  style="">
+                    <input type="checkbox" data-bind="checked:eliminado,value:id">
+                    <span class="checkbox"></span>
+                  </label>
+                </div>
+              </td>
+              <td data-bind="text: item.nodoDestino.nombre"></td>
+              <td data-bind="text: item.detallepresupuesto.codigoUC"></td>
+              <td data-bind="text: item.detallepresupuesto.descripcionUC"></td>
+            </tr>
+          </tbody>
+
+          </thead>
+        </table>
+        </div>
+        <br>
+
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+        </div>      
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+
+
+ <!--Modal-->
+
+<div id="modal_detalle_cambio" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+        <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+           <div class="row">
+              <div class="col-lg-6">
+                <label>Nombre del Apoyo:</label>
+                <span data-bind="text:nombre_apoyo"></span>
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="col-lg-6">
+               <strong>Detalle del Trabajo del dia:</strong> {{reporte.fechaTrabajo}} <br><br>
+              </div>
+          </div>
+          <br><br>
+        
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+            <tr>
+              <th>Hito</th> 
+              <th>Actividad</th> 
+              <th>Codigo UUCC</th>
+              <th>Descripcion UUCC</th>
+              <th>Fecha</th>
+              <th>Cantidad Reportada</th>
+            </tr>
+          </thead>
+
+            <tbody data-bind="foreach:{data:listado_cambios, as:'item'}">
+            <tr>
+              <td data-bind="text: item.detallepresupuesto.nombre_padre"></td>
+              <td data-bind="text: item.detallepresupuesto.actividad.nombre"></td>
+              <td data-bind="text: item.detallepresupuesto.codigoUC"></td>
+              <td data-bind="text: item.detallepresupuesto.descripcionUC"></td>
+              <td>{{reporte.fechaTrabajo}} </td>
+             
+              <td>
+                    <input type="text" data-bind="value:item.cantidadEjecutada" class="form-control" >  
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+        </div>
+
+         <!--ko if: habilitar_reporte()==false --> 
+        <div class="modal-footer">
+
+          <button type="button" class="btn btn-primary" data-bind="click:guardar_detalle_cambio">Guardar</button>
+        </div>  
+         <!--/ko-->    
+        </form>
+    </div>
+  </div>
+</div>
+</div>
+
+<!--Modal: No conformidad-->
+<div id="modal_noconformidad" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:tituloNoconformidadNodo'></h4>
+      </div>
+       <div class="modal-body">
+          <div id="divNuevaNuevaNoconformidad" style="cursor:pointer;">
+            <a onclick="nuevaNoconformidad()"><i class="fa fa-plus-circle fa-2x"></i></a>
+          </div>          
+          <div data-bind="html: $root.mensajeNoconformidadsNodo"></div>          
+              <div class="table-responsive" data-bind="visible:($root.listadoNoconformidadNodo()!=null && $root.listadoNoconformidadNodo().length > 0), dropdown">
+                    <i class="text-success fa fa-bell" style="font-size:16px"></i>
+                    &nbsp;:&nbsp;[Corregida];
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+
+                    <i class="text-danger fa fa-bell" style="font-size:16px"></i>
+                    &nbsp;:&nbsp;[Sin Corregir];
+                    <br>
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th style="width: 5%;">No.</th>
+                          <th style="width: 35%;">Descripcion</th>
+                          <th style="width: 10%;">Fecha levantamiento</th>
+                          <th style="width: 15%;">Detectada</th>
+                          <th style="width: 13%;">Tipo</th>
+                          <th style="width: 13%;">Valoración</th>
+                          <!-- <th>Descripción</th> -->
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <!--ko foreach:{ data: $root.listadoNoconformidadNodo, as:'item'} -->
+                          <tr data-bind="css:item.estado.color">              
+                            <td data-bind="text:item.id"></td>
+                            <!--ko if:item.estado.id=='107'-->
+                              <td data-bind="cutWord:{num:60,text:item.descripcion_no_corregida} "></td>
+                            <!--/ko-->
+
+                            <!--ko if:item.estado.id=='108'-->
+                              <td data-bind="cutWord:{num:60,text:item.descripcion_corregida} "></td>
+                            <!--/ko-->
+
+                            <td data-bind="text: item.fecha_no_corregida"></td>
+                             <td data-bind="text: item.detectada.persona.nombres +' '+ item.detectada.persona.apellidos"></td> 
+                             <td data-bind="text: item?.tipo?.nombre"></td>
+                             <td data-bind="text: item?.valoracion?.nombre"></td>
+                             <td >
+                                <div class="btn-group text-right">
+                                  <!--ko if:item.estado.id=='107'-->
+                                    <a href="#" data-bind="click: function(){$root.ver_examinar_noconformidad(item.proyecto.id,item.estructura,item.descripcion_no_corregida,item.proyecto.nombre)}" target="_blank"
+                                      style="cursor:pointer;">
+                                      <i class="fa fa-eye text-primary fa-lg pr10"></i> 
+                                    </a>
+                                  <!--/ko-->
+
+                                  <!--ko if:item.estado.id=='108'-->
+                                    <a href="#" data-bind="click: function(){$root.ver_examinar_noconformidad(item.proyecto.id,item.estructura,item.descripcion_corregida,item.proyecto.nombre)}" target="_blank"
+                                      style="cursor:pointer;">
+                                      <i class="fa fa-eye text-primary fa-lg pr10"></i> 
+                                    </a>
+                                  <!--/ko-->
+                                  
+
+
+                                </div>
+                             </td>                        
+                          </tr>
+                        <!--/ko-->
+                      </tbody>
+                    </table>
+                    <div id="paginacion_noconformidad" >
+                      <div data-bind="paginacion_noconformidad: {
+                               currentPage: paginacion_noconformidad.pagina_actual,
+                               totalCount: paginacion_noconformidad.total,
+                               pageSize:paginacion_noconformidad.cantidad_por_paginas,
+                               maxPages: paginacion_noconformidad.maxPaginas,
+                               directions: paginacion_noconformidad.direcciones,
+                               boundary: paginacion_noconformidad.limite,
+                               text: paginacion_noconformidad.text }">
+                      </div>
+                    </div>
+                  </div>     
+            
+    
+           
+        </div>
+    </div>
+  </div>
+</div>
+<!--Fin modal No conformidad-->
+
+
+<!--Inicio Modal - Guardar No_Conformidad -->
+<div id="divNuevaNoconformidad" style="overflow:auto;" data-backdrop="static" data-keyboard="false" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:$root.no_conformidad_titulo'></h4>
+      </div>
+      <div class="modal-body">
+        
+        <div class="row">
+          <div class="col-md-6">
+
+            <label>(*) Levantado por:</label>
+            <div class="input-group">
+              <input class="form-control" data-bind="value:nom_usuario" placeholder="Buscar el usuario" type="text" disabled="">
+              <span class="input-group-addon" data-bind="click:$root.abrir_modal_usuario" style="cursor: pointer;">
+                <i class="fa fa-binoculars"></i>
+              </span>
+              <input class="form-control" data-bind='value:$root.noconformidadNodoVO.detectada_id' type="hidden">
+            </div><br/>
+
+            <div class="form-group">
+              <label>(*) Fecha Levantamiento:</label>
+              <input class="form-control" data-bind='datePicker:$root.noconformidadNodoVO.fecha_no_corregida,value:$root.noconformidadNodoVO.fecha_no_corregida' type="text">
+            </div>
+
+            <div class="form-group">
+              <label>(*)Tipo</label>
+              <div class="form-group admin-form">
+                <label class=" select">
+                  <select class="form-control" data-bind="value:$root.noconformidadNodoVO.tipo_id">
+                    <option value="0">[Seleccione...]</option>
+                    {% for item in tipos%}
+                      <option value="{{ item.id }}">{{ item.nombre }}</option>
+                    {% endfor %}
+                  </select><i class="arrow"></i>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>(*) Valoración</label>
+              <div class="form-group admin-form">
+                <label class=" select">
+                  <select class="form-control" data-bind="value:$root.noconformidadNodoVO.valoracion_id">
+                    <option value="0">[Seleccione...]</option>
+                    {% for item in valoraciones%}
+                      <option value="{{ item.id }}">{{ item.nombre }}</option>
+                    {% endfor %}
+                  </select><i class="arrow"></i>
+                </label>
+              </div>
+            </div>
+
+
+            <div class="form-group">
+              <label>(*) Descripción sin corregir:</label>
+              <textarea class="form-control textarea-grow" data-bind='value:$root.noconformidadNodoVO.descripcion_no_corregida' rows="4"></textarea>
+            </div>
+
+
+          </div>
+          <div class="col-md-6">
+
+            <div class="form-group">
+              <label>(*) Foto sin corregir 1:</label>
+              <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:$root.noconformidadNodoVO.foto_no_corregida,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+            </div>
+
+            <div class="form-group">
+              <label>Foto sin corregir 2:</label>
+              <input type="file" class="note-image-input" id="archivo2" name="archivo2" data-bind="fileData:{value:$root.noconformidadNodoVO.foto_no_corregida2,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+            </div>
+
+            <div class="form-group">
+              <label>Foto sin corregir 3:</label>
+              <input type="file" class="note-image-input" id="archivo3" name="archivo3" data-bind="fileData:{value:$root.noconformidadNodoVO.foto_no_corregida3,allowedFileExtensions: ['jpg','JPG'],elErrorContainer: '#errorBlock', removeLabel:''}"/>
+            </div>
+
+            <div class="form-group">
+              <label>Primer Correo:</label>
+              <input class="form-control" data-bind='datePicker:$root.noconformidadNodoVO.primer_correo,value:$root.noconformidadNodoVO.primer_correo' type="text">
+            </div>
+
+            <div class="form-group">
+              <label>Segundo Correo:</label>
+              <input class="form-control" data-bind='datePicker:$root.noconformidadNodoVO.segundo_correo,value:$root.noconformidadNodoVO.segundo_correo' type="text">
+            </div>
+
+            <div class="form-group">
+              <label>Tercer Correo:</label>
+              <input class="form-control" data-bind='datePicker:$root.noconformidadNodoVO.tercer_correo,value:$root.noconformidadNodoVO.tercer_correo' type="text">
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:$root.guardar_noconformidad">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--Fin Modal - Guardar No_Conformidad -->
+
+<!--Inicio Modal Buscar Usuario-->
+<div id="modal_usuario" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel">Buscar Usuario</h4>
+      </div>
+      <div class="modal-body">
+
+        <div data-bind="html: mensaje_usuario"></div>
+
+        <label>(*) Empresa:</label>
+        <div class="form-group admin-form">
+          <label class=" select">
+            <select class="form-control" data-bind="value:id_empresa">
+              <option value="0">[Seleccione...]</option>
+              <!--ko foreach:{ data:listado_empresa_contratante, as:'item'} -->
+                <option data-bind="value:item.empresa_ver.id,text:item.empresa_ver.nombre"></option>
+              <!--/ko-->
+            </select><i class="arrow"></i>
+          </label>
+        </div>
+        <!-- <label>(*)Proyecto</label> -->
+        <div class="input-group">
+          <input id="id_nombre_usuario" class="form-control" data-bind="value:$root.nombre_usuario, event:{keypress: $root.consulta_enter_usuario}" placeholder="Nombre Usuario" type="text">
+          <span class="input-group-addon" data-bind="click:listar_usuario" style="cursor: pointer;">
+            <i class="fa fa-search"></i>
+          </span>
+          <!-- <input class="form-control" data-bind='value:cesionVO.contrato_id' type="hidden"> -->
+        </div><br/>
+
+        <label data-bind="visible: ver_usuario">(*) Usuario:</label>
+        <div class="form-group admin-form" data-bind="visible: ver_usuario">
+          <label class=" select">
+            <select class="form-control" data-bind="value:id_detectada" id="nom_usuario">
+              <option value="0">[Seleccione...]</option>
+              <!--ko foreach:{ data:list_usuario, as:'item'} -->
+                <option data-bind="value:item.id,text:item.persona.nombres+' '+item.persona.apellidos"></option>
+              <!--/ko-->
+            </select><i class="arrow"></i>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bind="click:function(){agregar_usuario();}">Seleccionar</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!--Fin Modal Buscar funcionario-->
+
+<!--Modal: fotos-->
+<div id="modal_fotos" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:tituloFotosNodo'></h4>
+      </div>
+       <div class="modal-body">
+          <div id="divNuevaFoto" style="cursor:pointer;">
+            <a onclick="nuevaFoto()"><i class="fa fa-plus-circle fa-2x"></i></a>
+          </div>
+          <div id="divOcultarFoto" style="display: None;cursor:pointer;">
+            <a onclick="ocultarNuevaFoto()"><i class="fa fa-minus-circle fa-2x"></i></a>
+          </div>
+          <div class="row">
+            <div id="nuevaFoto" class="col-lg-6" 
+            style="display: None;border-style: solid;border-color:#D1CAC5;">
+              <form action="." method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">          
+                <label>(*)Foto:</label>
+                 <input type="file" class="note-image-input" id="archivo" name="archivo"  
+                 multiple data-bind="fileData:{value:fotoNodoVO.ruta,allowedFileExtensions: ['png','jpg','jpge'],elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+                 <input type="hidden" data-bind="value:fotoNodoVO.ruta">
+                </div>
+                <div class="form-group">
+                  <label>(*)Fecha:</label>
+                  <div class="input-group date">
+                    <input class="form-control" type="text" placeholder="Seleccione la fecha"
+                    data-bind="datePicker:fotoNodoVO.fecha,value:fotoNodoVO.fecha, 
+                    dateTimePickerOptions:{maxDate:new Date()}" onkeypress="return false">
+                    <label for="fecha" class="input-group-addon cursor">
+                      <i class="fa fa-calendar"></i>
+                    </label>
+                  </div>   
+                </div>
+                <div class="form-group">
+                  <label>Comentario</label>
+                  <textarea rows="3" data-bind="value:fotoNodoVO.comentario" class="form-control" placeholder="Dígite el comentario"></textarea>
+                </div>
+                <div class="form-group">
+                  <button type="button" class="btn btn-primary" data-bind="click:guardarFoto">
+                    <i class="fa fa-floppy-o"></i> Guardar
+                  </button>
+                </div>
+
+              </form>
+            </div>
+
+          </div>
+          <br/>
+          <div data-bind="html: mensajeFotosNodo"></div>
+          <div data-bind="visible:(listadoFotosNodo()!=null && listadoFotosNodo().length>0)">
+            <div class="row">           
+              <div data-bind="foreach:{data:listadoFotosNodo, as:'item'}">
+                <div class="col-md-4 text-center">
+                    
+                      <div class="col-md-12 ">
+                        
+                          <img data-bind='attr:{src:item.foto_publica}' height="150" width="150">
+                   
+                   
+                      <div class="col-md-12">
+                        <a data-bind="click: $root.ver_soporte" target="_blank" style="cursor:pointer;">
+                          <i class="fa fa-search-plus fa-2x"></i>
+                        </a>
+                        <span data-bind="text: 'Fecha : ' + item.fecha"></span>
+                      </div>
+                      <div class="col-md-12" data-bind="ifnot: item.comentario == ''">
+                        <span data-bind="text: 'Comentario: ' + item.comentario"></span>
+                      </div>
+                      <div class="col-md-12" data-bind="if: item.comentario == ''">
+                        <span data-bind="text: 'Comentario: Ningun comentario'"></span>
+                      </div>
+                      <div class="col-md-12">
+                        <a data-bind="click: $root.eliminarFoto" style="cursor:pointer;">
+                          <i class="fa fa-trash fa-2x"></i>
+                        </a>
+
+                      </div>
+                    
+                  </div>
+         
+                
+                </div>        
+            </div>
+          </div>
+          <div id="paginacion" class="row">
+            <div data-bind="pagination: {
+                                    currentPage: paginacion.pagina_actual,
+                                    totalCount: paginacion.total,
+                                    pageSize:paginacion.cantidad_por_paginas,
+                                    maxPages: paginacion.maxPaginas,
+                                    directions: paginacion.direcciones,
+                                    boundary: paginacion.limite,
+                                    text: paginacion.text }">
+
+            </div>
+          </div> 
+        </div>
+    </div>
+  </div>
+</div>
+<!--Fin modal Fotos-->
+
+
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script src='{% static "vendor/plugins/sparkline/jquery.sparkline.min.js" %}'></script>  
+    <!-- Charts JS -->
+  <script src='{% static "vendor/plugins/circles/circles.js" %}'></script>
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+    
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/avance_con_gps.js" %}?v=3.1'></script> 
+{% endblock imports %}

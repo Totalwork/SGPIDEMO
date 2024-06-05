@@ -1,0 +1,350 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Factura vencida{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li><a href="{% url 'seguimiento_factura.index' %}">Seguimiento factura</a></li>
+  <li class="active">Facturas con fecha de contabilizacion</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+  <div class="row">
+    <div class="col-lg-5">
+
+
+    </div>
+  </div>
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span>
+              <span>      
+                <a href="{% url 'seguimiento_factura.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>                
+              <span>Listado de facturas</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Carga masiva" style="cursor:pointer;" data-bind="attr:{href:'../carga-masiva/'}">
+                    <i class="fa fa-cloud-upload fa-2x"></i>
+                  </a>
+                </span>
+
+                <!-- <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Habilitar facturas" style="cursor:pointer;" data-bind="attr:{href:'../deshabilitar-testOp/'}">
+                    <i class="fa fa-plus fa-2x"></i>
+                  </a>
+                </span> -->
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Habilitar facturas" style="cursor:pointer;" data-bind="click:habilitar_factura_vencida" >
+                    <i class="fa fa-plus fa-2x"></i>
+                  </a>
+                </span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Deshabilitar factura" data-bind="click:desabilitar_factura_vencida" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-thumbs-down fa-2x"></i>
+                  </a>
+                </span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar facturas vencidas" data-bind="click:filtrar_facturas_vencidas_modal" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+            </div>
+
+            <div class="panel-body">
+
+              <div data-bind="html: mensaje"></div>
+
+              <div class="table-responsive" data-bind="visible:(listado_factura_vencidas()!=null && listado_factura_vencidas().length > 0)">
+
+                <div class="col-lg-12">
+                  <i class="fa fa-check-circle-o fa-2x text-success" aria-hidden="true"  ></i>
+                  : [Habilitada para pago];&nbsp;&nbsp;&nbsp;&nbsp;
+                  <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                  : [En proceso];  
+                </div>
+
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:4%">
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:checkall">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div> 
+                        </th>
+                        <th style="width: 6%;">Doc</th>
+                          <th style="width:13%">Radicado</th>
+                          <th style="width: 10%;">N° Factura</th>
+                          <th style="width:12%">Nit</th>
+                          <th style="width:12%">Cod.Acreedor</th>
+                          <th style="width:15%">Nombre.Acreedor</th>
+                          <th style="width:15%">F. vencimiento</th>
+                          <th style="width:15%">Valor factura</th>
+                          <th style="width:15%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado_factura_vencidas, as:'item'}">
+
+                    <tr>
+
+                      <td>
+                        <!--ko if:(item.estado.id==52)--> 
+                        <div class="option-group field admin-form">
+                          <label class="option option-primary"  style="">
+                            <input type="checkbox" data-bind="checked:eliminado">
+                            <span class="checkbox"></span>
+                          </label>
+                        </div> 
+                        <!-- /ko -->
+                      </td>
+                      <td>
+                        <a data-bind="attr: {href: '/factura/ver-soporte/?id=' + item.id}" target="_blank" style="cursor:pointer;">
+                          <i class="fa fa-file-text-o fa-2x"></i>
+                        </a>
+                      </td>
+                      <td data-bind="text: item.radicado"></td>
+                        <td data-bind="text: item.numero"></td>
+                        <td data-bind="text: item.contrato.contratista.nit"></td>
+                        <td data-bind="text: item.contrato.contratista.codigo_acreedor"></td>
+                        <td data-bind="text: item.contrato.contratista.nombre"></td> 
+                        <td data-bind="text: item.fecha_vencimiento"></td>
+                        <td data-bind="text: formatMoney(item.valor_factura)"></td>
+                        <td>
+                          <!--ko if: item.orden_pago--> 
+                            <i class="fa fa-check-circle-o fa-2x text-success" aria-hidden="true"  ></i>
+                          <!-- /ko -->
+                          <!--ko ifnot: item.orden_pago--> 
+                            <i class="fa fa-check-circle-o fa-2x" aria-hidden="true"></i>
+                          <!-- /ko --> 
+                        </td>               
+                        
+
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+               
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+  <!--Modal para filtrar facturas vencidas-->
+  <div id="modal_factura_vencida" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true" style="font-size: 30px;font-weight: bold;">&times;</span></button>
+          
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+
+        </div>
+        <div class="modal-body">
+
+          <div class="form-group">
+          <label>M-Contrato:</label>
+          <select class="form-control" data-bind="value:filtro_factura.mcontrato">
+            <option value="">[Seleccione...]</option>
+            {% for item in mcontratos %}
+              <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+          <div class="form-group">
+          <label>Tipo de Contrato:</label>
+          <select class="form-control" data-bind="value:filtro_factura.tipo">
+            <option value="">[Seleccione...]</option>
+            {% for item in tipos %}
+              <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+       
+
+        <label>Contratista:</label>
+        <div class="input-group">
+          <input class="form-control" id="contratista_nom" data-bind='value:filtro_factura.contratista_nom, event:{keypress: $root.consulta_enter_filtro}' placeholder="Buscar el Contratista" type="text">
+          <span class="input-group-addon" data-bind="click:empresa" style="cursor: pointer;">
+            <i class="fa fa-search"></i>
+          </span>
+        </div>
+        <div class="form-group">
+          <select class="form-control" data-bind="value:filtro_factura.contratista">
+            <option value="">[Seleccione...]</option>
+            <!--ko foreach:{ data:filtro_factura.contratista_lista, as:'item'} -->
+              <option data-bind="value:item.id,text:item.nombre"></option>
+            <!--/ko-->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>N° Contrato:</label>
+          <input class="form-control" data-bind='value:filtro_factura.numero_c' type="text">
+        </div>
+
+        <div class="form-group" >
+          <label>N° Factura</label>
+          <input class="form-control" data-bind='value:filtro_factura.numero_f' type="text">
+        </div>                      
+
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+            <i class="fa fa-search"></i> Filtrar
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+  <!--Fin del modal de factura vencidas-->
+
+
+  <!--informe generar factura habilitada-->
+
+  <div id="generar_informe" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+         <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+        </div>
+         <div class="modal-body">
+
+                  <div class="form-group">
+          <label>M-Contrato:</label>
+          <select class="form-control" data-bind="value:filtro_factura.mcontrato">
+            <option value="">[Seleccione...]</option>
+            {% for item in mcontratos %}
+              <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+          <div class="form-group">
+          <label>Tipo de Contrato:</label>
+          <select class="form-control" data-bind="value:filtro_factura.tipo">
+            <option value="">[Seleccione...]</option>
+            {% for item in tipos %}
+              <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+       
+
+        <label>Contratista:</label>
+        <div class="input-group">
+          <input class="form-control" id="contratista_nom" data-bind='value:filtro_factura.contratista_nom, event:{keypress: $root.consulta_enter_filtro}' placeholder="Buscar el Contratista" type="text">
+          <span class="input-group-addon" data-bind="click:empresa" style="cursor: pointer;">
+            <i class="fa fa-search"></i>
+          </span>
+        </div>
+        <div class="form-group">
+          <select class="form-control" data-bind="value:filtro_factura.contratista">
+            <option value="">[Seleccione...]</option>
+            <!--ko foreach:{ data:filtro_factura.contratista_lista, as:'item'} -->
+              <option data-bind="value:item.id,text:item.nombre"></option>
+            <!--/ko-->
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>N° Contrato:</label>
+          <input class="form-control" data-bind='value:filtro_factura.numero_c' type="text">
+        </div>
+
+        <div class="form-group" >
+          <label>N° Factura</label>
+          <input class="form-control" data-bind='value:filtro_factura.numero_f' type="text">
+        </div>                      
+
+
+         </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:exportar_excel_factura_habilitada">
+              <i class="fa fa-print"></i> Exportar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!--informe generar factura habilitada-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/factura_habilitadas.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      //movimiento.movimiento_cuentaVO.cuenta_id({{id_cuenta}});
+      //seguimiento_factura.consultar(1);//iniciamos la primera funcion
+      $('#txtBuscar').val(sessionStorage.getItem("dato_seguimiento_habilitar"));
+      seguimiento_factura.cargar(1);//iniciamos la primera funcion
+
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

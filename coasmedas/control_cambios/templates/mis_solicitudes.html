@@ -1,0 +1,133 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+
+{% endblock imports_css %}
+
+{% block title %}Mis Solicitudes{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'control_cambios.index' %}">Control de cambios</a></li>
+  <li class="active">Mis solicitudes</li>
+{% endblock mapa %}
+
+
+{% block opciones_listado %}
+
+{% endblock opciones_listado %}     
+
+{% block contenido %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span><span>Listado de mis solicitudes</span>
+
+               <span data-bind="text:'- N° de Registos: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+            </div>
+
+            <div class="panel-body" >
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:10%">Macro contrato</th>
+                        <th style="width:10%">Departamento</th>
+                        <th style="width:10%">Proyecto nombre</th>
+                        <th style="width:10%">Nombre cambio</th>
+                        <th style="width:10%">Motivo</th> 
+                        <th style="width:10%">Solicita</th> 
+                        <th style="width:10%">Estado</th> 
+                        <th style="width:10%">Aprueba</th> 
+                        <th style="width:10%">Empresa aprueba</th>  
+                        <th style="width:10%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr> 
+                      <td data-bind="cutWord:{num:25,text:item.proyecto.mcontrato.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.proyecto.municipio.departamento.nombre"></td>
+                      <td data-bind="cutWord:{num:25,text:item.proyecto.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.tipo.nombre+' '+item.numero_cambio"></td>
+                      <td data-bind="text: item.motivo"></td>
+                      <td data-bind="text: item.solicita.nombre"></td>
+                      <td data-bind="text: item.estado_cambio_proyecto"></td>
+                      <td data-bind="text: item.usuario_revisa.persona.nombres+' '+item.usuario_revisa.persona.apellidos"></td>
+                      <td data-bind="text: item.usuario_revisa.empresa.nombre"></td>
+                      <td>
+                          <a href="#" data-bind="attr:{href:'../detalle_solicitud/' + item.proyecto.id +'/'+item.id}">
+                            <i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+                      </td>
+                   
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                 <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div> 
+                </div>
+
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+  <input type="hidden" value="{{user.usuario.empresa.id}}" id="empresa" name="empresa"/>
+<!--Modal-->
+
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/control_cambios/mis_solicitudes.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+
+      mis_solicitudes.usuario_id({{user.usuario.id}});
+      mis_solicitudes.consultar(1);//iniciamos la primera funcion
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

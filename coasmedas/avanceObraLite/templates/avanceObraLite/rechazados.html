@@ -1,0 +1,117 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+  <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block title %}Rechazados{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="{% url 'avanceObraLite.aprobacion' %}">Opciones</a></li>
+  <li class="active">Rechazados</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block contenido %}
+
+
+ 
+
+  <div class="row" >
+
+<div class="col-lg-12">
+  
+     
+  
+  <div class="panel panel-sky" >
+          <div class="panel-heading">
+                <span class="panel-title">
+                  <a href="{% url 'avanceObraLite.aprobacion' %}" data-placement="right"    
+                    data-toggle="tooltip" data-original-title="Regresar">
+                    <i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+                  </a>
+                  Listado de Proyecto con Reporte de Trabajo <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span></span>
+              <!--   <span class="panel-controls"> 
+                        <span class="panel-icon">
+                          <a href="#" data-bind="click:abrir_modal"><i class="fa fa-filter" style="font-size: 20px;"></i></a>
+                        </span>
+                </span> -->
+          </div>
+          <div data-bind="html: mensaje"></div> 
+          <div class="panel-body" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr> 
+               <th>Macrocontrato</th>
+              <th>Departamento</th>
+              <th>Municipio</th>
+              <th>Proyecto</th>
+              <th># Reportes Rechazados</th>
+              <th>Reportes</th>
+            </tr>
+          </thead>
+           <tbody data-bind="foreach:{data:listado, as:'item'}">
+            <tr>
+              <td data-bind="text: item.macrocontrato"></td>
+              <td data-bind="text: item.departamento"></td>
+               <td data-bind="text: item.municipio"></td>
+              <td data-bind="cutWord:{num:100,text:item.proyecto(), verMax:'...', verMin:'...'}" ></td>
+               <td data-bind="text: item.totalRechazados"></td>
+               <td>
+                 <div class="btn-group text-right">
+                   <a href="#" data-bind="click:$root.reporte"><i class="fa fa-book fa-2x" >
+                      </i></a>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        
+          
+        
+           <div id="paginacion" >
+                      <div data-bind="pagination: {
+                                   currentPage: paginacion.pagina_actual,
+                                   totalCount: paginacion.total,
+                                   pageSize:paginacion.cantidad_por_paginas,
+                                   maxPages: paginacion.maxPaginas,
+                                   directions: paginacion.direcciones,
+                                   boundary: paginacion.limite,
+                                   text: paginacion.text }">
+
+                      </div>
+                  </div>
+
+                </div>
+  </div>
+
+  </div>
+
+</div>
+
+
+<input type="hidden" id="id_empresa" value="{{user.usuario.empresa.id}}" class="form-control" >  
+
+
+
+
+  <!--Loading-->
+  
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+    <script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+    <script type="text/javascript" src='{% static "js/ViewModels/avanceObraLite/rechazados.js" %}'></script>
+{% endblock imports %}

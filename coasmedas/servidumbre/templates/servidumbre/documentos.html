@@ -1,0 +1,194 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{% block title %}Documentos{% endblock title %} 
+
+{% block opciones_listado %}
+{% endblock opciones_listado %}
+
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="/servidumbre/graficas">Graficas</a></li>
+  <li><a href="/servidumbre/home">Gestion de servidumbres</a></li>
+  <li><a href="{% url 'servidumbre.predios' id=expediente.id %}">Predios</a></li>
+  <li>Documentos</li>
+{% endblock mapa %}
+
+{% block busqueda %}{% endblock busqueda %}
+
+{% block contenido %}
+	<div class="panel panel-sky" style="padding-bottom: 5%;">
+		<div class="row" >
+			<div class="col-lg-12">
+				<div class="panel-heading">
+					<a href="{% url 'servidumbre.predios' id=expediente.id %}" data-placement="right"  data-toggle="tooltip" data-original-title="Regresar al listado de predios">
+                 		<i class="fa fa-arrow-left" style="font-size: 20px;"></i>
+              		</a>            
+              		<span class="panel-title hidden-xs">Listado de documentos del predio [{{predio.nombre_direccion}}] | Asociado al expediente No. {{expediente.id}}</span>
+				</div>
+			</div>
+		</div>
+		<input type="hidden" id="idExpediente" value="{{expediente.id}}">
+		<input type="hidden" id="idPredio" value="{{predio.id}}">
+		<input type="hidden" id="IdPorcentaje" value="">
+		<div class="row" style="padding-top: 1%;">
+				<div class="panel" >	
+				
+					<div class="form-group col-lg-12">
+				  		<span class="panel-title hidden-xs">
+						       Proyecto : {{expediente.proyecto.nombre}} | Departamento :
+				              {{expediente.proyecto.municipio.departamento.nombre}} | Municipio : 
+				              {{expediente.proyecto.municipio.nombre}} | Contrato/Convenio :
+				                {{expediente.proyecto.mcontrato}}    		
+						</span>
+					</div>
+				</div>
+		</div>
+		<div class="panel" style="padding-right: 10%;padding-left: 10%;">		
+				<div class="row" 
+				style=" height: 60px; 
+						background: #fafafa;
+						border: 1px 
+						solid #e5e5e5;
+    					border-top-right-radius: 1px;
+    					border-top-left-radius: 1px;">
+				
+					<div class="progress-bar progress-bar-success" role="progressbar" aria-valuemin="0" aria-valuemax="100" data-bind="attr:{'valuenow':porcentajeKo} ,style:{width: porcentajeKo() + '%'}">
+						<h2><span data-bind="text:porcentajeKo()+'%'"></span></h2>
+						
+					</div>								
+				</div>      				
+		</div>
+		<div class="panel-body" style="margin-right: 15%;margin-left: 15%;">
+			<div class="row form-group col-lg-12">
+					<table class="table" >
+						<thead >
+							<tr>
+								<th>Nombre del documento</th>
+								<th>Cantidad de archivos</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody data-bind="foreach:{data:listado, as:'item'}">
+							<tr>
+								<td data-bind="text: item.nombre"></td>
+								<td data-bind="text: item.cantidad"></td>
+								<td>
+									<div style="float:left">
+										<a href="#" data-bind="click:$root.abrir_modal" >
+											<i class="fa fa-paperclip fa-2x">
+												
+											</i>
+										</a>                         		                        
+                        			</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+			</div>
+		</div>
+
+	</div>
+
+<!--INICIO DEL MODAL-->
+<div id="modal_archivos" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  	<div class="modal-dialog modal-lg">
+    	<div class="modal-content">
+       		<div class="modal-header">
+        		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        			<span aria-hidden="true">&times;</span>
+        		</button>
+        		<h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      		</div>
+       		<div class="modal-body">
+        		<form action="." method="post" enctype="multipart/form-data">
+        			{% csrf_token %}
+          			<input type="hidden" id="txtPredio" data-bind='value:PredioDocumentoVO.predio_id'>
+          			<input type="hidden" id="txtDocumento"data-bind='value:PredioDocumentoVO.documento_id'>               
+			        <div class="form-group">          
+			            <label>Nombre:</label>
+			            <input type="text" class="form-control" data-bind='value:PredioDocumentoVO.nombre'>
+			        </div>     
+			        <div class="form-group">          
+			            <label>Archivo:</label>
+			            <input type="file" id="soporte" name="soporte" class="note-image-input"  
+			             data-bind="fileData:{value:PredioDocumentoVO.archivo,allowedFileExtensions: ['png','jpg','jpge','pdf','zip','doc','docx','xls','xlsx','msg','ppt','pptx','dwg'],
+			                                     elErrorContainer: '#errorBlock', removeLabel:''}"/> 
+						 <input type="hidden" data-bind="value:PredioDocumentoVO.archivo">
+						 <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png, jpg, jpge, pdf, zip, doc, docx, xls, xlsx, msg, ppt, pptx y dwg. <br></small>                      						 
+			        </div>
+			        {% if estado == 159 %}
+						{% if app in perms %}
+			          		{% if app|add:'.add_'|add:model in perms%}  
+					          	<div class="form-group">
+					            	<button type="button" class="btn btn-primary" data-bind="click:guardarArchivo" >Guardar</button>            
+					          	</div>   
+			                {% endif %}
+			        	{% endif %}
+			        {% endif %}      
+        		</form>      
+        		<div data-bind="html: mensaje"></div>
+        		<div data-bind="visible:(listadoArchivos()!=null && listadoArchivos().length > 0)" style="padding-right: 20%">
+        			<div class="table-responsive" style="width: 80%" align="center">
+            			<table class="table">
+				            <thead>
+				                <tr>
+				                  	<th width="70%">Archivo cargado</th>
+				                  	<th width="30%">Opciones</th>
+				                </tr>
+				            </thead>
+              				<tbody data-bind="foreach:{data:listadoArchivos, as:'item'}">
+                				<tr>
+                  					<td data-bind="text: item.nombre">    
+                  					<td>
+                    					<div class="btn-group text-right">
+                      						<i style="cursor: pointer; color:#4a89dc" class="fa fa-ellipsis-h fa-2x dropdown-toggle" data-toggle="dropdown" aria-expanded="false">    
+                      						</i>
+                      						<ul class="dropdown-menu" role="menu">
+                        						<li>
+                          							<a href="#" data-bind="attr: {href: '/servidumbre/ver-soporte/?id=' + item.id}">Descargar
+                          							</a>                          
+                        						</li>
+                        						{% if estado == 159 %}
+						                          	{% if app in perms %}
+							                            {% if app|add:'.change_'|add:model in perms%}     
+									                        <li>
+									                          <a href="#" data-bind="click:$root.eliminar.bind($data,item.id)">
+									                          Eliminar</a>
+									                        </li>
+								                    	{% endif %}
+						                          	{% endif %}
+						                        {% endif %}
+                      						</ul>
+                    					</div>
+                  					</td>
+                				</tr>
+              				</tbody>          
+            			</table>      
+          			</div>
+        		</div>        
+       		</div>    
+    	</div>
+  	</div>
+</div>
+<!--FIN DEL MODAL-->
+
+
+{% endblock contenido%}
+
+{% block imports %}
+	<script src='{% static "js/plugins/globalize/globalize.min.js" %}'></script>
+    <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  	<!--<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>  	-->
+    <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>  
+    <script type="text/javascript" src='{% static "assets/admin-tools/admin-forms/js/jquery-ui-datepicker.min.js" %}'></script> 
+<script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+	<script type="text/javascript" src='{% static "js/ViewModels/servidumbre/documento.js" %}?cache=2'></script>
+	<script type="text/javascript">
+		$(document).ready(function () {
+		documentoPredio.consultar($("#idPredio").val());	   
+		
+		});  
+	</script>
+{% endblock imports %}

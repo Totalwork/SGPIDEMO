@@ -1,0 +1,678 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Financiero cuenta{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li class="active">Financiero</li>
+  <li class="active">Cuenta</li>
+{% endblock mapa %}
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span>
+              <span>      
+                <a href="{% url 'usuario.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>               
+              <span>Financiero cuentas</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Filtrar cuentas" data-bind="click:filtrar_cuenta" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-filter fa-2x"></i>
+                  </a>
+                </span>
+
+                {% if 'financiero.can_see_financieroEstado' in perms %}
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Actualizar estado" data-bind="click:cambiar_estado" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-exchange fa-2x"></i>
+                  </a>
+                </span>
+                {% endif %}
+
+            </div>
+
+            <div class="panel-body">
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <table class="table" >
+                  <i class="fa fa-bell" style="font-size:16px;color: #F00"></i>
+                  &nbsp;:&nbsp;[Inactivo];
+                  &nbsp;&nbsp;&nbsp;&nbsp;                                    
+                  <i class="fa fa-bell" style="font-size:16px;color: #0F0"></i>
+                  &nbsp;:&nbsp;[Activo];
+                  &nbsp;&nbsp;&nbsp;&nbsp;                     
+                  <thead>
+                      <tr>
+                        <th style="width:1%"></th>
+                        <th style="width:10%">
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:checkall">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>
+                        </th>
+                        <th style="width:26%">Contrato</th>
+                        <th style="width:26%">Nombre</th>
+                        <th style="width:26%">Corte</th>
+                        <th style="width:10%">Saldo</th>
+                        <th style="width:26%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+
+                      <td>
+                        <!--ko if: item.estado.id==87 -->
+                          <i class="fa fa-bell 2x" style="color: #0F0"></i>
+                        <!--/ko -->
+
+                        <!--ko if: item.estado.id==88 -->
+                          <i class="fa fa-bell 2x" style="color: #F00"></i>
+                        <!--/ko -->
+                      </td>
+
+                      <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:eliminado,value:id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div> 
+                      </td> 
+                      <td data-bind="cutWord:{num:38,text:item.contrato.nombre, verMax:'...', verMin:'...'}"></td>
+
+                      <td data-bind="cutWord:{num:38,text:item.nombre, verMax:'...', verMin:'...'}"></td>
+                      <!--ko if: item.fechaCorteMovimientos == 'Sin corte' -->                    
+                        <td style="color: red;" data-bind="text: item.fechaCorteMovimientos"></td>
+                      <!--/ko--> 
+
+                      <!--ko if: item.fechaCorteMovimientos != 'Sin corte' -->
+                        <td data-bind="text: item.fechaCorteMovimientos"></td>
+                      <!--/ko--> 
+                      <td class="text-right" data-bind="text: formatMoney(item.suma_ingreso+item.suma_rendimiento-item.suma_egreso)"></td>
+                      <td>
+
+                          <div class="btn-group text-right">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i class="fa fa-ellipsis-h fa-2x"></i>
+                          </a>
+
+                            <ul class="dropdown-menu" role="menu" style="left:-138px;top:19px">
+
+                              {% if 'financiero.change_financierocuenta' in perms %}
+                              <li data-bind="if: !item.soloLectura">
+                                <a href="#" data-bind="click:$root.consultar_por_id">
+                                 Editar
+                                </a>
+                              </li>
+                              {% endif %}
+
+                              <li>
+                                <a href="#" data-bind="click:$root.ver_mas_cuenta">
+                                   Ver detalle
+                                </a>
+                              </li>
+
+                              {% if 'financiero.can_see_financieroMovimiento' in perms %}
+                              <li data-bind="if: !item.soloLectura">
+                                <a href="#" data-bind="attr:{href:'../cuenta_moviento/' + item.id}">
+                                   Balance de recursos
+                                </a>
+                              </li>
+                              {% endif %}
+
+                              <li data-bind="if: !item.soloLectura">
+                                <a href="#" data-bind="click:$root.modal_extracto">
+                                  Extracto
+                                </a>
+                              </li>
+
+                            </ul>
+                          </div>
+
+                      </td>
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+        <!--ko if: cuentaVO.id()=='' -->
+
+          <div class="form-group">
+            <label>Macrocontrato (*)</label>
+              <select class="form-control" data-bind="value:cuentaVO.contrato_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+          <!--/ko--> 
+
+          <div class="form-group">
+            <label>Número de cuenta (*)</label>
+              <input type="text" data-bind="value:cuentaVO.numero,disable:cuentaVO.id()>0" class="form-control" placeholder="Dígite el número de la cuenta"/>
+          </div>
+
+          <div class="form-group">
+            <label>Nombre de la cuenta (*)</label>
+              <input type="text" data-bind="value:cuentaVO.nombre" class="form-control" placeholder="Dígite el nombre de la cuenta"/>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo (*)</label>
+              <select class="form-control" data-bind="value:cuentaVO.tipo_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_tipo_select, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+              </select>
+          </div>
+
+          <div class="form-group">
+            <label>Valor</label>
+              <input type="text" data-bind="value:cuentaVO.valor.formatted,disable:cuentaVO.id()>0,onlyNumber:cuentaVO.valor" class="form-control" placeholder="Dígite el valor de la cuenta"/>
+          </div>
+
+
+          <div class="form-group">
+            <label>Entidad bancaria</label>
+              <input type="text" data-bind="value:cuentaVO.fiduciaria" class="form-control" placeholder="Dígite la fiduciaria"/>
+          </div>
+
+<!--           <div class="form-group">
+            <label>Nombre del fidecomiso</label>
+              <input type="text" data-bind="value:cuentaVO.nombre_fidecomiso" class="form-control" placeholder="Dígite el nombre del fidecomiso"/>
+          </div> -->
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+
+<!--Modal filtrar las cuentas-->
+
+  <div id="modal_filtro_cuenta" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body">
+
+            <div class="form-group">
+              <label>Macrocontrato</label>
+
+                <select class="form-control" id="mcontrato_filtro" name="mcontrato_filtro" data-bind="value:macrocontrato_select">
+
+                  <option value="0">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+                </select>
+            </div>
+
+            <div class="form-group">
+              <label>Estado</label>
+                <select class="form-control" id="tipo_estado2" name="tipo_estado2" data-bind="value:estado_select">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:lista_estado, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:function(){consultar(1);}">
+              <i class="fa fa-search"></i> Filtrar
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+  <!--Fin del modal de filtro-->
+
+
+
+<!--Modal para generar informe-->
+
+<div id="generar_informe" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Macrocontrato</label>
+              <select class="form-control" id="mcontrato_exportar" name="mcontrato_exportar">
+                <option value="0">[Todos...]</option>
+                  <!--ko foreach:{ data:lista_contrato, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:exportar_excel_cuenta">
+            <i class="fa fa-print"></i> Exportar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Fin del Modal para generar informe-->
+
+<!--modal de ver mas-->
+ <div id="vermas_cuenta" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+        <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+              </div>
+              <div class="modal-body">
+
+                <strong>Nombre contrato : </strong><span data-bind="text:nombre_contrato"></span><br>  
+                <strong>Nombre cuenta : </strong><span data-bind="text:nombre_cuenta"></span><br>
+                <strong>Número cuenta : </strong><span data-bind="text:numero_cuenta"></span><br>
+                <strong>Entidad bancaria : </strong><span data-bind="text:fiduciaria"></span><br>
+                <!-- <strong>Nombre del fidecomiso : </strong><span data-bind="text:nombreFidecomiso"></span><br> -->
+                <strong>Saldo : </strong><span data-bind="text:formatMoney(saldo())"></span><br>
+
+              </div>
+          </div>
+        </div>
+      </div><!--cierra modal_filtro-->  
+
+
+  <!--Modal cambiar estado-->
+
+  <div id="modal_estado" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body"> 
+
+
+            <div class="form-group">
+              <label>Estado</label>
+                <select class="form-control" id="tipo_estado" name="tipo_estado" data-bind="value:estadocuenta">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:lista_estado, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:desabilitar_cuenta">
+              <i class="fa fa-floppy-o"></i>&nbsp; Actualizar estado
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+
+  <!--Modal extracto-->
+
+  <div id="modal_extracto" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body"> 
+
+
+           <form action="." method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+            <div class="row">
+               <div class="col-lg-3">
+
+                  <div class="form-group">
+                       <label>Mes:</label>
+                            <select class="form-control" data-bind="value:extractoVO.mes">
+                                  <option value="0">[Seleccione..]</option>
+                                  <option value="1">Enero</option>
+                                  <option value="2">Febrero</option>
+                                  <option value="3">Marzo</option>
+                                  <option value="4">Abril</option>
+                                  <option value="5">Mayo</option>
+                                  <option value="6">Junio</option>
+                                  <option value="7">Julio</option>
+                                  <option value="8">Agosto</option>
+                                  <option value="9">Septiembre</option>
+                                  <option value="10">Octubre</option>
+                                  <option value="11">Noviembre</option>
+                                  <option value="12">Diciembre</option>
+                            </select>   
+                  </div>
+                 
+               </div>
+
+
+               <div class="col-lg-3">
+
+                  <div class="form-group">
+                       <label>Año:</label>
+                            <select class="form-control" data-bind="value:extractoVO.ano">
+                                  <option value="0">[Seleccione..]</option>
+                                  <option value="2024">2024</option>
+                                  <option value="2023">2023</option>
+                                  <option value="2022">2022</option>
+                                  <option value="2021">2021</option>
+                                  <option value="2020">2020</option>
+                                  <option value="2019">2019</option>
+                                  <option value="2018">2018</option>
+                                  <option value="2017">2017</option>
+                                  <option value="2016">2016</option>
+                                  <option value="2015">2015</option>
+                                  <option value="2014">2014</option>
+                                  <option value="2013">2013</option>
+                                  <option value="2012">2012</option>
+                                  <option value="2011">2011</option>
+                                  <option value="2010">2010</option>
+                                  <option value="2009">2009</option>
+                            </select>   
+                  </div>
+                 
+               </div>
+
+
+                <div class="col-lg-5">
+
+                  <div class="form-group">
+                       <label>Soporte:</label>
+                        <input type="file" class="note-image-input" id="archivo" name="archivo" data-bind="fileData:{value:extractoVO.soporte,allowedFileExtensions: ['png','jpg','jpge','pdf','zip'],
+                                   elErrorContainer: '#errorBlock', removeLabel:''}" />    
+                        <small id="emailHelp" class="form-text text-muted">Tipo de archivo aceptado png, jpg, jpge, pdf y zip.<br></small>
+                  </div>
+                 
+               </div>
+            </div>
+
+            <div class="row">
+
+                <div class="col-lg-3">
+
+                  <div class="form-group">
+                    <button type="button" class="btn btn-primary" data-bind="click:guardar_extracto">Guardar</button>
+                  
+                    <button type="button" class="btn btn-primary" data-bind="click:limpiar_extracto">Cancelar</button>
+                  </div>
+                 
+               </div>
+              
+            </div>
+
+
+             <div class="row">
+               <div class="col-lg-3">
+
+                  <div class="form-group">
+                       <label>Mes:</label>
+                            <select class="form-control" data-bind="value:busquedaextractoVO.mes">
+                                  <option value="0">[Seleccione..]</option>
+                                  <option value="1">Enero</option>
+                                  <option value="2">Febrero</option>
+                                  <option value="3">Marzo</option>
+                                  <option value="4">Abril</option>
+                                  <option value="5">Mayo</option>
+                                  <option value="6">Junio</option>
+                                  <option value="7">Julio</option>
+                                  <option value="8">Agosto</option>
+                                  <option value="9">Septiembre</option>
+                                  <option value="10">Octubre</option>
+                                  <option value="11">Noviembre</option>
+                                  <option value="12">Diciembre</option>
+                            </select>   
+                  </div>
+                 
+               </div>
+
+
+               <div class="col-lg-3">
+
+                  <div class="form-group">
+                       <label>Año:</label>
+                            <select class="form-control" data-bind="value:busquedaextractoVO.ano">
+                                  <option value="0">[Seleccione..]</option>
+                                  <option value="2024">2024</option>
+                                  <option value="2023">2023</option>
+                                  <option value="2022">2022</option>
+                                  <option value="2021">2021</option>
+                                  <option value="2020">2020</option>
+                                  <option value="2019">2019</option>
+                                  <option value="2018">2018</option>
+                                  <option value="2017">2017</option>
+                                  <option value="2016">2016</option>
+                                  <option value="2015">2015</option>
+                                  <option value="2014">2014</option>
+                                  <option value="2013">2013</option>
+                                  <option value="2012">2012</option>
+                                  <option value="2011">2011</option>
+                                  <option value="2010">2010</option>
+                                  <option value="2009">2009</option>
+                            </select>   
+                  </div>
+                 
+               </div>
+
+
+            </div>
+
+            <div class="row">
+              <div class="col-lg-3">
+
+                  <div class="form-group">
+                    <button type="button" class="btn btn-primary" data-bind="click:filtrar_extracto">Filtrar</button>
+                  
+                    <button type="button" class="btn btn-primary" data-bind="click:limpiar_filtro_extrato">Limpiar</button>
+                  </div>
+                 
+               </div>
+              
+            </div>
+        
+             
+
+           
+
+          <div class="form-group">
+          <div data-bind="html: mensaje_soporte"></div>
+          <div data-bind="visible:(listado_extracto()!=null && listado_extracto().length > 0)">
+          <div class="table-responsive">
+                <table class="table">
+              <thead>
+            <tr> 
+              <th>Mes</th>
+              <th>Año</th>
+              <th>Soporte</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody data-bind="foreach:{data:listado_extracto, as:'item'}">
+            <tr>
+              <td data-bind="text: item.nombre_mes"></td>
+               <td data-bind="text: item.ano"></td>
+                   <td>
+                    <a href="#" data-bind="click: $root.ver_soporte" style="cursor:pointer;" target="_blank">
+                      <i class="fa fa-cloud-download fa-2x" aria-hidden="true"></i>
+                    </a>
+                   </td>
+                <td> <div class="btn-group text-right" >
+                   <a href="#" class="dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-ellipsis-h fa-2x">
+                      </i></a>
+                   <ul class="dropdown-menu" role="menu" style="left:-148px;top:20px;">                        
+                       <li>
+                            <a href="#" data-bind="click:$root.editar_extracto">Editar</a>
+                          </li>
+
+                        <li>
+                          <a href="#" data-bind="click:$root.eliminar_extracto">Eliminar</a>
+                        </li>
+                    </ul>
+                  </div>
+              </td>     
+            </tr>
+          </tbody>
+        </table>
+
+          <div id="paginacion_extracto" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion_extracto.pagina_actual,
+                                totalCount: paginacion_extracto.total,
+                                pageSize:paginacion_extracto.cantidad_por_paginas,
+                                maxPages: paginacion_extracto.maxPaginas,
+                                directions: paginacion_extracto.direcciones,
+                                boundary: paginacion_extracto.limite,
+                                text: paginacion_extracto.text }">
+
+                  </div>
+                </div>
+        </div>
+        </div>
+        </div>
+
+        </form>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_extracto-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script src='{% static "js/plugins/accounting/accounting.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/financiero/cuenta.js" %}?v=2'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      //cuenta.consultar(1);//iniciamos la primera funcion
+      $('#txtBuscar').val(sessionStorage.getItem("dato_financiero"));
+      cuenta.cargar(1);//iniciamos la primera funcion
+      cuenta.consultar_macrocontrato();
+      cuenta.consultar_lista_tipo();
+      cuenta.cuentaVO.empresa_id({{user.usuario.empresa.id}});
+    });  
+
+  </script>
+
+{% endblock imports %}
+

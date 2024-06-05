@@ -1,0 +1,278 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ 
+{% endblock imports_css %}
+
+{% block title %}Administrador de cuenta{% endblock title%}
+{% block mapa %}
+  <li><a href="{% url 'usuario.index' %}"><i class="fa fa-home fa-2x"></i>Inicio</a></li>
+  <li class="active">Administrado de cuenta</li>
+{% endblock mapa %}
+
+{% block opciones_listado %}
+  {% if app in perms %}
+    {% if app|add:'.add_'|add:model in perms%}        
+      <li>
+        <a href="#" data-bind="click:abrir_modal" data-placement="right"  data-toggle="tooltip" data-original-title="Agregar nuevo registro">
+          <i class="fa fa-plus" style="font-size: 20px;"></i>
+        </a>
+      </li>
+    {% endif %}
+  {% endif %}
+
+  <li>
+    <a href="#" data-bind="click:exportar_excel" data-placement="right"  data-toggle="tooltip" data-original-title="Exportar listado">
+      <i class="fa fa-cloud-download" style="font-size: 20px;"></i>
+    </a>
+  </li>
+
+{% endblock opciones_listado %}  
+
+{% block encabezado %}<!--cuenta-->{% endblock encabezado %}
+
+{% block contenido %}
+
+
+  <div class="row" ><br><br>
+
+    <div class="col-lg-12">
+  
+        <div class="row">
+
+          <div class="panel" id="spy4">
+            <div class="panel-heading">
+              <span class="panel-title"></span>
+              <span>      
+                <a href="{% url 'seguimiento_factura.index' %}"><i class="fa fa-arrow-left text-primary" style="font-size: 20px;"                aria-hidden="true"></i></a>
+              </span>               
+              <span>Administrado de cuenta</span>
+
+              <span data-bind="text:'- N° de Registros: ' + paginacion.totalRegistrosBuscados() + ' de ' + paginacion.total()"></span>
+
+
+                {% if 'empresa.can_see_empresa_cuentaEstado' in perms %}
+                <span class="panel-controls">
+                  <a  data-placement="top"  data-toggle="tooltip" title="" data-original-title="Actualizar estado" data-bind="click:cambiar_estado" data-toggle="modal" style="cursor:pointer;">
+                    <i class="fa fa-exchange fa-2x"></i>
+                  </a>
+                </span>
+                {% endif %}
+
+            </div>
+
+            <div class="panel-body">
+
+              <div data-bind="html: mensaje"></div>
+              <div class="table-responsive" data-bind="visible:(listado()!=null && listado().length > 0)">
+
+                <table class="table" >
+                  <thead>
+                      <tr>
+                        <th style="width:1%"></th>
+                        <th style="width:14%">
+                            <div class="option-group field admin-form">
+                              <label class="option option-primary"  style="">
+                                <input type="checkbox" data-bind="checked:checkall">
+                                <span class="checkbox"></span>
+                              </label>
+                            </div>
+                        </th>
+                        <th style="width:14%">Empresa</th>
+                        <th style="width:14%">Nit</th>
+                        <th style="width:14%">NO. cuenta</th>
+                        <th style="width:14%">Entidad bancaria</th>
+                        <th style="width:14%">Tipo</th>
+                        <th style="width:14%"></th>
+                      </tr>
+                  </thead>
+
+                  <tbody data-bind="foreach:{data:listado, as:'item'}">
+                    <tr>
+
+                      <td>
+                        <!--ko if: item.estado.id==87 -->
+                          <i class="fa fa-bell 2x" style="color: #0F0"></i>
+                        <!--/ko -->
+
+                        <!--ko if: item.estado.id==88 -->
+                          <i class="fa fa-bell 2x" style="color: #F00"></i>
+                        <!--/ko -->
+                      </td>
+
+                      <td>
+                          <div class="option-group field admin-form">
+                            <label class="option option-primary"  style="">
+                              <input type="checkbox" data-bind="checked:eliminado,value:id">
+                              <span class="checkbox"></span>
+                            </label>
+                          </div> 
+                      </td> 
+                      <td data-bind="cutWord:{num:38,text:item.empresa.nombre, verMax:'...', verMin:'...'}"></td>
+                      <td data-bind="text: item.empresa.nit"></td>
+                      <td data-bind="text: item.numero_cuenta"></td>
+                      <td data-bind="text: item.entidad_bancaria"></td>
+                      <td data-bind="text: item.tipo_cuenta.nombre"></td>
+                      <td>
+
+                        {% if 'empresa.change_empresa_cuenta' in perms %}
+                           <a href="#" data-bind="click:$root.consultar_por_id">
+                              <i class="fa fa-pencil-square-o fa-2x"></i>
+                           </a>
+                        {% endif %}
+
+                      </td>
+                    </tr>
+                     
+                  </tbody>
+                </table>
+
+                <div id="paginacion" >
+                  <div data-bind="pagination: {
+                                currentPage: paginacion.pagina_actual,
+                                totalCount: paginacion.total,
+                                pageSize:paginacion.cantidad_por_paginas,
+                                maxPages: paginacion.maxPaginas,
+                                directions: paginacion.direcciones,
+                                boundary: paginacion.limite,
+                                text: paginacion.text }">
+
+                  </div>
+                </div>
+                
+              </div>
+
+            </div>
+          </div>
+
+        </div><!--cierra row de validacion de la tabla-->
+
+    </div><!--col-lg-12" -->
+  </div><!--cierra row -->
+
+
+<!--Modal-->
+
+<div id="modal_acciones" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+       <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+      </div>
+       <div class="modal-body">
+
+        <form action="." method="post">
+        {% csrf_token %}
+
+          <div class="form-group">
+            <label>Empresa (*)</label>
+              <select class="form-control" data-bind="value:empresaCuentaVO.empresa_id,disable:empresaCuentaVO.empresa_id()>0">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_empresaselect, as:'item'} -->
+                  <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+            </select>
+          </div>
+
+
+          <div class="form-group">
+            <label>Número de cuenta (*)</label>
+              <input type="text" data-bind="value:empresaCuentaVO.numero_cuenta" class="form-control" placeholder="Dígite el número de la cuenta"/>
+          </div>
+
+          <div class="form-group">
+            <label>Entidad bancaria (*)</label>
+              <input type="text" data-bind="value:empresaCuentaVO.entidad_bancaria" class="form-control" placeholder="Dígite la entidad bancaria"/>
+          </div>
+
+          <div class="form-group">
+            <label>Tipo (*)</label>
+              <select class="form-control" data-bind="value:empresaCuentaVO.tipo_cuenta_id">
+                <option value="">[Seleccione...]</option>
+                  <!--ko foreach:{ data:lista_tipo_select, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                  <!--/ko-->
+              </select>
+          </div>
+
+        </form>
+
+       </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bind="click:guardar">
+            <i class="fa fa-floppy-o"></i> Guardar
+          </button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<!--Modal-->
+
+ <!--Modal cambiar estado-->
+
+  <div id="modal_estado" class="modal fade bd-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+      
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="gridModalLabel" data-bind='text:titulo'></h4>
+          </div>
+          <div class="modal-body"> 
+
+
+            <div class="form-group">
+              <label>Estado</label>
+                <select class="form-control" id="tipo_estado" name="tipo_estado" data-bind="value:estadocuenta">
+                  <option value="0">[Seleccione...]</option>
+                    <!--ko foreach:{ data:lista_estado, as:'item'} -->
+                    <option data-bind="value:item.id,text:item.nombre"></option>
+                    <!--/ko-->
+              </select>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bind="click:actualizar_cuenta">
+              <i class="fa fa-floppy-o"></i>&nbsp; Actualizar estado
+            </button>
+          </div>
+
+      </div>
+    </div>
+  </div><!--cierra modal_filtro-->
+
+
+<!--Loading-->
+  
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/seguimiento_factura/empresa_cuenta.js" %}'></script>
+
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+      //cuenta.consultar(1);//iniciamos la primera funcion
+      $('#txtBuscar').val(sessionStorage.getItem("dato_cuenta"));
+      empresa.cargar(1);//iniciamos la primera funcion
+      empresa.consultar_lista_empresa();
+      empresa.consultar_lista_tipo();
+
+    });  
+
+  </script>
+
+{% endblock imports %}
+

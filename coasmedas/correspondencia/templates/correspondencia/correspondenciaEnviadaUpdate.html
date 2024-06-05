@@ -1,0 +1,201 @@
+{% extends 'page.html' %}
+{% load static %}
+
+{%block imports_css %}
+ <link rel="stylesheet" type="text/css" href='{% static "css/fileInput/fileinput.min.css" %}'>
+ <link rel="stylesheet" type="text/css" href='{% static "js/plugins/datepicker/css/bootstrap-datetimepicker.css" %}'>
+{% endblock imports_css %}
+
+
+{% block opciones_listado %}{% endblock opciones_listado %}  
+
+{% block title %}Correspondencia Enviada{% endblock title%}
+{% block mapa %}
+  <li><a href="/usuario/"><i class="glyphicon glyphicon-home"></i></a></li>
+  <li><a href="/usuario/">Inicio</a></li>
+  <li><a href="{% url 'correspondenciaEnviada.correspondenciaEnviada' %}" >Correspondencias Enviadas</a></li>
+  <li class="active">Actualizar carta</li>
+{% endblock mapa %}
+{% block encabezado %}{% endblock encabezado %}
+{% block busqueda %}{% endblock busqueda %}
+{% block contenido %}   
+<input type="text" id="user" value="{{ user.usuario.id }}" hidden> 
+<input type="text" id="company" value="{{ user.usuario.empresa.id }}" hidden>     
+
+<div class="row" >
+ <div class="col-lg-12">   
+  <div class="panel panel-sky" >
+   <div class="panel-heading">Datos de la carta</div>
+   <div class="panel-body">      	
+      <div class="col-md-12">  
+          
+        <div class="col-lg-2">          
+            <label>(*) Privado</label> 
+            <div class="radio-custom mb ">    
+               <input id="radioExample3" name="radioExample" type="radio" data-bind="checked : correspondenciaEnviadaVO.privado" value="true" >                              
+                          <label style="display:block;" for="radioExample3" class="radio-inline" >Si</label> 
+
+            </div>
+            <div class="form-group radio-custom radio-primary mb5 ">
+              <input id="radioExample4" name="radioExample" type="radio" data-bind="checked : correspondenciaEnviadaVO.privado" value="false" >
+              <label style="display:block;" for="radioExample4" class="radio-inline" >No</label>  
+            </div>                              
+        </div>  
+
+
+        <div class="form-group col-lg-2">
+         <label>(*) Fecha De Envio</label>
+          <input type="text" class="form-control" data-bind='value:correspondenciaEnviadaVO.fechaEnvio' readonly>  
+        </div>
+
+        <div class="form-group col-lg-3">
+          <label>(*) Departamento </label>
+          <select class="form-control" data-bind="value: correspondenciaEnviadaVO.departamento_id"  >
+            <option value="">Seleccione el departamento de ubicación...</option>
+			{% for item in departamentos %}
+               <option value="{{ item.id }}">{{ item.nombre }}</option>
+            {% endfor %}
+          </select>     
+        </div>
+
+        <div class="form-group col-lg-3">          
+          <label>(*) Ciudad</label>
+          <select class="form-control" data-bind="options: listado_municipios,
+                             optionsText: 'nombre', 
+                             optionsValue: 'id', 
+                             optionsCaption: 'Seleccione la ciudad de ubicación...',
+                             value: correspondenciaEnviadaVO.ciudad_id
+                             ">
+          </select>    
+        </div>                            
+
+        <div class="form-group col-lg-2">          
+          	<label>(*) Prefijo</label>
+	        <select class="form-control" data-bind="value: correspondenciaEnviadaVO.prefijo_id"  >
+	            <option value="">Seleccione el prefijo...</option>
+	          	{% for item in prefijos %}
+		           <option value="{{ item.id }}">{{ item.nombre }}</option>
+		        {% endfor %}   
+	       	</select> 
+        </div>
+        <div class="col-lg-12"> 
+          <input type="hidden" class="form-control" id="consecutivoHabilitado" value="{{user.usuario.empresa.consecutivoDigitado}}"> 
+
+
+          <div class="form-group col-lg-7">          
+            <label>Asunto</label>
+            <input type="text" placeholder="Digite el asunto de la carta." class="form-control" data-bind='value:correspondenciaEnviadaVO.asunto'>   
+          </div>
+
+          <div class="form-group col-lg-5">          
+            <label>Referencia</label>
+            <input type="text" placeholder="Digite la referencia de la carta." class="form-control" data-bind='value:correspondenciaEnviadaVO.referencia'>   
+          </div>
+        </div>
+
+        <div class="form-group  col-lg-7">
+            <div class="form-group col-lg-12">  
+              <label>Contenido</label>                                
+              <textarea>
+              </textarea>
+            </div>
+            <div class="form-group col-lg-6">          
+              <label>(*) Firma</label>
+              <select class="form-control form-group" data-bind='value:correspondenciaEnviadaVO.firma_id' >  
+                <option value="">Seleccione el funcionario...</option> 
+                {% for item in funcionarios_firman %}
+                 <option value="{{ item.id }}">{{ item.persona.nombres }} {{ item.persona.apellidos }}</option>
+                {% endfor %}
+              </select>     
+            </div>   
+        </div>
+                            
+                <div class="form-group col-md-5"  >  
+                  <div  class="panel" >
+                    <div class="panel-heading">
+                      <span class="panel-title">Destinatario</span>
+                    </div>
+                    <div class="panel-body" >
+                                                       
+                          <div class="form-group">
+                            <label>(*) Departamento </label>
+                            <select class="form-control" data-bind="value: departamentoEmpresa_id"  >
+                              <option value="">Seleccione el departamento de ubicación...</option>        
+                              {% for item in departamentos %}
+        					               <option value="{{ item.id }}">{{ item.nombre }}</option>
+        					            {% endfor %}
+                            </select>     
+                          </div>
+                          <div class="form-group">          
+                            <label>(*) Ciudad del Destinatario</label>
+                            <select class="form-control" data-bind="options: listado_municipiosEmpresa,
+                                               optionsText: 'nombre', 
+                                               optionsValue: 'id', 
+                                               optionsCaption: 'Seleccione la ciudad de ubicación...',
+                                               value: correspondenciaEnviadaVO.municipioEmpresa_id
+                                               ">
+                            </select>    
+                          </div>  
+                    </div> 
+                  </div> 
+                </div>                                                                   
+              </div> 
+                  <!-- fin datos generales -->
+                  
+               
+
+            <!-- End Account2 Form -->
+            <div class="col-md-12"> 
+	            <div class="col-lg-12"> 
+	            	<button type="button" class="btn btn-primary" data-bind="click:guardar,text:titulo_btn">
+    							Modificar Consecutivo 		            	
+	            	</button>
+	           	</div>	
+	        </div>      
+<!--Modal Correspondencia-->
+
+   </div>
+  </div>
+ </div>
+</div>
+
+ 
+ 
+
+{% endblock contenido %}
+
+{% load static %}
+
+{%block imports %}
+  <script  src="https://cdn.tiny.cloud/1/emtxaaumygjz7hfwlsvkmv5zwmvp1ywdl72d04cofj48lyzp/tinymce/5/plugins.min.js" referrerpolicy="origin"></script>
+  <script src='{% static "js/plugins/moment/moment.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/datepicker/js/bootstrap-datetimepicker.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/plugins/fileInput/fileinput.js" %}'></script>
+  <script type="text/javascript" src='{% static "js/ViewModels/correspondencia/correspondenciaEnviada.js" %}'></script>
+  <!-- END: PAGE SCRIPTS -->
+  <script type="text/javascript">
+
+    $(document).ready(function () {
+        
+        tinymce.init({
+          selector: 'textarea',
+          height: 400,
+          menubar: false,
+          plugins: [
+            'advlist autolink lists charmap print preview anchor',
+            'searchreplace visualblocks code fullscreen',
+            'insertdatetime media contextmenu paste code',
+          ],
+          toolbar: 'undo redo | bold italic | alignleft aligncenter alignright alignjustify | bullist outdent indent | ',
+          content_css: '//www.tinymce.com/css/codepen.min.css'
+        });
+        
+        /* SE INICIAN LAS FUNCIONES */
+        /*correspondencia.consultar_funcionarios();
+        correspondencia.consultar_funcionarios_copia();*/
+        correspondencia.consultar_por_id({{ correspondencia }});
+    });  
+
+  </script>
+
+{% endblock imports %}
