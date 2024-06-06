@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- 
-from sinin4.celery import app
+from coasmedas.celery import app
 from django.conf import settings
 
 from datetime import *

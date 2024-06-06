@@ -5,7 +5,7 @@ from usuario.models import Usuario
 from proyecto.models import Proyecto
 from .enumeration import TipoT, EstadoT
 from django.db.models import Q
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 # Create your models here.
 

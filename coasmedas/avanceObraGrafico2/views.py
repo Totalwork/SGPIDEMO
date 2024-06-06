@@ -57,7 +57,7 @@ from django.contrib.auth.decorators import login_required
 from rest_framework.decorators import api_view
 
 from django.conf import settings
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.db import transaction
 from parametrizacion.views import  MunicipioSerializer , DepartamentoSerializer
 from puntos_gps.views import PuntosGps

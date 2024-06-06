@@ -3,7 +3,7 @@ from proyecto.models import Proyecto
 from tipo.models import Tipo
 from proceso.models import FProcesoRelacion
 from django.db.models import Count
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 
 class ALote(models.Model):

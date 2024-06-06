@@ -1,5 +1,5 @@
 from django.db import models
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 class NombreArchivo(models.Model):
 	nombre = models.CharField(max_length=150)		

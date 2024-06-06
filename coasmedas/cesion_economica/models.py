@@ -6,7 +6,7 @@ from empresa.models import Empresa
 from giros.models import CNombreGiro
 from parametrizacion.models import Banco
 from django.db.models import Count
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 
 class CesionEconomica(models.Model):

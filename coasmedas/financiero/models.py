@@ -6,7 +6,7 @@ from estado.models import Estado
 from django.db.models import Count
 from django.db.models import F, FloatField, Sum
 
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 class BaseModel(models.Model):
 	nombre = models.CharField(max_length=100)

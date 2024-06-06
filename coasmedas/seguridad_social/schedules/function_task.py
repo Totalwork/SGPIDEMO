@@ -8,7 +8,7 @@ import uuid
 from django.conf import settings
 import os
 import xlsxwriter
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 class FunctionTask:
         

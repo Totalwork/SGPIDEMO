@@ -3,7 +3,7 @@ from django.db.models.base import Model
 from contrato.models import Contrato
 from estado.models import Estado
 from usuario.models import Usuario
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from sinin4.celery import app
+from coasmedas.celery import app
 from adminMail.models import Mensaje
 from django.db import transaction, connection
 import uuid
@@ -8,7 +8,7 @@ from django.conf import settings
 import os
 import xlsxwriter
 from contrato.models import Contrato, EmpresaContrato
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from poliza.models import Poliza
 
 class FunctionTask:

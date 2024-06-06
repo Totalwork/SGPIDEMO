@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from sinin4.celery import app
+from coasmedas.celery import app
 from adminMail.models import Mensaje
 from django.db import transaction, connection
 from django.http import HttpResponse,JsonResponse
@@ -9,7 +9,7 @@ import uuid
 from django.conf import settings
 import os
 import xlsxwriter
-from sinin4.functions import functions
+from coasmedas.functions import functions
 import json
 import re
 import boto 

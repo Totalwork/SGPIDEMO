@@ -5,7 +5,7 @@ from tipo.models import Tipo
 from estado.models import Estado
 from usuario.models import Usuario
 from django.db.models import Max
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 
 

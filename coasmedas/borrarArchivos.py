@@ -65,7 +65,7 @@ lista =[
 'levantamiento/nodo_foto/1000227-DSC01847.jpg'
 ]
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from datetime import date, datetime
 from django.conf import settings
 import os

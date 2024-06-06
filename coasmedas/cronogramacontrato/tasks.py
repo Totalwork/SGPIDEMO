@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from sinin4.celery import app
+from coasmedas.celery import app
 from adminMail.models import Mensaje
 from django.db.models import Q, query
 from django.conf import settings
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from .models import CcActividadContrato
 from parametrizacion.models import Notificacion
 from usuario.models import Persona

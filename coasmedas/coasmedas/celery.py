@@ -4,7 +4,7 @@
 
 # from celery import Celery
 
-# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sinin4.settings')
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'coasmedas.settings')
 
 # from django.conf import settings
 
@@ -22,7 +22,7 @@ from celery import Celery
 from django.conf import settings
 
 # Establecer las opciones de django para la aplicación de celery.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'sinin4.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'coasmedas.settings')
 
 # Crear la aplicación de Celery
 app = Celery('CeleryApp')

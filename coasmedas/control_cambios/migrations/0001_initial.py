@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -86,7 +86,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.CharField(max_length=200)),
-                ('ruta', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('control_cambios/Soporte_ruta', 'plz'))),
+                ('ruta', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('control_cambios/Soporte_ruta', 'plz'))),
                 ('cambio', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='Soporte_cambio', to='control_cambios.CCambio')),
             ],
             options={

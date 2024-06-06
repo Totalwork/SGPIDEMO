@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 from adminMail.models import Mensaje
 from .models import AIndicador,BSeguimientoIndicador
 from contrato.enumeration import estadoC, tipoV, notificacion

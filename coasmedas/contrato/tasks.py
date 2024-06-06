@@ -1,5 +1,5 @@
-from sinin4.celery import app
-from sinin4.functions import functions
+from coasmedas.celery import app
+from coasmedas.functions import functions
 from .schedules.function_task import FunctionTask
 
 @app.task

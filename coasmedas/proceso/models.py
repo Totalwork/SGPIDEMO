@@ -3,7 +3,7 @@ from empresa.models import Empresa
 from django.contrib.contenttypes.models import ContentType
 from smart_selects.db_fields import ChainedForeignKey
 from parametrizacion.models import Funcionario
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 from usuario.models import Usuario
 from proyecto.models import Proyecto
 from contrato.models import Contrato

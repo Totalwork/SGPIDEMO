@@ -23,7 +23,7 @@ from datetime import *
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.contrib.auth.decorators import login_required
-from sinin4.functions import functions
+from coasmedas.functions import functions
 #import io
 from django.core.files import File
 
@@ -153,7 +153,7 @@ class InformeMMEViewSet(viewsets.ModelViewSet):
 				fecha = request.DATA['fecha'] if 'fecha' in request.DATA else None;
 				anoEnvio = int(fecha[:4])
 				ruta_archivo = 'C:/servicios.sinin.co/wwwroot/plantillas/'+str(request.POST['nombre_soporte'])
-				#ruta_archivo = "C:\Users\danny\source\\repos\serviciosSinin\ServicioSinin41\wwwroot\plantillas\\"+str(request.POST['nombre_soporte'])
+				#ruta_archivo = "C:\Users\danny\source\\repos\serviciosSinin\Serviciocoasmedas1\wwwroot\plantillas\\"+str(request.POST['nombre_soporte'])
 
 				f = open(ruta_archivo, 'rb')
 				myfile = File(f)

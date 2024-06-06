@@ -25,7 +25,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import transaction, connection
 from rest_framework.decorators import api_view
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from informe_ministerio.models import Planilla
 from usuario.views import UsuarioSerializer
 from logs.models import Logs

@@ -25,7 +25,7 @@ from rest_framework.pagination import PageNumberPagination
 
 
 from logs.models import Logs, Acciones
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 
 

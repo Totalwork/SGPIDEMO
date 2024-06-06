@@ -75,7 +75,7 @@ class estadoC(BaseEntity):
 class notificacion():
 	# Para Enelar
 	db = settings.DATABASES['default']['NAME']
-	if db == 'sinin41_Enelar':
+	if db == 'coasmedas1_Enelar':
 		cod = 3
 	else:
 		cod = 6

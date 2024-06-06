@@ -4,7 +4,7 @@ from contrato.models import Contrato
 from financiero.models import FinancieroCuenta
 from django.db.models import Count
 from django.db.models import F, FloatField, Sum
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 import datetime
 
 

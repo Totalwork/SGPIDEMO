@@ -3,7 +3,7 @@ from contrato.models import Contrato
 from proyecto.models import Proyecto
 from tipo.models import Tipo
 from django.db.models import Count
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 
 class BaseModel(models.Model):

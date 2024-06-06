@@ -1,6 +1,6 @@
 from django.db import models
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 from proyecto.models import Proyecto
 from usuario.models import Usuario

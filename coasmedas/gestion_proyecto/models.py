@@ -2,7 +2,7 @@ from django.db import models
 from empresa.models import Empresa
 from estado.models import Estado
 from parametrizacion.models import BaseModel,Municipio
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from usuario.models import Usuario
 
 # Create your models here.

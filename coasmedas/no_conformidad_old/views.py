@@ -29,7 +29,7 @@ from datetime import *
 import datetime
 from babel.dates import format_date
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from contrato.enumeration import tipoC
 
 from .enumeration import estadoNoConformidad

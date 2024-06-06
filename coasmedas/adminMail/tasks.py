@@ -1,4 +1,4 @@
-# from sinin4.celery import app
+# from coasmedas.celery import app
 from adminMail.models import Mensaje
 import os
 from django.conf import settings

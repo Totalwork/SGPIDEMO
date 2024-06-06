@@ -69,7 +69,7 @@ from proceso.views import SoporteProcesoRelacionDatoSerializer
 
 from .enumeration import estadoFactura, tablaForanea
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 #Comienza la creacion de las vistas de Factura.
 
 #Api rest para Factura
@@ -375,7 +375,7 @@ class FacturaViewSet(viewsets.ModelViewSet):
 					db = settings.DATABASES['default']['NAME']
 					# id_tabla = 140
 					id_proceso = 3
-					if db == 'sinin41_Enelar':
+					if db == 'coasmedas1_Enelar':
 						# crearProesoEnelarFactura(int(request.DATA['contrato_id']), int(serializer.data['id']), int(id_proceso))
 						crearProesoEnelarFactura(request, int(serializer.data['id']), int(id_proceso))
 						crearPermisoProesoItem(request, id_proceso)
@@ -2948,7 +2948,7 @@ def exportReporteCruce(request):
 
 	# IMAGE
 	worksheet.insert_image('J2', settings.BASE_DIR+'/static/images/icono_eca.png')
-	# worksheet.insert_image('J2', 'C:/AppServ/www/sinin4/Scripts/SININWEB/static/images/img_eca.png')
+	# worksheet.insert_image('J2', 'C:/AppServ/www/coasmedas/Scripts/SININWEB/static/images/img_eca.png')
 
 	# print settings.BASE_DIR
 

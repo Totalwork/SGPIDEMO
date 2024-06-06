@@ -24,7 +24,7 @@ from contrato.models import Contrato
 from empresa.models import Empresa
 from django.conf import settings
 from datetime import datetime
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from proceso.models import AProceso, FProcesoRelacion, GProcesoRelacionDato, BItem
 from contrato.models import EmpresaContrato
 from .enumeration import TipoT, EstadoT

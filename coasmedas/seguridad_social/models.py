@@ -6,7 +6,7 @@ from tipo.models import Tipo
 from .enum import EnumEstadoPlanilla
 from datetime import *
 from django.db.models import Count
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 # Create your models here.
 
 class BaseModel(models.Model):

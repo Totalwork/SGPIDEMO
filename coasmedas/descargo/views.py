@@ -37,7 +37,7 @@ from tipo.models import Tipo
 
 from django.db import transaction
 from logs.models import Logs,Acciones
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 from .enumeration import estadoD, tipoD
 

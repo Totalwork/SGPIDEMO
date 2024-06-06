@@ -2,7 +2,7 @@ from django.db import models
 from usuario.models import Persona
 from contrato.models import Contrato
 from parametrizacion.models import Funcionario
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 # Create your models here.
 

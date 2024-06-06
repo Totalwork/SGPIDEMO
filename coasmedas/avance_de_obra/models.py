@@ -4,7 +4,7 @@ from contrato.models import Contrato
 from usuario.models import Usuario
 from datetime import *
 from django.utils import * 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 # Create your models here.
 
 

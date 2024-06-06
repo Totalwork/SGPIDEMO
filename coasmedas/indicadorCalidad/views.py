@@ -21,7 +21,7 @@ from django.db import transaction
 from django.db.models.deletion import ProtectedError
 import openpyxl
 from django.contrib.auth.decorators import login_required
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from .models import AIndicador,BSeguimientoIndicador,Periodicidad
 from django.db.models import F, FloatField, Sum
 

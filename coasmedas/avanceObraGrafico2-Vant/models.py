@@ -6,7 +6,7 @@ from tipo.models import Tipo
 from empresa.models import Empresa
 from datetime import *
 from django.utils import * 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from colorfield.fields import ColorField
 from estado.models import Estado
 

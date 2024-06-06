@@ -8,7 +8,7 @@ from parametrizacion.models import Cargo
 from datetime import *
 from tipo.models import Tipo
 import json
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 from django.db.models import Q, Max, Min
 
 # Create your models here.

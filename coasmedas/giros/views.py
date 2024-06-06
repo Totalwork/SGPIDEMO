@@ -49,7 +49,7 @@ from openpyxl.drawing.image import Image
 from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
 
 from proyecto.views import ProyectoSerializer
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 from django.db.models import F, FloatField, Sum
 from django.contrib.contenttypes.models import ContentType

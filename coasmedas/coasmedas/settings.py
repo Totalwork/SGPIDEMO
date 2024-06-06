@@ -132,9 +132,9 @@ FILE_UPLOAD_HANDLERS = [
 "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
 
-ROOT_URLCONF = 'sinin4.urls'
+ROOT_URLCONF = 'coasmedas.urls'
 
-WSGI_APPLICATION = 'sinin4.wsgi.application'
+WSGI_APPLICATION = 'coasmedas.wsgi.application'
 
 
 # Database
@@ -212,7 +212,7 @@ STATICFILES_DIRS = [
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'# 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-# STATICFILES_STORAGE = 'sinin4.storage.WhiteNoiseStaticFilesStorage'
+# STATICFILES_STORAGE = 'coasmedas.storage.WhiteNoiseStaticFilesStorage'
 
 MEDIA_ROOT = os.sep.join(os.path.abspath(__file__).split(os.sep)[:-2] + ['media'])
 # MEDIA_URL = '/media/'

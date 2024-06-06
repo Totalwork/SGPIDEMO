@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*- 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 # import win32com.client as win32
 

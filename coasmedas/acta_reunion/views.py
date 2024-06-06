@@ -37,7 +37,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import login_required
 
 from logs.models import Logs, Acciones
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 from django.db.models import Q, Count
 

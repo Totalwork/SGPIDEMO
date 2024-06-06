@@ -26,7 +26,7 @@ from proceso.models import AProceso, FProcesoRelacion, GProcesoRelacionDato
 from financiero.models import FinancieroCuenta
 from datetime import datetime, date, time, timedelta
 import calendar
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from numbertoletters import number_to_letters
 from tipo.views import TipoSerializer
 from parametrizacion.models import Banco
@@ -43,7 +43,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from usuario.models import Usuario
 from django.contrib.contenttypes.models import ContentType
 # SERIALIZER LITE

@@ -3,7 +3,7 @@ from usuario.models import Usuario
 from tipo.models import Tipo
 from contrato.models import Contrato
 from estado.models import Estado
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 from parametrizacion.models import Empresa
 
 # Create your models here.

@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -22,14 +22,14 @@ class Migration(migrations.Migration):
                 ('nit', models.CharField(max_length=255, unique=True)),
                 ('nombre', models.CharField(max_length=255)),
                 ('direccion', models.CharField(max_length=255)),
-                ('logo', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=sinin4.functions.RandomFileName('empresa/soporte', 'logo'))),
+                ('logo', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=coasmedas.functions.RandomFileName('empresa/soporte', 'logo'))),
                 ('esDisenador', models.BooleanField(default=False)),
                 ('esProveedor', models.BooleanField(default=False)),
                 ('esContratista', models.BooleanField(default=False)),
                 ('esContratante', models.BooleanField(default=False)),
-                ('encabezado', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=sinin4.functions.RandomFileName('empresa/soporte', 'enca'))),
-                ('piePagina', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=sinin4.functions.RandomFileName('empresa/soporte', 'pie'))),
-                ('marcaAgua', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=sinin4.functions.RandomFileName('empresa/soporte', 'agua'))),
+                ('encabezado', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=coasmedas.functions.RandomFileName('empresa/soporte', 'enca'))),
+                ('piePagina', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=coasmedas.functions.RandomFileName('empresa/soporte', 'pie'))),
+                ('marcaAgua', models.ImageField(blank=True, default='empresa/default.jpg', null=True, upload_to=coasmedas.functions.RandomFileName('empresa/soporte', 'agua'))),
                 ('peso', models.FloatField(blank=True, null=True)),
                 ('consecutivoDigitado', models.BooleanField(default=False)),
                 ('abreviatura', models.CharField(blank=True, max_length=255, null=True)),

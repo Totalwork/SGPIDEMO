@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.core import serializers
 from django.db import IntegrityError,transaction
 from datetime import date

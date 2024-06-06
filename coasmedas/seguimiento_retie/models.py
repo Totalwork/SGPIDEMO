@@ -8,7 +8,7 @@ from usuario.models import Persona, Usuario
 from datetime import *
 from tipo.models import Tipo
 import json
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 
 class ConfiguracionPorcentajes(models.Model):

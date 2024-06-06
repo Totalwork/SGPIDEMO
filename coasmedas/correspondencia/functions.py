@@ -19,7 +19,7 @@ from rest_framework import status
 
 from .models import CorrespondenciaEnviada, CorrespondenciaPlantilla
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from datetime import date
 import datetime
 import shutil

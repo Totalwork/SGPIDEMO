@@ -46,7 +46,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import api_view
 
 from logs.models import Logs, Acciones
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.db import transaction
 
 import xlsxwriter

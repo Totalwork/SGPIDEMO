@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('mes', models.IntegerField(blank=True, null=True)),
                 ('ano', models.IntegerField(blank=True, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('financiero/extracto', 'extracto'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('financiero/extracto', 'extracto'))),
                 ('cuenta', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='financiero_cuenta_extracto', to='financiero.FinancieroCuenta')),
             ],
             options={

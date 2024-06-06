@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
             name='DEncabezadoGiro',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('giros/encabezado_giro', 'plz'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('giros/encabezado_giro', 'plz'))),
                 ('referencia', models.CharField(blank=True, max_length=50)),
                 ('num_causacion', models.CharField(blank=True, max_length=100)),
                 ('fecha_conta', models.DateField(blank=True, null=True)),
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                 ('test_op', models.CharField(blank=True, max_length=150)),
                 ('fecha_pago_esperada', models.DateField(blank=True, null=True)),
                 ('codigo_pago', models.CharField(blank=True, max_length=50, null=True)),
-                ('soporte_consecutivo_desabilitado', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('giros/consecutivo_desahabilitado', 'plz'))),
+                ('soporte_consecutivo_desabilitado', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('giros/consecutivo_desahabilitado', 'plz'))),
                 ('fecha_transaccion_test', models.DateField(blank=True, null=True)),
                 ('banco', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='detalle_banco', to='parametrizacion.Banco')),
                 ('carta_autorizacion', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='FK_giros_detalle_giro_correspondencia_correspondenciaenviada', to='correspondencia.CorrespondenciaEnviada')),

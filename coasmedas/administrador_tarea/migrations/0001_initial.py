@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.TextField()),
-                ('ruta', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('tarea/soporte_actividad', 'ta'))),
+                ('ruta', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('tarea/soporte_actividad', 'ta'))),
                 ('tarea_actividad', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='actividad_soporte', to='administrador_tarea.TareaActividad')),
             ],
             options={
@@ -106,7 +106,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.TextField()),
-                ('ruta', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('tarea/soporte_tarea', 'tt'))),
+                ('ruta', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('tarea/soporte_tarea', 'tt'))),
                 ('asignacion_tarea', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='soporte_asignacion', to='administrador_tarea.DTareaAsignacion')),
             ],
             options={

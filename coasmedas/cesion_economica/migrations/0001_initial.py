@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -27,11 +27,11 @@ class Migration(migrations.Migration):
                 ('motivo_rechazo', models.CharField(blank=True, max_length=100, null=True)),
                 ('observacion', models.CharField(blank=True, max_length=100, null=True)),
                 ('valor', models.FloatField()),
-                ('soporte_tramite', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('cesion_economica/soporte_tramite', 'soporte_tramite'))),
+                ('soporte_tramite', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('cesion_economica/soporte_tramite', 'soporte_tramite'))),
                 ('fecha_tramite', models.DateField(auto_now_add=True)),
-                ('soporte_enaprobacion', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('cesion_economica/soporte_enaprobacion', 'soporte_enaprobacion'))),
+                ('soporte_enaprobacion', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('cesion_economica/soporte_enaprobacion', 'soporte_enaprobacion'))),
                 ('fecha_enaprobacion', models.DateField(blank=True, null=True)),
-                ('soporte_aprobado', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('cesion_economica/soporte_aprobado', 'soporte_aprobado'))),
+                ('soporte_aprobado', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('cesion_economica/soporte_aprobado', 'soporte_aprobado'))),
                 ('fecha_aprobada', models.DateField(blank=True, null=True)),
                 ('banco', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='cesion_economica_banco', to='parametrizacion.Banco')),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='cesion_economica_contrato', to='contrato.Contrato')),

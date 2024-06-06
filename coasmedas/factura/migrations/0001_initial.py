@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('valor_factura', models.FloatField()),
                 ('valor_contable', models.FloatField(blank=True, null=True)),
                 ('valor_subtotal', models.FloatField(blank=True, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('factura/factura', 'fac'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('factura/factura', 'fac'))),
                 ('pagada', models.BooleanField(default=False)),
                 ('bloqueo_factura', models.BooleanField(default=False)),
                 ('recursos_propios', models.BooleanField(default=False)),
@@ -101,7 +101,7 @@ class Migration(migrations.Migration):
                 ('numero_cuenta', models.CharField(blank=True, max_length=500, null=True)),
                 ('concepto', models.CharField(max_length=4000)),
                 ('valor', models.FloatField()),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('factura/descuento', 'fac_desc'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('factura/descuento', 'fac_desc'))),
                 ('banco', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='fk_descuento_banco', to='parametrizacion.Banco')),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_descuento_contrato', to='contrato.Contrato')),
             ],
@@ -118,7 +118,7 @@ class Migration(migrations.Migration):
                 ('descripcion', models.CharField(blank=True, max_length=4000, null=True)),
                 ('fecha', models.DateField(blank=True, null=True)),
                 ('valor', models.FloatField()),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('factura/cesion', 'fac_ces'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('factura/cesion', 'fac_ces'))),
                 ('banco', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_banco', to='parametrizacion.Banco')),
                 ('beneficiario', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_beneficiario', to='empresa.Empresa')),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_contrato2', to='contrato.Contrato')),

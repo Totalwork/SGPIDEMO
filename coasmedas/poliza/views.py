@@ -34,7 +34,7 @@ from django.contrib.humanize.templatetags.humanize import intcomma
 from django.contrib.auth.decorators import login_required
 from giros.models import DEncabezadoGiro
 from .enumeration import TipoDocumento, TipoActa
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from contrato.enumeration import tipoV
 
 # from django import template

@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -22,8 +22,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('fecha', models.DateField(blank=True, null=True)),
                 ('observacion', models.CharField(blank=True, max_length=4000, null=True)),
-                ('carta_aceptacion', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('solicitud/solicitud', 'slt_crt'))),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('solicitud/solicitud', 'slt_spt'))),
+                ('carta_aceptacion', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('solicitud/solicitud', 'slt_crt'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('solicitud/solicitud', 'slt_spt'))),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='contrato.Contrato')),
                 ('estado', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='estado.Estado')),
                 ('tipo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='tipo.Tipo')),
@@ -78,7 +78,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('observacion', models.CharField(blank=True, max_length=4000, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('solicitud/favorabilidad_compras', 'fvd_cmp'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('solicitud/favorabilidad_compras', 'fvd_cmp'))),
                 ('solicitud', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='solicitud.ASolicitud')),
             ],
             options={
@@ -90,7 +90,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('observacion', models.CharField(blank=True, max_length=4000, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('solicitud/favorabilidad_juridica', 'fvd_jrc'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('solicitud/favorabilidad_juridica', 'fvd_jrc'))),
                 ('solicitud', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='solicitud.ASolicitud')),
             ],
             options={
@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('observacion', models.CharField(blank=True, max_length=4000, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('solicitud/favorabilidad_tecnica', 'fvd_tcn'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('solicitud/favorabilidad_tecnica', 'fvd_tcn'))),
                 ('solicitud', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='solicitud.ASolicitud')),
             ],
             options={
@@ -113,7 +113,7 @@ class Migration(migrations.Migration):
             name='CValidarPoliza',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('solicitud/validar_poliza', 'vld_plz'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('solicitud/validar_poliza', 'vld_plz'))),
                 ('solicitud', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_validar_poliza_solicitud', to='solicitud.ASolicitud')),
             ],
             options={

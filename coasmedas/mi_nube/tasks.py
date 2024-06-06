@@ -1,5 +1,5 @@
 from django.db import IntegrityError,transaction
-from sinin4.celery import app
+from coasmedas.celery import app
 from .models import Archivo, ArchivoUsuario
 from datetime import date
 import datetime

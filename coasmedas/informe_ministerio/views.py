@@ -50,7 +50,7 @@ from .enumeration import TipoInforme
 import xlsxwriter
 from datetime import *
 import os
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from docx import Document
 from docx.shared import Inches , Pt
 from docx.enum.style import WD_STYLE_TYPE

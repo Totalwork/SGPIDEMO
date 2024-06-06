@@ -14,7 +14,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 
 from .models import Tipo
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 # Create your views here.
 

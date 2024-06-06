@@ -1,4 +1,4 @@
-use sinin41
+use coasmedas1
 
 select c.id,c.nombre, c.numero, c.descripcion, e.nombre as contratante,
 ct.nombre as contratista,et.nombre as estado, mc.nombre as macro_contrato,

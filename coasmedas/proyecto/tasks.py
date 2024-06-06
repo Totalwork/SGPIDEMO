@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 
 from django.db import connection
 from django.db.models import Q
@@ -9,7 +9,7 @@ from proyecto.models import Proyecto
 
 from parametrizacion.models import Notificacion, Funcionario
 from adminMail.models import Mensaje
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 import xlsxwriter
 import uuid

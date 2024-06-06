@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -80,8 +80,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('titulo', models.CharField(max_length=255)),
-                ('poster', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('video_tutorial', ''), verbose_name='Poster del video')),
-                ('video', models.FileField(upload_to=sinin4.functions.RandomFileName('video_tutorial', ''), verbose_name='Video')),
+                ('poster', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('video_tutorial', ''), verbose_name='Poster del video')),
+                ('video', models.FileField(upload_to=coasmedas.functions.RandomFileName('video_tutorial', ''), verbose_name='Video')),
                 ('orden', models.IntegerField(default=0)),
                 ('grupo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='parametrizacion.GrupoVideosTutoriales')),
             ],

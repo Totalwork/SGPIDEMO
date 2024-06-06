@@ -3,7 +3,7 @@ from empresa.models import Empresa
 from tipo.models import Tipo
 from estado.models import Estado
 
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 from .enumeration import tipoV
 

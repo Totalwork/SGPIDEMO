@@ -29,7 +29,7 @@ from .enum import enumEstados
 from estado.views import EstadoSerializer
 from estado.models import Estado
 from django.contrib.auth.decorators import login_required
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 from factura.models import Factura,DetalleCompensacion,Compensacion
 from giros.models import DetalleGiro,DEncabezadoGiro
@@ -2085,7 +2085,7 @@ def descargar_reporte_pago(request):
 	worksheet.write(1,0, 'ELECTRIFICADORA DEL CARIBE S.A. E.S.P.', format3)
 	worksheet.write(3,0, 'REPORTE POR FUERA DE PROPUESTA', format4)
 	worksheet.insert_image('O1',settings.BASE_DIR+'/static/images/imagenElictricaribe.jpg',{'x_scale':1, 'y_scale': 0.5})
-	#worksheet.insert_image('O1','C:\AppServ\www\sinin4\Scripts\SININWEB\static\images\imagenElictricaribe.jpg',{'x_scale':1, 'y_scale': 0.5})
+	#worksheet.insert_image('O1','C:\AppServ\www\coasmedas\Scripts\SININWEB\static\images\imagenElictricaribe.jpg',{'x_scale':1, 'y_scale': 0.5})
 
 	worksheet.write('A6', 'FEC_REPORTE', format1)
 	worksheet.write('B6', 'SOC', format1)

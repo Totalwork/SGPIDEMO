@@ -43,7 +43,7 @@ from parametrizacion.views import  MunicipioSerializer
 
 from django.conf import settings
 from django.db import transaction
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 # Create your views here.
 

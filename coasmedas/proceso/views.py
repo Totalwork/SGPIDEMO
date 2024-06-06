@@ -40,7 +40,7 @@ from usuario.models import Persona
 from adminMail.models import Mensaje
 from .tasks import sendMail
 from django.conf import settings
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from solicitudservicio.models import BSolicitud
 from giros.models import DEncabezadoGiro
 import re
@@ -2513,7 +2513,7 @@ def guardarCambios(request):
 				direccion = direccion + ':'+ settings.PORT_SERVER
 			db = settings.DATABASES['default']['NAME']			
 			itemsResponsableEmpresa = [23,27]
-			if prd.item.id==19 and prd.valor != 'Vacio' and notificar and cambiarEstado and db=='sinin41_Enelar':
+			if prd.item.id==19 and prd.valor != 'Vacio' and notificar and cambiarEstado and db=='coasmedas1_Enelar':
 				funcionarioResponsable = Funcionario.objects.filter(empresa__id=int(prd.valor)).order_by('id')[:1].values(
 					'id')
 
@@ -2567,7 +2567,7 @@ def guardarCambios(request):
 					solicitud.empresas.add(proveedorSeleccionado)	
 
 			#asignacion de supervisor del contrato		
-			if prd.item.id==26 and prd.valor != 'Vacio' and notificar and cambiarEstado and db=='sinin41_Enelar':
+			if prd.item.id==26 and prd.valor != 'Vacio' and notificar and cambiarEstado and db=='coasmedas1_Enelar':
 				itemsResponsableSupervisor=[28,29,30,31,38,41]
 				funcionarioResponsable = Funcionario.objects.get(pk=int(prd.valor))
 				if funcionarioResponsable:
@@ -2699,7 +2699,7 @@ def guardarCambios(request):
 						contenido = contenido + 'el ' + tipo
 					contenido = contenido + '.<br/><br/>'
 					
-					if prd.procesoRelacion.proceso.pasoAPaso and prd.estado==1 and db=='sinin41_Enelar':
+					if prd.procesoRelacion.proceso.pasoAPaso and prd.estado==1 and db=='coasmedas1_Enelar':
 						#consultar el porcentaje de avance y concatenarlo al cuerpo del correo
 						totalItems = GProcesoRelacionDato.objects.filter(procesoRelacion=prd.procesoRelacion).count()
 						itemsCumplidos = GProcesoRelacionDato.objects.filter(procesoRelacion=prd.procesoRelacion,
@@ -2761,7 +2761,7 @@ def guardarCambios(request):
 					res=sendMail.delay(mail)
 
 			# Si el Item es el Num. 50 cambiar el estado de la factura a Pagada
-			if prd.item.id == 50 and prd.estado == 1 and db=='sinin41_Enelar':
+			if prd.item.id == 50 and prd.estado == 1 and db=='coasmedas1_Enelar':
 				# print "Cabiar estado factura"
 				pagarFactura(request, prd.procesoRelacion.idTablaReferencia, prd.valor)
 

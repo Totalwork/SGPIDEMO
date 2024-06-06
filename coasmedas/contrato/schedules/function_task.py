@@ -5,7 +5,7 @@ from contrato.enumeration import estadoC, tipoV, notificacion #, tipoC
 from proyecto.models import Proyecto
 from parametrizacion.models import Notificacion, Funcionario
 from adminMail.models import Mensaje
-from sinin4.functions import functions
+from coasmedas.functions import functions
 import xlsxwriter
 import uuid
 import os

@@ -2,7 +2,7 @@ from django.db import models
 from empresa.models import Empresa
 from tipo.models import Tipo
 from parametrizacion.models import BaseModel
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 # Create your models here.
 

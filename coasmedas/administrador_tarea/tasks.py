@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 from django.db import connection
 from .models import DTareaAsignacion,TareaActividad,DTarea
 from usuario.models import Usuario
@@ -7,7 +7,7 @@ from django.conf import settings
 from datetime import *
 from .enumeration import EstadoT
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 @app.task
 def envioNotificacionPunto(lista_usuarios,id_asignacion_tarea):

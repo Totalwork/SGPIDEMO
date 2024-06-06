@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('fecha_final', models.DateField(null=True)),
                 ('valor', models.DecimalField(decimal_places=2, max_digits=18, null=True)),
                 ('observacion', models.TextField(null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('poliza/soporte', 'plz'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('poliza/soporte', 'plz'))),
                 ('amparo', models.CharField(max_length=500, null=True)),
                 ('tomador', models.CharField(max_length=100, null=True)),
                 ('numero', models.CharField(max_length=200, null=True)),

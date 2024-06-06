@@ -9,9 +9,9 @@ empresa/admin.pyc
 *.pyc
 empresa/admin.pyc
 *.pyc
-sinin4/settings.pyc
-sinin4/urls.pyc
-sinin4/wsgi.pyc
+coasmedas/settings.pyc
+coasmedas/urls.pyc
+coasmedas/wsgi.pyc
 *.pyc
 usuario/admin.pyc
 *.pyc

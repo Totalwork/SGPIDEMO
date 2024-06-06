@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 from schedules.function_task import FunctionTask
 
 #correo enviado todos los dias a las 6am

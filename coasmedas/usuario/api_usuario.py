@@ -27,7 +27,7 @@ from rest_framework.decorators import api_view, throttle_classes, authentication
 from rest_framework_oauth.authentication import OAuth2Authentication
 from .views import UsuarioSerializer, UserSerializer, PersonaSerializer
 from empresa.views import EmpresaSerializer
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from parametrizacion.models import Funcionario, Cargo
 
 class UsuarioSerializer(serializers.HyperlinkedModelSerializer):    

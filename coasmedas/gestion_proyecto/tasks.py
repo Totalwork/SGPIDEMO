@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 from django.db import connection
 from .models import Diseno,DVersionesDiseno
 from usuario.models import Usuario
@@ -7,7 +7,7 @@ from adminMail.models import Mensaje
 from django.conf import settings
 from datetime import *
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 @app.task
 def envioNotificacionReporteProyecto(version_diseno_id,empresa):

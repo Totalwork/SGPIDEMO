@@ -6,7 +6,7 @@ from estado.models import Estado
 
 from contrato.models import Contrato
 
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 # Create your models here.
 class BaseModel(models.Model):

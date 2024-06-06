@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('consecutivo', models.IntegerField()),
                 ('tema_principal', models.CharField(max_length=2000)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('acta_reunion/acta', 'act'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('acta_reunion/acta', 'act'))),
                 ('conclusiones', models.CharField(blank=True, max_length=2000, null=True)),
                 ('fecha', models.DateField()),
                 ('tiene_contrato', models.BooleanField(default=True)),
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('fecha_proximidad', models.DateField()),
                 ('descripcion', models.CharField(max_length=2000)),
                 ('requiere_soporte', models.BooleanField(default=False)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('acta_reunion/compromiso', 'com'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('acta_reunion/compromiso', 'com'))),
                 ('notificar_organizador', models.BooleanField(default=True)),
                 ('notificar_controlador', models.BooleanField(default=True)),
                 ('acta', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_acta_acta_compromiso', to='acta_reunion.Acta')),

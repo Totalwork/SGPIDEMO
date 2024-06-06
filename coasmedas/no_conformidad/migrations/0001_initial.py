@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -23,12 +23,12 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('descripcion_no_corregida', models.CharField(max_length=4000)),
                 ('descripcion_corregida', models.CharField(blank=True, max_length=4000, null=True)),
-                ('foto_no_corregida', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('no_conformidad/foto_no_corregida', 'no_cf_no_crr'))),
-                ('foto_no_corregida2', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('no_conformidad/foto_no_corregida', 'no_cf_no_crr'))),
-                ('foto_no_corregida3', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('no_conformidad/foto_no_corregida', 'no_cf_no_crr'))),
-                ('foto_corregida', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('no_conformidad/foto_corregida', 'no_cf_crr'))),
-                ('foto_corregida2', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('no_conformidad/foto_corregida', 'no_cf_crr'))),
-                ('foto_corregida3', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('no_conformidad/foto_corregida', 'no_cf_crr'))),
+                ('foto_no_corregida', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('no_conformidad/foto_no_corregida', 'no_cf_no_crr'))),
+                ('foto_no_corregida2', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('no_conformidad/foto_no_corregida', 'no_cf_no_crr'))),
+                ('foto_no_corregida3', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('no_conformidad/foto_no_corregida', 'no_cf_no_crr'))),
+                ('foto_corregida', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('no_conformidad/foto_corregida', 'no_cf_crr'))),
+                ('foto_corregida2', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('no_conformidad/foto_corregida', 'no_cf_crr'))),
+                ('foto_corregida3', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('no_conformidad/foto_corregida', 'no_cf_crr'))),
                 ('fecha_no_corregida', models.DateField(blank=True, null=True)),
                 ('fecha_corregida', models.DateField(blank=True, null=True)),
                 ('terminada', models.BooleanField(default=False)),

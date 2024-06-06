@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from empresa.models import Empresa 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.contrib.sessions.models import Session
 # Create your models here.
 

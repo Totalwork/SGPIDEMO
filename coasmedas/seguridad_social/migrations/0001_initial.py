@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -59,16 +59,16 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('fecha_nacimiento', models.DateField(null=True)),
                 ('fecha_tsa', models.DateField(blank=True, null=True)),
-                ('soporte_tsa', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('seguridad_social/soporte_tsa', 'ss'))),
-                ('soporte_matricula', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('seguridad_social/soporte_matricula', 'ss'))),
-                ('hoja_de_vida', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('seguridad_social/hoja_de_vida', 'ss'))),
+                ('soporte_tsa', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('seguridad_social/soporte_tsa', 'ss'))),
+                ('soporte_matricula', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('seguridad_social/soporte_matricula', 'ss'))),
+                ('hoja_de_vida', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('seguridad_social/hoja_de_vida', 'ss'))),
                 ('apto', models.BooleanField(default=False)),
                 ('observacion', models.TextField(blank=True, null=True)),
-                ('foto', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('seguridad_social/empleado', 'ss'))),
+                ('foto', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('seguridad_social/empleado', 'ss'))),
                 ('fecha_ingreso', models.DateField(blank=True, null=True)),
                 ('tiene_licencia', models.BooleanField(default=False)),
                 ('vencimiento_licencia', models.DateField(blank=True, null=True)),
-                ('soporte_licencia', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('seguridad_social/licencia', 'ss'))),
+                ('soporte_licencia', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('seguridad_social/licencia', 'ss'))),
                 ('cargo', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='cargo_empleado', to='seguridad_social.Cargo')),
                 ('contratista', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='empleado_empresa_contratista', to='empresa.Empresa')),
                 ('empresa', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='empleado_empresa_creadora', to='empresa.Empresa')),
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
                 ('ano', models.IntegerField()),
                 ('mes', models.IntegerField()),
                 ('fecha_pago', models.DateField(blank=True, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('seguridad_social/planillas', 'ss'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('seguridad_social/planillas', 'ss'))),
                 ('fecha_limite', models.DateField(blank=True, null=True)),
                 ('contratista', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='planilla_empresa_contratista', to='empresa.Empresa')),
                 ('empresa', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, related_name='empresa_planilla', to='empresa.Empresa')),

@@ -1,7 +1,7 @@
 from django.db import models
 from tipo.models import Tipo
 from estado.models import Estado
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 
 # Create your models here.
 class Empresa(models.Model):

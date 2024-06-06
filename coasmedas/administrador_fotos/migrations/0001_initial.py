@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
             name='DFotosSubcategoria',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ruta', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('administrador_fotos/subcategoria_fotos', 'plz'))),
+                ('ruta', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('administrador_fotos/subcategoria_fotos', 'plz'))),
                 ('mes', models.IntegerField(blank=True, default=0, null=True)),
                 ('ano', models.IntegerField(blank=True, default=0, null=True)),
                 ('subcategoria', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='administrador_fotos_subcategoria', to='administrador_fotos.BSubcategoria')),
@@ -65,7 +65,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('fecha', models.DateField(blank=True, null=True)),
-                ('ruta', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('administrador_fotos/fotos_proyecto'), verbose_name='Ruta')),
+                ('ruta', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('administrador_fotos/fotos_proyecto'), verbose_name='Ruta')),
                 ('comentarios', models.TextField(blank=True, null=True)),
                 ('asociado_reporte', models.BooleanField(default=False)),
                 ('proyecto', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='administradorFotos_proyecto', to='proyecto.Proyecto')),

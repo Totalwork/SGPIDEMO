@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 from django.db import connection
 from adminMail.models import Mensaje
 from .models import Correo_descargo,AIdInternoDescargo,ATrabajo,AManiobra,ABMotivoSgi,AMotivoInterventor,Descargo,FotoDescargo
@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from django.db.models import Q
 from django.conf import settings
 import os
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from parametrizacion.models import Funcionario
 from contrato.models import EmpresaContrato
 # Para Eliminar

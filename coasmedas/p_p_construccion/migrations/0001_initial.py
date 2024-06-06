@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -76,7 +76,7 @@ class Migration(migrations.Migration):
             name='BSoporte',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('lote/soporte'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('lote/soporte'))),
                 ('nombre', models.CharField(blank=True, max_length=300, null=True)),
                 ('proyecto', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='p_p_construccion_soporte_proyecto', to='proyecto.Proyecto')),
                 ('tipo', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='p_p_construccion_soporte_tipo', to='tipo.Tipo')),

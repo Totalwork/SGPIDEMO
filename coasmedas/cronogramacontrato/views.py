@@ -13,7 +13,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from cronogramacontrato.models import CcCronograma, CcCapitulo, CcActividad, CcActividadContrato, CcActividadContratoSoporte, CcActividadContratoResponsable
 from cronogramacontrato.serializers import CronogramaSerializer, CapituloSerializer, ActividadSerializer, ActividadContratoSerializer, ActividadContratoSoporteSerializer, ActividadContratoResponsableSerializer
 from contrato.models import EmpresaContrato

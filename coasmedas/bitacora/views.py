@@ -1,6 +1,6 @@
 from django.db import transaction, connection
 from django.shortcuts import render
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.http import HttpResponse,JsonResponse,HttpResponseRedirect
 from logs.models import Logs,Acciones
 from django.db.models import Q,Sum,Prefetch,Max

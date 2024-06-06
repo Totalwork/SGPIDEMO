@@ -36,7 +36,7 @@ from avance_de_obra.models import BCronograma
 from avanceObraGrafico.models import EPresupuesto
 
 from avanceObraGrafico2.models import Cronograma
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 from contrato.enumeration import tipoC
 

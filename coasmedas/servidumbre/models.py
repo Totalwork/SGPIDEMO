@@ -3,7 +3,7 @@ from proyecto.models import Proyecto
 from usuario.models import Usuario
 from estado.models import Estado
 from tipo.models import Tipo
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 from django.utils.html import format_html
 from datetime import *
 

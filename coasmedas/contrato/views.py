@@ -37,7 +37,7 @@ from poliza.models import VigenciaPoliza
 from django.db.models import Q, Sum
 
 from logs.models import Logs, Acciones
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.db import transaction
 from .enumeration import tipoC, estadoC, tipoV
 from poliza.enumeration import TipoDocumento, TipoActa

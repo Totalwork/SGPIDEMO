@@ -6,7 +6,7 @@ from empresa.models import Empresa
 from tipo.models import Tipo
 from datetime import *
 from django.utils import * 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from colorfield.fields import ColorField
 
 from django.db.models import Sum

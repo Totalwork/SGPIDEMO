@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 import smart_selects.db_fields
 
 
@@ -84,10 +84,10 @@ class Migration(migrations.Migration):
                 ('hora_fin', models.TimeField()),
                 ('observacion', models.CharField(max_length=4000, null=True)),
                 ('observacion_interventor', models.CharField(max_length=4000, null=True)),
-                ('correo_bdi', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('descargo/correo_bdi', 'cbdi'))),
-                ('soporte_ops', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('descargo/soportes_ops', 'sops'))),
-                ('soporte_protocolo', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('descargo/soporte_protocolo', 'spt'))),
-                ('lista_chequeo', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('descargo/lista_chequeo', 'lchk'))),
+                ('correo_bdi', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('descargo/correo_bdi', 'cbdi'))),
+                ('soporte_ops', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('descargo/soportes_ops', 'sops'))),
+                ('soporte_protocolo', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('descargo/soporte_protocolo', 'spt'))),
+                ('lista_chequeo', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('descargo/lista_chequeo', 'lchk'))),
                 ('numero_requerimiento', models.CharField(max_length=50, null=True)),
                 ('agente_descargo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='empleado_agente', to='seguridad_social.Empleado')),
                 ('contratista', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='Empresa_Descargo', to='empresa.Empresa')),
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
             name='FotoDescargo',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('ruta', models.ImageField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('descargo/fotos_descargo', 'dft'))),
+                ('ruta', models.ImageField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('descargo/fotos_descargo', 'dft'))),
                 ('regla', models.IntegerField()),
                 ('descargo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fotodescargo_descargo', to='descargo.Descargo')),
             ],

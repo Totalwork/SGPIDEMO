@@ -35,7 +35,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Max
 import openpyxl
 from rest_framework.decorators import api_view, throttle_classes
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from adminMail.models import Mensaje
 from adminMail.tasks import sendAsyncMail
 from django.conf import settings

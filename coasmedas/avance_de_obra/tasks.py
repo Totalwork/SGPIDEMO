@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 from django.db import connection
 from .models import CIntervaloCronograma,BCronograma,Porcentaje,AReglasEstado,Linea,DActividad,Meta
 from adminMail.models import Mensaje

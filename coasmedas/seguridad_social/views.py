@@ -31,7 +31,7 @@ from .enum import EnumEstadoPlanilla, EnumEstadoEmpleado
 from logs.models import Logs,Acciones
 from django.contrib.auth.decorators import login_required
 from contrato.models import EmpresaContrato
-from sinin4.functions import functions
+from coasmedas.functions import functions
 import uuid
 from adminMail.models import Mensaje
 from adminMail.tasks import sendAsyncMail, sendAsyncFullMail

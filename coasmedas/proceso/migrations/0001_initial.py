@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 import smart_selects.db_fields
 
 
@@ -111,7 +111,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.CharField(max_length=100)),
-                ('documento', models.FileField(null=True, upload_to=sinin4.functions.RandomFileName('procesos/soportes', 'pso'))),
+                ('documento', models.FileField(null=True, upload_to=coasmedas.functions.RandomFileName('procesos/soportes', 'pso'))),
                 ('procesoRelacionDato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_soporteProcesoRelacionDato', to='proceso.GProcesoRelacionDato')),
             ],
             options={

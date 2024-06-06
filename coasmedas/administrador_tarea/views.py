@@ -50,7 +50,7 @@ import pytz
 import zipfile
 import os
 from io import StringIO
-from sinin4.functions import functions
+from coasmedas.functions import functions
 # Create your views here.
 
 #Api rest para equipo

@@ -1,4 +1,4 @@
-from sinin4.celery import app
+from coasmedas.celery import app
 from django.db import connection
 from schedules.function_task import FunctionTask
 

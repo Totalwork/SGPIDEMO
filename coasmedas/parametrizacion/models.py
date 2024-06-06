@@ -2,7 +2,7 @@ from django.db import models
 from empresa.models import Empresa
 from usuario.models import Usuario,Persona
 from django.contrib.contenttypes.models import ContentType
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 # Create your models here.
 
 class BaseModel(models.Model):

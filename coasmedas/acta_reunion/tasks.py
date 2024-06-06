@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from sinin4.celery import app
+from coasmedas.celery import app
 
 from django.db import connection
 from django.db.models import Q
@@ -11,7 +11,7 @@ from .enumeration import estadoA, estadoC
 
 from parametrizacion.models import Notificacion, Funcionario
 from adminMail.models import Mensaje
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from estado.models import Estado
 import xlsxwriter
 import uuid

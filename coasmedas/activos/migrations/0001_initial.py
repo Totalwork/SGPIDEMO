@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
                 ('periodicidad_mantenimiento', models.IntegerField(blank=True, null=True)),
                 ('debaja', models.BooleanField(default=False)),
                 ('motivo_debaja', models.CharField(blank=True, max_length=150, null=True)),
-                ('soportedebaja', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('activos', 'act'))),
+                ('soportedebaja', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('activos', 'act'))),
                 ('fecha_baja', models.DateField(blank=True, null=True)),
                 ('fecha_alta', models.DateField()),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='activo_contrato', to='contrato.Contrato')),
@@ -91,7 +91,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.CharField(blank=True, max_length=30, null=True)),
-                ('archivo', models.FileField(upload_to=sinin4.functions.RandomFileName('activos/soporte_mantenimiento', 'sop_man'))),
+                ('archivo', models.FileField(upload_to=coasmedas.functions.RandomFileName('activos/soporte_mantenimiento', 'sop_man'))),
                 ('mantenimiento', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='soportemantenimiento_mantenimiento', to='activos.Mantenimiento')),
             ],
             options={
@@ -141,7 +141,7 @@ class Migration(migrations.Migration):
             name='Activo_atributo_soporte',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('documento', models.FileField(upload_to=sinin4.functions.RandomFileName('activos/atributo_soporte', 'atri_sop'))),
+                ('documento', models.FileField(upload_to=coasmedas.functions.RandomFileName('activos/atributo_soporte', 'atri_sop'))),
                 ('activo_atributo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='activoatributosoporte_activoatributo', to='activos.Activo_atributo')),
             ],
             options={

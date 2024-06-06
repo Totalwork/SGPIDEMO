@@ -33,7 +33,7 @@ from datetime import *
 from django.db import transaction
 from django.db.models.deletion import ProtectedError
 from django.contrib.auth.decorators import login_required
-from sinin4.functions import functions
+from coasmedas.functions import functions
 import time
 import xlsxwriter
 from adminMail.models import Mensaje

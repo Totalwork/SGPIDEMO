@@ -8,7 +8,7 @@ from empresa.models import Empresa
 from seguridad_social.models import Empleado
 from proyecto.models import Proyecto
 from smart_selects.db_fields import ChainedForeignKey
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 

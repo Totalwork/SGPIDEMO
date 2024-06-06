@@ -6,7 +6,7 @@ from estado.models import Estado
 from empresa.models import Empresa
 from tipo.models import Tipo
 
-from sinin4.functions import functions, RandomFileName
+from coasmedas.functions import functions, RandomFileName
 # Create your models here.
 class Consecutivo(models.Model):
 	ano = models.IntegerField(blank = False, null=False)

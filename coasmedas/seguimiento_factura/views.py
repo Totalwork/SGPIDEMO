@@ -36,7 +36,7 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 from openpyxl.drawing.image import Image
 from openpyxl.styles import Border, Side, PatternFill, Font, GradientFill, Alignment
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.conf import settings
 from datetime import datetime, date, time, timedelta
 from factura.enumeration import estadoFactura, notificacion

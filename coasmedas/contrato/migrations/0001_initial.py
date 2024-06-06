@@ -2,7 +2,7 @@
 
 from django.db import migrations, models
 import django.db.models.deletion
-import sinin4.functions
+import coasmedas.functions
 
 
 class Migration(migrations.Migration):
@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('nombre', models.CharField(max_length=4000)),
                 ('fechafirma', models.DateField()),
-                ('soporte', models.FileField(upload_to=sinin4.functions.RandomFileName('contrato', 'cto'))),
+                ('soporte', models.FileField(upload_to=coasmedas.functions.RandomFileName('contrato', 'cto'))),
             ],
             options={
                 'db_table': 'contrato_actaasignacionrecursos',
@@ -111,9 +111,9 @@ class Migration(migrations.Migration):
                 ('fecha_inicio', models.DateField(blank=True, null=True)),
                 ('fecha_fin', models.DateField(blank=True, null=True)),
                 ('valor', models.FloatField()),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('contrato', 'cto'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('contrato', 'cto'))),
                 ('acta_id', models.IntegerField(blank=True, null=True)),
-                ('acta_compra', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('contrato', 'act_com'))),
+                ('acta_compra', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('contrato', 'act_com'))),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='contrato.Contrato')),
                 ('tipo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='tipo.Tipo')),
             ],
@@ -125,7 +125,7 @@ class Migration(migrations.Migration):
             name='Sub_contratista',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('contrato', 'sub_cto'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('contrato', 'sub_cto'))),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_contrato_sub_contratista', to='contrato.Contrato')),
                 ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_sub_contratista_empresa', to='empresa.Empresa')),
             ],
@@ -202,7 +202,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('fecha', models.DateField(blank=True, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('contrato', 'cto_cs'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('contrato', 'cto_cs'))),
                 ('contratista_antiguo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_contrato_empresa_antiguo', to='empresa.Empresa')),
                 ('contratista_nuevo', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_contrato_empresa_nuevo', to='empresa.Empresa')),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_contrato', to='contrato.Contrato')),
@@ -303,7 +303,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('fecha', models.DateField(blank=True, null=True)),
-                ('soporte', models.FileField(blank=True, null=True, upload_to=sinin4.functions.RandomFileName('contrato', 'cs_ecm'))),
+                ('soporte', models.FileField(blank=True, null=True, upload_to=coasmedas.functions.RandomFileName('contrato', 'cs_ecm'))),
                 ('contrato', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_economica_contrato', to='contrato.Contrato')),
                 ('empresa', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fk_cesion_economica_empresa', to='empresa.Empresa')),
             ],

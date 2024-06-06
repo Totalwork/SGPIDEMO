@@ -27,7 +27,7 @@ from empresa.models import Empresa
 from empresa.views import EmpresaSerializer
 import openpyxl
 from django.contrib.auth.decorators import login_required
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from contrato.enumeration import tipoC
 from contrato.models import Contrato,EmpresaContrato
 from estado.models import Estado

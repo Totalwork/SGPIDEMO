@@ -27,7 +27,7 @@ from .models import ASolicitud,BRequisitoJuridico, CFavorabilidadJuridica, DFavo
 from .models import BRequisitoPoliza, CValidarPoliza, DPolizaTipo, EPolizaTipoRequisito
 from .enumeration import estadoSolicitud
 from logs.models import Logs, Acciones
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from contrato.models import Contrato
 from contrato.enumeration import tipoC
 from estado.models import Estado

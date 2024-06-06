@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from rest_framework import viewsets, response, status
 from rest_framework.response import Response
 from django.contrib.auth.decorators import login_required

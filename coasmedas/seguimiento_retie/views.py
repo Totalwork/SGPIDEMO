@@ -33,7 +33,7 @@ from django.contrib.auth.decorators import login_required
 from proyecto.models import Proyecto, Proyecto_empresas
 from usuario.models import Persona, Usuario
 from usuario.views import PersonaSerializer, UsuarioSerializer
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from adminMail.models import Mensaje
 from adminMail.tasks import sendAsyncMail
 from parametrizacion.views import MunicipioSerializer

@@ -21,7 +21,7 @@ from estado.models import Estado
 from tipo.models import Tipo
 from tipo.views import TipoSerializer
 from django.db import transaction
-from sinin4.functions import functions
+from coasmedas.functions import functions
 #from rest_framework_oauth.authentication import OAuth2Authentication
 # Create your views here.
 

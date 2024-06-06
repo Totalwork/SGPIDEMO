@@ -16,7 +16,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
-from sinin4.functions import functions
+from coasmedas.functions import functions
 from django.db.models import Count, Sum
 from contrato.models import Contrato, EmpresaContrato
 from giros.models import DetalleGiro, DEncabezadoGiro
@@ -45,7 +45,7 @@ from boto.s3.key import Key
 import os
 from django.contrib.sessions.models import Session
 from django.contrib.auth.signals import user_logged_in
-from sinin4.signals import user_logged_in_handler
+from coasmedas.signals import user_logged_in_handler
 from factura.models import Factura
 # from snowpenguin.django.recaptcha2.fields import ReCaptchaField
 # from snowpenguin.django.recaptcha2.widgets import ReCaptchaWidget

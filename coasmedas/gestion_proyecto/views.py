@@ -44,7 +44,7 @@ from .enumeration import EstadoFondo
 
 from django.core.paginator import Paginator
 from datetime import *
-from sinin4.functions import functions
+from coasmedas.functions import functions
 
 from .tasks import envioNotificacionReporteProyecto,envioNotificacionReporteExitoso,envioNotificacionReporteInsconsitencia
 # Create your views here.
