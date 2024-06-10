@@ -1,4 +1,5 @@
-from django.shortcuts import render,redirect,render_to_response
+from django.shortcuts import render,redirect
+#,render_to_response
 from django.urls import reverse
 from .models import Departamento, Municipio, Banco, Cargo, Funcionario, Notificacion, EResponsabilidades, VideosTutoriales, GrupoVideosTutoriales
 from rest_framework import viewsets, serializers

@@ -5,7 +5,8 @@ from django.db.models.deletion import ProtectedError
 from django.http import JsonResponse
 from django.db import transaction
 from contrato.models import Contrato
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 from django.template import RequestContext
 from django.db.models import Q, Count, query
 from django.contrib.auth.decorators import login_required

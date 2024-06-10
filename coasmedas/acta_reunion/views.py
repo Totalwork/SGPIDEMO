@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 from django.urls import reverse
 
 from .models import Consecutivo,Acta,Tema,Acta_historial,Participante_externo, \

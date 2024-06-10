@@ -1,4 +1,5 @@
-from django.shortcuts import render,redirect,render_to_response
+from django.shortcuts import render,redirect
+#,render_to_response
 #from django.urls import reverse
 from django.urls import reverse
 from .models import APeriodicidad,BCronograma,CIntervaloCronograma,DActividad,Linea,Meta,Porcentaje,Soporte,Comentario

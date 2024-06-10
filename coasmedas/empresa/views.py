@@ -1,4 +1,5 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 from .models import Empresa , EmpresaAcceso, EmpresaContratante,EmpresaCuenta
 from logs.models import Logs,Acciones
 from rest_framework import viewsets, serializers, response

@@ -4,7 +4,8 @@ from coasmedas.functions import functions
 from django.http import HttpResponse,JsonResponse,HttpResponseRedirect
 from logs.models import Logs,Acciones
 from django.db.models import Q,Sum,Prefetch,Max
-from django.shortcuts import render,redirect,render_to_response
+from django.shortcuts import render,redirect
+#,render_to_response
 from .models import Bitacora
 from proyecto.models import Proyecto
 from contrato.models import Contrato

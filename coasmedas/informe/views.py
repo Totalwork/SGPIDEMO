@@ -12,7 +12,8 @@ from django.db.models import Max
 import math
 from django.db.models import Q
 
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 from django.urls import reverse
 from django.http import HttpResponse,JsonResponse
 

@@ -12,7 +12,8 @@ import sys,os
 from adminMail.models import Mensaje
 from adminMail.tasks import sendAsyncMail
 from logs_errors.models import Excepciones
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 import io
 import base64
 from io import StringIO

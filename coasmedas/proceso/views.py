@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 from django.db import transaction
 from logs.models import Logs,Acciones
 from rest_framework import viewsets, serializers, response

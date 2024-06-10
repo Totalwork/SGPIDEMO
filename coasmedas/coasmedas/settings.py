@@ -7,16 +7,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-import environ
+#import environ
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-env = environ.Env(
+#env = environ.Env(
     # set casting, default value
-    DEBUG=(bool, False)
-)
+    #DEBUG=(bool, False)
+#)
 
-environ.Env.read_env(os.path.join(BASE_DIR, os.environ.get('env', '.env')))
+#environ.Env.read_env(os.path.join(BASE_DIR, os.environ.get('env', '.env')))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -25,11 +25,14 @@ environ.Env.read_env(os.path.join(BASE_DIR, os.environ.get('env', '.env')))
 SECRET_KEY =  'w4-_)v9lz2fke7z!$*##fmrf8z@s#97pqo6ydme+h17xz9gfvm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+#DEBUG = env('DEBUG')
+DEBUG = True
+
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = os.environ['ALLOW_HOST'].split(',')
+#ALLOWED_HOSTS = os.environ['ALLOW_HOST'].split(',')
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 
@@ -38,12 +41,11 @@ TEMPLATE_DIRS = (os.path.join(BASE_DIR, 'templates'),)
 INSTALLED_APPS = (
     # 'material.admin',
     # 'material.admin.default',
-     'django.contrib.admin',
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-     "whitenoise.runserver_nostatic",
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'smart_selects',
@@ -53,7 +55,7 @@ INSTALLED_APPS = (
     'corsheaders',
     'simple_history',
     'oauth2_provider',
-     'tipo',
+    'tipo',
     'estado',
     'empresa',
     'usuario', 
@@ -107,6 +109,7 @@ INSTALLED_APPS = (
     'activos',
     'cronogramacontrato',
     'avanceObraLite',
+    'whitenoise.runserver_nostatic',
 )
 
 import djcelery
@@ -147,20 +150,40 @@ WSGI_APPLICATION = 'coasmedas.wsgi.application'
 #     }
 # }
 # print("os.environ['DBNAME']", os.environ['DBPASSWORD'])
+
+#DATABASES = {
+#    'default': { 
+#        'ENGINE': 'sql_server.pyodbc',   
+#        'NAME': os.environ['DBNAME'], 
+#        'HOST': os.environ['DBHOST'],
+#        'USER': os.environ['DBUSER'],
+#        'PASSWORD': os.environ['DBPASSWORD'],
+#        'PORT': os.environ['DBPORT'],
+#        'OPTIONS' : {
+#            # 'driver': 'ODBC Driver 13 for SQL Server',
+#            'driver': 'ODBC Driver 17 for SQL Server',
+#        }       
+#   }
+#}
+
+
 DATABASES = {
-    'default': { 
-        'ENGINE': 'sql_server.pyodbc',   
-        'NAME': os.environ['DBNAME'], 
-        'HOST': os.environ['DBHOST'],
-        'USER': os.environ['DBUSER'],
-        'PASSWORD': os.environ['DBPASSWORD'],
-        'PORT': os.environ['DBPORT'],
-        'OPTIONS' : {
-            # 'driver': 'ODBC Driver 13 for SQL Server',
-            'driver': 'ODBC Driver 17 for SQL Server',
+        'default': { 
+            'NAME': 'sgpi_caribemar_pruebas',
+            #'ENGINE': 'sqlserver_ado',
+            'ENGINE': 'sql_server.pyodbc',         
+            'HOST': 'localhost\\SQLEXPRESS',
+            'USER': 'sa',
+            'PASSWORD': 'localhost',
+            'OPTIONS' : {
+                #'provider': 'SQLNCLI11',
+                #'driver': 'ODBC Driver 17 for SQL Server',
+                'driver': 'ODBC Driver 13 for SQL Server',
         }       
     }
 }
+
+
 
 # set this to False if you want to turn off pyodbc's connection pooling
 DATABASE_CONNECTION_POOLING = False
@@ -197,8 +220,8 @@ USE_L10N = True
 USE_TZ = True
 
 import dj_database_url
-db_from_env = dj_database_url.config(conn_max_age=500)
-DATABASES['default'].update(db_from_env)
+#db_from_env = dj_database_url.config(conn_max_age=500)
+#DATABASES['default'].update(db_from_env)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
@@ -244,14 +267,14 @@ REST_FRAMEWORK = {
 
 }
 
-AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
-AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
-AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
-AWS_S3_CUSTOM_DOMAIN = '%s.s3-accelerate.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
-AWS_DEFAULT_ACL = "private"
+#AWS_STORAGE_BUCKET_NAME = os.environ['AWS_STORAGE_BUCKET_NAME']
+#AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+#AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+#AWS_S3_CUSTOM_DOMAIN = '%s.s3-accelerate.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+#AWS_DEFAULT_ACL = "private"
 
-MEDIAFILES_LOCATION = 'media'
-MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
+#MEDIAFILES_LOCATION = 'media'
+#MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, MEDIAFILES_LOCATION)
 DEFAULT_FILE_STORAGE = 'custom_storages.MediaStorage'
 LOGIN_URL = '/usuario/login/'
 
@@ -326,7 +349,7 @@ COSTOREDMT=22775790
 COSTOREDBT=2125063
 COSTOTRAFO=2467089
 
-SERVER_URL2=os.environ['SERVER_URL2']
+#SERVER_URL2=os.environ['SERVER_URL2']
 
 LOGGING = {
     'version': 1,

@@ -9,7 +9,8 @@ from io import StringIO
 import json
 from django.db.models import Max
 
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 from django.urls import reverse
 from django.db import transaction
 from .models import  CorrespondenciaRecibida,  CorrespondenciaRecibidaAsignada  , CorrespondenciaRecibidaSoporte

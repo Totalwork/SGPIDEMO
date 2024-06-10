@@ -2,7 +2,8 @@
 from __future__ import unicode_literals
 from django.db import transaction, connection
 from datetime import *
-from django.shortcuts import render,redirect,render_to_response
+from django.shortcuts import render,redirect
+#,render_to_response
 from django.urls import reverse
 from .models import Empleado, AEscolaridad, AMatricula, Novedad, Planilla, EmpresaPermiso,ZRequerimientosEmpleados,Cargo,PlanillaEmpleado, CorreoContratista
 from rest_framework import viewsets, serializers

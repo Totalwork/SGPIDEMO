@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, redirect, render_to_response
+from django.shortcuts import render, redirect
+#, render_to_response
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 

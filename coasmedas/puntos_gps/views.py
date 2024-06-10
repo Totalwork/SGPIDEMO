@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*- 
 from django.shortcuts import render
 # Create your views here.
-from django.shortcuts import render,redirect,render_to_response
+from django.shortcuts import render,redirect
+#,render_to_response
 from django.urls import reverse
 from rest_framework import viewsets, serializers
 from django.db.models import Q

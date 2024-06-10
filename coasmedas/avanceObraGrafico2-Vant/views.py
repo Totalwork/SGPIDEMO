@@ -1,4 +1,5 @@
-from django.shortcuts import render,redirect,render_to_response
+from django.shortcuts import render,redirect
+#,render_to_response
 from django.urls import reverse
 from .models import APeriodicidadG,BEsquemaCapitulosG,CEsquemaCapitulosActividadesG,CReglasEstadoG,Cronograma,EPresupuesto,FDetallePresupuesto
 from .models import DiagramaGrahm,HNodo,GCapa,IEnlace,JCantidadesNodo,JReporteTrabajo,LCambio,KDetalleReporteTrabajo,MComentarioRechazo,LHistorialCambio

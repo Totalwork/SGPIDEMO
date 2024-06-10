@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render, render_to_response # render,redirect,
+from django.shortcuts import render
+#, render_to_response # render,redirect,
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 

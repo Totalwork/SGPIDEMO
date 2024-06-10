@@ -10,7 +10,8 @@ from django.db.models import Max
 
 from django.contrib.auth.models import User, Permission, Group
 
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
+#, render_to_response
 from django.urls import reverse
 from django.db import transaction
 from .models import CorrespondenciaEnviada,  CorrespondenciaConsecutivo, CorresPfijo , CorrespondenciaSoporte , CorrespondenciaRadicado , CorrespondenciaPlantilla
