@@ -1,14 +1,7 @@
-"""
-Django settings for SININENEL project.
 
-For more information on this file, see
-https://docs.djangoproject.com/en/1.7/topics/settings/
-For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.7/ref/settings/
-"""
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 #import environ
 import os
+import pyodbc
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 #env = environ.Env(
@@ -140,53 +133,45 @@ ROOT_URLCONF = 'coasmedas.urls'
 WSGI_APPLICATION = 'coasmedas.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#     }
-# }
-# print("os.environ['DBNAME']", os.environ['DBPASSWORD'])
-
-#DATABASES = {
-#    'default': { 
-#        'ENGINE': 'sql_server.pyodbc',   
-#        'NAME': os.environ['DBNAME'], 
-#        'HOST': os.environ['DBHOST'],
-#        'USER': os.environ['DBUSER'],
-#        'PASSWORD': os.environ['DBPASSWORD'],
-#        'PORT': os.environ['DBPORT'],
-#        'OPTIONS' : {
-#            # 'driver': 'ODBC Driver 13 for SQL Server',
-#            'driver': 'ODBC Driver 17 for SQL Server',
-#        }       
-#   }
-#}
-
 
 DATABASES = {
-        'default': { 
-            'NAME': 'sgpi_caribemar_pruebas',
-            #'ENGINE': 'sqlserver_ado',
-            'ENGINE': 'sql_server.pyodbc',         
-            'HOST': 'localhost\\SQLEXPRESS',
-            'USER': 'sa',
-            'PASSWORD': 'localhost',
-            'OPTIONS' : {
-                #'provider': 'SQLNCLI11',
-                #'driver': 'ODBC Driver 17 for SQL Server',
-                'driver': 'ODBC Driver 13 for SQL Server',
-        }       
-    }
+    'default': {
+        'ENGINE': 'mssql',
+        'NAME': 'sgpi_caribemar_pruebas',
+        'USER': 'sa',
+        'PASSWORD': 'conectaBD',
+        'HOST': 'localhost\\SQLEXPRESS',
+        'PORT': '',
+
+        'OPTIONS': {
+            'driver': 'ODBC Driver 18 for SQL Server',
+            'extra_params': 'TrustServerCertificate=yes;'
+        },
+    },
 }
 
 
 
+#DATABASES = {
+#     'default': {
+#         'ENGINE': 'sql_server.pyodbc',
+#         'NAME': 'sgpi_caribemar_pruebas',
+#         'USER': 'sa',
+#         'PASSWORD': 'conectaBD',
+#         'HOST': 'localhost\\SQLEXPRESS',
+#         'PORT': '',
+
+#         'OPTIONS': {
+#             'driver': 'ODBC Driver 18 for SQL Server',
+#             'extra_params': 'TrustServerCertificate=yes;'
+#         },
+#     },
+# }
+
+
+
 # set this to False if you want to turn off pyodbc's connection pooling
-DATABASE_CONNECTION_POOLING = False
+DATABASE_CONNECTION_POOLING = True
 
 TEMPLATES = [
     {
@@ -299,7 +284,7 @@ CELERYBEAT_SCHEDULER="djcelery.schedulers.DatabaseScheduler"
 CELERY_ALWAYS_EAGER=False
 CELERY_BROKER_URL='redis://localhost:6379/0'
 
-LOG_ERROR = BASE_DIR + '\logError.txt'
+LOG_ERROR = BASE_DIR + '\\logError.txt'
 
 # reCaptcha
 RECAPTCHA_PRIVATE_KEY = '6LdV0VsUAAAAACsGVLtHMxq6jSj0TfO-LednMnSr'

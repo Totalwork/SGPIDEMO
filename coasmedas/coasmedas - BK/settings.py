@@ -147,6 +147,8 @@ WSGI_APPLICATION = 'coasmedas.wsgi.application'
 #     }
 # }
 # print("os.environ['DBNAME']", os.environ['DBPASSWORD'])
+
+
 DATABASES = {
     'default': { 
         'ENGINE': 'sql_server.pyodbc',   
